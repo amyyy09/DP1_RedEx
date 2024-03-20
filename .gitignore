@@ -1,0 +1,18 @@
+# Ignora directorios y archivos generados por Visual Studio Code
+.vscode/
+
+# Ignora la carpeta de compilación de Java y los archivos generados por Maven
+/target/
+.classpath
+.project
+.settings/
+
+# Ignora la carpeta de construcción de Next.js y los archivos generados por npm o yarn
+node_modules/
+.next/
+
+# Ignora archivos y directorios generados automáticamente por el sistema operativo
+.DS_Store
+Thumbs.db
+*.log
+logs/error.log
