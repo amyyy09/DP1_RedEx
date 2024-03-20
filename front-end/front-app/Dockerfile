@@ -1,6 +1,6 @@
 # Dockerfile
 # preferred node version chosen here (LTS = 18.18 as of 10/10/23)
-FROM node:18-alpine AS base
+FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
