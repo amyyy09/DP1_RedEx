@@ -31,7 +31,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 
 		
 	}
-	//list<ruta> no es list es un jagger array
+	
 	public Cromosoma EjecutarAlgoritmo(List<Paquete> paquetes, List<Ruta> rutas, List <Almacen> alamcenes, List <PlanDeVuelo> vuelos,double Ps, double Pm, double Pc,int NumCromosomas, int NumTorneo, int NumDescendientes, int NumGeneraciones){
 		List <Cromosoma> poblacion = new ArrayList<Cromosoma>();
 		List<Paquete> paquetesCopia = new ArrayList<Paquete>();
@@ -68,6 +68,8 @@ public class ProyectoDp1Application_algoritmogenetico {
 			//order la poblacion por fitness tanto el lista de fitness como la poblacion
 			
 			if (fitnessAgregado.get(0)>=0){
+				//revisar si el cromorosoma es valido -> crear funcion en relacion del almacen
+
 				//se ha encontrado una solucion satisfacotria
 				System.out.println("Se ha encontrado una solucion satisfactoria");
 				return poblacion.get(0);

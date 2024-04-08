@@ -13,11 +13,12 @@ import java.util.List;
 @NoArgsConstructor
 
 public class Aeropuerto {
-    private int idAeropuerto;
+    //private int idAeropuerto;
     private String nombre;
     private String codAeropuerto;
 
     private Almacen almacen;
+    private Ciudad ciudad;
     
 
 }
