@@ -6,6 +6,7 @@
 .classpath
 .project
 .settings/
+logs/
 
 # Ignora la carpeta de construcción de Next.js y los archivos generados por npm o yarn
 node_modules/
