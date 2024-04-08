@@ -14,6 +14,7 @@ import java.util.Random;
 import src.Clases.Paquete;
 import src.Clases.PlanDeVuelo;
 import src.Clases.Ruta;
+import src.Clases.RutaComun;
 import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
 import src.Clases.Cromosoma;
@@ -29,7 +30,16 @@ public class ProyectoDp1Application_algoritmogenetico {
 		System.err.println("hola mundo");
 		List<Aeropuerto> aeropuertos = Aeropuerto.leerAeropuertos(); //listo
 		List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos); // listo
+		List<RutaComun> rutas = RutaComun.generarRutas(aeropuertos, planes); 
 
+		System.out.println("Rutas generadas " +  rutas.size());
+
+		// for (RutaComun ruta : rutas) {
+		// 	System.out.println(ruta.getAeropuertoOrigen().getCodAeropuerto() + " " + ruta.getAeropuertoDestino().getCodAeropuerto() + " " + ruta.getNdays());
+		// 	for (PlanDeVuelo plan : ruta.getEscala().getPlanes()) {
+		// 		System.out.println(plan.getIdPlan() + " " + plan.getHoraSalida() + " "  + plan.getAeropuertoOrigen().getNombre() + " " + plan.getHoraLlegada() + " " + plan.getAeropuertoDestino().getNombre());
+		// 	}
+		// }
 		
 	}
 	//list<ruta> no es list es un jagger array
