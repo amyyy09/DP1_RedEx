@@ -13,7 +13,7 @@ import java.time.LocalTime;
 @NoArgsConstructor
 
 public class PlanDeVuelo {
-   private String IdPlan;
+    //private String IdPlan;
     private int capacidadMaxima;
     private LocalTime horaSalida;
     private LocalTime horaLlegada;

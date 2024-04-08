@@ -16,5 +16,5 @@ public class Ciudad {
     private String nombre;
     private String codCiudad;
     private int GMT;
-    private Pais pais;
+    //private Pais pais;
 }

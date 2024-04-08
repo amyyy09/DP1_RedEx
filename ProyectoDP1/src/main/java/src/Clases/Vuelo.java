@@ -11,8 +11,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Vuelo {
     private int cantPaquetes;
-    private double porcSaturacion;
+    //private double porcSaturacion;
 
-    private Ruta ruta;
+    //private Ruta ruta;
     private PlanDeVuelo planDeVuelo;
 }

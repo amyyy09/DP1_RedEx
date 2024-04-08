@@ -18,5 +18,5 @@ public class Pais {
     private String codigoPostal;
 
     private List<Ciudad> ciudades;
-    private Continente continente;
+    //private Continente continente;
 }

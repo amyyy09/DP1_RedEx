@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Paquete {
-    private Envio envio;
-    private int IDpaquete;
+    //private Envio envio;
+    //private int IDpaquete;
+    private String Estado;
 }

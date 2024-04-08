@@ -1,6 +1,7 @@
 package src.Clases;
 
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,7 +13,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Cromosoma {
-    private List<Ruta,paquete> rutas;
-    //dupla de ruta y paquete
+    Map <Ruta,Paquete> gen;
     private int tamano;
 }

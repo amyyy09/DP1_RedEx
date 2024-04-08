@@ -6,6 +6,8 @@ import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.time.LocalDateTime;
+
 
 @Getter
 @Setter
@@ -16,11 +18,11 @@ public class Envio {
     private String idEnvio;
     List <Paquete> paquetes;
    
-    private Date fechaHoraOrigen;
-    private Date fechaHoraLimite;
+    private LocalDateTime fechaHoraOrigen;
+    private LocalDateTime fechaHoraLimite;
     private int cantPaquetes;
 
-    private Almacen almacenOrigen;
-    private Almacen almacenDestino;
+    private Aeropuerto aeropuertoOrigen;
+    private Aeropuerto aeropuertoDestino;
 
 }
