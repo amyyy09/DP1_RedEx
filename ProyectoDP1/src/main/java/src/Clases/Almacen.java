@@ -12,9 +12,9 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Almacen {
-    private int IDalmacen;
+    //private int IDalmacen;
     private int capacidad;
     private int cantPaquetes;
-    private Aeropuerto aeropuerto;
+    //private Aeropuerto aeropuerto;
     private List<Paquete> paquetes;
 }

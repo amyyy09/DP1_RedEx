@@ -6,7 +6,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 import java.util.List;
-import java.time.LocalTime;
+//import java.time.LocalTime;
+import java.time.LocalDateTime;
 
 
 @Getter
@@ -16,7 +17,9 @@ import java.time.LocalTime;
 public class Ruta {
 
     private int IdRuta;
-    private Date fechaInicio;
+    private Ciudad origen;
+    private Ciudad destino;
+    private LocalDateTime horaInicio; //LocalDateTime
+    private LocalDateTime horaLlegada; //LocalDateTime
     private List<Vuelo> vuelos;
-    private LocalTime horaLlegada;
 }

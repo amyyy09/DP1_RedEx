@@ -22,7 +22,7 @@ import java.util.stream.IntStream;
 @NoArgsConstructor
 
 public class PlanDeVuelo {
-   private String IdPlan;
+    //private String IdPlan;
     private int capacidadMaxima;
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
