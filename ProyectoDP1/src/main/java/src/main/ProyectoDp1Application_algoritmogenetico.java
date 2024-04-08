@@ -121,4 +121,35 @@ public class ProyectoDp1Application_algoritmogenetico {
 		}
 	}
 
+	// haz la funcion TournnamentSeleccion que tiene estos parametros oblacion,Ps,NumTorneo,fitnessAgregado) donde Ps es la probabilidad de seleccion para el torneo, NumTorneo es el porcentaje de la poblacion que se va a seleccionar
+	// y fitnessAgregado es el fitness de cada cromosoma de la poblacion
+
+	public List <Cromosoma> TournnamentSeleccion(List<Cromosoma> poblacion, double Ps, int NumTorneo, List<Double> fitnessAgregado){
+		List <Cromosoma> mattingPool = new ArrayList<Cromosoma>();
+		int cantidadSeleccion = (int) (poblacion.size()*NumTorneo/100);
+		while(cantidadSeleccion!=0){
+
+			List <Cromosoma> torneo = new ArrayList<Cromosoma>();
+			List <Double> fitnessTorneo = new ArrayList<Double>();
+			for(int i=0; i<poblacion.size(); i++){
+				Random rand = new Random();
+				int j = rand.nextInt(poblacion.size());
+				double n=Math.random();//numeros aleatorios entre 0 y 1
+				if (Ps<n){
+					torneo.add(poblacion.get(j));
+					fitnessTorneo.add(fitnessAgregado.get(j));
+				}
+			}
+			int max =0;
+			for (int i=0; i<torneo.size(); i++){
+				if(fitnessTorneo.get(i)>fitnessTorneo.get(max)){
+					max = i;
+				}
+			}
+			mattingPool.add(torneo.get(max));
+			cantidadSeleccion--;
+		}
+		return mattingPool;
+	}
+
 }
