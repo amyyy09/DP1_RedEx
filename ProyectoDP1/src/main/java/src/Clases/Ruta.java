@@ -19,5 +19,4 @@ public class Ruta {
     private Date fechaInicio;
     private List<Vuelo> vuelos;
     private LocalTime horaLlegada;
-;
 }

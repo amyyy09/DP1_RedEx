@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
+import java.time.ZoneOffset;
 import java.util.List;
 
 
@@ -15,6 +16,7 @@ public class Ciudad {
     private int idCiudad;
     private String nombre;
     private String codCiudad;
-    private int GMT;
+    private ZoneOffset GMT;
     private Pais pais;
+    
 }
