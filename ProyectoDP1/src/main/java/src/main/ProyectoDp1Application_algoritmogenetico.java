@@ -14,9 +14,12 @@ import java.util.Random;
 import src.Clases.Paquete;
 import src.Clases.PlanDeVuelo;
 import src.Clases.Ruta;
+import src.Clases.RutaComun;
+import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
 import src.Clases.Cromosoma;
 import src.Clases.Vuelo;
+import src.Clases.Aeropuerto;
 
 @SpringBootApplication
 public class ProyectoDp1Application_algoritmogenetico {
@@ -25,48 +28,65 @@ public class ProyectoDp1Application_algoritmogenetico {
 	public static void main(String[] args) throws IOException{
 		System.out.println("hola mundo");
 		System.err.println("hola mundo");
-		List<Paquete> paquetes = new ArrayList<Paquete>();
+		List<Aeropuerto> aeropuertos = Aeropuerto.leerAeropuertos(); //listo
+		List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos); // listo
+		List<RutaComun> rutas = RutaComun.generarRutas(aeropuertos, planes); 
 
-		
+		System.out.println("Rutas generadas " +  rutas.size());
 
+		// for (RutaComun ruta : rutas) {
+		// 	System.out.println(ruta.getAeropuertoOrigen().getCodAeropuerto() + " " + ruta.getAeropuertoDestino().getCodAeropuerto() + " " + ruta.getNdays());
+		// 	for (PlanDeVuelo plan : ruta.getEscala().getPlanes()) {
+		// 		System.out.println(plan.getIdPlan() + " " + plan.getHoraSalida() + " "  + plan.getAeropuertoOrigen().getNombre() + " " + plan.getHoraLlegada() + " " + plan.getAeropuertoDestino().getNombre());
+		// 	}
+		// }
 		
 	}
+	//list<ruta> no es list es un jagger array
+	// public Cromosoma EjecutarAlgoritmo(List<Paquete> paquetes, List<Ruta> rutas, List <Almacen> alamcenes, List <PlanDeVuelo> vuelos,double Ps, double Pm, double Pc,int NumCromosomas, int NumTorneo, int NumDescendientes, int NumGeneraciones){
+	// 	List <Cromosoma> poblacion = new ArrayList<Cromosoma>();
+	// 	List<Paquete> paquetesCopia = new ArrayList<Paquete>();
 	
 	public Cromosoma EjecutarAlgoritmo(List<Paquete> paquetes, List<Ruta> rutas, List <Almacen> alamcenes, List <PlanDeVuelo> vuelos,double Ps, double Pm, double Pc,int NumCromosomas, int NumTorneo, int NumDescendientes, int NumGeneraciones){
 		List <Cromosoma> poblacion = new ArrayList<Cromosoma>();
 		List<Paquete> paquetesCopia = new ArrayList<Paquete>();
 		
 		
-		//generar poblacion inicial
-		for(int i = 0; i < NumCromosomas; i++){
-			paquetesCopia.addAll(paquetes);
-			Cromosoma cromosoma = new Cromosoma();
+	// 	//generar poblacion inicial
+	// 	for(int i = 0; i < NumCromosomas; i++){
+	// 		paquetesCopia.addAll(paquetes);
+	// 		Cromosoma cromosoma = new Cromosoma();
 			
 			
-			while (!paquetesCopia.isEmpty()){
-				Random rand = new Random();
-				int j = rand.nextInt(paquetesCopia.size());
-				Paquete paquete = paquetesCopia.get(j);
-				//cromosoma.addPaquete(paquete);
-				//funcion asignarRutaPaqeuete(paquete, Cromosoma, Rutas)
-				//preguntar a Amy ->busca la fila de su ruta, escoger al azar,  ver hora llegada, si la hora llegada es mayor al limite no la toma, si no busco aleatoriamente otra vez hasta el index anterior 
+	// 		while (!paquetesCopia.isEmpty()){
+	// 			Random rand = new Random();
+	// 			int j = rand.nextInt(paquetesCopia.size());
+	// 			Paquete paquete = paquetesCopia.get(j);
+	// 			//cromosoma.addPaquete(paquete);
+	// 			//funcion asignarRutaPaqeuete(paquete, Cromosoma, Rutas)
+	// 			//preguntar a Amy ->busca la fila de su ruta, escoger al azar,  ver hora llegada, si la hora llegada es mayor al limite no la toma, si no busco aleatoriamente otra vez hasta el index anterior 
 				
-				paquetesCopia.remove(j);
-			}
+	// 			paquetesCopia.remove(j);
+	// 		}
 			
-			poblacion.add(cromosoma);
-		}
+	// 		poblacion.add(cromosoma);
+	// 	}
 
-		//iteraciones evolutivas
-		for(int i = 0; i < NumGeneraciones; i++){
-			//determinar el fitness de la poblacion/generacion actual
-			List<Double> fitnessAgregado= calcularFitnessAgregado(poblacion,alamcenes,vuelos);
-			//preguntar a Amy -> que es el fitness agregado
-			//ir por cada gen del cromosoma
-			//sobre la cant de paquetes 
+	// 	//iteraciones evolutivas
+	// 	for(int i = 0; i < NumGeneraciones; i++){
+	// 		//determinar el fitness de la poblacion/generacion actual
+	// 		List<Double> fitnessAgregado= calcularFitnessAgregado(poblacion,alamcenes,vuelos);
+	// 		//preguntar a Amy -> que es el fitness agregado
+	// 		//ir por cada gen del cromosoma
+	// 		//sobre la cant de paquetes 
 
-			//order la poblacion por fitness tanto el lista de fitness como la poblacion
+	// 		//order la poblacion por fitness tanto el lista de fitness como la poblacion
 			
+	// 		if (fitnessAgregado.get(0)>=0){
+	// 			//se ha encontrado una solucion satisfacotria
+	// 			System.out.println("Se ha encontrado una solucion satisfactoria");
+	// 			return poblacion.get(0);
+	// 		}
 			if (fitnessAgregado.get(0)>=0){
 				//revisar si el cromorosoma es valido -> crear funcion en relacion del almacen
 
@@ -75,51 +95,51 @@ public class ProyectoDp1Application_algoritmogenetico {
 				return poblacion.get(0);
 			}
 			
-			//formacion del matting pool (padres condidatos)
-			List<Cromosoma> mattingPool = TournnamentSeleccion(poblacion,Ps,NumTorneo,fitnessAgregado);
-			//NumTorneo es el porcentaje de la poblacion que se va a seleccionar
+	// 		//formacion del matting pool (padres condidatos)
+	// 		List<Cromosoma> mattingPool = TournnamentSeleccion(poblacion,Ps,NumTorneo,fitnessAgregado);
+	// 		//NumTorneo es el porcentaje de la poblacion que se va a seleccionar
 
-			List<Cromosoma> descendientes = new ArrayList<Cromosoma>();
+	// 		List<Cromosoma> descendientes = new ArrayList<Cromosoma>();
 			
-			//iteraciones para generacion de descenetientes
-			for(int j = 0; j < NumDescendientes/2; j++){
-				//seleccion aleatoria de pareda de padres del matting pool
-				Random rand = new Random();
-				int padre1 = rand.nextInt(mattingPool.size());
-				int padre2 = rand.nextInt(mattingPool.size());
+	// 		//iteraciones para generacion de descenetientes
+	// 		for(int j = 0; j < NumDescendientes/2; j++){
+	// 			//seleccion aleatoria de pareda de padres del matting pool
+	// 			Random rand = new Random();
+	// 			int padre1 = rand.nextInt(mattingPool.size());
+	// 			int padre2 = rand.nextInt(mattingPool.size());
 
-				//cruzamiento bajo probabilidad Pc
-				double n=Math.random();//numeros aleatorios entre 0 y 1
+	// 			//cruzamiento bajo probabilidad Pc
+	// 			double n=Math.random();//numeros aleatorios entre 0 y 1
 
-				if (Pc<n){
-					List<Cromosoma> hijos = crossover(mattingPool.get(padre1),mattingPool.get(padre2));//tiene que devolver dos hijos.
+	// 			if (Pc<n){
+	// 				List<Cromosoma> hijos = crossover(mattingPool.get(padre1),mattingPool.get(padre2));//tiene que devolver dos hijos.
 
-					//mutacion bajo probabilidad Pm
-					double m=Math.random();//numeros aleatorios entre 0 y 1	
-					if (Pm<m){
-						int padreM= rand.nextInt(hijos.size());
-						//preguntar a Amy -> 
-						//que hace el swapmutation: lo mismo de asignarRutaPaqeuete 
+	// 				//mutacion bajo probabilidad Pm
+	// 				double m=Math.random();//numeros aleatorios entre 0 y 1	
+	// 				if (Pm<m){
+	// 					int padreM= rand.nextInt(hijos.size());
+	// 					//preguntar a Amy -> 
+	// 					//que hace el swapmutation: lo mismo de asignarRutaPaqeuete 
 						
-						//crossover escoge alatoriamente un padre 1 o 2 y padreM. Tner 2 hijos
+	// 					//crossover escoge alatoriamente un padre 1 o 2 y padreM. Tner 2 hijos
 						
-					}
-					descendientes.addAll(hijos);
-				}
-			}
+	// 				}
+	// 				descendientes.addAll(hijos);
+	// 			}
+	// 		}
 
-			//determinacion de fitness de nueva poblacion total
-			List<Double> fitnessAgregadoDescendientes= calcularFitnessAgregado(descendientes,alamcenes,vuelos);
-			poblacion.addAll(descendientes);
-			fitnessAgregado.addAll(fitnessAgregadoDescendientes);
+	// 		//determinacion de fitness de nueva poblacion total
+	// 		List<Double> fitnessAgregadoDescendientes= calcularFitnessAgregado(descendientes,alamcenes,vuelos);
+	// 		poblacion.addAll(descendientes);
+	// 		fitnessAgregado.addAll(fitnessAgregadoDescendientes);
 
-			//ordernar para determinar mejores cromosomas
+	// 		//ordernar para determinar mejores cromosomas
 
 
-			//determinacion de futura generacion
-			poblacion = poblacion.subList(0,NumCromosomas);
-		}
-	}
+	// 		//determinacion de futura generacion
+	// 		poblacion = poblacion.subList(0,NumCromosomas);
+	// 	}
+	// }
 
 	// haz la funcion TournnamentSeleccion que tiene estos parametros oblacion,Ps,NumTorneo,fitnessAgregado) donde Ps es la probabilidad de seleccion para el torneo, NumTorneo es el porcentaje de la poblacion que se va a seleccionar
 	// y fitnessAgregado es el fitness de cada cromosoma de la poblacion

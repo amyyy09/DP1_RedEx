@@ -1,5 +1,6 @@
 package src.Clases;
 import java.util.List;
+import java.time.OffsetDateTime;
 import java.util.Date;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,8 +19,8 @@ public class Envio {
     private String idEnvio;
     List <Paquete> paquetes;
    
-    private LocalDateTime fechaHoraOrigen;
-    private LocalDateTime fechaHoraLimite;
+    private OffsetDateTime fechaHoraOrigen;
+    private OffsetDateTime fechaHoraLimite;
     private int cantPaquetes;
 
     private Aeropuerto aeropuertoOrigen;
