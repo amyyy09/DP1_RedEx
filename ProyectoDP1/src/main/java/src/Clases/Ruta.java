@@ -20,8 +20,6 @@ public class Ruta {
     private Ciudad origen;
     private Ciudad destino;
     private LocalDateTime horaInicio; //LocalDateTime
-    private LocalDateTime horallegada; //LocalDateTime
+    private LocalDateTime horaLlegada; //LocalDateTime
     private List<Vuelo> vuelos;
-    
-
 }
