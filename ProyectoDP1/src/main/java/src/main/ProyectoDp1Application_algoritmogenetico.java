@@ -9,6 +9,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.Map;
+import java.util.HashMap;
 
 //paquetes
 import src.Clases.Paquete;
@@ -47,10 +49,10 @@ public class ProyectoDp1Application_algoritmogenetico {
 				Random rand = new Random();
 				int j = rand.nextInt(paquetesCopia.size());
 				Paquete paquete = paquetesCopia.get(j);
-				//cromosoma.addPaquete(paquete);
-				//funcion asignarRutaPaqeuete(paquete, Cromosoma, Rutas)
-				//preguntar a Amy ->busca la fila de su ruta, escoger al azar,  ver hora llegada, si la hora llegada es mayor al limite no la toma, si no busco aleatoriamente otra vez hasta el index anterior 
-				
+				//PARA CADA PAQUETE ASIGANRLE UNA RUTA CON LA FUNCION ASIGNARRUTAPAQUETE
+				//--------------------------------------funcion asignarRutaPaqeuete(paquete, Cromosoma, Rutas)---------------------------
+				//busca la fila de su ruta, escoger al azar,  ver hora llegada, si la hora llegada es mayor al limite no la toma, si no busco aleatoriamente otra vez hasta el index anterior 
+				//LUEGO AGREGAR EL GEN AL CROMOSOMA i
 				paquetesCopia.remove(j);
 			}
 			
@@ -62,11 +64,10 @@ public class ProyectoDp1Application_algoritmogenetico {
 			//determinar el fitness de la poblacion/generacion actual
 			List<Double> fitnessAgregado= calcularFitnessAgregado(poblacion,alamcenes,vuelos);
 			//preguntar a Amy -> que es el fitness agregado
-			//ir por cada gen del cromosoma
-			//sobre la cant de paquetes 
-
-			//order la poblacion por fitness tanto el lista de fitness como la poblacion
+			//ir por cada gen del cromosoma 
+			//-------------------FUNCION ORDENAR CROMOSOMAS POR FITNESS---------------------------
 			
+
 			if (fitnessAgregado.get(0)>=0){
 				//revisar si el cromorosoma es valido -> crear funcion en relacion del almacen
 
@@ -97,12 +98,25 @@ public class ProyectoDp1Application_algoritmogenetico {
 					//mutacion bajo probabilidad Pm
 					double m=Math.random();//numeros aleatorios entre 0 y 1	
 					if (Pm<m){
-						int padreM= rand.nextInt(hijos.size());
-						//preguntar a Amy -> 
-						//que hace el swapmutation: lo mismo de asignarRutaPaqeuete 
+
+						//crea una copia de hijos
+						List<Cromosoma> hijosCopia = new ArrayList<Cromosoma>();
+						hijosCopia.addAll(hijos);
+						//borrra lo que hay en hijos
+						hijos.clear();
+
+						int indexPadreM= rand.nextInt(hijosCopia.size());
+						Cromosoma padreM = hijosCopia.get(indexPadreM);
 						
+						//---------------------------FUNCION asignarRutaPaqeuete AL PADREM---------------------
+
 						//crossover escoge alatoriamente un padre 1 o 2 y padreM. Tner 2 hijos
-						
+						int azar = rand.nextInt(2);
+						if(azar==0){
+							hijos=crossover(padreM,hijosCopia.get(0));
+						}else{
+							hijos=crossover(padreM,hijosCopia.get(1));
+						}
 					}
 					descendientes.addAll(hijos);
 				}
@@ -114,6 +128,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 			fitnessAgregado.addAll(fitnessAgregadoDescendientes);
 
 			//ordernar para determinar mejores cromosomas
+			//----------------------FUNCION ORDERNAR CROMOSOMAS POR FITNESS----------------------------------------
 
 
 			//determinacion de futura generacion
@@ -150,6 +165,47 @@ public class ProyectoDp1Application_algoritmogenetico {
 			cantidadSeleccion--;
 		}
 		return mattingPool;
+	}
+
+	// haz la funcion crossover que tiene estos parametros (Cromosoma padre1, Cromosoma padre2) y devuelve una dos cromosomas hijos dentro de una lista
+	public List<Cromosoma> crossover(Cromosoma padre1, Cromosoma padre2){
+
+
+		// Crear copias de los mapas para no modificar los originales
+        Map<Ruta, Paquete> genPadre1 = new HashMap<>(padre1.getGen());
+        Map<Ruta, Paquete> genPadre2 = new HashMap<>(padre2.getGen());
+
+        // Convertir las entradas de los mapas en listas para poder acceder por índice
+        List<Map.Entry<Ruta, Paquete>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
+        List<Map.Entry<Ruta, Paquete>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
+
+        // Elegir un punto de cruce aleatorio
+        Random random = new Random();
+        int puntoCruce = random.nextInt(listaGenPadre1.size());
+
+        // Intercambiar las partes después del punto de cruce
+        for (int i = puntoCruce; i < listaGenPadre1.size(); i++) {
+            Map.Entry<Ruta, Paquete> temp = listaGenPadre1.get(i);
+            listaGenPadre1.set(i, listaGenPadre2.get(i));
+            listaGenPadre2.set(i, temp);
+        }
+
+        // Convertir las listas modificadas de nuevo en mapas
+        Map<Ruta, Paquete> genHijo1 = new HashMap<>();
+        Map<Ruta, Paquete> genHijo2 = new HashMap<>();
+        for (int i = 0; i < listaGenPadre1.size(); i++) {
+            genHijo1.put(listaGenPadre1.get(i).getKey(), listaGenPadre1.get(i).getValue());
+            genHijo2.put(listaGenPadre2.get(i).getKey(), listaGenPadre2.get(i).getValue());
+        }
+
+        // Crear y devolver los nuevos cromosomas hijos
+        Cromosoma hijo1 = new Cromosoma(genHijo1);
+        Cromosoma hijo2 = new Cromosoma(genHijo2);
+        List<Cromosoma> hijos = new ArrayList<>();
+        hijos.add(hijo1);
+        hijos.add(hijo2);
+
+        return hijos;
 	}
 
 }
