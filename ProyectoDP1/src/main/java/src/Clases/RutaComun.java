@@ -1,14 +1,15 @@
 package src.Clases;
+
 import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.time.ZoneOffset;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
 
 @Getter
 @Setter
@@ -16,7 +17,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RutaComun {
 
-    // private int IdRuta;
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
     private Aeropuerto aeropuertoOrigen;
@@ -28,7 +28,8 @@ public class RutaComun {
         List<RutaComun> rutas = new ArrayList<>();
         for (Aeropuerto origen : aeropuertos) {
             for (Aeropuerto destino : aeropuertos) {
-                if (!origen.equals(destino) && origen.getCiudad().getPais().getContinente().equals(destino.getCiudad().getPais().getContinente())) {
+                if (!origen.equals(destino) && origen.getContinente()
+                        .equals(destino.getContinente())) {
                     List<Integer> daysm = new ArrayList<>();
                     List<List<PlanDeVuelo>> escalas = generarEscalas(origen, destino, planes, daysm);
                     for (List<PlanDeVuelo> escala : escalas) {
@@ -44,27 +45,29 @@ public class RutaComun {
         return rutas;
     }
 
-    public static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino, List<PlanDeVuelo> planes, List<Integer> daysm) {
+    public static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino,
+            List<PlanDeVuelo> planes, List<Integer> daysm) {
         List<List<PlanDeVuelo>> allRoutes = new ArrayList<>();
-        
+
         List<PlanDeVuelo> currentRoute = new ArrayList<>();
 
         dfs(origen, destino, currentRoute, allRoutes, planes, daysm, 0);
         return allRoutes;
     }
 
-    private static void dfs(Aeropuerto current, Aeropuerto destination, List<PlanDeVuelo> currentRoute, List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm, int days) {
-        // System.out.println("Current airport: " + current.getNombre());
-        // System.out.println("Destination airport: " + destination.getNombre());
-        // System.out.println("Current route: " + currentRoute.stream().map(PlanDeVuelo::getAeropuertoOrigen).map(Aeropuerto::getNombre).collect(Collectors.joining(" -> ")));
+    private static void dfs(Aeropuerto current, Aeropuerto destination, List<PlanDeVuelo> currentRoute,
+            List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm, int days) {
+
         if (current.equals(destination)) {
-            System.out.println("Destination airport: " + destination.getNombre() + " " + destination.getCiudad().getGMT());
+            System.out.println(
+                    "Destination airport: " + destination.getCiudad() + " " + destination.getZonaHorariaGMT());
             List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
             if (!containsRoute(allRoutes, routeToAdd)) {
                 System.out.println("Added route: " + routeToAdd.stream()
-                .map(plan -> plan.getAeropuertoOrigen().getNombre() + " (Departure: " + plan.getHoraSalida() + ", Arrival: " + plan.getHoraLlegada() + ")")
-                .collect(Collectors.joining(" -> ")));
-                System.out.println("Ndays: " + days);
+                        .map(plan -> plan.getAeropuertoOrigen().getCiudad() + " (Departure: " + plan.getHoraSalida()
+                                + ", Arrival: " + plan.getHoraLlegada() + ")")
+                        .collect(Collectors.joining(" -> ")));
+                System.out.println("Days: " + days);
                 allRoutes.add(routeToAdd);
                 daysm.add(days);
                 return;
@@ -75,65 +78,74 @@ public class RutaComun {
                 // System.out.println("Found a flight from current airport");
                 OffsetTime arrivalTime = plan.getHoraLlegada();
                 OffsetTime departureTime = plan.getHoraSalida();
-                OffsetTime finalTime=null;
+                OffsetTime finalTime = null;
                 boolean sameContinent;
-                if(currentRoute.size() > 0){
-                    sameContinent = currentRoute.get(0).getAeropuertoOrigen().getCiudad().getPais().getContinente().equals(destination.getCiudad().getPais().getContinente());
+                OffsetTime salidaConOffset;
+
+                if (currentRoute.size() > 0) {
+                    sameContinent = currentRoute.get(0).getAeropuertoOrigen().getContinente()
+                            .equals(destination.getContinente());
 
                     PlanDeVuelo lastPlan = currentRoute.get(currentRoute.size() - 1);
                     finalTime = lastPlan.getHoraLlegada();
                     if (!finalTime.plusMinutes(5).isBefore(departureTime)) {
-                        // System.out.println("Next flight's departure time is not at least 5 minutes after the previous flight's arrival time");
                         continue;
                     }
-                    if (currentRoute.stream().anyMatch(p -> p.getAeropuertoOrigen().equals(plan.getAeropuertoDestino()))) {
-                        // System.out.println("Route is going back to a previously visited airport");
+                    if (currentRoute.stream()
+                            .anyMatch(p -> p.getAeropuertoOrigen().equals(plan.getAeropuertoDestino()))) {
                         continue;
                     }
-                }
-                else {
-                    sameContinent = plan.getAeropuertoOrigen().getCiudad().getPais().getContinente().equals(destination.getCiudad().getPais().getContinente());
-                    // finalTime = plan.getHoraLlegada().withOffsetSameLocal(destination.getCiudad().getGMT());
-                }
-
-                if(arrivalTime.isBefore(departureTime) || (finalTime != null && departureTime.isBefore(finalTime))){
-                    // System.out.println("Flight arrives before it departs (crosses date line)");
-                    days++;               
+                } else {
+                    sameContinent = plan.getAeropuertoOrigen().getContinente()
+                            .equals(destination.getContinente());
                 }
 
-                if(sameContinent){
+                if (arrivalTime.isBefore(departureTime) || (finalTime != null && departureTime.isBefore(finalTime))) {
+                    days++;
+                }
+
+                if (sameContinent) {
                     if (!currentRoute.contains(plan)) {
                         if (days <= 1) {
-                            if (days ==1 && currentRoute.size()>0 && arrivalTime.isAfter(currentRoute.get(0).getHoraSalida().withOffsetSameLocal(destination.getCiudad().getGMT()))){
-                                continue;
+                            if (days == 1 && currentRoute.size() > 0) {
+                                salidaConOffset = currentRoute.get(0).getHoraSalida()
+                                        .withOffsetSameInstant(ZoneOffset.ofHours(destination.getZonaHorariaGMT()));
+
+                                if (arrivalTime.isAfter(salidaConOffset)) {
+                                    continue;
+                                }
                             }
                             currentRoute.add(plan);
-                            
-                            // System.out.println("Adding flight to current route. Ndays: " + days);
-                            
+
                             dfs(plan.getAeropuertoDestino(), destination, currentRoute, allRoutes, planes, daysm, days);
-                            // System.out.println("Removing flight from current route");
-                            currentRoute.remove(currentRoute.size() - 1); 
+                            currentRoute.remove(currentRoute.size() - 1);
                         }
-                        if(arrivalTime.isBefore(departureTime) || (finalTime != null && departureTime.isBefore(finalTime))){
-                            days--;               
+                        if (arrivalTime.isBefore(departureTime)
+                                || (finalTime != null && departureTime.isBefore(finalTime))) {
+                            days--;
                         }
                     }
                 }
 
-                else{
+                else {
                     if (!currentRoute.contains(plan)) {
-                        if(days <= 2 ){
-                           if(days == 2 && (arrivalTime.isAfter(currentRoute.get(0).getHoraSalida().withOffsetSameLocal(destination.getCiudad().getGMT())))){
-                                continue;
-                           }
+                        if (days <= 2) {
+                            if (days == 2 && currentRoute.size() > 0) {
+                                salidaConOffset = currentRoute.get(0).getHoraSalida()
+                                        .withOffsetSameInstant(ZoneOffset.ofHours(destination.getZonaHorariaGMT()));
+
+                                if (arrivalTime.isAfter(salidaConOffset)) {
+                                    continue;
+                                }
+                            }
                             currentRoute.add(plan);
                             dfs(plan.getAeropuertoDestino(), destination, currentRoute, allRoutes, planes, daysm, days);
                             currentRoute.remove(currentRoute.size() - 1);
                         }
-                        
-                        if(arrivalTime.isBefore(departureTime) || (finalTime != null && departureTime.isBefore(finalTime))){
-                            days--;               
+
+                        if (arrivalTime.isBefore(departureTime)
+                                || (finalTime != null && departureTime.isBefore(finalTime))) {
+                            days--;
                         }
                     }
                 }

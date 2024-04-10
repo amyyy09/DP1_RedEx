@@ -10,6 +10,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.time.LocalTime;
 import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -37,19 +38,19 @@ public class PlanDeVuelo {
                 LocalTime horaLlegada = LocalTime.parse(parts[3]);
                 int capacidadMaxima = Integer.parseInt(parts[4]);
                 int indexOrigen = IntStream.range(0, aeropuertos.size())
-                        .filter(i -> aeropuertos.get(i).getCodAeropuerto().equals(parts[0]))
+                        .filter(i -> aeropuertos.get(i).getCodigoIATA().equals(parts[0]))
                         .findFirst()
                         .orElse(-1);
 
                 int indexDestino = IntStream.range(0, aeropuertos.size())
-                        .filter(i -> aeropuertos.get(i).getCodAeropuerto().equals(parts[1]))
+                        .filter(i -> aeropuertos.get(i).getCodigoIATA().equals(parts[1]))
                         .findFirst()
                         .orElse(-1);
 
                 OffsetTime horaSalidaOffset = OffsetTime.of(horaSalida,
-                        aeropuertos.get(indexOrigen).getCiudad().getGMT());
+                        ZoneOffset.ofHours(aeropuertos.get(indexOrigen).getZonaHorariaGMT()));
                 OffsetTime horaLlegadaOffset = OffsetTime.of(horaLlegada,
-                        aeropuertos.get(indexDestino).getCiudad().getGMT());
+                        ZoneOffset.ofHours(aeropuertos.get(indexDestino).getZonaHorariaGMT()));
 
                 PlanDeVuelo plan = new PlanDeVuelo(capacidadMaxima, horaSalidaOffset, horaLlegadaOffset,
                         aeropuertos.get(indexOrigen), aeropuertos.get(indexDestino));
