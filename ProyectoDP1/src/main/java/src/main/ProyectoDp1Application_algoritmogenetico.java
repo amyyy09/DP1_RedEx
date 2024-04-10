@@ -53,7 +53,6 @@ public class ProyectoDp1Application_algoritmogenetico {
 
 			// Formación del mating pool (padres candidatos)
 			List<Cromosoma> matingPool = TournnamentSeleccion(poblacion, Ps, numTorneo, fitnessAgregado);
-
 			List<Cromosoma> descendientes = new ArrayList<>();
 
 			// Iteraciones para generación de descendientes

@@ -33,8 +33,6 @@ public class FitnessEvaluator {
         for (Cromosoma cromosoma : poblacion) {
             double penalizacion = 0.0;
 
-            // Aquí asumimos que tienes una forma de mapear cada ruta en el cromosoma a un
-            // plan de vuelo específico y a almacenes específicos
             for (Map.Entry<Ruta, Paquete> entrada : cromosoma.getGen().entrySet()) {
                 Ruta ruta = entrada.getKey();
                 Paquete paquete = entrada.getValue();
