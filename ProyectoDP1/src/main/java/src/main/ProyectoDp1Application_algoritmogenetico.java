@@ -44,14 +44,13 @@ public class ProyectoDp1Application_algoritmogenetico {
 
 		List<Cromosoma> poblacion = new ArrayList<>();
 		for (int i = 0; i < numGeneraciones; i++) {
-			// Determinar el fitness de la población/generación actual
+
 			List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, almacenes, vuelos);
 			if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
 				System.out.println("Se ha encontrado una solución satisfactoria");
 				return poblacion.get(0);
 			}
 
-			// Formación del mating pool (padres candidatos)
 			List<Cromosoma> matingPool = TournnamentSeleccion(poblacion, Ps, numTorneo, fitnessAgregado);
 			List<Cromosoma> descendientes = new ArrayList<>();
 
@@ -83,8 +82,6 @@ public class ProyectoDp1Application_algoritmogenetico {
 		return null; // O cualquier otra acción como devolver el mejor encontrado
 	}
 
-	// Considera implementar aquí los métodos calcularFitnessAgregado,
-	// tournamentSelection, crossover, mutarHijos, etc.
 	public void mutarHijos(List<Cromosoma> hijos, List<Ruta> rutasDisponibles) {
 		Random rand = new Random();
 		for (Cromosoma hijo : hijos) {
