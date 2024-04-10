@@ -61,4 +61,9 @@ public class PlanDeVuelo {
         return planesDeVuelo;
     }
 
+    public PlanDeVuelo(String idPlan, int capacidadMaxima2, OffsetTime horaSalidaOffset, OffsetTime horaLlegadaOffset,
+            Aeropuerto aeropuerto, Aeropuerto aeropuerto2) {
+        //TODO Auto-generated constructor stub
+    }
+
 }

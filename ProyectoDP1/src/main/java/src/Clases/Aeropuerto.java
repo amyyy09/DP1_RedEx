@@ -62,4 +62,8 @@ public class Aeropuerto {
         }
         return aeropuertos;
     }
+
+    public Aeropuerto(int idAeropuerto, String nombre2, String codAeropuerto2, Ciudad ciudad2, Object object) {
+        //TODO Auto-generated constructor stub
+    }
 }

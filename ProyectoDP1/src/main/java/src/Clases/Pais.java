@@ -12,11 +12,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Pais {
-    
     private int idPais;
     private String nombre;
     private String codigoPostal;
-
     private List<Ciudad> ciudades;
-    //private Continente continente;
+    private Continente continente;
 }
