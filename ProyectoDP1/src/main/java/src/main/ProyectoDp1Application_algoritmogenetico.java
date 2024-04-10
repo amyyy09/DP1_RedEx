@@ -18,14 +18,18 @@ import src.Clases.RutaComun;
 import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
 import src.Clases.Cromosoma;
+import src.Clases.FitnessEvaluator;
 
 @SpringBootApplication
 public class ProyectoDp1Application_algoritmogenetico {
+	private static FitnessEvaluator evaluator;
+
 	public static void main(String[] args) {
 		try {
 			List<Aeropuerto> aeropuertos = Aeropuerto.leerAeropuertos();
 			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
 			List<RutaComun> rutas = RutaComun.generarRutas(aeropuertos, planes);
+			evaluator = new FitnessEvaluator();
 			System.out.println("Rutas generadas " + rutas.size());
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
@@ -41,7 +45,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		List<Cromosoma> poblacion = new ArrayList<>();
 		for (int i = 0; i < numGeneraciones; i++) {
 			// Determinar el fitness de la población/generación actual
-			List<Double> fitnessAgregado = calcularFitnessAgregado(poblacion, almacenes, vuelos);
+			List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, almacenes, vuelos);
 			if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
 				System.out.println("Se ha encontrado una solución satisfactoria");
 				return poblacion.get(0);
@@ -104,12 +108,6 @@ public class ProyectoDp1Application_algoritmogenetico {
 			hijo.getGen().remove(rutaAMutar);
 			hijo.getGen().put(nuevaRuta, paqueteAMutar);
 		}
-	}
-
-	List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Almacen> almacenes,
-			List<PlanDeVuelo> vuelos) {
-		List<Double> fitnesssCromo = new ArrayList<Double>();
-		return fitnesssCromo;
 	}
 
 	public List<Cromosoma> TournnamentSeleccion(List<Cromosoma> poblacion, double Ps, int NumTorneo,

@@ -1,12 +1,11 @@
 package src.Clases;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 
 import java.time.ZoneOffset;
-import java.util.List;
-
 
 @Getter
 @Setter
