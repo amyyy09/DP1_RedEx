@@ -28,7 +28,7 @@ public class RutaComun {
         List<RutaComun> rutas = new ArrayList<>();
         for (Aeropuerto origen : aeropuertos) {
             for (Aeropuerto destino : aeropuertos) {
-                if (!origen.equals(destino)) {
+                if (!origen.equals(destino) && origen.getCiudad().getPais().getContinente().equals(destino.getCiudad().getPais().getContinente())) {
                     List<Integer> daysm = new ArrayList<>();
                     List<List<PlanDeVuelo>> escalas = generarEscalas(origen, destino, planes, daysm);
                     for (List<PlanDeVuelo> escala : escalas) {
