@@ -1,7 +1,6 @@
 package src.main;
 
 //dependencias
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 //utilidades
@@ -19,8 +18,6 @@ import src.Clases.RutaComun;
 import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
 import src.Clases.Cromosoma;
-import src.Clases.Vuelo;
-import src.Clases.Aeropuerto;
 
 @SpringBootApplication
 public class ProyectoDp1Application_algoritmogenetico {

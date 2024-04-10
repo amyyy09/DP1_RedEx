@@ -18,5 +18,4 @@ public class Ciudad {
     private String codCiudad;
     private ZoneOffset GMT;
     private Pais pais;
-    private int GMT;
 }

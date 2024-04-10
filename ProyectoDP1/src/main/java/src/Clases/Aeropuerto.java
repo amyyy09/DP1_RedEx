@@ -21,11 +21,8 @@ public class Aeropuerto {
     //private int idAeropuerto;
     private String nombre;
     private String codAeropuerto;
-
     private Ciudad ciudad;
-
     private Almacen almacen;
-    private Ciudad ciudad;
     
     public static List<Aeropuerto> leerAeropuertos() {
         List<Aeropuerto> aeropuertos = new ArrayList<>();
