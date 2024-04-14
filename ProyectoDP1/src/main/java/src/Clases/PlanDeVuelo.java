@@ -13,7 +13,6 @@ import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.IntStream;
 
 @Getter
 @Setter
@@ -21,45 +20,52 @@ import java.util.stream.IntStream;
 @NoArgsConstructor
 
 public class PlanDeVuelo {
-    private int capacidadMaxima;
-    private OffsetTime horaSalida;
-    private OffsetTime horaLlegada;
-    private Aeropuerto aeropuertoOrigen;
-    private Aeropuerto aeropuertoDestino;
+        private int capacidad;
+        private OffsetTime horaSalida;
+        private OffsetTime horaLlegada;
+        private String codigoIATAOrigen;
+        private String codigoIATADestino;
 
-    public static List<PlanDeVuelo> leerPlanesDeVuelo(List<Aeropuerto> aeropuertos) {
-        List<PlanDeVuelo> planesDeVuelo = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(
-                new FileReader("ProyectoDP1/src/main/resources/Planes.vuelo.v1.incompleto.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split("-");
-                LocalTime horaSalida = LocalTime.parse(parts[2]);
-                LocalTime horaLlegada = LocalTime.parse(parts[3]);
-                int capacidadMaxima = Integer.parseInt(parts[4]);
-                int indexOrigen = IntStream.range(0, aeropuertos.size())
-                        .filter(i -> aeropuertos.get(i).getCodigoIATA().equals(parts[0]))
-                        .findFirst()
-                        .orElse(-1);
+        public static List<PlanDeVuelo> leerPlanesDeVuelo(List<Aeropuerto> aeropuertos) {
+                List<PlanDeVuelo> planesDeVuelo = new ArrayList<>();
+                try (BufferedReader reader = new BufferedReader(
+                                new FileReader("ProyectoDP1/src/main/resources/Planes.vuelo.v1.incompleto.txt"))) {
+                        String line;
+                        while ((line = reader.readLine()) != null) {
+                                String[] parts = line.split("-");
+                                if (parts.length < 5)
+                                        continue; // Asegura que todas las partes necesarias están presentes.
 
-                int indexDestino = IntStream.range(0, aeropuertos.size())
-                        .filter(i -> aeropuertos.get(i).getCodigoIATA().equals(parts[1]))
-                        .findFirst()
-                        .orElse(-1);
+                                String codigoIATAOrigen = parts[0];
+                                String codigoIATADestino = parts[1];
+                                LocalTime horaSalidaLocal = LocalTime.parse(parts[2]);
+                                LocalTime horaLlegadaLocal = LocalTime.parse(parts[3]);
+                                int capacidad = Integer.parseInt(parts[4]);
 
-                OffsetTime horaSalidaOffset = OffsetTime.of(horaSalida,
-                        ZoneOffset.ofHours(aeropuertos.get(indexOrigen).getZonaHorariaGMT()));
-                OffsetTime horaLlegadaOffset = OffsetTime.of(horaLlegada,
-                        ZoneOffset.ofHours(aeropuertos.get(indexDestino).getZonaHorariaGMT()));
+                                OffsetTime horaSalidaOffset = getOffsetTimeForAirport(codigoIATAOrigen, horaSalidaLocal,
+                                                aeropuertos);
+                                OffsetTime horaLlegadaOffset = getOffsetTimeForAirport(codigoIATADestino,
+                                                horaLlegadaLocal, aeropuertos);
 
-                PlanDeVuelo plan = new PlanDeVuelo(capacidadMaxima, horaSalidaOffset, horaLlegadaOffset,
-                        aeropuertos.get(indexOrigen), aeropuertos.get(indexDestino));
-                planesDeVuelo.add(plan);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+                                if (horaSalidaOffset != null && horaLlegadaOffset != null) {
+                                        PlanDeVuelo plan = new PlanDeVuelo(capacidad, horaSalidaOffset,
+                                                        horaLlegadaOffset,
+                                                        codigoIATAOrigen, codigoIATADestino);
+                                        planesDeVuelo.add(plan);
+                                }
+                        }
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
+                return planesDeVuelo;
         }
-        return planesDeVuelo;
-    }
 
+        private static OffsetTime getOffsetTimeForAirport(String codigoIATA, LocalTime localTime,
+                        List<Aeropuerto> aeropuertos) {
+                return aeropuertos.stream()
+                                .filter(a -> a.getCodigoIATA().equals(codigoIATA))
+                                .findFirst()
+                                .map(a -> OffsetTime.of(localTime, ZoneOffset.ofHours(a.getZonaHorariaGMT())))
+                                .orElse(null); // Retorna null si no se encuentra el aeropuerto.
+        }
 }

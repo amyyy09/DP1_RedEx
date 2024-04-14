@@ -1,10 +1,14 @@
 package src.Clases;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.time.ZoneOffset;
+import java.util.stream.Stream;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,10 +23,61 @@ public class RutaComun {
 
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
-    private Aeropuerto aeropuertoOrigen;
-    private Aeropuerto aeropuertoDestino;
-    private Escala escala;
+    private String codigoIATAOrigen;
+    private String codigoIATADestino;
+    private List<PlanDeVuelo> planRuta;
     private int ndays;
+
+    public static void guardarRutasEnCSV(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes,
+            String archivoDestino) {
+        List<RutaComun> rutas = generarRutas(aeropuertos, planes);
+        List<String> lineas = new ArrayList<>();
+        lineas.add("CodigoIATAOrigen,CodigoIATADestino,HoraSalida,HoraLlegada,NDays,PlanesDeVuelo");
+        for (RutaComun ruta : rutas) {
+            String detallesRuta = String.format("%s,%s,%s,%s,%d",
+                    ruta.getCodigoIATAOrigen(),
+                    ruta.getCodigoIATADestino(),
+                    ruta.getHoraSalida(),
+                    ruta.getHoraLlegada(),
+                    ruta.getNdays());
+            String detallesPlanes = ruta.getPlanRuta().stream()
+                    .map(plan -> String.format("%s,%s,%s,%s,%d",
+                            plan.getCodigoIATAOrigen(),
+                            plan.getCodigoIATADestino(),
+                            plan.getHoraSalida(),
+                            plan.getHoraLlegada(),
+                            plan.getCapacidad()))
+                    .collect(Collectors.joining("|")); // Separador entre planes de vuelo
+            lineas.add(detallesRuta + "," + detallesPlanes);
+        }
+
+        try {
+            Files.write(Paths.get(archivoDestino), lineas);
+        } catch (IOException e) {
+            System.err.println("Error al escribir en el archivo: " + e.getMessage());
+        }
+    }
+
+    public static List<RutaComun> leerRutasDesdeCSV(String archivoRutas) {
+        List<RutaComun> rutas = new ArrayList<>();
+        try (Stream<String> lineas = Files.lines(Paths.get(archivoRutas))) {
+            lineas.skip(1) // Saltar el encabezado
+                    .forEach(linea -> {
+                        String[] partes = linea.split(",");
+                        String origen = partes[0];
+                        String destino = partes[1];
+                        OffsetTime salida = OffsetTime.parse(partes[2]);
+                        OffsetTime llegada = OffsetTime.parse(partes[3]);
+                        int dias = Integer.parseInt(partes[4]);
+
+                        RutaComun ruta = new RutaComun(salida, llegada, origen, destino, null, dias);
+                        rutas.add(ruta);
+                    });
+        } catch (IOException e) {
+            System.err.println("Error al leer el archivo: " + e.getMessage());
+        }
+        return rutas;
+    }
 
     public static List<RutaComun> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaComun> rutas = new ArrayList<>();
@@ -31,12 +86,12 @@ public class RutaComun {
                 if (!origen.equals(destino) && origen.getContinente()
                         .equals(destino.getContinente())) {
                     List<Integer> daysm = new ArrayList<>();
-                    List<List<PlanDeVuelo>> escalas = generarEscalas(origen, destino, planes, daysm);
-                    for (List<PlanDeVuelo> escala : escalas) {
+                    List<List<PlanDeVuelo>> _planesRutas = generarEscalas(origen, destino, planes, daysm);
+                    for (List<PlanDeVuelo> _planRuta : _planesRutas) {
                         RutaComun ruta = new RutaComun();
-                        ruta.setAeropuertoOrigen(origen);
-                        ruta.setAeropuertoDestino(destino);
-                        ruta.setEscala(new Escala(ruta, escala));
+                        ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
+                        ruta.setCodigoIATADestino(destino.getCodigoIATA());
+                        ruta.setPlanRuta(_planRuta);
                         rutas.add(ruta);
                     }
                 }
