@@ -29,7 +29,7 @@ public class PlanDeVuelo {
 
         public static List<PlanDeVuelo> leerPlanesDeVuelo(List<Aeropuerto> aeropuertos) {
                 List<PlanDeVuelo> planesDeVuelo = new ArrayList<>();
-                String archivo = "ProyectoDP1/src/main/resources/Planes.vuelo.v1.incompleto.txt";
+                String archivo = "src/main/resources/Planes.vuelo.v1.incompleto.txt";
                 try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
                         String line;
                         while ((line = reader.readLine()) != null) {

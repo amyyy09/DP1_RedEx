@@ -15,6 +15,10 @@ public class Cromosoma {
         this.gen = gen;
     }
 
+    public Map<RutaTiempoReal, Paquete> getGenes() {
+        return gen; // Devuelve la referencia directa, las modificaciones afectan al mapa original
+    }
+
     public int getTamano() {
         return gen != null ? gen.size() : 0;
     }

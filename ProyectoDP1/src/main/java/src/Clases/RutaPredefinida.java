@@ -1,10 +1,12 @@
 package src.Clases;
 
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -33,29 +35,44 @@ public class RutaPredefinida {
         List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
         List<String> lineas = new ArrayList<>();
         lineas.add("CodigoIATAOrigen,CodigoIATADestino,HoraSalida,HoraLlegada,NDays,PlanesDeVuelo");
-        for (RutaPredefinida ruta : rutas) {
-            String detallesRuta = String.format("%s,%s,%s,%s,%d",
-                    ruta.getCodigoIATAOrigen(),
-                    ruta.getCodigoIATADestino(),
-                    ruta.getHoraSalida(),
-                    ruta.getHoraLlegada(),
-                    ruta.getNdays());
-            String detallesPlanes = ruta.getPlanRuta().stream()
-                    .map(plan -> String.format("%s,%s,%s,%s,%d",
-                            plan.getCodigoIATAOrigen(),
-                            plan.getCodigoIATADestino(),
-                            plan.getHoraSalida(),
-                            plan.getHoraLlegada(),
-                            plan.getCapacidad()))
-                    .collect(Collectors.joining("|")); // Separador entre planes de vuelo
-            lineas.add(detallesRuta + "," + detallesPlanes);
-        }
+        lineas.addAll(rutas.stream().map(RutaPredefinida::formatoRutaCSV).collect(Collectors.toList()));
 
-        try {
-            Files.write(Paths.get(archivoDestino), lineas);
+        try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(archivoDestino))) {
+            for (String linea : lineas) {
+                writer.write(linea);
+                writer.newLine();
+            }
         } catch (IOException e) {
             System.err.println("Error al escribir en el archivo: " + e.getMessage());
         }
+    }
+
+    private static String formatoRutaCSV(RutaPredefinida ruta) {
+        // Cambiar el patrón para incluir solo la hora si es que se usa LocalTime o
+        // OffsetTime
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+
+        // Formatear solo las horas si los objetos son de tipo OffsetTime
+        String horaSalida = ruta.getHoraSalida() != null ? ruta.getHoraSalida().format(formatter) : "N/D";
+        String horaLlegada = ruta.getHoraLlegada() != null ? ruta.getHoraLlegada().format(formatter) : "N/D";
+
+        String detallesRuta = String.format("%s,%s,%s,%s,%d",
+                ruta.getCodigoIATAOrigen(),
+                ruta.getCodigoIATADestino(),
+                horaSalida,
+                horaLlegada,
+                ruta.getNdays());
+
+        String detallesPlanes = ruta.getPlanRuta().stream()
+                .map(plan -> String.format("%s,%s,%s,%s,%d",
+                        plan.getCodigoIATAOrigen(),
+                        plan.getCodigoIATADestino(),
+                        plan.getHoraSalida() != null ? plan.getHoraSalida().format(formatter) : "N/D",
+                        plan.getHoraLlegada() != null ? plan.getHoraLlegada().format(formatter) : "N/D",
+                        plan.getCapacidad()))
+                .collect(Collectors.joining("|"));
+
+        return detallesRuta + "," + detallesPlanes;
     }
 
     public static List<RutaPredefinida> leerRutasDesdeCSV(String archivoRutas) {
@@ -112,7 +129,7 @@ public class RutaPredefinida {
     private static void dfs(String current, String destination, List<PlanDeVuelo> currentRoute,
             List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm, int days) {
 
-        if (currentRoute.size() > 20) {
+        if (currentRoute.size() > 10) {
             return; // Si se exceden 20 escalas, detiene la recursión para esta ruta
         }
 

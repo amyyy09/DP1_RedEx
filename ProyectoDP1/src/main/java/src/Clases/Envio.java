@@ -30,7 +30,7 @@ public class Envio {
 
     public static List<Envio> obtenerEnvios() {
         List<Envio> envios = new ArrayList<>();
-        String archivo = "ProyectoDP1/src/main/resources/pack_enviado/pack_enviado_EBCI.txt";
+        String archivo = "src/main/resources/pack_enviado/pack_enviado_EBCI.txt";
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         ZoneOffset zoneOffset = ZoneOffset.UTC;
         try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {

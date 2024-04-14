@@ -32,10 +32,10 @@ public class ProyectoDp1Application_algoritmogenetico {
 			List<Almacen> almacenes = DatosAeropuertos.obtenerAlmacenes();
 			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
 			List<Envio> envios = Envio.obtenerEnvios();
-			List<RutaPredefinida> rutasPred = RutaPredefinida.generarRutas(aeropuertos, planes);
+			RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
 			evaluator = new FitnessEvaluator();
-			Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes, planes);
-			System.out.println("Rutas generadas: " + resultado);
+			// Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes,
+			// planes);
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();
