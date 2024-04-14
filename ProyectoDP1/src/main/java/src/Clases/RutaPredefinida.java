@@ -50,7 +50,7 @@ public class RutaPredefinida {
     private static String formatoRutaCSV(RutaPredefinida ruta) {
         // Cambiar el patrón para incluir solo la hora si es que se usa LocalTime o
         // OffsetTime
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
         // Formatear solo las horas si los objetos son de tipo OffsetTime
         String horaSalida = ruta.getHoraSalida() != null ? ruta.getHoraSalida().format(formatter) : "N/D";
