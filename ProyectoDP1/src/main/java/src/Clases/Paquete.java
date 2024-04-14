@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Paquete {
-    private int id;
-    private String statusPaquete;
+    private String idEnvio;
+    private int status;
 }

@@ -29,11 +29,12 @@ public class ProyectoDp1Application_algoritmogenetico {
 	public static void main(String[] args) {
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.obtenerAeropuertos();
+			List<Almacen> almacenes = DatosAeropuertos.obtenerAlmacenes();
 			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
-			List<RutaPredefinida> rutas = RutaPredefinida.generarRutas(aeropuertos, planes);
-			List<Envio> envios = Envio.leerEnvios(aeropuertos, planes);
+			List<Envio> envios = Envio.obtenerEnvios();
+			List<RutaPredefinida> rutasPred = RutaPredefinida.generarRutas(aeropuertos, planes);
 			evaluator = new FitnessEvaluator();
-			ejecutarAlgoritmo(paquetes, rutas);
+			genetico(envios, rutasPred, almacenes);
 			System.out.println("Rutas generadas " + evaluator);
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
@@ -41,50 +42,54 @@ public class ProyectoDp1Application_algoritmogenetico {
 		}
 	}
 
-	public Cromosoma ejecutarAlgoritmo(List<Paquete> paquetes, List<RutaTiempoReal> rutas,
-			List<Almacen> almacenes, List<PlanDeVuelo> vuelos,
-			double Ps, double Pm, double Pc, int numCromosomas,
-			int numTorneo, int numDescendientes, int numGeneraciones) {
+	// public Cromosoma ejecutarAlgoritmo(List<Paquete> paquetes,
+	// List<RutaTiempoReal> rutas,
+	// List<Almacen> almacenes, List<PlanDeVuelo> vuelos,
+	// double Ps, double Pm, double Pc, int numCromosomas,
+	// int numTorneo, int numDescendientes, int numGeneraciones) {
 
-		List<Cromosoma> poblacion = new ArrayList<>();
-		for (int i = 0; i < numGeneraciones; i++) {
+	// List<Cromosoma> poblacion = new ArrayList<>();
+	// for (int i = 0; i < numGeneraciones; i++) {
 
-			List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, almacenes, vuelos);
-			if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
-				System.out.println("Se ha encontrado una solución satisfactoria");
-				return poblacion.get(0);
-			}
+	// List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion,
+	// almacenes, vuelos);
+	// if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
+	// System.out.println("Se ha encontrado una solución satisfactoria");
+	// return poblacion.get(0);
+	// }
 
-			List<Cromosoma> matingPool = TournnamentSeleccion(poblacion, Ps, numTorneo, fitnessAgregado);
-			List<Cromosoma> descendientes = new ArrayList<>();
+	// List<Cromosoma> matingPool = TournnamentSeleccion(poblacion, Ps, numTorneo,
+	// fitnessAgregado);
+	// List<Cromosoma> descendientes = new ArrayList<>();
 
-			// Iteraciones para generación de descendientes
-			for (int j = 0; j < numDescendientes / 2; j++) {
-				// Selección aleatoria de pareja de padres del mating pool
-				Random rand = new Random();
-				int padre1 = rand.nextInt(matingPool.size());
-				int padre2 = rand.nextInt(matingPool.size());
+	// // Iteraciones para generación de descendientes
+	// for (int j = 0; j < numDescendientes / 2; j++) {
+	// // Selección aleatoria de pareja de padres del mating pool
+	// Random rand = new Random();
+	// int padre1 = rand.nextInt(matingPool.size());
+	// int padre2 = rand.nextInt(matingPool.size());
 
-				// Cruzamiento bajo probabilidad Pc
-				if (Math.random() < Pc) {
-					List<Cromosoma> hijos = crossover(matingPool.get(padre1), matingPool.get(padre2));
+	// // Cruzamiento bajo probabilidad Pc
+	// if (Math.random() < Pc) {
+	// List<Cromosoma> hijos = crossover(matingPool.get(padre1),
+	// matingPool.get(padre2));
 
-					// Mutación bajo probabilidad Pm
-					if (Math.random() < Pm) {
-						mutarHijos(hijos, rutas);
-					}
-					descendientes.addAll(hijos);
-				}
-			}
+	// // Mutación bajo probabilidad Pm
+	// if (Math.random() < Pm) {
+	// mutarHijos(hijos, rutas);
+	// }
+	// descendientes.addAll(hijos);
+	// }
+	// }
 
-			// Aquí podrías actualizar la población con los descendientes generados
-			// Considera criterios de selección o reemplazo para la próxima generación
-		}
+	// // Aquí podrías actualizar la población con los descendientes generados
+	// // Considera criterios de selección o reemplazo para la próxima generación
+	// }
 
-		// En caso de no encontrar una solución satisfactoria, decide qué hacer
-		System.out.println("No se encontró una solución satisfactoria.");
-		return null; // O cualquier otra acción como devolver el mejor encontrado
-	}
+	// // En caso de no encontrar una solución satisfactoria, decide qué hacer
+	// System.out.println("No se encontró una solución satisfactoria.");
+	// return null; // O cualquier otra acción como devolver el mejor encontrado
+	// }
 
 	public void mutarHijos(List<Cromosoma> hijos, List<RutaTiempoReal> rutasDisponibles) {
 		Random rand = new Random();

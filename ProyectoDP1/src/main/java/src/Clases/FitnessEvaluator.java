@@ -16,7 +16,8 @@ public class FitnessEvaluator {
         this.valorBaseFitness = valorBaseFitness;
     }
 
-    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Almacen> almacenes,
+    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion,
+            List<Almacen> almacenes,
             List<Vuelo> vuelosActuales) {
         List<Double> fitnessCromosomas = new ArrayList<>();
 
@@ -35,8 +36,10 @@ public class FitnessEvaluator {
                     }
                 }
 
-                Almacen almacenOrigen = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getOrigen().getCodigoIATA());
-                Almacen almacenDestino = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getDestino().getCodigoIATA());
+                Almacen almacenOrigen = obtenerAlmacenPorCodigoIATA(almacenes,
+                        ruta.getOrigen().getCodigoIATA());
+                Almacen almacenDestino = obtenerAlmacenPorCodigoIATA(almacenes,
+                        ruta.getDestino().getCodigoIATA());
 
                 if (almacenOrigen != null && almacenDestino != null) {
                     penalizacion += calcularPenalizacionAlmacen(almacenOrigen, 1);
