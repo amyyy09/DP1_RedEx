@@ -1,9 +1,9 @@
 package src.Clases;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
-
 
 @Getter
 @Setter
@@ -11,8 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Vuelo {
     private int cantPaquetes;
-    //private double porcSaturacion;
-
-    //private Ruta ruta;
+    private int capacidad;
+    private int status;
     private PlanDeVuelo planDeVuelo;
 }

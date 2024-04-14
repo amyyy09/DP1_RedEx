@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Paquete {
     private int id;
-    private String Estado;
+    private String statusPaquete;
 }

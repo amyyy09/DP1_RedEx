@@ -13,11 +13,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Ruta {
-
     private int IdRuta;
     private Aeropuerto origen;
     private Aeropuerto destino;
-    private LocalDateTime horaInicio; // LocalDateTime
-    private LocalDateTime horaLlegada; // LocalDateTime
+    private LocalDateTime horaInicio;
+    private LocalDateTime horaLlegada;
     private List<Vuelo> vuelos;
 }

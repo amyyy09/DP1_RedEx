@@ -20,5 +20,4 @@ public class Envio {
     private OffsetDateTime fechaHoraLimite;
     private Aeropuerto aeropuertoOrigen;
     private Aeropuerto aeropuertoDestino;
-
 }

@@ -75,7 +75,6 @@ public class RutaComun {
         }
         for (PlanDeVuelo plan : planes) {
             if (plan.getAeropuertoOrigen().equals(current)) {
-                // System.out.println("Found a flight from current airport");
                 OffsetTime arrivalTime = plan.getHoraLlegada();
                 OffsetTime departureTime = plan.getHoraSalida();
                 OffsetTime finalTime = null;

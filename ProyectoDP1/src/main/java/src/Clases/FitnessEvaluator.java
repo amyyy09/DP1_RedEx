@@ -30,40 +30,44 @@ public class FitnessEvaluator {
             List<PlanDeVuelo> vuelos) {
         List<Double> fitnessCromo = new ArrayList<>();
 
-        // for (Cromosoma cromosoma : poblacion) {
-        // double penalizacion = 0.0;
+        // // for (cromosoma cromosoma : poblacion) {
+        // // double penalizacion = 0.0;
 
-        // for (Map.Entry<Ruta, Paquete> entrada : cromosoma.getGen().entrySet()) {
-        // Ruta ruta = entrada.getKey();
-        // Paquete paquete = entrada.getValue();
-        // PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(vuelos, ruta);
+        // // for (map.entry<ruta, paquete> entrada : cromosoma.getgen().entryset()) {
+        // // ruta ruta = entrada.getkey();
+        // // paquete paquete = entrada.getvalue();
+        // // plandevuelo plandevuelo = encontrarplandevuelopararuta(vuelos, ruta);
 
-        // // Verificar capacidad de los vuelos
-        // // if (planDeVuelo != null && ruta.getCantidadPaquetes() >
-        // // planDeVuelo.getCapacidad()) {
-        // // penalizacion += (ruta.getCantidadPaquetes() - planDeVuelo.getCapacidad());
+        // // // verificar capacidad de los vuelos
+        // // // if (plandevuelo != null && ruta.getcantidadpaquetes() >
+        // // // plandevuelo.getcapacidad()) {
+        // // // penalizacion += (ruta.getcantidadpaquetes() -
+        // plandevuelo.getcapacidad());
+        // // // }
+
+        // // // verificar capacidad del almacen de origen y destino
+        // // for (almacen almacen : almacenes) {
+        // // // aquí necesitarías lógica para determinar si este almacén es relevante
+        // para
+        // // la
+        // // // ruta del paquete
+        // // // y ajustar la penalización según la capacidad del almacén
+        // // if (almacenserelacionaconruta(almacen, ruta)) {
+        // // int capacidaddisponible = almacen.getcapacidad() -
+        // almacen.getcantpaquetes();
+        // // if (capacidaddisponible < 0) {
+        // // penalizacion += math.abs(capacidaddisponible);
+        // // }
+        // // }
+        // // }
         // // }
 
-        // // Verificar capacidad del almacen de origen y destino
-        // for (Almacen almacen : almacenes) {
-        // // Aquí necesitarías lógica para determinar si este almacén es relevante para
-        // la
-        // // ruta del paquete
-        // // y ajustar la penalización según la capacidad del almacén
-        // if (almacenSeRelacionaConRuta(almacen, ruta)) {
-        // int capacidadDisponible = almacen.getCapacidad() - almacen.getCantPaquetes();
-        // if (capacidadDisponible < 0) {
-        // penalizacion += Math.abs(capacidadDisponible);
-        // }
-        // }
-        // }
-        // }
-
-        // // Calcula el fitness para este cromosoma (podrías ajustar esta fórmula según
-        // // tus necesidades)
-        // double fitness = 1000.0 - penalizacion; // Un ejemplo simple
-        // fitnessCromo.add(fitness);
-        // }
+        // // // calcula el fitness para este cromosoma (podrías ajustar esta fórmula
+        // según
+        // // // tus necesidades)
+        // // double fitness = 1000.0 - penalizacion; // un ejemplo simple
+        // // fitnesscromo.add(fitness);
+        // // }
 
         return fitnessCromo;
     }
@@ -71,9 +75,9 @@ public class FitnessEvaluator {
     // Método ficticio para encontrar el plan de vuelo para una ruta dada
     private PlanDeVuelo encontrarPlanDeVueloParaRuta(List<PlanDeVuelo> vuelos, Ruta ruta) {
         // Implementación de ejemplo. Necesitarías adaptar esto a tu lógica real.
-        // for (PlanDeVuelo vuelo : vuelos) {
-        // // if (vuelo.getOrigen().equals(ruta.getOrigen()) &&
-        // // vuelo.getDestino().equals(ruta.getDestino())) {
+        // for (plandevuelo vuelo : vuelos) {
+        // // if (vuelo.getorigen().equals(ruta.getorigen()) &&
+        // // vuelo.getdestino().equals(ruta.getdestino())) {
         // // return vuelo;
         // // }
         // }
