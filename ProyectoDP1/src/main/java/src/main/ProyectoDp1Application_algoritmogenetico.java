@@ -35,7 +35,8 @@ public class ProyectoDp1Application_algoritmogenetico {
 			// RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
 			List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas();
 			evaluator = new FitnessEvaluator();
-			Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes, planes);
+			// Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes,
+			// planes);
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();

@@ -28,7 +28,7 @@ public class RutaPredefinida {
     private String codigoIATADestino;
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
-    private List<PlanDeVuelo> planRuta;
+    private List<PlanDeVuelo> escalas;
     private int ndays;
 
     public static void guardarRutasEnCSV(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes,
@@ -49,7 +49,7 @@ public class RutaPredefinida {
 
     private static String formatoRutaCSV(RutaPredefinida ruta) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-        String detallesPlanes = ruta.getPlanRuta().stream()
+        String detallesPlanes = ruta.getEscalas().stream()
                 .map(plan -> String.format("%s,%s,%s,%s,%d",
                         plan.getCodigoIATAOrigen(),
                         plan.getCodigoIATADestino(),
@@ -68,25 +68,28 @@ public class RutaPredefinida {
 
         try (Stream<String> lineas = Files.lines(Paths.get(archivoRutas))) {
             lineas.forEach(linea -> {
-                String[] partes = linea.split(",");
-                String origen = partes[0];
-                String destino = partes[1];
-                OffsetTime salida = OffsetTime.parse(partes[2], formatter);
-                OffsetTime llegada = OffsetTime.parse(partes[3], formatter);
-                int dias = Integer.parseInt(partes[4]);
-                String detallesPlanes = partes[5];
+                String[] vuelos = linea.split("\\|");
+                List<PlanDeVuelo> planDeVuelos = new ArrayList<>();
 
-                List<PlanDeVuelo> planRutas = Arrays.stream(detallesPlanes.split("\\|"))
-                        .map(detalle -> {
-                            String[] planDetalles = detalle.split(",");
-                            OffsetTime horaSalidaPlan = OffsetTime.parse(planDetalles[2], formatter);
-                            OffsetTime horaLlegadaPlan = OffsetTime.parse(planDetalles[3], formatter);
-                            return new PlanDeVuelo(planDetalles[0], planDetalles[1], horaSalidaPlan,
-                                    horaLlegadaPlan, Integer.parseInt(planDetalles[4]), false);
-                        })
-                        .collect(Collectors.toList());
+                for (String vuelo : vuelos) {
+                    String[] detalles = vuelo.split(",");
+                    String origen = detalles[0];
+                    String destino = detalles[1];
+                    OffsetTime salida = OffsetTime.parse(detalles[2], formatter);
+                    OffsetTime llegada = OffsetTime.parse(detalles[3], formatter);
+                    int capacidad = Integer.parseInt(detalles[4]);
+                    PlanDeVuelo planDeVuelo = new PlanDeVuelo(origen, destino, salida, llegada, capacidad, false); // flt
+                    planDeVuelos.add(planDeVuelo);
+                }
 
-                RutaPredefinida ruta = new RutaPredefinida(origen, destino, salida, llegada, planRutas, dias);
+                String origenInicial = planDeVuelos.get(0).getCodigoIATAOrigen();
+                String destinoFinal = planDeVuelos.get(planDeVuelos.size() - 1).getCodigoIATADestino();
+                OffsetTime horaInicial = planDeVuelos.get(0).getHoraSalida();
+                OffsetTime horaFinal = planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada();
+                int dias = Integer.parseInt(vuelos[vuelos.length - 1].split(",")[4]); // Obtener días del último vuelo
+
+                RutaPredefinida ruta = new RutaPredefinida(origenInicial, destinoFinal, horaInicial, horaFinal,
+                        planDeVuelos, dias);
                 rutas.add(ruta);
             });
         } catch (IOException e) {
@@ -107,7 +110,7 @@ public class RutaPredefinida {
                         RutaPredefinida ruta = new RutaPredefinida();
                         ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
                         ruta.setCodigoIATADestino(destino.getCodigoIATA());
-                        ruta.setPlanRuta(_planRuta);
+                        ruta.setEscalas(_planRuta);
                         rutas.add(ruta);
                     }
                 }
