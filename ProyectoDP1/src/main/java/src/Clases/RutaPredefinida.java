@@ -8,10 +8,11 @@ import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -29,7 +30,7 @@ public class RutaPredefinida {
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
     private List<PlanDeVuelo> escalas;
-    private int duracion;
+    private long duracion;
 
     public static void guardarRutasEnCSV(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes,
             String archivoDestino) {
@@ -70,6 +71,7 @@ public class RutaPredefinida {
             lineas.forEach(linea -> {
                 String[] vuelos = linea.split("\\|");
                 List<PlanDeVuelo> planDeVuelos = new ArrayList<>();
+                long duracion = 0;
 
                 for (String vuelo : vuelos) {
                     String[] detalles = vuelo.split(",");
@@ -86,10 +88,9 @@ public class RutaPredefinida {
                 String destinoFinal = planDeVuelos.get(planDeVuelos.size() - 1).getCodigoIATADestino();
                 OffsetTime horaInicial = planDeVuelos.get(0).getHoraSalida();
                 OffsetTime horaFinal = planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada();
-                int dias = Integer.parseInt(vuelos[vuelos.length - 1].split(",")[4]); // cmmbiaR por durcion
 
                 RutaPredefinida ruta = new RutaPredefinida(origenInicial, destinoFinal, horaInicial, horaFinal,
-                        planDeVuelos, dias);
+                        planDeVuelos, duracion);
                 rutas.add(ruta);
             });
         } catch (IOException e) {
