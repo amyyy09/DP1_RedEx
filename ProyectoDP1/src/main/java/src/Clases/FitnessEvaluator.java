@@ -5,18 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class FitnessEvaluator {
-    // Hiperparámetros
-    private double penalizacionPorExceso = 10.0; // Valor predeterminado
-    private double valorBaseFitness = 1000.0; // Valor predeterminado
-
-    /**
-     * Calcula el fitness para toda una población de cromosomas.
-     * 
-     * @param poblacion La población de cromosomas a evaluar.
-     * @param almacenes Lista de almacenes con sus capacidades y cargas actuales.
-     * @param vuelos    Lista de planes de vuelo con sus capacidades.
-     * @return Una lista con los valores de fitness de cada cromosoma.
-     */
+    private double penalizacionPorExceso = 10.0; // Penalización por cada unidad que excede la capacidad
+    private double valorBaseFitness = 1000.0; // Puntaje base de fitness
 
     public FitnessEvaluator() {
     }
@@ -28,66 +18,63 @@ public class FitnessEvaluator {
 
     public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Almacen> almacenes,
             List<PlanDeVuelo> vuelos) {
-        List<Double> fitnessCromo = new ArrayList<>();
+        List<Double> fitnessCromosomas = new ArrayList<>();
 
-        for (cromosoma cromosoma : poblacion) {
-        double penalizacion = 0.0;
+        for (Cromosoma cromosoma : poblacion) {
+            double penalizacion = 0.0;
 
-        for (map.entry<ruta, paquete> entrada : cromosoma.getgen().entryset()) {
-        ruta ruta = entrada.getkey();
-        paquete paquete = entrada.getvalue();
-        plandevuelo plandevuelo = encontrarplandevuelopararuta(vuelos, ruta);
+            for (Map.Entry<Ruta, Paquete> entrada : cromosoma.getGenes().entrySet()) {
+                Ruta ruta = entrada.getKey();
+                Paquete paquete = entrada.getValue();
+                PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(vuelos, ruta);
 
-        verificar capacidad de los vuelos
-        if (plandevuelo != null && ruta.getcantidadpaquetes() >
-        plandevuelo.getcapacidad()) {
-        penalizacion += (ruta.getcantidadpaquetes() -
-        plandevuelo.getcapacidad());
+                if (planDeVuelo != null) {
+                    int exceso = paquete.getCantidad() - planDeVuelo.getCapacidad();
+                    if (exceso > 0) {
+                        penalizacion += exceso * penalizacionPorExceso;
+                    }
+                }
+
+                Almacen almacenOrigen = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getCodigoIATAOrigen());
+                Almacen almacenDestino = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getCodigoIATADestino());
+
+                if (almacenOrigen != null && almacenDestino != null) {
+                    penalizacion += calcularPenalizacionAlmacen(almacenOrigen, paquete.getCantidad());
+                    penalizacion += calcularPenalizacionAlmacen(almacenDestino, paquete.getCantidad());
+                }
+            }
+
+            double fitness = valorBaseFitness - penalizacion;
+            fitnessCromosomas.add(fitness);
         }
 
-        verificar capacidad del almacen de origen y destino
-        for (almacen almacen : almacenes) {
-        aquí necesitarías lógica para determinar si este almacén es relevante
-        para
-        la
-        ruta del paquete
-        y ajustar la penalización según la capacidad del almacén
-        if (almacenserelacionaconruta(almacen, ruta)) {
-        int capacidaddisponible = almacen.getcapacidad() -
-        almacen.getcantpaquetes();
-        if (capacidaddisponible < 0) {
-        penalizacion += math.abs(capacidaddisponible);
-        }
-        }
-        }
-        }
-
-        calcula el fitness para este cromosoma (podrías ajustar esta fórmula
-        según
-        tus necesidades)
-        double fitness = 1000.0 - penalizacion; // un ejemplo simple
-        fitnesscromo.add(fitness);
-        }
-
-        return fitnessCromo;
+        return fitnessCromosomas;
     }
 
-    // Método ficticio para encontrar el plan de vuelo para una ruta dada
     private PlanDeVuelo encontrarPlanDeVueloParaRuta(List<PlanDeVuelo> vuelos, Ruta ruta) {
-        // Implementación de ejemplo. Necesitarías adaptar esto a tu lógica real.
-        // for (plandevuelo vuelo : vuelos) {
-        // // if (vuelo.getorigen().equals(ruta.getorigen()) &&
-        // // vuelo.getdestino().equals(ruta.getdestino())) {
-        // // return vuelo;
-        // // }
-        // }
+        for (PlanDeVuelo vuelo : vuelos) {
+            if (vuelo.getCodigoIATAOrigen().equals(ruta.getCodigoIATAOrigen()) &&
+                    vuelo.getCodigoIATADestino().equals(ruta.getCodigoIATADestino())) {
+                return vuelo;
+            }
+        }
         return null;
     }
 
-    // Método ficticio para determinar si un almacén se relaciona con la ruta de un
-    // paquete
-    private boolean almacenSeRelacionaConRuta(Almacen almacen, Ruta ruta) {
-        // Implementación de ejemplo. Necesitarías adaptar esto a tu lógica real.
-        return true; // Simplificación para el ejemplo
+    private Almacen obtenerAlmacenPorCodigoIATA(List<Almacen> almacenes, String codigoIATA) {
+        for (Almacen almacen : almacenes) {
+            if (almacen.getCodigoIATA().equals(codigoIATA)) {
+                return almacen;
+            }
+        }
+        return null;
+    }
+
+    private double calcularPenalizacionAlmacen(Almacen almacen, int cantidad) {
+        int capacidadDisponible = almacen.getCapacidad() - almacen.getCantPaquetes();
+        if (capacidadDisponible < cantidad) {
+            return Math.abs(capacidadDisponible - cantidad) * penalizacionPorExceso;
+        }
+        return 0.0;
     }
 }
