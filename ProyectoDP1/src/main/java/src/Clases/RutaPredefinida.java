@@ -52,17 +52,6 @@ public class RutaPredefinida {
         // OffsetTime
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        // Formatear solo las horas si los objetos son de tipo OffsetTime
-        String horaSalida = ruta.getHoraSalida() != null ? ruta.getHoraSalida().format(formatter) : "N/D";
-        String horaLlegada = ruta.getHoraLlegada() != null ? ruta.getHoraLlegada().format(formatter) : "N/D";
-
-        String detallesRuta = String.format("%s,%s,%s,%s,%d",
-                ruta.getCodigoIATAOrigen(),
-                ruta.getCodigoIATADestino(),
-                horaSalida,
-                horaLlegada,
-                ruta.getNdays());
-
         String detallesPlanes = ruta.getPlanRuta().stream()
                 .map(plan -> String.format("%s,%s,%s,%s,%d",
                         plan.getCodigoIATAOrigen(),
@@ -72,7 +61,7 @@ public class RutaPredefinida {
                         plan.getCapacidad()))
                 .collect(Collectors.joining("|"));
 
-        return detallesRuta + "," + detallesPlanes;
+        return detallesPlanes;
     }
 
     public static List<RutaPredefinida> leerRutasDesdeCSV(String archivoRutas) {
