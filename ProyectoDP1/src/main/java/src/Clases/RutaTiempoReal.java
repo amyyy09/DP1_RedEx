@@ -12,11 +12,14 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Ruta {
+public class RutaTiempoReal {
     private int IdRuta;
     private Aeropuerto origen;
     private Aeropuerto destino;
     private LocalDateTime horaInicio;
     private LocalDateTime horaLlegada;
     private List<Vuelo> vuelos;
+    private int status; // indica si la ruta esta actualmente activa
+
+    // get capcidad del almcen actual (o del avion actul)
 }

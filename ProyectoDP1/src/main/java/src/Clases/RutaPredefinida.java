@@ -19,7 +19,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RutaComun {
+public class RutaPredefinida {
 
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
@@ -30,10 +30,10 @@ public class RutaComun {
 
     public static void guardarRutasEnCSV(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes,
             String archivoDestino) {
-        List<RutaComun> rutas = generarRutas(aeropuertos, planes);
+        List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
         List<String> lineas = new ArrayList<>();
         lineas.add("CodigoIATAOrigen,CodigoIATADestino,HoraSalida,HoraLlegada,NDays,PlanesDeVuelo");
-        for (RutaComun ruta : rutas) {
+        for (RutaPredefinida ruta : rutas) {
             String detallesRuta = String.format("%s,%s,%s,%s,%d",
                     ruta.getCodigoIATAOrigen(),
                     ruta.getCodigoIATADestino(),
@@ -58,8 +58,8 @@ public class RutaComun {
         }
     }
 
-    public static List<RutaComun> leerRutasDesdeCSV(String archivoRutas) {
-        List<RutaComun> rutas = new ArrayList<>();
+    public static List<RutaPredefinida> leerRutasDesdeCSV(String archivoRutas) {
+        List<RutaPredefinida> rutas = new ArrayList<>();
         try (Stream<String> lineas = Files.lines(Paths.get(archivoRutas))) {
             lineas.skip(1) // Saltar el encabezado
                     .forEach(linea -> {
@@ -70,7 +70,7 @@ public class RutaComun {
                         OffsetTime llegada = OffsetTime.parse(partes[3]);
                         int dias = Integer.parseInt(partes[4]);
 
-                        RutaComun ruta = new RutaComun(salida, llegada, origen, destino, null, dias);
+                        RutaPredefinida ruta = new RutaPredefinida(salida, llegada, origen, destino, null, dias);
                         rutas.add(ruta);
                     });
         } catch (IOException e) {
@@ -79,8 +79,8 @@ public class RutaComun {
         return rutas;
     }
 
-    public static List<RutaComun> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
-        List<RutaComun> rutas = new ArrayList<>();
+    public static List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
+        List<RutaPredefinida> rutas = new ArrayList<>();
         for (Aeropuerto origen : aeropuertos) {
             for (Aeropuerto destino : aeropuertos) {
                 if (!origen.equals(destino) && origen.getContinente()
@@ -88,7 +88,7 @@ public class RutaComun {
                     List<Integer> daysm = new ArrayList<>();
                     List<List<PlanDeVuelo>> _planesRutas = generarEscalas(origen, destino, planes, daysm);
                     for (List<PlanDeVuelo> _planRuta : _planesRutas) {
-                        RutaComun ruta = new RutaComun();
+                        RutaPredefinida ruta = new RutaPredefinida();
                         ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
                         ruta.setCodigoIATADestino(destino.getCodigoIATA());
                         ruta.setPlanRuta(_planRuta);

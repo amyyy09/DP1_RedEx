@@ -13,8 +13,8 @@ import java.util.HashMap;
 //paquetes
 import src.Clases.Paquete;
 import src.Clases.PlanDeVuelo;
-import src.Clases.Ruta;
-import src.Clases.RutaComun;
+import src.Clases.RutaTiempoReal;
+import src.Clases.RutaPredefinida;
 import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
 import src.Clases.Cromosoma;
@@ -29,7 +29,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.obtenerAeropuertos();
 			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
-			List<RutaComun> rutas = RutaComun.generarRutas(aeropuertos, planes);
+			List<RutaPredefinida> rutas = RutaPredefinida.generarRutas(aeropuertos, planes);
 			// List<Paquete> paquetes = Paquete.leerPaquetes(aeropuertos, planes);
 			evaluator = new FitnessEvaluator();
 			// ejecutarAlgoritmo(paquetes, rutas);
@@ -40,7 +40,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		}
 	}
 
-	public Cromosoma ejecutarAlgoritmo(List<Paquete> paquetes, List<Ruta> rutas,
+	public Cromosoma ejecutarAlgoritmo(List<Paquete> paquetes, List<RutaTiempoReal> rutas,
 			List<Almacen> almacenes, List<PlanDeVuelo> vuelos,
 			double Ps, double Pm, double Pc, int numCromosomas,
 			int numTorneo, int numDescendientes, int numGeneraciones) {
@@ -85,17 +85,17 @@ public class ProyectoDp1Application_algoritmogenetico {
 		return null; // O cualquier otra acción como devolver el mejor encontrado
 	}
 
-	public void mutarHijos(List<Cromosoma> hijos, List<Ruta> rutasDisponibles) {
+	public void mutarHijos(List<Cromosoma> hijos, List<RutaTiempoReal> rutasDisponibles) {
 		Random rand = new Random();
 		for (Cromosoma hijo : hijos) {
 			// Convertir las claves del mapa (Ruta) a una lista para poder seleccionar una
 			// al azar
-			List<Ruta> rutasActuales = new ArrayList<>(hijo.getGen().keySet());
+			List<RutaTiempoReal> rutasActuales = new ArrayList<>(hijo.getGen().keySet());
 			int indexRutaAMutar = rand.nextInt(rutasActuales.size());
-			Ruta rutaAMutar = rutasActuales.get(indexRutaAMutar);
+			RutaTiempoReal rutaAMutar = rutasActuales.get(indexRutaAMutar);
 
 			// Seleccionar una nueva ruta que sea diferente a la actual
-			Ruta nuevaRuta;
+			RutaTiempoReal nuevaRuta;
 			do {
 				nuevaRuta = rutasDisponibles.get(rand.nextInt(rutasDisponibles.size()));
 			} while (nuevaRuta.equals(rutaAMutar));
@@ -140,23 +140,23 @@ public class ProyectoDp1Application_algoritmogenetico {
 
 	public List<Cromosoma> crossover(Cromosoma padre1, Cromosoma padre2) {
 
-		Map<Ruta, Paquete> genPadre1 = new HashMap<>(padre1.getGen());
-		Map<Ruta, Paquete> genPadre2 = new HashMap<>(padre2.getGen());
+		Map<RutaTiempoReal, Paquete> genPadre1 = new HashMap<>(padre1.getGen());
+		Map<RutaTiempoReal, Paquete> genPadre2 = new HashMap<>(padre2.getGen());
 
-		List<Map.Entry<Ruta, Paquete>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
-		List<Map.Entry<Ruta, Paquete>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
+		List<Map.Entry<RutaTiempoReal, Paquete>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
+		List<Map.Entry<RutaTiempoReal, Paquete>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
 
 		Random random = new Random();
 		int puntoCruce = random.nextInt(listaGenPadre1.size());
 
 		for (int i = puntoCruce; i < listaGenPadre1.size(); i++) {
-			Map.Entry<Ruta, Paquete> temp = listaGenPadre1.get(i);
+			Map.Entry<RutaTiempoReal, Paquete> temp = listaGenPadre1.get(i);
 			listaGenPadre1.set(i, listaGenPadre2.get(i));
 			listaGenPadre2.set(i, temp);
 		}
 
-		Map<Ruta, Paquete> genHijo1 = new HashMap<>();
-		Map<Ruta, Paquete> genHijo2 = new HashMap<>();
+		Map<RutaTiempoReal, Paquete> genHijo1 = new HashMap<>();
+		Map<RutaTiempoReal, Paquete> genHijo2 = new HashMap<>();
 		for (int i = 0; i < listaGenPadre1.size(); i++) {
 			genHijo1.put(listaGenPadre1.get(i).getKey(), listaGenPadre1.get(i).getValue());
 			genHijo2.put(listaGenPadre2.get(i).getKey(), listaGenPadre2.get(i).getValue());
