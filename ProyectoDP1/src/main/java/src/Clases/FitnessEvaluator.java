@@ -24,10 +24,10 @@ public class FitnessEvaluator {
         for (Cromosoma cromosoma : poblacion) {
             double penalizacion = 0.0;
 
-            for (Map.Entry<RutaTiempoReal, Paquete> entrada : cromosoma.getGenes().entrySet()) {
+            for (Map.Entry<RutaTiempoReal, Paquete> entrada : cromosoma.getGen().entrySet()) {
                 RutaTiempoReal ruta = entrada.getKey();
                 Paquete paquete = entrada.getValue();
-                Vuelo planDeVuelo = encontrarPlanDeVueloParaRuta(vuelosActuales, ruta);
+                PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(vuelosActuales, ruta);
 
                 if (planDeVuelo != null) {
                     int exceso = 1 - planDeVuelo.getCapacidad();
