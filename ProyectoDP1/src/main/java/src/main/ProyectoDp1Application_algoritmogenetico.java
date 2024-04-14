@@ -19,6 +19,7 @@ import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
 import src.Clases.Cromosoma;
 import src.Clases.DatosAeropuertos;
+import src.Clases.Envio;
 import src.Clases.FitnessEvaluator;
 
 @SpringBootApplication
@@ -30,9 +31,9 @@ public class ProyectoDp1Application_algoritmogenetico {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.obtenerAeropuertos();
 			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
 			List<RutaPredefinida> rutas = RutaPredefinida.generarRutas(aeropuertos, planes);
-			// List<Paquete> paquetes = Paquete.leerPaquetes(aeropuertos, planes);
+			List<Envio> envios = Envio.leerEnvios(aeropuertos, planes);
 			evaluator = new FitnessEvaluator();
-			// ejecutarAlgoritmo(paquetes, rutas);
+			ejecutarAlgoritmo(paquetes, rutas);
 			System.out.println("Rutas generadas " + evaluator);
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
