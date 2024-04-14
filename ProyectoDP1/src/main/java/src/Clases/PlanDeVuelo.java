@@ -20,11 +20,11 @@ import java.util.List;
 @NoArgsConstructor
 
 public class PlanDeVuelo {
-        private int capacidad;
-        private OffsetTime horaSalida;
-        private OffsetTime horaLlegada;
         private String codigoIATAOrigen;
         private String codigoIATADestino;
+        private OffsetTime horaSalida;
+        private OffsetTime horaLlegada;
+        private int capacidad;
         private boolean isSameContinent;
 
         public static List<PlanDeVuelo> leerPlanesDeVuelo(List<Aeropuerto> aeropuertos) {
@@ -51,8 +51,8 @@ public class PlanDeVuelo {
                                                 aeropuertos);
 
                                 if (horaSalidaOffset != null && horaLlegadaOffset != null) {
-                                        PlanDeVuelo plan = new PlanDeVuelo(capacidad, horaSalidaOffset,
-                                                        horaLlegadaOffset, codigoIATAOrigen, codigoIATADestino,
+                                        PlanDeVuelo plan = new PlanDeVuelo(codigoIATAOrigen, codigoIATADestino,
+                                                        horaSalidaOffset, horaLlegadaOffset, capacidad,
                                                         isSameContinent);
                                         planesDeVuelo.add(plan);
                                 }

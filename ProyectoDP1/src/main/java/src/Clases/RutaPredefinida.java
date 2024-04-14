@@ -8,6 +8,7 @@ import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -63,16 +64,29 @@ public class RutaPredefinida {
     public static List<RutaPredefinida> obtenerRutasConEscalas() {
         String archivoRutas = "src/main/resources/rutPred.txt";
         List<RutaPredefinida> rutas = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+
         try (Stream<String> lineas = Files.lines(Paths.get(archivoRutas))) {
             lineas.forEach(linea -> {
                 String[] partes = linea.split(",");
                 String origen = partes[0];
                 String destino = partes[1];
-                OffsetTime salida = OffsetTime.parse(partes[2]);
-                OffsetTime llegada = OffsetTime.parse(partes[3]);
+                OffsetTime salida = OffsetTime.parse(partes[2], formatter);
+                OffsetTime llegada = OffsetTime.parse(partes[3], formatter);
                 int dias = Integer.parseInt(partes[4]);
+                String detallesPlanes = partes[5];
 
-                RutaPredefinida ruta = new RutaPredefinida(origen, destino, salida, llegada, null, dias);
+                List<PlanDeVuelo> planRutas = Arrays.stream(detallesPlanes.split("\\|"))
+                        .map(detalle -> {
+                            String[] planDetalles = detalle.split(",");
+                            OffsetTime horaSalidaPlan = OffsetTime.parse(planDetalles[2], formatter);
+                            OffsetTime horaLlegadaPlan = OffsetTime.parse(planDetalles[3], formatter);
+                            return new PlanDeVuelo(planDetalles[0], planDetalles[1], horaSalidaPlan,
+                                    horaLlegadaPlan, Integer.parseInt(planDetalles[4]), false);
+                        })
+                        .collect(Collectors.toList());
+
+                RutaPredefinida ruta = new RutaPredefinida(origen, destino, salida, llegada, planRutas, dias);
                 rutas.add(ruta);
             });
         } catch (IOException e) {
