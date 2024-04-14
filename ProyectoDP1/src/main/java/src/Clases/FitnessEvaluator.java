@@ -29,18 +29,18 @@ public class FitnessEvaluator {
                 PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(vuelos, ruta);
 
                 if (planDeVuelo != null) {
-                    int exceso = paquete.getCantidad() - planDeVuelo.getCapacidad();
+                    int exceso = 1 - planDeVuelo.getCapacidad();
                     if (exceso > 0) {
                         penalizacion += exceso * penalizacionPorExceso;
                     }
                 }
 
-                Almacen almacenOrigen = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getCodigoIATAOrigen());
-                Almacen almacenDestino = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getCodigoIATADestino());
+                Almacen almacenOrigen = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getOrigen().getCodigoIATA());
+                Almacen almacenDestino = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getDestino().getCodigoIATA());
 
                 if (almacenOrigen != null && almacenDestino != null) {
-                    penalizacion += calcularPenalizacionAlmacen(almacenOrigen, paquete.getCantidad());
-                    penalizacion += calcularPenalizacionAlmacen(almacenDestino, paquete.getCantidad());
+                    penalizacion += calcularPenalizacionAlmacen(almacenOrigen, 1);
+                    penalizacion += calcularPenalizacionAlmacen(almacenDestino, 1);
                 }
             }
 
@@ -51,10 +51,10 @@ public class FitnessEvaluator {
         return fitnessCromosomas;
     }
 
-    private PlanDeVuelo encontrarPlanDeVueloParaRuta(List<PlanDeVuelo> vuelos, Ruta ruta) {
+    private PlanDeVuelo encontrarPlanDeVueloParaRuta(List<PlanDeVuelo> vuelos, RutaComun RutaComun) {
         for (PlanDeVuelo vuelo : vuelos) {
-            if (vuelo.getCodigoIATAOrigen().equals(ruta.getCodigoIATAOrigen()) &&
-                    vuelo.getCodigoIATADestino().equals(ruta.getCodigoIATADestino())) {
+            if (vuelo.getCodigoIATAOrigen().equals(RutaComun.getCodigoIATAOrigen()) &&
+                    vuelo.getCodigoIATADestino().equals(RutaComun.getCodigoIATADestino())) {
                 return vuelo;
             }
         }

@@ -12,6 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Almacen {
+    private String codigoIATA;
     private int capacidad;
     private int cantPaquetes;
     private List<Paquete> paquetes;
