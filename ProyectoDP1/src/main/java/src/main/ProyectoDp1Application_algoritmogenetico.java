@@ -55,8 +55,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		List<Cromosoma> poblacion = new ArrayList<Cromosoma>();
 
 		for (int i = 0; i < numGeneraciones; i++) {
-			List<Double> fitnessagregado = evaluator.calcularfitnessagregado(poblacion,
-					almacenes, vuelos);
+			List<Double> fitnessagregado = null;
 			if (!fitnessagregado.isEmpty() && fitnessagregado.get(0) >= 0) {
 				System.out.println("se ha encontrado una solución satisfactoria");
 				return poblacion.get(0);
@@ -74,12 +73,11 @@ public class ProyectoDp1Application_algoritmogenetico {
 
 				// cruzamiento bajo probabilidad pc
 				if (Math.random() < pc) {
-					List<Cromosoma> hijos = crossover(matingpool.get(padre1),
-							matingpool.get(padre2));
+					List<Cromosoma> hijos = crossover(matingpool.get(padre1), matingpool.get(padre2));
 
 					// mutación bajo probabilidad pm
 					if (Math.random() < pm) {
-						mutarhijos(hijos, rutas);
+						// mutarhijos(hijos, rutas);
 					}
 					descendientes.addAll(hijos);
 				}
@@ -115,7 +113,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		}
 	}
 
-	public List<Cromosoma> TournnamentSeleccion(List<Cromosoma> poblacion, double Ps, int NumTorneo,
+	public static List<Cromosoma> TournnamentSeleccion(List<Cromosoma> poblacion, double Ps, int NumTorneo,
 			List<Double> fitnessAgregado) {
 		List<Cromosoma> mattingPool = new ArrayList<Cromosoma>();
 		int cantidadSeleccion = (int) (poblacion.size() * NumTorneo / 100);
@@ -144,7 +142,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		return mattingPool;
 	}
 
-	public List<Cromosoma> crossover(Cromosoma padre1, Cromosoma padre2) {
+	public static List<Cromosoma> crossover(Cromosoma padre1, Cromosoma padre2) {
 
 		Map<RutaTiempoReal, Paquete> genPadre1 = new HashMap<>(padre1.getGen());
 		Map<RutaTiempoReal, Paquete> genPadre2 = new HashMap<>(padre2.getGen());
