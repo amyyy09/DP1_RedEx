@@ -25,6 +25,7 @@ public class PlanDeVuelo {
         private OffsetTime horaLlegada;
         private String codigoIATAOrigen;
         private String codigoIATADestino;
+        private boolean isSameContinent;
 
         public static List<PlanDeVuelo> leerPlanesDeVuelo(List<Aeropuerto> aeropuertos) {
                 List<PlanDeVuelo> planesDeVuelo = new ArrayList<>();
@@ -46,11 +47,13 @@ public class PlanDeVuelo {
                                                 aeropuertos);
                                 OffsetTime horaLlegadaOffset = getOffsetTimeForAirport(codigoIATADestino,
                                                 horaLlegadaLocal, aeropuertos);
+                                boolean isSameContinent = isSameContinent(codigoIATAOrigen, codigoIATADestino,
+                                                aeropuertos);
 
                                 if (horaSalidaOffset != null && horaLlegadaOffset != null) {
                                         PlanDeVuelo plan = new PlanDeVuelo(capacidad, horaSalidaOffset,
-                                                        horaLlegadaOffset,
-                                                        codigoIATAOrigen, codigoIATADestino);
+                                                        horaLlegadaOffset, codigoIATAOrigen, codigoIATADestino,
+                                                        isSameContinent);
                                         planesDeVuelo.add(plan);
                                 }
                         }
@@ -67,5 +70,17 @@ public class PlanDeVuelo {
                                 .findFirst()
                                 .map(a -> OffsetTime.of(localTime, ZoneOffset.ofHours(a.getZonaHorariaGMT())))
                                 .orElse(null); // Retorna null si no se encuentra el aeropuerto.
+        }
+
+        public static boolean isSameContinent(String codigoIATAOrigen, String codigoIATADestino,
+                        List<Aeropuerto> aeropuertos) {
+                Aeropuerto origen = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(codigoIATAOrigen))
+                                .findFirst().orElse(null);
+                Aeropuerto destino = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(codigoIATADestino))
+                                .findFirst().orElse(null);
+                if (origen != null && destino != null) {
+                        return origen.getContinente().equals(destino.getContinente());
+                }
+                return false;
         }
 }
