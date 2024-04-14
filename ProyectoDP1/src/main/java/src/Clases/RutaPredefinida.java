@@ -29,7 +29,7 @@ public class RutaPredefinida {
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
     private List<PlanDeVuelo> escalas;
-    private int ndays;
+    private int duracion;
 
     public static void guardarRutasEnCSV(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes,
             String archivoDestino) {
@@ -61,7 +61,7 @@ public class RutaPredefinida {
         return detallesPlanes;
     }
 
-    public static List<RutaPredefinida> obtenerRutasConEscalas() {
+    public static List<RutaPredefinida> obtenerRutasConEscalas(List<Aeropuerto> aeropuertos) {
         String archivoRutas = "src/main/resources/rutPred.txt";
         List<RutaPredefinida> rutas = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
@@ -86,7 +86,7 @@ public class RutaPredefinida {
                 String destinoFinal = planDeVuelos.get(planDeVuelos.size() - 1).getCodigoIATADestino();
                 OffsetTime horaInicial = planDeVuelos.get(0).getHoraSalida();
                 OffsetTime horaFinal = planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada();
-                int dias = Integer.parseInt(vuelos[vuelos.length - 1].split(",")[4]); // Obtener días del último vuelo
+                int dias = Integer.parseInt(vuelos[vuelos.length - 1].split(",")[4]); // cmmbiaR por durcion
 
                 RutaPredefinida ruta = new RutaPredefinida(origenInicial, destinoFinal, horaInicial, horaFinal,
                         planDeVuelos, dias);

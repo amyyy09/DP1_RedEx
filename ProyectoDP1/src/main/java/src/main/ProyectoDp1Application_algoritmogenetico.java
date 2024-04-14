@@ -30,10 +30,10 @@ public class ProyectoDp1Application_algoritmogenetico {
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.obtenerAeropuertos();
 			List<Almacen> almacenes = DatosAeropuertos.obtenerAlmacenes();
-			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
 			List<Envio> envios = Envio.obtenerEnvios();
+			// List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
 			// RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
-			List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas();
+			List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
 			evaluator = new FitnessEvaluator();
 			// Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes,
 			// planes);
