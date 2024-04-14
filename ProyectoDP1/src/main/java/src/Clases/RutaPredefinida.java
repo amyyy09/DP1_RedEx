@@ -34,7 +34,6 @@ public class RutaPredefinida {
             String archivoDestino) {
         List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
         List<String> lineas = new ArrayList<>();
-        lineas.add("CodigoIATAOrigen,CodigoIATADestino,HoraSalida,HoraLlegada,NDays,PlanesDeVuelo");
         lineas.addAll(rutas.stream().map(RutaPredefinida::formatoRutaCSV).collect(Collectors.toList()));
 
         try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(archivoDestino))) {
@@ -48,10 +47,7 @@ public class RutaPredefinida {
     }
 
     private static String formatoRutaCSV(RutaPredefinida ruta) {
-        // Cambiar el patrón para incluir solo la hora si es que se usa LocalTime o
-        // OffsetTime
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-
         String detallesPlanes = ruta.getPlanRuta().stream()
                 .map(plan -> String.format("%s,%s,%s,%s,%d",
                         plan.getCodigoIATAOrigen(),
@@ -67,18 +63,17 @@ public class RutaPredefinida {
     public static List<RutaPredefinida> leerRutasDesdeCSV(String archivoRutas) {
         List<RutaPredefinida> rutas = new ArrayList<>();
         try (Stream<String> lineas = Files.lines(Paths.get(archivoRutas))) {
-            lineas.skip(1) // Saltar el encabezado
-                    .forEach(linea -> {
-                        String[] partes = linea.split(",");
-                        String origen = partes[0];
-                        String destino = partes[1];
-                        OffsetTime salida = OffsetTime.parse(partes[2]);
-                        OffsetTime llegada = OffsetTime.parse(partes[3]);
-                        int dias = Integer.parseInt(partes[4]);
+            lineas.forEach(linea -> {
+                String[] partes = linea.split(",");
+                String origen = partes[0];
+                String destino = partes[1];
+                OffsetTime salida = OffsetTime.parse(partes[2]);
+                OffsetTime llegada = OffsetTime.parse(partes[3]);
+                int dias = Integer.parseInt(partes[4]);
 
-                        RutaPredefinida ruta = new RutaPredefinida(origen, destino, salida, llegada, null, dias);
-                        rutas.add(ruta);
-                    });
+                RutaPredefinida ruta = new RutaPredefinida(origen, destino, salida, llegada, null, dias);
+                rutas.add(ruta);
+            });
         } catch (IOException e) {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
