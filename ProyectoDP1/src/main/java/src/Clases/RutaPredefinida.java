@@ -60,7 +60,8 @@ public class RutaPredefinida {
         return detallesPlanes;
     }
 
-    public static List<RutaPredefinida> leerRutasDesdeCSV(String archivoRutas) {
+    public static List<RutaPredefinida> obtenerRutasConEscalas() {
+        String archivoRutas = "src/main/resources/rutPred.txt";
         List<RutaPredefinida> rutas = new ArrayList<>();
         try (Stream<String> lineas = Files.lines(Paths.get(archivoRutas))) {
             lineas.forEach(linea -> {
