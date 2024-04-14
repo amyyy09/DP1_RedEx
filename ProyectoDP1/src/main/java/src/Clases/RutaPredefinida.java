@@ -21,10 +21,10 @@ import lombok.Setter;
 @NoArgsConstructor
 public class RutaPredefinida {
 
-    private OffsetTime horaSalida;
-    private OffsetTime horaLlegada;
     private String codigoIATAOrigen;
     private String codigoIATADestino;
+    private OffsetTime horaSalida;
+    private OffsetTime horaLlegada;
     private List<PlanDeVuelo> planRuta;
     private int ndays;
 
@@ -70,7 +70,7 @@ public class RutaPredefinida {
                         OffsetTime llegada = OffsetTime.parse(partes[3]);
                         int dias = Integer.parseInt(partes[4]);
 
-                        RutaPredefinida ruta = new RutaPredefinida(salida, llegada, origen, destino, null, dias);
+                        RutaPredefinida ruta = new RutaPredefinida(origen, destino, salida, llegada, null, dias);
                         rutas.add(ruta);
                     });
         } catch (IOException e) {
