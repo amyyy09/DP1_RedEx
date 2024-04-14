@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Setter
 @NoArgsConstructor
 public class Cromosoma {
-    private Map<Ruta, Paquete> gen;
+    private Map<RutaTiempoReal, Paquete> gen;
 
-    public Cromosoma(Map<Ruta, Paquete> gen) {
+    public Cromosoma(Map<RutaTiempoReal, Paquete> gen) {
         this.gen = gen;
     }
 
