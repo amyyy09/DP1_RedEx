@@ -35,8 +35,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 			RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
 			List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
 			evaluator = new FitnessEvaluator();
-			// Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes,
-			// planes);
+			Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes, planes);
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();
@@ -44,7 +43,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 	}
 
 	public static Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<RutaPredefinida> rutasPred,
-			List<Almacen> almacenes, List<PlanDeVuelo> planes) {
+			List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo) {
 		double ps = 0.7; // Probabilidad de selección
 		double pm = 0.1; // Probabilidad de mutación
 		double pc = 0.85; // Probabilidad de cruzamiento
@@ -56,7 +55,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		List<Cromosoma> poblacion = new ArrayList<Cromosoma>();
 
 		for (int i = 0; i < numGeneraciones; i++) {
-			List<Double> fitnessagregado = null;
+			List<Double> fitnessagregado = calcularFitnessAgregado(poblacion,almacenes, planesDeVuelo);
 			if (!fitnessagregado.isEmpty() && fitnessagregado.get(0) >= 0) {
 				System.out.println("se ha encontrado una solución satisfactoria");
 				return poblacion.get(0);

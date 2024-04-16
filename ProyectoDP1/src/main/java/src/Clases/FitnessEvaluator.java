@@ -3,81 +3,56 @@ package src.Clases;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
-public class FitnessEvaluator {
-    private double penalizacionPorExceso = 10.0; // Penalización por cada unidad que excede la capacidad
-    private double valorBaseFitness = 1000.0; // Puntaje base de fitness
+public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion,
+        List<Almacen> almacenes,
+        List<Vuelo> planesDeVuelo) {
+    List<Double> fitnessCromosomas = new ArrayList<>();
 
-    public FitnessEvaluator() {
-    }
+    for (Cromosoma cromosoma : poblacion) {
+        double penalizacion = 0.0;
+        Map<String, Integer> usoCapacidadVuelos = new HashMap<>();
+        Map<String, Integer> usoCapacidadAlmacenes = new HashMap<>();
 
-    public FitnessEvaluator(double penalizacionPorExceso, double valorBaseFitness) {
-        this.penalizacionPorExceso = penalizacionPorExceso;
-        this.valorBaseFitness = valorBaseFitness;
-    }
+        for (Map.Entry<RutaTiempoReal, Paquete> entrada : cromosoma.getGen().entrySet()) {
+            RutaTiempoReal ruta = entrada.getKey();
+            Paquete paquete = entrada.getValue();
+            PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(planesDeVuelo, ruta);
 
-    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion,
-            List<Almacen> almacenes,
-            List<Vuelo> planesDeVuelo) {
-        List<Double> fitnessCromosomas = new ArrayList<>();
+            // Agregando carga al vuelo
+            String claveVuelo = ruta.getOrigen().getCodigoIATA() + "-" + ruta.getDestino().getCodigoIATA();
+            usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
 
-        for (Cromosoma cromosoma : poblacion) {
-            double penalizacion = 0.0;
-
-            for (Map.Entry<RutaTiempoReal, Paquete> entrada : cromosoma.getGen().entrySet()) {
-                RutaTiempoReal ruta = entrada.getKey();
-                Paquete paquete = entrada.getValue();
-                PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(planesDeVuelo, ruta);
-
-                if (planDeVuelo != null) {
-                    int exceso = 1 - planDeVuelo.getCapacidad();
-                    if (exceso > 0) {
-                        penalizacion += exceso * penalizacionPorExceso;
-                    }
-                }
-
-                Almacen almacenOrigen = obtenerAlmacenPorCodigoIATA(almacenes,
-                        ruta.getOrigen().getCodigoIATA());
-                Almacen almacenDestino = obtenerAlmacenPorCodigoIATA(almacenes,
-                        ruta.getDestino().getCodigoIATA());
-
-                if (almacenOrigen != null && almacenDestino != null) {
-                    penalizacion += calcularPenalizacionAlmacen(almacenOrigen, 1);
-                    penalizacion += calcularPenalizacionAlmacen(almacenDestino, 1);
-                }
+            // Verificar capacidad de vuelo
+            if (usoCapacidadVuelos.get(claveVuelo) > planDeVuelo.getCapacidad()) {
+                penalizacion += (usoCapacidadVuelos.get(claveVuelo) - planDeVuelo.getCapacidad()) * penalizacionPorExceso;
             }
 
-            double fitness = valorBaseFitness - penalizacion;
-            fitnessCromosomas.add(fitness);
+            // Gestión de capacidades de almacenes
+            actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getOrigen().getCodigoIATA(), 1);
+            actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getDestino().getCodigoIATA(), 1);
+
+            Almacen almacenOrigen = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getOrigen().getCodigoIATA());
+            Almacen almacenDestino = obtenerAlmacenPorCodigoIATA(almacenes, ruta.getDestino().getCodigoIATA());
+            penalizacion += verificarCapacidadAlmacen(almacenOrigen, usoCapacidadAlmacenes.get(almacenOrigen.getCodigoIATA()));
+            penalizacion += verificarCapacidadAlmacen(almacenDestino, usoCapacidadAlmacenes.get(almacenDestino.getCodigoIATA()));
         }
 
-        return fitnessCromosomas;
+        double fitness = valorBaseFitness - penalizacion;
+        fitnessCromosomas.add(fitness);
     }
 
-    private PlanDeVuelo encontrarPlanDeVueloParaRuta(List<Vuelo> planesDeVuelo, RutaTiempoReal RutaComun) {
-        for (Vuelo vuelo : planesDeVuelo) {
-            if (vuelo.getPlanDeVuelo().getCodigoIATAOrigen().equals(RutaComun.getOrigen().getCodigoIATA()) &&
-                    vuelo.getPlanDeVuelo().getCodigoIATADestino().equals(RutaComun.getDestino().getCodigoIATA())) {
-                return vuelo.getPlanDeVuelo();
-            }
-        }
-        return null;
-    }
+    return fitnessCromosomas;
+}
 
-    private Almacen obtenerAlmacenPorCodigoIATA(List<Almacen> almacenes, String codigoIATA) {
-        for (Almacen almacen : almacenes) {
-            if (almacen.getCodigoIATA().equals(codigoIATA)) {
-                return almacen;
-            }
-        }
-        return null;
-    }
+private void actualizarUsoCapacidadAlmacen(Map<String, Integer> usoCapacidad, String codigoIATA, int cantidad) {
+    usoCapacidad.put(codigoIATA, usoCapacidad.getOrDefault(codigoIATA, 0) + cantidad);
+}
 
-    private double calcularPenalizacionAlmacen(Almacen almacen, int cantidad) {
-        int capacidadDisponible = almacen.getCapacidad() - almacen.getCantPaquetes();
-        if (capacidadDisponible < cantidad) {
-            return Math.abs(capacidadDisponible - cantidad) * penalizacionPorExceso;
-        }
-        return 0.0;
+private double verificarCapacidadAlmacen(Almacen almacen, int cantidadUsada) {
+    if (cantidadUsada > almacen.getCapacidad()) {
+        return (cantidadUsada - almacen.getCapacidad()) * penalizacionPorExceso;
     }
+    return 0.0;
 }
