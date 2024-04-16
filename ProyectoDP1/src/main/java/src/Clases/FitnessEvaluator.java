@@ -18,7 +18,7 @@ public class FitnessEvaluator {
 
     public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion,
             List<Almacen> almacenes,
-            List<Vuelo> vuelosActuales) {
+            List<Vuelo> planesDeVuelo) {
         List<Double> fitnessCromosomas = new ArrayList<>();
 
         for (Cromosoma cromosoma : poblacion) {
@@ -27,7 +27,7 @@ public class FitnessEvaluator {
             for (Map.Entry<RutaTiempoReal, Paquete> entrada : cromosoma.getGen().entrySet()) {
                 RutaTiempoReal ruta = entrada.getKey();
                 Paquete paquete = entrada.getValue();
-                PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(vuelosActuales, ruta);
+                PlanDeVuelo planDeVuelo = encontrarPlanDeVueloParaRuta(planesDeVuelo, ruta);
 
                 if (planDeVuelo != null) {
                     int exceso = 1 - planDeVuelo.getCapacidad();
@@ -54,8 +54,8 @@ public class FitnessEvaluator {
         return fitnessCromosomas;
     }
 
-    private PlanDeVuelo encontrarPlanDeVueloParaRuta(List<Vuelo> vuelosActuales, RutaTiempoReal RutaComun) {
-        for (Vuelo vuelo : vuelosActuales) {
+    private PlanDeVuelo encontrarPlanDeVueloParaRuta(List<Vuelo> planesDeVuelo, RutaTiempoReal RutaComun) {
+        for (Vuelo vuelo : planesDeVuelo) {
             if (vuelo.getPlanDeVuelo().getCodigoIATAOrigen().equals(RutaComun.getOrigen().getCodigoIATA()) &&
                     vuelo.getPlanDeVuelo().getCodigoIATADestino().equals(RutaComun.getDestino().getCodigoIATA())) {
                 return vuelo.getPlanDeVuelo();
