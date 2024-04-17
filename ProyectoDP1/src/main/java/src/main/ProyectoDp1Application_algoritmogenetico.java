@@ -14,6 +14,7 @@ import java.util.HashMap;
 import src.Clases.Paquete;
 import src.Clases.PlanDeVuelo;
 import src.Clases.RutaTiempoReal;
+import src.Clases.Vuelo;
 import src.Clases.RutaPredefinida;
 import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
@@ -34,8 +35,11 @@ public class ProyectoDp1Application_algoritmogenetico {
 			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
 			RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
 			List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
+			RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
+			List<Vuelo> vuelosActuales = new ArrayList<>();
 			evaluator = new FitnessEvaluator();
-			Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes, planes);
+			Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes, vuelosActuales);
+			
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();
@@ -43,7 +47,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 	}
 
 	public static Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<RutaPredefinida> rutasPred,
-			List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo) {
+			List<Almacen> almacenes, List<Vuelo> vuelosActuales) {
 		double ps = 0.7; // Probabilidad de selección
 		double pm = 0.1; // Probabilidad de mutación
 		double pc = 0.85; // Probabilidad de cruzamiento
@@ -55,7 +59,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		List<Cromosoma> poblacion = new ArrayList<Cromosoma>();
 
 		for (int i = 0; i < numGeneraciones; i++) {
-			List<Double> fitnessagregado = calcularFitnessAgregado(poblacion,almacenes, planesDeVuelo);
+			List<Double> fitnessagregado = evaluator.calcularFitnessAgregado(poblacion,almacenes, vuelosActuales);
 			if (!fitnessagregado.isEmpty() && fitnessagregado.get(0) >= 0) {
 				System.out.println("se ha encontrado una solución satisfactoria");
 				return poblacion.get(0);
