@@ -15,7 +15,7 @@ public class FitnessEvaluator {
         this.valorBaseFitness = valorBaseFitness;
     }
 
-    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Almacen> almacenesActuales, List<Vuelo> vuelosActuales) {
+    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Almacen> almacenesActuales, List<Vuelo> vuelosActivos) {
     List<Double> fitnessCromosomas = new ArrayList<>();
 
     for (Cromosoma cromosoma : poblacion) {
@@ -26,7 +26,7 @@ public class FitnessEvaluator {
         for (Map.Entry<RutaTiempoReal, Paquete> entrada : cromosoma.getGen().entrySet()) {
             RutaTiempoReal ruta = entrada.getKey();
             Paquete paquete = entrada.getValue();
-            Vuelo vueloAnalizado = encontrarVueloActual(vuelosActuales, ruta);
+            Vuelo _vuelosActivo = encontrarVueloActual(vuelosActivos, ruta);
             
             paquete.setStatus(3);
 
@@ -35,8 +35,8 @@ public class FitnessEvaluator {
             usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
 
             // Verificar capacidad de vuelo
-            if (usoCapacidadVuelos.get(claveVuelo) > vueloAnalizado.getCapacidad()) {
-                penalizacion += (usoCapacidadVuelos.get(claveVuelo) - vueloAnalizado.getCapacidad()) * penalizacionPorExceso;
+            if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
+                penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad()) * penalizacionPorExceso;
             }
 
             // Gestión de capacidades de almacenes
@@ -56,9 +56,9 @@ public class FitnessEvaluator {
     return fitnessCromosomas;
 }
 
-private Vuelo encontrarVueloActual(List<Vuelo> vuelosActuales, RutaTiempoReal ruta){
+private Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaTiempoReal ruta){
     // Buscar un vuelo que coincida con la ruta proporcionada
-    for (Vuelo vuelo : vuelosActuales) {
+    for (Vuelo vuelo : vuelosActivos) {
         for (Vuelo vueloEnRuta : ruta.getVuelos()) {
             if (vuelo.getIdVuelo() == vueloEnRuta.getIdVuelo()){
                 return vuelo;
