@@ -58,7 +58,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		int numGeneraciones = 20; // Número de generaciones
 
 		List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
-		List<Cromosoma> poblacion = Cromosoma.createPopulation(envios, rutasPred, numCromosomas);
+		List<Cromosoma> poblacion = Cromosoma.createPopulation(envios, rutasPred, numCromosomas,aeropuertos);
 		//CARGA POBLACION???
 
 		for (int i = 0; i < numGeneraciones; i++) {
