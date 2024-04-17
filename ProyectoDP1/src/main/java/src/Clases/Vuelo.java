@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Vuelo {
+    private int IdVuelo;
     private int cantPaquetes;
     private int capacidad;
     private int status;

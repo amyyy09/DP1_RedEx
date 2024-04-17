@@ -26,15 +26,17 @@ public class FitnessEvaluator {
         for (Map.Entry<RutaTiempoReal, Paquete> entrada : cromosoma.getGen().entrySet()) {
             RutaTiempoReal ruta = entrada.getKey();
             Paquete paquete = entrada.getValue();
-            PlanDeVuelo planDeVuelo = encontrarVueloActual(vuelosActuales, ruta);
+            Vuelo vueloAnalizado = encontrarVueloActual(vuelosActuales, ruta);
+            
+            paquete.setStatus(3);
 
             // Agregando carga al vuelo
             String claveVuelo = ruta.getOrigen().getCodigoIATA() + "-" + ruta.getDestino().getCodigoIATA();
             usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
 
             // Verificar capacidad de vuelo
-            if (usoCapacidadVuelos.get(claveVuelo) > planDeVuelo.getCapacidad()) {
-                penalizacion += (usoCapacidadVuelos.get(claveVuelo) - planDeVuelo.getCapacidad()) * penalizacionPorExceso;
+            if (usoCapacidadVuelos.get(claveVuelo) > vueloAnalizado.getCapacidad()) {
+                penalizacion += (usoCapacidadVuelos.get(claveVuelo) - vueloAnalizado.getCapacidad()) * penalizacionPorExceso;
             }
 
             // Gestión de capacidades de almacenes
@@ -52,6 +54,28 @@ public class FitnessEvaluator {
     }
 
     return fitnessCromosomas;
+}
+
+private Vuelo encontrarVueloActual(List<Vuelo> vuelosActuales, RutaTiempoReal ruta){
+    // Buscar un vuelo que coincida con la ruta proporcionada
+    for (Vuelo vuelo : vuelosActuales) {
+        for (Vuelo vueloEnRuta : ruta.getVuelos()) {
+            if (vuelo.getIdVuelo() == vueloEnRuta.getIdVuelo()){
+                return vuelo;
+            }
+        }
+    }
+    return null; // Retornar null si no se encuentra ningún vuelo que coincida
+}
+
+private Almacen encontrarAlmacenActual(List<Almacen> almacenesActuales, String codigoIATA){
+    // Buscar un almacén que coincida con el código IATA proporcionado
+    for (Almacen almacen : almacenesActuales) {
+        if (almacen.getCodigoIATA().equals(codigoIATA)) {
+            return almacen;
+        }
+    }
+    return null; // Retornar null si no se encuentra ningún almacén que coincida
 }
 
 private void actualizarUsoCapacidadAlmacen(Map<String, Integer> usoCapacidad, String codigoIATA, int cantidad) {

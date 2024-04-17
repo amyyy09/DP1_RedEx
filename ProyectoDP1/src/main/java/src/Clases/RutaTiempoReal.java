@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RutaTiempoReal {
-    private int IdRuta;
+    private int idRuta;
     private Aeropuerto origen;
     private Aeropuerto destino;
     private Almacen xAlmacen;
