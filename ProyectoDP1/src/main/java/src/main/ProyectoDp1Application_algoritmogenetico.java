@@ -58,10 +58,9 @@ public class ProyectoDp1Application_algoritmogenetico {
 		int numGeneraciones = 20; // Número de generaciones
 
 		List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
-
-
-		List<Cromosoma> poblacion = new ArrayList<Cromosoma>();
+		List<Cromosoma> poblacion = Cromosoma.createPopulation(envios, rutasPred, numCromosomas);
 		//CARGA POBLACION???
+
 		for (int i = 0; i < numGeneraciones; i++) {
 			List<Double> fitnessagregado = evaluator.calcularFitnessAgregado(poblacion,aeropuertos, vuelosActuales);
 			if (!fitnessagregado.isEmpty() && fitnessagregado.get(0) >= 0) {
