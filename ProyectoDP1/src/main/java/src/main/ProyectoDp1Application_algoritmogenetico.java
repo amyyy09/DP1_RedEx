@@ -17,28 +17,30 @@ import src.Clases.RutaTiempoReal;
 import src.Clases.Vuelo;
 import src.Clases.RutaPredefinida;
 import src.Clases.Aeropuerto;
-import src.Clases.Almacen;
+import src.Clases.Utilities;
 import src.Clases.Cromosoma;
 import src.Clases.DatosAeropuertos;
 import src.Clases.Envio;
 import src.Clases.FitnessEvaluator;
+
 
 @SpringBootApplication
 public class ProyectoDp1Application_algoritmogenetico {
 	private static FitnessEvaluator evaluator;
 
 	public static void main(String[] args) {
+		evaluator = new FitnessEvaluator();
+
 		try {
-			List<Aeropuerto> aeropuertos = DatosAeropuertos.obtenerAeropuertos();
-			List<Almacen> almacenes = DatosAeropuertos.obtenerAlmacenes();
+			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
+			List<PlanDeVuelo> planesDeVuelo = Utilities.getPlanesDeVuelo(aeropuertos);
+			List<Vuelo> vuelosActuales = Utilities.getVuelosActualesTesting(planesDeVuelo);
+
 			List<Envio> envios = Envio.obtenerEnvios();
-			List<PlanDeVuelo> planes = PlanDeVuelo.leerPlanesDeVuelo(aeropuertos);
-			RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
-			List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
-			RutaPredefinida.guardarRutasEnCSV(aeropuertos, planes, "rutPred.txt");
-			List<Vuelo> vuelosActuales = new ArrayList<>();
-			evaluator = new FitnessEvaluator();
-			Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, rutasPred, almacenes, vuelosActuales);
+
+			RutaPredefinida.guardarRutasEnCSV(aeropuertos, planesDeVuelo, "rutPred.txt");
+			
+			Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
 			
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
@@ -46,8 +48,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		}
 	}
 
-	public static Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<RutaPredefinida> rutasPred,
-			List<Almacen> almacenes, List<Vuelo> vuelosActuales) {
+	public static Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActuales) {
 		double ps = 0.7; // Probabilidad de selección
 		double pm = 0.1; // Probabilidad de mutación
 		double pc = 0.85; // Probabilidad de cruzamiento
@@ -56,10 +57,13 @@ public class ProyectoDp1Application_algoritmogenetico {
 		int numDescendientes = 50; // Número de descendientes a generar
 		int numGeneraciones = 20; // Número de generaciones
 
-		List<Cromosoma> poblacion = new ArrayList<Cromosoma>();
+		List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
 
+
+		List<Cromosoma> poblacion = new ArrayList<Cromosoma>();
+		//CARGA POBLACION???
 		for (int i = 0; i < numGeneraciones; i++) {
-			List<Double> fitnessagregado = evaluator.calcularFitnessAgregado(poblacion,almacenes, vuelosActuales);
+			List<Double> fitnessagregado = evaluator.calcularFitnessAgregado(poblacion,aeropuertos, vuelosActuales);
 			if (!fitnessagregado.isEmpty() && fitnessagregado.get(0) >= 0) {
 				System.out.println("se ha encontrado una solución satisfactoria");
 				return poblacion.get(0);
@@ -81,7 +85,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 
 					// mutación bajo probabilidad pm
 					if (Math.random() < pm) {
-						// mutarhijos(hijos, rutas);
+						//mutarhijos(hijos, rutas);
 					}
 					descendientes.addAll(hijos);
 				}

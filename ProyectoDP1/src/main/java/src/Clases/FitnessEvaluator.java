@@ -15,7 +15,7 @@ public class FitnessEvaluator {
         this.valorBaseFitness = valorBaseFitness;
     }
 
-    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Almacen> almacenesActuales, List<Vuelo> vuelosActivos) {
+    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos) {
     List<Double> fitnessCromosomas = new ArrayList<>();
 
     for (Cromosoma cromosoma : poblacion) {
@@ -43,10 +43,10 @@ public class FitnessEvaluator {
             actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getOrigen().getCodigoIATA(), 1);
             actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getDestino().getCodigoIATA(), 1);
 
-            Almacen almacenOrigen = encontrarAlmacenActual(almacenesActuales, ruta.getOrigen().getCodigoIATA());
-            Almacen almacenDestino = encontrarAlmacenActual(almacenesActuales, ruta.getDestino().getCodigoIATA());
-            penalizacion += verificarCapacidadAlmacen(almacenOrigen, usoCapacidadAlmacenes.get(almacenOrigen.getCodigoIATA()));
-            penalizacion += verificarCapacidadAlmacen(almacenDestino, usoCapacidadAlmacenes.get(almacenDestino.getCodigoIATA()));
+            Almacen almacenOrigen = encontrarAlmacenActual(aeropuertos, ruta.getOrigen().getCodigoIATA());
+            Almacen almacenDestino = encontrarAlmacenActual(aeropuertos, ruta.getDestino().getCodigoIATA());
+            penalizacion += almacenOrigen.verificarCapacidadAlmacen() * penalizacionPorExceso;
+            penalizacion += almacenDestino.verificarCapacidadAlmacen() * penalizacionPorExceso;
         }
 
         double fitness = valorBaseFitness - penalizacion;
@@ -68,11 +68,11 @@ private Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaTiempoReal rut
     return null; // Retornar null si no se encuentra ningún vuelo que coincida
 }
 
-private Almacen encontrarAlmacenActual(List<Almacen> almacenesActuales, String codigoIATA){
+private Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA){
     // Buscar un almacén que coincida con el código IATA proporcionado
-    for (Almacen almacen : almacenesActuales) {
-        if (almacen.getCodigoIATA().equals(codigoIATA)) {
-            return almacen;
+    for (Aeropuerto aeropuerto : aeropuertos) {
+        if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
+            return aeropuerto.getAlmacen();
         }
     }
     return null; // Retornar null si no se encuentra ningún almacén que coincida
@@ -82,10 +82,5 @@ private void actualizarUsoCapacidadAlmacen(Map<String, Integer> usoCapacidad, St
     usoCapacidad.put(codigoIATA, usoCapacidad.getOrDefault(codigoIATA, 0) + cantidad);
 }
 
-private double verificarCapacidadAlmacen(Almacen almacen, int cantidadUsada) {
-    if (cantidadUsada > almacen.getCapacidad()) {
-        return (cantidadUsada - almacen.getCapacidad()) * penalizacionPorExceso;
-    }
-    return 0.0;
-}
+
 }
