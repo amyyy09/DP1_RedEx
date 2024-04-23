@@ -1,6 +1,5 @@
 package src.Clases;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,10 +21,9 @@ public class Cromosoma {
     }
 
     public Map<RutaPredefinida, Paquete> getGenes() {
-        return gen; // Devuelve la referencia directa, las modificaciones afectan al mapa original
+        return gen;
     }
 
-    // eficiencia de nodos entre dos puntos, vuelos
     public int getTamano() {
         return gen != null ? gen.size() : 0;
     }
