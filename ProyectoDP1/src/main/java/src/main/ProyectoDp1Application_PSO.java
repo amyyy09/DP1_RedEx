@@ -14,6 +14,7 @@ import java.util.HashMap;
 import src.Clases.Paquete;
 import src.Clases.PlanDeVuelo;
 import src.Clases.RutaTiempoReal;
+import src.Clases.Vuelo;
 import src.Clases.RutaPredefinida;
 import src.Clases.Aeropuerto;
 import src.Clases.Almacen;
@@ -30,21 +31,23 @@ public class ProyectoDp1Application_PSO {
         
     }
 
-    public static Map<Paquete, RutaPredefinida> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred, List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo) {
+    public static Map<Paquete, RutaTiempoReal> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred, List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActuales) {
         List<Particula> population = new ArrayList<>();
         int numParticles = 50;
         int numIterationsMax=100;
         double w = 0.1, c1 = 0.1, c2 = 0.1;
 
+        FitnessEvaluator fitnessEvaluator = new FitnessEvaluator();
+
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
-            particle.setPosicion(inicializarPosicion(paquetes, rutasPred));
-            particle.setVelocidad(inicializarVelocidad(paquetes.size()));
+            particle.setPosicion(Particula.inicializarPosicion(paquetes, rutasPred, aeropuertos));
+            particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
-            particle.setFbest(fitness(particle.getPbest()));
+            particle.setFbest(fitnessEvaluator.fitness(particle.getPbest(), aeropuertos, vuelosActuales));
             population.add(particle);
         }
-        Map<Paquete, RutaPredefinida> gbest = determineGbest(population);
+        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
 
         for (int j = 0; j < numIterationsMax; j++) {
             for (Particula particle : population) {
@@ -56,76 +59,29 @@ public class ProyectoDp1Application_PSO {
 
                         c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k))) - rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k))));
 
-                    int velint = verifyLimits(velocity, rutasPred);
+                    int velint = Particula.verifyLimits(velocity, rutasPred);
 
                     particle.getVelocidad().set(k,(double) velint);
 
                     RutaPredefinida newPosition = rutasPred.get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k))) + velint);
 
-                    particle.getPosicion().put(paquetes.get(k), newPosition);
+                    RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos);
+
+                    particle.getPosicion().put(paquetes.get(k), newRTR);
                 }
 
-                double fit = fitness(particle.getPosicion());
+                double fit = fitnessEvaluator.fitness(particle.getPosicion(), aeropuertos, vuelosActuales);
 
                 if (fit < particle.getFbest()) {
                     particle.setPbest(particle.getPosicion());
                     particle.setFbest(fit);
                 }
             }
-            Map<Paquete, RutaPredefinida> currentGbest = determineGbest(population);
-            if (fitness(currentGbest) < fitness(gbest)) {
+            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
+            if (fitnessEvaluator.fitness(currentGbest, aeropuertos, vuelosActuales) < fitnessEvaluator.fitness(gbest, aeropuertos, vuelosActuales)) {
                 gbest = currentGbest;
             }
         }
         return gbest;
-    }
-
-    public static Map<Paquete, RutaPredefinida> inicializarPosicion(List<Paquete> paquetes, List<RutaPredefinida> rutasPred) {
-        Map<Paquete, RutaPredefinida> position = new HashMap<>();
-        for (Paquete pkg : paquetes) {
-            RutaPredefinida randomRoute = rutasPred.get(rand.nextInt(rutasPred.size()));
-            position.put(pkg, randomRoute);
-        }
-        return position;
-    }
-
-    public static List<Double> inicializarVelocidad(int numPaquetes) {
-        List<Double> velocity = new ArrayList<>();
-        for (int i = 0; i < numPaquetes; i++) {
-            double randomChange = rand.nextDouble();
-            velocity.add(randomChange);
-        }
-        return velocity;
-    }
-
-    public static int verifyLimits(double velocity, List<RutaPredefinida> rutasPred){
-
-        int val = (int) Math.floor(velocity);
-        
-        if (val < 0){
-            val = rutasPred.size() + val;
-        }
-        if (val >= rutasPred.size()){
-            val = rutasPred.size() - val;
-        }
-
-        return val;
-    }
-
-    public static Map<Paquete, RutaPredefinida> determineGbest(List<Particula> population) {
-        Map<Paquete, RutaPredefinida> gbest = new HashMap<>(population.get(0).getPosicion());
-        double bestFitness = fitness(gbest);
-        for (Particula particle : population) {
-            if (particle.getFbest() < bestFitness) {
-                gbest = new HashMap<>(particle.getPbest());
-                bestFitness = particle.getFbest();
-            }
-        }
-        return gbest;
-    }
-
-    public static double fitness(Map<Paquete, RutaPredefinida> solution) {
-        // Implement your fitness function here...
-        return 0.0;
     }
 }

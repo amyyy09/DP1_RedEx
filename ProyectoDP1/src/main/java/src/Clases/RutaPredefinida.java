@@ -199,4 +199,37 @@ public class RutaPredefinida {
     private static boolean containsRoute(List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> currentRoute) {
         return allRoutes.stream().anyMatch(route -> route.equals(currentRoute));
     }
+
+    public RutaTiempoReal convertirAPredefinidaEnTiempoReal(List<Aeropuerto> aeropuertos) {
+        RutaTiempoReal rutaTiempoReal = new RutaTiempoReal();
+        
+        // Suponemos que tienes una forma de obtener los objetos Aeropuerto basados en el código IATA
+        Aeropuerto origen = aeropuertos.stream()
+                                       .filter(a -> a.getCodigoIATA().equals(this.getCodigoIATAOrigen()))
+                                       .findFirst()
+                                       .orElse(null);
+        Aeropuerto destino = aeropuertos.stream()
+                                        .filter(a -> a.getCodigoIATA().equals(this.getCodigoIATADestino()))
+                                        .findFirst()
+                                        .orElse(null);
+    
+        // Asumimos que cada aeropuerto tiene un almacén asociado y podemos obtenerlo directamente
+        Almacen almacenOrigen = (origen != null) ? origen.getAlmacen() : null;
+        LocalDateTime horaInicio = null;
+        LocalDateTime horaFin = null;
+
+        List<Vuelo> vuelos = new ArrayList<>(); // Esto debería ser poblado según lógica específica
+    
+        rutaTiempoReal.setIdRuta(1); // Generar un ID aleatorio o de alguna otra forma
+        rutaTiempoReal.setOrigen(origen);
+        rutaTiempoReal.setDestino(destino);
+        rutaTiempoReal.setXAlmacen(almacenOrigen);
+        rutaTiempoReal.setHoraInicio(horaInicio);
+        rutaTiempoReal.setHoraLlegada(horaFin);
+        rutaTiempoReal.setVuelos(vuelos);
+        rutaTiempoReal.setStatus(0); // Status inicial, suponemos '0' para no activa
+    
+        return rutaTiempoReal;
+    }
+
 }
