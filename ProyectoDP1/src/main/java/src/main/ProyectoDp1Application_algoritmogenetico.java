@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 //utilidades
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.Map;
@@ -138,8 +139,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 			for (int j = 0; j < tamanoTorneo; j++) {
 				torneo.add(poblacion.get(rand.nextInt(poblacion.size())));
 			}
-			// torneo.sort(Comparator.comparing(c ->
-			// fitnessAgregado.get(poblacion.indexOf(c))));
+			torneo.sort(Comparator.comparing(c -> fitnessAgregado.get(poblacion.indexOf(c))));
 			matingPool.add(torneo.get(torneo.size() - 1)); // Agregar el de mejor fitness
 		}
 		return matingPool;

@@ -62,11 +62,8 @@ public class FitnessEvaluator {
     }
 
     private Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaPredefinida ruta) {
-        // Obtener la hora actual para comparar con las horas de los vuelos
         OffsetTime horaActual = OffsetTime.now();
 
-        // Buscar un vuelo que coincida con la ruta proporcionada y que esté activo en
-        // la hora actual
         for (Vuelo vuelo : vuelosActivos) {
             if (vuelo.getPlanDeVuelo().getCodigoIATAOrigen().equals(ruta.getCodigoIATAOrigen()) &&
                     vuelo.getPlanDeVuelo().getCodigoIATADestino().equals(ruta.getCodigoIATADestino()) &&
