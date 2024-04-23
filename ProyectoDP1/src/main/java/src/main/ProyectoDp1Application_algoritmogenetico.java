@@ -25,11 +25,9 @@ import src.Clases.FitnessEvaluator;
 
 @SpringBootApplication
 public class ProyectoDp1Application_algoritmogenetico {
-	private static FitnessEvaluator evaluator;
+	private static final FitnessEvaluator evaluator = new FitnessEvaluator();
 
 	public static void main(String[] args) {
-		evaluator = new FitnessEvaluator();
-
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
 			String archivoRuta = Utilities.chooseFile();
@@ -37,19 +35,18 @@ public class ProyectoDp1Application_algoritmogenetico {
 				List<PlanDeVuelo> planesDeVuelo = Utilities.getPlanesDeVuelo(aeropuertos, archivoRuta);
 				List<Vuelo> vuelosActuales = Utilities.getVuelosActualesTesting(planesDeVuelo);
 				RutaPredefinida.guardarRutasEnCSV(aeropuertos, planesDeVuelo, "rutPred.txt");
+
 				archivoRuta = Utilities.chooseFile();
 				if (archivoRuta != null) {
 					List<Envio> envios = Utilities.getEnvios(archivoRuta);
 					Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
+					System.out.println("Resultado del algoritmo genético procesado.");
 				} else {
-					System.out.println("No se seleccionó ningún archivo.");
+					System.out.println("No se seleccionó ningún archivo de envíos.");
 				}
-
-				System.out.println("Planes de vuelo cargados correctamente.");
 			} else {
-				System.out.println("No se seleccionó ningún archivo.");
+				System.out.println("No se seleccionó ningún archivo de planes de vuelo.");
 			}
-
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();
