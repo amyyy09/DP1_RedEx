@@ -19,8 +19,8 @@ import java.util.stream.Stream;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class Utilities {
-        public Utilities() {
+public class Controller {
+        public Controller() {
         }
 
         public static List<Vuelo> getVuelosActualesTesting(List<PlanDeVuelo> planesDeVuelo) {
@@ -160,7 +160,7 @@ public class Utilities {
                         String archivoDestino) {
                 List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
                 List<String> lineas = rutas.stream()
-                                .map(Utilities::formatoRutaCSV)
+                                .map(Controller::formatoRutaCSV)
                                 .collect(Collectors.toList());
 
                 try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(archivoDestino))) {
