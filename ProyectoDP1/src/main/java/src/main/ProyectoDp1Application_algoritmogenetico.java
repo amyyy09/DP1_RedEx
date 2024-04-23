@@ -68,7 +68,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		final int numDescendientes = 50;
 		final int numGeneraciones = 20;
 		String archivoRutas = Utilities.chooseFile();
-		List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos, archivoRutas);
+		List<RutaPredefinida> rutasPred = Utilities.obtenerRutasConEscalas(aeropuertos, archivoRutas);
 		List<Cromosoma> poblacion = Cromosoma.createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
 		Random rand = new Random();
 
