@@ -37,8 +37,14 @@ public class ProyectoDp1Application_algoritmogenetico {
 				List<PlanDeVuelo> planesDeVuelo = Utilities.getPlanesDeVuelo(aeropuertos, archivoRuta);
 				List<Vuelo> vuelosActuales = Utilities.getVuelosActualesTesting(planesDeVuelo);
 				RutaPredefinida.guardarRutasEnCSV(aeropuertos, planesDeVuelo, "rutPred.txt");
-				List<Envio> envios = Utilities.getEnvios();
-				Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
+				archivoRuta = Utilities.chooseFile();
+				if (archivoRuta != null) {
+					List<Envio> envios = Utilities.getEnvios(archivoRuta);
+					Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
+				} else {
+					System.out.println("No se seleccionó ningún archivo.");
+				}
+
 				System.out.println("Planes de vuelo cargados correctamente.");
 			} else {
 				System.out.println("No se seleccionó ningún archivo.");

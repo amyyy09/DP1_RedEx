@@ -75,9 +75,8 @@ public class Utilities {
                 return planesDeVuelo;
         }
 
-        public static List<Envio> getEnvios() {
+        public static List<Envio> getEnvios(String archivo) {
                 List<Envio> envios = new ArrayList<>();
-                String archivo = "src/main/resources/pack_enviado/pack_enviado_EBCI.txt";
                 DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
                 try (BufferedReader reader = new BufferedReader(new FileReader(archivo))) {
                         String linea;
