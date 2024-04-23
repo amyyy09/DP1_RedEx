@@ -14,7 +14,6 @@ import java.util.HashMap;
 //paquetes
 import src.Clases.Paquete;
 import src.Clases.PlanDeVuelo;
-import src.Clases.RutaTiempoReal;
 import src.Clases.Vuelo;
 import src.Clases.RutaPredefinida;
 import src.Clases.Aeropuerto;
