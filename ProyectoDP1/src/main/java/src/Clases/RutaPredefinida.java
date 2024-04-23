@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -132,8 +130,8 @@ public class RutaPredefinida {
     private static void dfs(String current, String destination, List<PlanDeVuelo> currentRoute,
             List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm, int days) {
 
-        if (currentRoute.size() > 10) {
-            return; // Si se exceden 20 escalas, detiene la recursión para esta ruta
+        if (currentRoute.size() > 8) {
+            return; // Si se exceden 8 escalas, detiene la recursión para esta ruta
         }
 
         if (current.equals(destination)) {
