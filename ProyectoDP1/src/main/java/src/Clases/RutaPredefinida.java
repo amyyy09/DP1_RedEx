@@ -60,8 +60,7 @@ public class RutaPredefinida {
         return detallesPlanes;
     }
 
-    public static List<RutaPredefinida> obtenerRutasConEscalas(List<Aeropuerto> aeropuertos) {
-        String archivoRutas = "src/main/resources/rutPred.txt";
+    public static List<RutaPredefinida> obtenerRutasConEscalas(List<Aeropuerto> aeropuertos, String archivoRutas) {
         List<RutaPredefinida> rutas = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 

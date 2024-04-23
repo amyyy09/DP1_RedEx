@@ -34,7 +34,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 			if (archivoRuta != null) {
 				List<PlanDeVuelo> planesDeVuelo = Utilities.getPlanesDeVuelo(aeropuertos, archivoRuta);
 				List<Vuelo> vuelosActuales = Utilities.getVuelosActualesTesting(planesDeVuelo);
-				RutaPredefinida.guardarRutasEnCSV(aeropuertos, planesDeVuelo, "rutPred.txt");
+				// RutaPredefinida.guardarRutasEnCSV(aeropuertos, planesDeVuelo, "rutPred.txt");
 
 				archivoRuta = Utilities.chooseFile();
 				if (archivoRuta != null) {
@@ -67,8 +67,8 @@ public class ProyectoDp1Application_algoritmogenetico {
 		final int tamanoTorneo = 5;
 		final int numDescendientes = 50;
 		final int numGeneraciones = 20;
-
-		List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos);
+		String archivoRutas = Utilities.chooseFile();
+		List<RutaPredefinida> rutasPred = RutaPredefinida.obtenerRutasConEscalas(aeropuertos, archivoRutas);
 		List<Cromosoma> poblacion = Cromosoma.createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
 		Random rand = new Random();
 
