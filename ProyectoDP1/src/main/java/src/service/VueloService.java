@@ -3,12 +3,7 @@ package src.service;
 import src.model.*;
 import src.utility.FileUtils;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetTime;
@@ -63,52 +58,49 @@ public class VueloService {
         return planesDeVuelo;
     }
 
-    public static List<RutaPredefinida> getRutasConEscalas(List<Aeropuerto> aeropuertos, String archivoRutas) {
+    public static List<RutaPredefinida> getRutasConEscalas(List<Aeropuerto> aeropuertos, String archivo)
+            throws IOException {
+        List<String> lines = FileUtils.readLines(archivo);
         List<RutaPredefinida> rutas = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(archivoRutas))) {
-            String linea;
-            while ((linea = reader.readLine()) != null) {
-                String[] vuelos = linea.split("\\|");
-                List<PlanDeVuelo> planDeVuelos = new ArrayList<>();
-                long duracion = 0;
+        for (String line : lines) {
+            String[] vuelos = line.split("\\|");
+            List<PlanDeVuelo> planDeVuelos = new ArrayList<>();
+            long duracion = 0;
 
-                for (String vuelo : vuelos) {
-                    String[] detalles = vuelo.split(",");
-                    Aeropuerto aeropuertoOrigen = findAeropuertoByCodigo(aeropuertos, detalles[0]);
-                    Aeropuerto aeropuertoDestino = findAeropuertoByCodigo(aeropuertos, detalles[1]);
+            for (String vuelo : vuelos) {
+                String[] detalles = vuelo.split(",");
+                Aeropuerto aeropuertoOrigen = findAeropuertoByCodigo(aeropuertos, detalles[0]);
+                Aeropuerto aeropuertoDestino = findAeropuertoByCodigo(aeropuertos, detalles[1]);
 
-                    if (aeropuertoOrigen == null || aeropuertoDestino == null)
-                        continue; // Skip if no airport data
+                if (aeropuertoOrigen == null || aeropuertoDestino == null)
+                    continue; // Skip if no airport data
 
-                    LocalTime horaSalidaLocal = LocalTime.parse(detalles[2], formatter);
-                    LocalTime horaLlegadaLocal = LocalTime.parse(detalles[3], formatter);
-                    int capacidad = Integer.parseInt(detalles[4]);
+                LocalTime horaSalidaLocal = LocalTime.parse(detalles[2], formatter);
+                LocalTime horaLlegadaLocal = LocalTime.parse(detalles[3], formatter);
+                int capacidad = Integer.parseInt(detalles[4]);
 
-                    OffsetTime salida = OffsetTime.of(horaSalidaLocal,
-                            ZoneOffset.ofHours(aeropuertoOrigen.getZonaHorariaGMT()));
-                    OffsetTime llegada = OffsetTime.of(horaLlegadaLocal,
-                            ZoneOffset.ofHours(aeropuertoDestino.getZonaHorariaGMT()));
+                OffsetTime salida = OffsetTime.of(horaSalidaLocal,
+                        ZoneOffset.ofHours(aeropuertoOrigen.getZonaHorariaGMT()));
+                OffsetTime llegada = OffsetTime.of(horaLlegadaLocal,
+                        ZoneOffset.ofHours(aeropuertoDestino.getZonaHorariaGMT()));
 
-                    PlanDeVuelo planDeVuelo = new PlanDeVuelo(detalles[0], detalles[1], salida,
-                            llegada, capacidad, false);
-                    planDeVuelos.add(planDeVuelo);
-                }
-
-                if (!planDeVuelos.isEmpty()) {
-                    RutaPredefinida ruta = new RutaPredefinida(
-                            planDeVuelos.get(0).getCodigoIATAOrigen(),
-                            planDeVuelos.get(planDeVuelos.size() - 1)
-                                    .getCodigoIATADestino(),
-                            planDeVuelos.get(0).getHoraSalida(),
-                            planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada(),
-                            planDeVuelos, duracion);
-                    rutas.add(ruta);
-                }
+                PlanDeVuelo planDeVuelo = new PlanDeVuelo(detalles[0], detalles[1], salida,
+                        llegada, capacidad, false);
+                planDeVuelos.add(planDeVuelo);
             }
-        } catch (IOException e) {
-            System.err.println("Error al leer el archivo: " + e.getMessage());
+
+            if (!planDeVuelos.isEmpty()) {
+                RutaPredefinida ruta = new RutaPredefinida(
+                        planDeVuelos.get(0).getCodigoIATAOrigen(),
+                        planDeVuelos.get(planDeVuelos.size() - 1)
+                                .getCodigoIATADestino(),
+                        planDeVuelos.get(0).getHoraSalida(),
+                        planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada(),
+                        planDeVuelos, duracion);
+                rutas.add(ruta);
+            }
         }
         return rutas;
     }

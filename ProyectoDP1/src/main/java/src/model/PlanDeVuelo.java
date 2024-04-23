@@ -10,7 +10,6 @@ import java.time.OffsetTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class PlanDeVuelo {
         private String codigoIATAOrigen;
         private String codigoIATADestino;

@@ -3,6 +3,7 @@ package src.service;
 import src.model.*;
 import src.utility.*;
 
+import java.io.IOException;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
@@ -33,7 +34,7 @@ public class PlanificacionService {
     }
 
     public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales) {
+            List<Vuelo> vuelosActuales) throws IOException {
 
         String archivoRutas = FileUtils.chooseFile("Cargar Rutas Predefinidas");
         List<RutaPredefinida> rutasPred = VueloService.getRutasConEscalas(aeropuertos, archivoRutas);
