@@ -1,4 +1,4 @@
-package src.controller;
+package src.service;
 
 import src.model.*;
 
@@ -8,14 +8,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
 
-public class FitnessEvaluator {
+import org.springframework.stereotype.Component;
+
+@Component
+public class FitnessEvaluatorService {
     private double penalizacionPorExceso = 10.0; // Penalización por cada unidad que excede la capacidad
     private double valorBaseFitness = 1000.0; // Puntaje base de fitness
 
-    public FitnessEvaluator() {
+    public FitnessEvaluatorService() {
     }
 
-    public FitnessEvaluator(double penalizacionPorExceso, double valorBaseFitness) {
+    public FitnessEvaluatorService(double penalizacionPorExceso, double valorBaseFitness) {
         this.penalizacionPorExceso = penalizacionPorExceso;
         this.valorBaseFitness = valorBaseFitness;
     }
@@ -74,17 +77,16 @@ public class FitnessEvaluator {
                 return vuelo;
             }
         }
-        return null; // Retornar null si no se encuentra ningún vuelo que coincida
+        return null;
     }
 
     private Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA) {
-        // Buscar un almacén que coincida con el código IATA proporcionado
         for (Aeropuerto aeropuerto : aeropuertos) {
             if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
                 return aeropuerto.getAlmacen();
             }
         }
-        return null; // Retornar null si no se encuentra ningún almacén que coincida
+        return null;
     }
 
     private void actualizarUsoCapacidadAlmacen(Map<String, Integer> usoCapacidad, String codigoIATA, int cantidad) {
