@@ -41,7 +41,12 @@ public class ProyectoDp1Application_algoritmogenetico {
 				if (archivoRuta != null) {
 					List<Envio> envios = Utilities.getEnvios(archivoRuta);
 					Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
-					System.out.println("Resultado del algoritmo genético procesado.");
+					if (resultado != null) {
+						System.out.println("Resultado del algoritmo genético procesado:");
+						Cromosoma.imprimirGenDelCromosoma(resultado);
+					} else {
+						System.out.println("No se obtuvo un resultado válido del algoritmo genético.");
+					}
 				} else {
 					System.out.println("No se seleccionó ningún archivo de envíos.");
 				}

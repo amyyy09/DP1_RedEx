@@ -52,4 +52,14 @@ public class Cromosoma {
         return poblacion;
     }
 
+    public static void imprimirGenDelCromosoma(Cromosoma cromosoma) {
+        Map<RutaPredefinida, Paquete> gen = cromosoma.getGen(); // Asumiendo que existe un método getGen
+        for (Map.Entry<RutaPredefinida, Paquete> entrada : gen.entrySet()) {
+            RutaPredefinida ruta = entrada.getKey();
+            Paquete paquete = entrada.getValue();
+            System.out.println("Ruta de " + ruta.getCodigoIATAOrigen() + " a " + ruta.getCodigoIATADestino() +
+                    " con paquete ID: " + paquete.getIdEnvio() + ", Salida: " + ruta.getHoraSalida() +
+                    ", Llegada: " + ruta.getHoraLlegada());
+        }
+    }
 }
