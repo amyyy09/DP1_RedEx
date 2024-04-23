@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
-public class Controller {
+public class IOController {
 
         public static String chooseFile(String description) {
                 JFileChooser fileChooser = new JFileChooser();
@@ -162,7 +162,7 @@ public class Controller {
                         String archivoDestino) {
                 List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
                 List<String> lineas = rutas.stream()
-                                .map(Controller::formatoRutaCSV)
+                                .map(IOController::formatoRutaCSV)
                                 .collect(Collectors.toList());
 
                 try (BufferedWriter writer = Files.newBufferedWriter(Paths.get(archivoDestino))) {
