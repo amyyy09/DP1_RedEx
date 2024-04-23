@@ -55,15 +55,15 @@ public class ProyectoDp1Application_PSO {
                     double r1 = rand.nextDouble(), r2 = rand.nextDouble();
                     double velocity = w * particle.getVelocidad().get(k) + 
 
-                        c1 * r1 * (rutasPred.indexOf(particle.getPbest().get(paquetes.get(k))) - rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)))) +
+                        c1 * r1 * (rutasPred.indexOf(particle.getPbest().get(paquetes.get(k)).getRutaPredefinida()) - rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())) +
 
-                        c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k))) - rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k))));
+                        c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
 
                     int velint = Particula.verifyLimits(velocity, rutasPred);
 
                     particle.getVelocidad().set(k,(double) velint);
 
-                    RutaPredefinida newPosition = rutasPred.get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k))) + velint);
+                    RutaPredefinida newPosition = rutasPred.get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()) + velint);
 
                     RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos);
 

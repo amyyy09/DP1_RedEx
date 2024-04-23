@@ -20,6 +20,7 @@ public class RutaTiempoReal {
     private LocalDateTime horaInicio;
     private LocalDateTime horaLlegada;
     private List<Vuelo> vuelos;
+    private RutaPredefinida rutaPredefinida;
     private int status; // indica si la ruta esta actualmente activa, en el aire o en el aeropuerto
 
     // get capcidad del almcen actual (o del avion actul)

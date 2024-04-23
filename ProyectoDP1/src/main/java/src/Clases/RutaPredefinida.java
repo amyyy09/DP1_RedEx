@@ -227,6 +227,7 @@ public class RutaPredefinida {
         rutaTiempoReal.setHoraInicio(horaInicio);
         rutaTiempoReal.setHoraLlegada(horaFin);
         rutaTiempoReal.setVuelos(vuelos);
+        rutaTiempoReal.setRutaPredefinida(this);
         rutaTiempoReal.setStatus(0); // Status inicial, suponemos '0' para no activa
     
         return rutaTiempoReal;
