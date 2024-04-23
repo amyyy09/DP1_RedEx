@@ -1,4 +1,4 @@
-package src.Clases;
+package src.model;
 
 import java.time.OffsetTime;
 import java.util.List;
@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class RutaPredefinida {
     private String codigoIATAOrigen;
     private String codigoIATADestino;

@@ -1,4 +1,4 @@
-package src.Clases;
+package src.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Paquete {
     private String idEnvio;
     private int status;

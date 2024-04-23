@@ -1,4 +1,4 @@
-package src.Clases;
+package src.model;
 
 import java.util.List;
 import java.time.LocalDateTime;

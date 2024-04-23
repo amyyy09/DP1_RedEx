@@ -1,4 +1,4 @@
-package src.Clases;
+package src.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,7 +20,5 @@ public class RutaTiempoReal {
     private LocalDateTime horaInicio;
     private LocalDateTime horaLlegada;
     private List<Vuelo> vuelos;
-    private int status; // indica si la ruta esta actualmente activa, en el aire o en el aeropuerto
-
-    // get capcidad del almcen actual (o del avion actul)
+    private int status;
 }

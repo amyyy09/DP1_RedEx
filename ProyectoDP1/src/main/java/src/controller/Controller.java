@@ -1,4 +1,6 @@
-package src.Clases;
+package src.controller;
+
+import src.model.*;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -12,9 +14,11 @@ import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -334,5 +338,41 @@ public class Controller {
 
         private static boolean containsRoute(List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> currentRoute) {
                 return allRoutes.stream().anyMatch(route -> route.equals(currentRoute));
+        }
+
+        public static List<Cromosoma> createPopulation(List<Envio> envios, List<RutaPredefinida> rutasPred,
+                        int numCromosomas, List<Aeropuerto> aeropuertos) {
+                List<Cromosoma> poblacion = new ArrayList<>();
+                Random random = new Random();
+
+                for (int i = 0; i < numCromosomas; i++) {
+                        Map<RutaPredefinida, Paquete> gen = new HashMap<>();
+
+                        for (Envio envio : envios) {
+                                List<Paquete> paquetes = envio.getPaquetes();
+                                for (Paquete paquete : paquetes) {
+                                        RutaPredefinida rutaPredefinida = rutasPred
+                                                        .get(random.nextInt(rutasPred.size()));
+                                        gen.put(rutaPredefinida, paquete);
+                                }
+                        }
+                        Cromosoma cromosoma = new Cromosoma(gen);
+                        poblacion.add(cromosoma);
+                }
+
+                return poblacion;
+        }
+
+        public static void imprimirGenDelCromosoma(Cromosoma cromosoma) {
+                Map<RutaPredefinida, Paquete> gen = cromosoma.getGen(); // Asumiendo que existe un método getGen
+                for (Map.Entry<RutaPredefinida, Paquete> entrada : gen.entrySet()) {
+                        RutaPredefinida ruta = entrada.getKey();
+                        Paquete paquete = entrada.getValue();
+                        System.out.println(
+                                        "Ruta de " + ruta.getCodigoIATAOrigen() + " a " + ruta.getCodigoIATADestino() +
+                                                        " con paquete ID: " + paquete.getIdEnvio() + ", Salida: "
+                                                        + ruta.getHoraSalida() +
+                                                        ", Llegada: " + ruta.getHoraLlegada());
+                }
         }
 }

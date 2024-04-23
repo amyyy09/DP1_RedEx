@@ -3,6 +3,10 @@ package src.main;
 //dependencias
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
+import src.model.*;
+import src.controller.*;
+import src.utility.*;
+
 //utilidades
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -10,18 +14,6 @@ import java.util.List;
 import java.util.Random;
 import java.util.Map;
 import java.util.HashMap;
-
-//paquetes
-import src.Clases.Paquete;
-import src.Clases.PlanDeVuelo;
-import src.Clases.Vuelo;
-import src.Clases.RutaPredefinida;
-import src.Clases.Aeropuerto;
-import src.Clases.Controller;
-import src.Clases.Cromosoma;
-import src.Clases.DatosAeropuertos;
-import src.Clases.Envio;
-import src.Clases.FitnessEvaluator;
 
 @SpringBootApplication
 public class ProyectoDp1Application_algoritmogenetico {
@@ -42,7 +34,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 					Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
 					if (resultado != null) {
 						System.out.println("Resultado del algoritmo genético procesado:");
-						Cromosoma.imprimirGenDelCromosoma(resultado);
+						Controller.imprimirGenDelCromosoma(resultado);
 					} else {
 						System.out.println("No se obtuvo un resultado válido del algoritmo genético.");
 					}
@@ -69,7 +61,7 @@ public class ProyectoDp1Application_algoritmogenetico {
 		final int numGeneraciones = 20;
 		String archivoRutas = Controller.chooseFile("Cargar Rutas Predefinidas");
 		List<RutaPredefinida> rutasPred = Controller.obtenerRutasConEscalas(aeropuertos, archivoRutas);
-		List<Cromosoma> poblacion = Cromosoma.createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
+		List<Cromosoma> poblacion = Controller.createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
 		Random rand = new Random();
 
 		for (int generacion = 0; generacion < numGeneraciones; generacion++) {

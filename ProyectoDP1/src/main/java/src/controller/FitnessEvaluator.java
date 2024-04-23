@@ -1,4 +1,6 @@
-package src.Clases;
+package src.controller;
+
+import src.model.*;
 
 import java.time.OffsetTime;
 import java.util.ArrayList;
