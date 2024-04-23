@@ -20,7 +20,17 @@ import javax.swing.JFileChooser;
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class Controller {
-        public Controller() {
+
+        public static String chooseFile(String description) {
+                JFileChooser fileChooser = new JFileChooser();
+                FileNameExtensionFilter filter = new FileNameExtensionFilter(description, "txt", "text");
+                fileChooser.setFileFilter(filter);
+                int result = fileChooser.showOpenDialog(null);
+                if (result == JFileChooser.APPROVE_OPTION) {
+                        return fileChooser.getSelectedFile().getPath();
+                } else {
+                        return null;
+                }
         }
 
         public static List<Vuelo> getVuelosActualesTesting(List<PlanDeVuelo> planesDeVuelo) {
@@ -115,18 +125,6 @@ public class Controller {
                                 .findFirst()
                                 .map(a -> OffsetTime.of(localTime, ZoneOffset.ofHours(a.getZonaHorariaGMT())))
                                 .orElse(null); // Retorna null si no se encuentra el aeropuerto.
-        }
-
-        public static String chooseFile() {
-                JFileChooser fileChooser = new JFileChooser();
-                FileNameExtensionFilter filter = new FileNameExtensionFilter("Text Files", "txt", "text");
-                fileChooser.setFileFilter(filter);
-                int result = fileChooser.showOpenDialog(null);
-                if (result == JFileChooser.APPROVE_OPTION) {
-                        return fileChooser.getSelectedFile().getPath();
-                } else {
-                        return null;
-                }
         }
 
         public static boolean isSameContinent(String codigoIATAOrigen, String codigoIATADestino,

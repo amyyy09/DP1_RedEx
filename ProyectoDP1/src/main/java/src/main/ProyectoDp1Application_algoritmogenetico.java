@@ -17,7 +17,7 @@ import src.Clases.PlanDeVuelo;
 import src.Clases.Vuelo;
 import src.Clases.RutaPredefinida;
 import src.Clases.Aeropuerto;
-import src.Clases.Utilities;
+import src.Clases.Controller;
 import src.Clases.Cromosoma;
 import src.Clases.DatosAeropuertos;
 import src.Clases.Envio;
@@ -30,15 +30,15 @@ public class ProyectoDp1Application_algoritmogenetico {
 	public static void main(String[] args) {
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-			String archivoRuta = Utilities.chooseFile();
+			String archivoRuta = Controller.chooseFile("Cargar Planes de Vuelo");
 			if (archivoRuta != null) {
-				List<PlanDeVuelo> planesDeVuelo = Utilities.getPlanesDeVuelo(aeropuertos, archivoRuta);
-				List<Vuelo> vuelosActuales = Utilities.getVuelosActualesTesting(planesDeVuelo);
+				List<PlanDeVuelo> planesDeVuelo = Controller.getPlanesDeVuelo(aeropuertos, archivoRuta);
+				List<Vuelo> vuelosActuales = Controller.getVuelosActualesTesting(planesDeVuelo);
 				// RutaPredefinida.guardarRutasEnCSV(aeropuertos, planesDeVuelo, "rutPred.txt");
 
-				archivoRuta = Utilities.chooseFile();
+				archivoRuta = Controller.chooseFile("Cargar Envios");
 				if (archivoRuta != null) {
-					List<Envio> envios = Utilities.getEnvios(archivoRuta);
+					List<Envio> envios = Controller.getEnvios(archivoRuta);
 					Cromosoma resultado = ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
 					if (resultado != null) {
 						System.out.println("Resultado del algoritmo genético procesado:");
@@ -67,8 +67,8 @@ public class ProyectoDp1Application_algoritmogenetico {
 		final int tamanoTorneo = 5;
 		final int numDescendientes = 50;
 		final int numGeneraciones = 20;
-		String archivoRutas = Utilities.chooseFile();
-		List<RutaPredefinida> rutasPred = Utilities.obtenerRutasConEscalas(aeropuertos, archivoRutas);
+		String archivoRutas = Controller.chooseFile("Cargar Rutas Predefinidas");
+		List<RutaPredefinida> rutasPred = Controller.obtenerRutasConEscalas(aeropuertos, archivoRutas);
 		List<Cromosoma> poblacion = Cromosoma.createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
 		Random rand = new Random();
 
