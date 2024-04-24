@@ -1,4 +1,4 @@
-package src.Clases;
+package src.model;
 
 import java.util.Map;
 import java.util.Random;
@@ -8,6 +8,7 @@ import java.util.List;
 
 import lombok.Getter;
 import lombok.Setter;
+import src.service.FitnessEvaluatorService;
 import lombok.NoArgsConstructor;
 
 @Getter
@@ -19,7 +20,8 @@ public class Particula {
     private Map<Paquete, RutaTiempoReal> pbest;
     private double fbest;
 
-    public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Paquete> paquetes, List<RutaPredefinida> rutasPred, List<Aeropuerto> aeropuertos) {
+    public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Paquete> paquetes,
+            List<RutaPredefinida> rutasPred, List<Aeropuerto> aeropuertos) {
         Map<Paquete, RutaTiempoReal> position = new HashMap<>();
         for (Paquete pkg : paquetes) {
             RutaPredefinida randomRoute = rutasPred.get(new Random().nextInt(rutasPred.size()));
@@ -38,23 +40,24 @@ public class Particula {
         return velocity;
     }
 
-    public static int verifyLimits(double velocity, List<RutaPredefinida> rutasPred){
+    public static int verifyLimits(double velocity, List<RutaPredefinida> rutasPred) {
 
         int val = (int) Math.floor(velocity);
-        
-        if (val < 0){
+
+        if (val < 0) {
             val = rutasPred.size() + val;
         }
-        if (val >= rutasPred.size()){
+        if (val >= rutasPred.size()) {
             val = rutasPred.size() - val;
         }
 
         return val;
     }
 
-    public static Map<Paquete, RutaTiempoReal> determineGbest(List<Particula> population, List<Aeropuerto> aeropuertos, List<Vuelo> vuelos) {
+    public static Map<Paquete, RutaTiempoReal> determineGbest(List<Particula> population, List<Aeropuerto> aeropuertos,
+            List<Vuelo> vuelos) {
         Map<Paquete, RutaTiempoReal> gbest = new HashMap<Paquete, RutaTiempoReal>(population.get(0).getPosicion());
-        FitnessEvaluator fitnessEvaluator = new FitnessEvaluator();
+        FitnessEvaluatorService fitnessEvaluator = new FitnessEvaluatorService();
         double bestFitness = fitnessEvaluator.fitness(gbest, aeropuertos, vuelos);
         for (Particula particle : population) {
             if (particle.getFbest() < bestFitness) {
