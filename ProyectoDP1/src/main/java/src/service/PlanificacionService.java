@@ -34,10 +34,9 @@ public class PlanificacionService {
     }
 
     public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales) throws IOException {
+            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo) throws IOException {
 
-        String archivoRutas = FileUtils.chooseFile("Cargar Rutas Predefinidas");
-        List<RutaPredefinida> rutasPred = VueloService.getRutasConEscalas(aeropuertos, archivoRutas);
+        List<RutaPredefinida> rutasPred = generarRutas(aeropuertos, planesDeVuelo);
         List<Cromosoma> poblacion = createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
         Random rand = new Random();
 

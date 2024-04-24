@@ -11,7 +11,6 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class RutaPredefinida {
     private String codigoIATAOrigen;
     private String codigoIATADestino;

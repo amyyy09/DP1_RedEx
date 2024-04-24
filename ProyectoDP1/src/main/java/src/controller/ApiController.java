@@ -32,8 +32,8 @@ public class ApiController {
     @PostMapping("/ejecutar-algoritmo-genetico")
     public Cromosoma ejecutarAlgoritmoGenetico(@RequestBody List<Envio> envios,
             @RequestBody List<Aeropuerto> aeropuertos,
-            @RequestBody List<Vuelo> vuelosActuales) throws IOException {
-        return planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales);
+            @RequestBody List<Vuelo> vuelosActuales, @RequestBody List<PlanDeVuelo> planesDeVuelo) throws IOException {
+        return planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales, planesDeVuelo);
     }
 
     @GetMapping("/get-vuelos-actuales")

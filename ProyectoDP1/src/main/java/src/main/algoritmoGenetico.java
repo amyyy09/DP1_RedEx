@@ -26,7 +26,7 @@ public class algoritmoGenetico {
 
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
 				Cromosoma resultado = planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos,
-						vuelosActuales);
+						vuelosActuales, planesDeVuelo);
 				if (resultado != null) {
 					System.out.println("Resultado del algoritmo genético procesado.");
 				} else {
