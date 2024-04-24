@@ -2,7 +2,6 @@ package src.service;
 
 import src.model.*;
 
-import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +34,7 @@ public class FitnessEvaluatorService {
             for (Map.Entry<RutaPredefinida, Paquete> entrada : cromosoma.getGen().entrySet()) {
                 RutaPredefinida ruta = entrada.getKey();
                 Paquete paquete = entrada.getValue();
-                Vuelo _vuelosActivo = encontrarVueloActual(vuelosActivos, ruta);
+                Vuelo _vuelosActivo = VueloService.encontrarVueloActual(vuelosActivos, ruta);
 
                 paquete.setStatus(3);
 
@@ -50,11 +49,11 @@ public class FitnessEvaluatorService {
                 }
 
                 // Gestión de capacidades de almacenes
-                actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATAOrigen(), 1);
-                actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATADestino(), 1);
+                VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATAOrigen(), 1);
+                VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATADestino(), 1);
 
-                Almacen almacenOrigen = encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATAOrigen());
-                Almacen almacenDestino = encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATADestino());
+                Almacen almacenOrigen = VueloService.encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATAOrigen());
+                Almacen almacenDestino = VueloService.encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATADestino());
                 penalizacion += almacenOrigen.verificarCapacidadAlmacen() * penalizacionPorExceso;
                 penalizacion += almacenDestino.verificarCapacidadAlmacen() * penalizacionPorExceso;
             }
@@ -65,32 +64,4 @@ public class FitnessEvaluatorService {
 
         return fitnessCromosomas;
     }
-
-    private Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaPredefinida ruta) {
-        OffsetTime horaActual = OffsetTime.now();
-
-        for (Vuelo vuelo : vuelosActivos) {
-            if (vuelo.getPlanDeVuelo().getCodigoIATAOrigen().equals(ruta.getCodigoIATAOrigen()) &&
-                    vuelo.getPlanDeVuelo().getCodigoIATADestino().equals(ruta.getCodigoIATADestino()) &&
-                    vuelo.getPlanDeVuelo().getHoraSalida().isBefore(horaActual) &&
-                    vuelo.getPlanDeVuelo().getHoraLlegada().isAfter(horaActual)) {
-                return vuelo;
-            }
-        }
-        return null;
-    }
-
-    private Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA) {
-        for (Aeropuerto aeropuerto : aeropuertos) {
-            if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
-                return aeropuerto.getAlmacen();
-            }
-        }
-        return null;
-    }
-
-    private void actualizarUsoCapacidadAlmacen(Map<String, Integer> usoCapacidad, String codigoIATA, int cantidad) {
-        usoCapacidad.put(codigoIATA, usoCapacidad.getOrDefault(codigoIATA, 0) + cantidad);
-    }
-
 }

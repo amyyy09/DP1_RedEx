@@ -2,6 +2,6 @@ package src.controller;
 
 import src.model.*;
 
-public class CromosomaController {
+public class mainController {
 
 }

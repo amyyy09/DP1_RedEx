@@ -11,11 +11,12 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class VueloService {
 
-    public static List<Envio> getEnvios(String archivo) throws IOException {
+    public List<Envio> getEnvios(String archivo) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         List<String> lines = FileUtils.readLines(archivo);
         List<Envio> envios = new ArrayList<>();
@@ -38,6 +39,27 @@ public class VueloService {
         }
         return envios;
 
+    }
+
+    public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
+        List<Vuelo> vuelosActuales = new ArrayList<>();
+        OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
+
+        int vueloId = 1;
+        for (PlanDeVuelo plan : planesDeVuelo) {
+            if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
+                Vuelo vuelo = new Vuelo();
+                vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
+                vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
+                vuelo.setCapacidad(plan.getCapacidad());
+                vuelo.setStatus(1); // Establece el estado en tránsito.
+                vuelo.setPlanDeVuelo(plan);
+
+                vuelosActuales.add(vuelo);
+            }
+        }
+
+        return vuelosActuales;
     }
 
     public List<PlanDeVuelo> getPlanesDeVuelo(List<Aeropuerto> aeropuertos, String archivo) throws IOException {
@@ -169,5 +191,33 @@ public class VueloService {
                 .filter(a -> a.getCodigoIATA().equals(codigoIATA))
                 .findFirst()
                 .orElse(null);
+    }
+
+    public static Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaPredefinida ruta) {
+        OffsetTime horaActual = OffsetTime.now();
+
+        for (Vuelo vuelo : vuelosActivos) {
+            if (vuelo.getPlanDeVuelo().getCodigoIATAOrigen().equals(ruta.getCodigoIATAOrigen()) &&
+                    vuelo.getPlanDeVuelo().getCodigoIATADestino().equals(ruta.getCodigoIATADestino()) &&
+                    vuelo.getPlanDeVuelo().getHoraSalida().isBefore(horaActual) &&
+                    vuelo.getPlanDeVuelo().getHoraLlegada().isAfter(horaActual)) {
+                return vuelo;
+            }
+        }
+        return null;
+    }
+
+    public static Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA) {
+        for (Aeropuerto aeropuerto : aeropuertos) {
+            if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
+                return aeropuerto.getAlmacen();
+            }
+        }
+        return null;
+    }
+
+    public static void actualizarUsoCapacidadAlmacen(Map<String, Integer> usoCapacidad, String codigoIATA,
+            int cantidad) {
+        usoCapacidad.put(codigoIATA, usoCapacidad.getOrDefault(codigoIATA, 0) + cantidad);
     }
 }

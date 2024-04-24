@@ -5,7 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 
 import src.model.*;
-import src.service.PlanificacionService;
+import src.service.*;
 import src.utility.*;
 
 import java.util.ArrayList;
@@ -17,11 +17,13 @@ public class algoritmoGenetico {
 	public static void main(String[] args) {
 		ApplicationContext context = SpringApplication.run(algoritmoGenetico.class, args);
 		PlanificacionService planificacionService = context.getBean(PlanificacionService.class);
+		VueloService vueloService = context.getBean(VueloService.class);
 
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-			List<Envio> envios = obtenerEnvios(planificacionService);
-			List<Vuelo> vuelosActuales = obtenerVuelos(planificacionService);
+			List<Envio> envios = vueloService.getEnvios("Buscar Envios");
+			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, "Buscar Planes de Vuelo");
+			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
 
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
 				Cromosoma resultado = planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos,
@@ -36,15 +38,5 @@ public class algoritmoGenetico {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();
 		}
-	}
-
-	private static List<Envio> obtenerEnvios(PlanificacionService planificacionService) {
-		// Suponiendo que hay un método para obtener envíos
-		return new ArrayList<>();
-	}
-
-	private static List<Vuelo> obtenerVuelos(PlanificacionService planificacionService) {
-		// Suponiendo que hay un método para obtener vuelos actuales
-		return new ArrayList<>();
 	}
 }
