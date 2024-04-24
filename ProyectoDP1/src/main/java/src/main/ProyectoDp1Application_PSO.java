@@ -8,33 +8,24 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Map;
-import java.util.HashMap;
 
 //paquetes
-import src.Clases.Paquete;
-import src.Clases.PlanDeVuelo;
-import src.Clases.RutaTiempoReal;
-import src.Clases.Vuelo;
-import src.Clases.RutaPredefinida;
-import src.Clases.Aeropuerto;
-import src.Clases.Almacen;
-import src.Clases.DatosAeropuertos;
-import src.Clases.Envio;
-import src.Clases.Particula;
-import src.Clases.FitnessEvaluator;
+import src.Clases.*;
 
 @SpringBootApplication
 public class ProyectoDp1Application_PSO {
     private static Random rand = new Random();
 
     public static void main(String[] args) {
-        
+
     }
 
-    public static Map<Paquete, RutaTiempoReal> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred, List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActuales) {
+    public static Map<Paquete, RutaTiempoReal> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
+            List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
+            List<Vuelo> vuelosActuales) {
         List<Particula> population = new ArrayList<>();
         int numParticles = 50;
-        int numIterationsMax=100;
+        int numIterationsMax = 100;
         double w = 0.1, c1 = 0.1, c2 = 0.1;
 
         FitnessEvaluator fitnessEvaluator = new FitnessEvaluator();
@@ -51,19 +42,25 @@ public class ProyectoDp1Application_PSO {
 
         for (int j = 0; j < numIterationsMax; j++) {
             for (Particula particle : population) {
-                for (int k=0; k<paquetes.size(); k++) {
+                for (int k = 0; k < paquetes.size(); k++) {
                     double r1 = rand.nextDouble(), r2 = rand.nextDouble();
-                    double velocity = w * particle.getVelocidad().get(k) + 
+                    double velocity = w * particle.getVelocidad().get(k) +
 
-                        c1 * r1 * (rutasPred.indexOf(particle.getPbest().get(paquetes.get(k)).getRutaPredefinida()) - rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())) +
+                            c1 * r1 * (rutasPred.indexOf(particle.getPbest().get(paquetes.get(k)).getRutaPredefinida())
+                                    - rutasPred
+                                            .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()))
+                            +
 
-                        c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
+                            c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - rutasPred
+                                    .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
 
                     int velint = Particula.verifyLimits(velocity, rutasPred);
 
-                    particle.getVelocidad().set(k,(double) velint);
+                    particle.getVelocidad().set(k, (double) velint);
 
-                    RutaPredefinida newPosition = rutasPred.get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()) + velint);
+                    RutaPredefinida newPosition = rutasPred
+                            .get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())
+                                    + velint);
 
                     RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos);
 
@@ -77,8 +74,10 @@ public class ProyectoDp1Application_PSO {
                     particle.setFbest(fit);
                 }
             }
-            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
-            if (fitnessEvaluator.fitness(currentGbest, aeropuertos, vuelosActuales) < fitnessEvaluator.fitness(gbest, aeropuertos, vuelosActuales)) {
+            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, aeropuertos,
+                    vuelosActuales);
+            if (fitnessEvaluator.fitness(currentGbest, aeropuertos, vuelosActuales) < fitnessEvaluator.fitness(gbest,
+                    aeropuertos, vuelosActuales)) {
                 gbest = currentGbest;
             }
         }
