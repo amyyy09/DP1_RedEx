@@ -29,8 +29,8 @@ public class PlanificacionService {
     private final FitnessEvaluatorService evaluator;
 
     @Autowired
-    public PlanificacionService(FitnessEvaluatorService evaluator) {
-        this.evaluator = evaluator;
+    public PlanificacionService() {
+        this.evaluator = new FitnessEvaluatorService();
     }
 
     public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,

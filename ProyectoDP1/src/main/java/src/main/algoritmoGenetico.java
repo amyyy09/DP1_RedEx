@@ -1,8 +1,6 @@
 package src.main;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.ApplicationContext;
 
 import src.model.*;
 import src.service.*;
@@ -14,14 +12,16 @@ import java.util.List;
 public class algoritmoGenetico {
 
 	public static void main(String[] args) {
-		ApplicationContext context = SpringApplication.run(algoritmoGenetico.class, args);
-		PlanificacionService planificacionService = context.getBean(PlanificacionService.class);
-		VueloService vueloService = context.getBean(VueloService.class);
+		PlanificacionService planificacionService = new PlanificacionService();
+		VueloService vueloService = new VueloService();
+
+		String archivoRutaEnvios = FileUtils.chooseFile("Buscar Envíos");
+		String archivoRutaPlanes = FileUtils.chooseFile("Buscar Planes de Vuelo");
 
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-			List<Envio> envios = vueloService.getEnvios("Buscar Envios");
-			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, "Buscar Planes de Vuelo");
+			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
+			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
 			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
 
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {

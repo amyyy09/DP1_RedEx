@@ -11,7 +11,7 @@
 	</parent>
 	<groupId>src</groupId>
 	<artifactId>ProyectoDP1</artifactId>
-	<version>0.0.1</version>
+	<version>0.0.1-SNAPSHOT</version>
 	<name>ProyectoDP1</name>
 	<description>Proyecto de DP1 - Algoritmo</description>
 	<properties>
