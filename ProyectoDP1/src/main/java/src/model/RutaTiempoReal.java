@@ -16,9 +16,10 @@ public class RutaTiempoReal {
     private int idRuta;
     private Aeropuerto origen;
     private Aeropuerto destino;
-    private Almacen almacen;
+    private Almacen xAlmacen;
     private LocalDateTime horaInicio;
     private LocalDateTime horaLlegada;
     private List<Vuelo> vuelos;
+    private RutaPredefinida rutaPredefinida;
     private int status;
 }

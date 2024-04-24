@@ -1,7 +1,6 @@
 package src.service;
 
 import src.model.*;
-import src.utility.*;
 
 import java.io.IOException;
 import java.time.OffsetTime;
@@ -26,11 +25,13 @@ public class PlanificacionService {
     private int numDescendientes = 50;
     private int numGeneraciones = 20;
 
-    private final FitnessEvaluatorService evaluator;
+    private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
+    private static Random rand = new Random();
 
     @Autowired
     public PlanificacionService() {
-        this.evaluator = new FitnessEvaluatorService();
+        rand = new Random();
+        PlanificacionService.evaluator = new FitnessEvaluatorService();
     }
 
     public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
@@ -278,6 +279,70 @@ public class PlanificacionService {
 
     private static boolean containsRoute(List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> currentRoute) {
         return allRoutes.stream().anyMatch(route -> route.equals(currentRoute));
+    }
+
+    // PSO
+
+    public static Map<Paquete, RutaTiempoReal> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
+            List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
+            List<Vuelo> vuelosActuales) {
+        List<Particula> population = new ArrayList<>();
+        int numParticles = 50;
+        int numIterationsMax = 100;
+        double w = 0.1, c1 = 0.1, c2 = 0.1;
+
+        for (int i = 0; i < numParticles; i++) {
+            Particula particle = new Particula();
+            particle.setPosicion(Particula.inicializarPosicion(paquetes, rutasPred, aeropuertos));
+            particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
+            particle.setPbest(particle.getPosicion());
+            particle.setFbest(evaluator.fitness(particle.getPbest(), aeropuertos, vuelosActuales));
+            population.add(particle);
+        }
+        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
+
+        for (int j = 0; j < numIterationsMax; j++) {
+            for (Particula particle : population) {
+                for (int k = 0; k < paquetes.size(); k++) {
+                    double r1 = rand.nextDouble(), r2 = rand.nextDouble();
+                    double velocity = w * particle.getVelocidad().get(k) +
+
+                            c1 * r1 * (rutasPred.indexOf(particle.getPbest().get(paquetes.get(k)).getRutaPredefinida())
+                                    - rutasPred
+                                            .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()))
+                            +
+
+                            c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - rutasPred
+                                    .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
+
+                    int velint = Particula.verifyLimits(velocity, rutasPred);
+
+                    particle.getVelocidad().set(k, (double) velint);
+
+                    RutaPredefinida newPosition = rutasPred
+                            .get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())
+                                    + velint);
+
+                    RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos);
+
+                    particle.getPosicion().put(paquetes.get(k), newRTR);
+                }
+
+                double fit = evaluator.fitness(particle.getPosicion(), aeropuertos, vuelosActuales);
+
+                if (fit < particle.getFbest()) {
+                    particle.setPbest(particle.getPosicion());
+                    particle.setFbest(fit);
+                }
+            }
+            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, aeropuertos,
+                    vuelosActuales);
+            if (evaluator.fitness(currentGbest, aeropuertos, vuelosActuales) < evaluator.fitness(gbest,
+                    aeropuertos, vuelosActuales)) {
+                gbest = currentGbest;
+            }
+        }
+        return gbest;
     }
 
 }
