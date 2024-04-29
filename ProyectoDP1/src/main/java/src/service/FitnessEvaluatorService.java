@@ -32,9 +32,9 @@ public class FitnessEvaluatorService {
             Map<String, Integer> usoCapacidadVuelos = new HashMap<>();
             Map<String, Integer> usoCapacidadAlmacenes = new HashMap<>();
 
-            for (Map.Entry<RutaPredefinida, Paquete> entrada : cromosoma.getGen().entrySet()) {
-                RutaPredefinida ruta = entrada.getKey();
-                Paquete paquete = entrada.getValue();
+            for (Map.Entry<Paquete,RutaPredefinida> entrada : cromosoma.getGen().entrySet()) {
+                RutaPredefinida ruta = entrada.getValue();
+                Paquete paquete = entrada.getKey();
                 Vuelo _vuelosActivo = VueloService.encontrarVueloActual(vuelosActivos, ruta);
 
                 paquete.setStatus(3);

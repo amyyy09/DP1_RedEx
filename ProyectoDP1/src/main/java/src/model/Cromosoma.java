@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Setter
 @NoArgsConstructor
 public class Cromosoma {
-    private Map<RutaPredefinida, Paquete> gen;
+    private Map<Paquete, RutaPredefinida> gen;
 
-    public Cromosoma(Map<RutaPredefinida, Paquete> gen) {
+    public Cromosoma(Map<Paquete,RutaPredefinida> gen) {
         this.gen = gen;
     }
 
-    public Map<RutaPredefinida, Paquete> getGenes() {
+    public Map<Paquete,RutaPredefinida> getGenes() {
         return gen;
     }
 

@@ -24,10 +24,10 @@ public class VueloService {
         for (String line : lines) {
             String[] partes = line.split("-");
             String codigoIATAOrigen = partes[0].substring(0, 4);
-            String idEnvio = partes[0].substring(4);
-            LocalDateTime fechaHora = LocalDateTime.parse(partes[1] + "-" + partes[2], formatter);
-            String codigoIATADestino = partes[3].split(":")[0];
-            int cantPaquetes = Integer.parseInt(partes[3].split(":")[1]);
+            String idEnvio = partes[1];
+            LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
+            String codigoIATADestino = partes[4].split(":")[0];
+            int cantPaquetes = Integer.parseInt(partes[4].split(":")[1]);
 
             List<Paquete> paquetes = new ArrayList<>();
             for (int i = 0; i < cantPaquetes; i++) {
