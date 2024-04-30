@@ -24,7 +24,7 @@ public class PlanificacionService {
     private int numCromosomas = 100;
     private int tamanoTorneo = 5;
     private int numDescendientes = 50;
-    private int numGeneraciones = 120;
+    private int numGeneraciones = 150;
 
     private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
     private static Random rand = new Random();
@@ -42,8 +42,11 @@ public class PlanificacionService {
         List<Cromosoma> poblacion = createPopulation(envios, rutasOrigen, numCromosomas, aeropuertos);
         Random rand = new Random();
         double fitnesfinal=0;
+        
         for (int generacion = 0; generacion < numGeneraciones; generacion++) {
             List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos, vuelosActuales);
+            
+            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);
             if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
                 System.out.println(fitnessAgregado.get(0));
                 System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
@@ -80,6 +83,7 @@ public class PlanificacionService {
             poblacion = new ArrayList<>(descendientes);
             fitnesfinal=fitnessAgregado.get(0);
         }
+
         System.out.println(fitnesfinal);
         System.out
                 .println("No se encontró una solución satisfactoria después de " + numGeneraciones + " generaciones.");
@@ -177,6 +181,7 @@ public class PlanificacionService {
             Map<Paquete,RutaPredefinida> gen = new HashMap<>();
             for (Envio envio : envios) {
                 List<Paquete> paquetes = envio.getPaquetes();
+                String codigoIATADestinoEnvio = envio.getCodigoIATADestino();
                 int j=1;
                 for (Paquete paquete : paquetes) {
                     //crea un nuevo paquete con los datos de la variable paquete
@@ -187,6 +192,7 @@ public class PlanificacionService {
                     RutaPredefinida rutaPredefinida = rutasPred
                             .get(random.nextInt(rutasPred.size()));
                     paqueteactual.setIdEnvio(uniqueId);
+                    paqueteactual.setCodigoIATADestino(codigoIATADestinoEnvio);
                     gen.put(paqueteactual,rutaPredefinida);
                     j++;
                 }

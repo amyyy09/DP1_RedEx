@@ -24,6 +24,8 @@ public class algoritmoGenetico {
 			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
 			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
 			String origen=envios.get(0).getCodigoIATAOrigen();
+
+
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
 				List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo );
         		List<RutaPredefinida> rutasOrigen = planificacionService.filtrarRutasPorCodigoIATAOrigen(rutasPred, origen);
@@ -35,6 +37,9 @@ public class algoritmoGenetico {
 					System.out.println("No se obtuvo un resultado válido del algoritmo genético.");
 				}
 			}
+
+
+			
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();
