@@ -29,12 +29,12 @@ public class ApiController {
         this.vueloService = vueloService;
     }
 
-    @PostMapping("/ejecutar-algoritmo-genetico")
-    public Cromosoma ejecutarAlgoritmoGenetico(@RequestBody List<Envio> envios,
-            @RequestBody List<Aeropuerto> aeropuertos,
-            @RequestBody List<Vuelo> vuelosActuales, @RequestBody List<PlanDeVuelo> planesDeVuelo) throws IOException {
-        return planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales, planesDeVuelo);
-    }
+    // @PostMapping("/ejecutar-algoritmo-genetico")
+    // public Cromosoma ejecutarAlgoritmoGenetico(@RequestBody List<Envio> envios,
+    //         @RequestBody List<Aeropuerto> aeropuertos,
+    //         @RequestBody List<Vuelo> vuelosActuales, @RequestBody List<PlanDeVuelo> planesDeVuelo) throws IOException {
+    //     return planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales, planesDeVuelo);
+    // }
 
     @GetMapping("/get-vuelos-actuales")
     public List<Vuelo> getVuelosActuales(@RequestBody List<Envio> envios,

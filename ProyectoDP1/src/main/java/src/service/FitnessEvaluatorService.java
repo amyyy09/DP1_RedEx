@@ -44,9 +44,11 @@ public class FitnessEvaluatorService {
                 usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
 
                 // Verificar capacidad de vuelo
-                if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
-                    penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad())
-                            * penalizacionPorExceso;
+                if(_vuelosActivo != null){
+                    if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
+                        penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad())
+                                * penalizacionPorExceso;
+                    }
                 }
 
                 // Gestión de capacidades de almacenes

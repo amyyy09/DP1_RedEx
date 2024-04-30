@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class PlanificacionService {
     private int numCromosomas = 100;
     private int tamanoTorneo = 5;
     private int numDescendientes = 50;
-    private int numGeneraciones = 20;
+    private int numGeneraciones = 120;
 
     private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
     private static Random rand = new Random();
@@ -35,15 +36,16 @@ public class PlanificacionService {
     }
 
     public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo) throws IOException {
+            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo, List<RutaPredefinida> rutasOrigen) throws IOException {
 
-        List<RutaPredefinida> rutasPred = generarRutas(aeropuertos, planesDeVuelo);
-        List<Cromosoma> poblacion = createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
+        
+        List<Cromosoma> poblacion = createPopulation(envios, rutasOrigen, numCromosomas, aeropuertos);
         Random rand = new Random();
-
+        double fitnesfinal=0;
         for (int generacion = 0; generacion < numGeneraciones; generacion++) {
             List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos, vuelosActuales);
             if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
+                System.out.println(fitnessAgregado.get(0));
                 System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
                 return poblacion.get(0);
             }
@@ -57,12 +59,15 @@ public class PlanificacionService {
                 int indexPadre1 = rand.nextInt(matingPool.size());
                 int indexPadre2 = rand.nextInt(matingPool.size());
                 if (Math.random() < probabilidadCruce) {
-                    List<Cromosoma> hijos = crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2));
-
+                    List<Cromosoma> hijos = new ArrayList<>();
+                    hijos.add(matingPool.get(indexPadre1) );
+                    hijos.add(matingPool.get(indexPadre2));
+                    //crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2));
+                    
                     // Aplicar mutación con probabilidad probabilidadMutacion
                     hijos.forEach(hijo -> {
                         if (Math.random() < probabilidadMutacion) {
-                            mutarHijo(hijo, rutasPred); // Asumiendo que mutarHijos puede ahora manejar un solo hijo
+                            mutarHijo(hijo, rutasOrigen); // Asumiendo que mutarHijos puede ahora manejar un solo hijo
                         }
                     });
 
@@ -73,11 +78,18 @@ public class PlanificacionService {
             // Reemplazar la población vieja con los descendientes para la siguiente
             // generación
             poblacion = new ArrayList<>(descendientes);
+            fitnesfinal=fitnessAgregado.get(0);
         }
-
+        System.out.println(fitnesfinal);
         System.out
                 .println("No se encontró una solución satisfactoria después de " + numGeneraciones + " generaciones.");
         return null; // Devolver el mejor cromosoma encontrado o null si no se encontró solución
+    }
+
+    public List<RutaPredefinida> filtrarRutasPorCodigoIATAOrigen(List<RutaPredefinida> rutas, String codigoIATAOrigen) {
+        return rutas.stream()
+                    .filter(ruta -> ruta.getCodigoIATAOrigen().equals(codigoIATAOrigen))
+                    .collect(Collectors.toList());
     }
 
     public void mutarHijo(Cromosoma hijo, List<RutaPredefinida> rutasDisponibles) {
@@ -186,7 +198,7 @@ public class PlanificacionService {
         return poblacion;
     }
 
-    public static List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
+    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
         for (Aeropuerto origen : aeropuertos) {
             for (Aeropuerto destino : aeropuertos) {
