@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class PlanificacionService {
     private int numCromosomas = 100;
     private int tamanoTorneo = 5;
     private int numDescendientes = 50;
-    private int numGeneraciones = 20;
+    private int numGeneraciones = 150;
 
     private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
     private static Random rand = new Random();
@@ -35,15 +36,19 @@ public class PlanificacionService {
     }
 
     public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo) throws IOException {
+            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo, List<RutaPredefinida> rutasOrigen) throws IOException {
 
-        List<RutaPredefinida> rutasPred = generarRutas(aeropuertos, planesDeVuelo);
-        List<Cromosoma> poblacion = createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
+        
+        List<Cromosoma> poblacion = createPopulation(envios, rutasOrigen, numCromosomas, aeropuertos);
         Random rand = new Random();
-
+        double fitnesfinal=0;
+        
         for (int generacion = 0; generacion < numGeneraciones; generacion++) {
             List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos, vuelosActuales);
+            
+            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);
             if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
+                System.out.println(fitnessAgregado.get(0));
                 System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
                 return poblacion.get(0);
             }
@@ -57,12 +62,15 @@ public class PlanificacionService {
                 int indexPadre1 = rand.nextInt(matingPool.size());
                 int indexPadre2 = rand.nextInt(matingPool.size());
                 if (Math.random() < probabilidadCruce) {
-                    List<Cromosoma> hijos = crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2));
-
+                    List<Cromosoma> hijos = new ArrayList<>();
+                    hijos.add(matingPool.get(indexPadre1) );
+                    hijos.add(matingPool.get(indexPadre2));
+                    //crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2));
+                    
                     // Aplicar mutación con probabilidad probabilidadMutacion
                     hijos.forEach(hijo -> {
                         if (Math.random() < probabilidadMutacion) {
-                            mutarHijo(hijo, rutasPred); // Asumiendo que mutarHijos puede ahora manejar un solo hijo
+                            mutarHijo(hijo, rutasOrigen); // Asumiendo que mutarHijos puede ahora manejar un solo hijo
                         }
                     });
 
@@ -73,20 +81,32 @@ public class PlanificacionService {
             // Reemplazar la población vieja con los descendientes para la siguiente
             // generación
             poblacion = new ArrayList<>(descendientes);
+            fitnesfinal=fitnessAgregado.get(0);
         }
 
+        System.out.println(fitnesfinal);
         System.out
                 .println("No se encontró una solución satisfactoria después de " + numGeneraciones + " generaciones.");
         return null; // Devolver el mejor cromosoma encontrado o null si no se encontró solución
+    }
+
+    public List<RutaPredefinida> filtrarRutasPorCodigoIATAOrigen(List<RutaPredefinida> rutas, String codigoIATAOrigen) {
+        return rutas.stream()
+                    .filter(ruta -> ruta.getCodigoIATAOrigen().equals(codigoIATAOrigen))
+                    .collect(Collectors.toList());
     }
 
     public void mutarHijo(Cromosoma hijo, List<RutaPredefinida> rutasDisponibles) {
         Random rand = new Random();
 
         if (Math.random() < probabilidadMutacion) {
+            //SELECCIONA UN GEN AL AZAR PARA MUTAR DONDE MI CROMOSOMA ES DEL TIPO MAP<PAQUETE, RUTAPREDEFINIDA>
+
+            
+
             // Selecciona un gen (ruta) al azar para mutar.
-            List<RutaPredefinida> claves = new ArrayList<>(hijo.getGen().keySet());
-            RutaPredefinida rutaAMutar = claves.get(rand.nextInt(claves.size()));
+            List<RutaPredefinida> rutas = new ArrayList<>(hijo.getGen().values());
+            RutaPredefinida rutaAMutar = rutas.get(rand.nextInt(rutas.size()));
 
             // Selecciona una nueva ruta diferente a la actual.
             RutaPredefinida nuevaRuta;
@@ -94,11 +114,13 @@ public class PlanificacionService {
                 nuevaRuta = rutasDisponibles.get(rand.nextInt(rutasDisponibles.size()));
             } while (nuevaRuta.equals(rutaAMutar));
 
-            // Encuentra el paquete asociado a la ruta que se va a mutar y actualiza la
-            // asignación.
-            Paquete paqueteAMutar = hijo.getGen().get(rutaAMutar);
-            hijo.getGen().remove(rutaAMutar);
-            hijo.getGen().put(nuevaRuta, paqueteAMutar);
+            for (Map.Entry<Paquete, RutaPredefinida> entry : hijo.getGen().entrySet()) {
+                if (entry.getValue().equals(rutaAMutar)) {
+                    // Actualiza la asignación de la ruta
+                    hijo.getGen().put(entry.getKey(), nuevaRuta);
+                    break; // Romper el bucle después de actualizar el primer paquete encontrado
+                }
+            }
         }
     }
 
@@ -119,23 +141,23 @@ public class PlanificacionService {
 
     public static List<Cromosoma> crossover(Cromosoma padre1, Cromosoma padre2) {
 
-        Map<RutaPredefinida, Paquete> genPadre1 = new HashMap<>(padre1.getGen());
-        Map<RutaPredefinida, Paquete> genPadre2 = new HashMap<>(padre2.getGen());
+        Map<Paquete,RutaPredefinida> genPadre1 = new HashMap<>(padre1.getGen());
+        Map<Paquete,RutaPredefinida> genPadre2 = new HashMap<>(padre2.getGen());
 
-        List<Map.Entry<RutaPredefinida, Paquete>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
-        List<Map.Entry<RutaPredefinida, Paquete>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
+        List<Map.Entry<Paquete,RutaPredefinida>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
+        List<Map.Entry<Paquete,RutaPredefinida>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
 
         Random random = new Random();
         int puntoCruce = random.nextInt(listaGenPadre1.size());
 
         for (int i = puntoCruce; i < listaGenPadre1.size(); i++) {
-            Map.Entry<RutaPredefinida, Paquete> temp = listaGenPadre1.get(i);
+            Map.Entry<Paquete,RutaPredefinida> temp = listaGenPadre1.get(i);
             listaGenPadre1.set(i, listaGenPadre2.get(i));
             listaGenPadre2.set(i, temp);
         }
 
-        Map<RutaPredefinida, Paquete> genHijo1 = new HashMap<>();
-        Map<RutaPredefinida, Paquete> genHijo2 = new HashMap<>();
+        Map<Paquete,RutaPredefinida> genHijo1 = new HashMap<>();
+        Map<Paquete,RutaPredefinida> genHijo2 = new HashMap<>();
         for (int i = 0; i < listaGenPadre1.size(); i++) {
             genHijo1.put(listaGenPadre1.get(i).getKey(), listaGenPadre1.get(i).getValue());
             genHijo2.put(listaGenPadre2.get(i).getKey(), listaGenPadre2.get(i).getValue());
@@ -156,14 +178,23 @@ public class PlanificacionService {
         Random random = new Random();
 
         for (int i = 0; i < numCromosomas; i++) {
-            Map<RutaPredefinida, Paquete> gen = new HashMap<>();
-
+            Map<Paquete,RutaPredefinida> gen = new HashMap<>();
             for (Envio envio : envios) {
                 List<Paquete> paquetes = envio.getPaquetes();
+                String codigoIATADestinoEnvio = envio.getCodigoIATADestino();
+                int j=1;
                 for (Paquete paquete : paquetes) {
+                    //crea un nuevo paquete con los datos de la variable paquete
+                    Paquete paqueteactual= new Paquete();
+                    paqueteactual.setIdEnvio(paquete.getIdEnvio());
+                    paqueteactual.setStatus(1); 
+                    String uniqueId = paquete.getIdEnvio() + "-" + j;//duncion para limitar los 4 digitos
                     RutaPredefinida rutaPredefinida = rutasPred
                             .get(random.nextInt(rutasPred.size()));
-                    gen.put(rutaPredefinida, paquete);
+                    paqueteactual.setIdEnvio(uniqueId);
+                    paqueteactual.setCodigoIATADestino(codigoIATADestinoEnvio);
+                    gen.put(paqueteactual,rutaPredefinida);
+                    j++;
                 }
             }
             Cromosoma cromosoma = new Cromosoma(gen);
@@ -173,7 +204,7 @@ public class PlanificacionService {
         return poblacion;
     }
 
-    public static List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
+    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
         for (Aeropuerto origen : aeropuertos) {
             for (Aeropuerto destino : aeropuertos) {

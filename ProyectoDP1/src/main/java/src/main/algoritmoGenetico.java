@@ -23,16 +23,23 @@ public class algoritmoGenetico {
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
 			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
 			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
+			String origen=envios.get(0).getCodigoIATAOrigen();
+
 
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
+				List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo );
+        		List<RutaPredefinida> rutasOrigen = planificacionService.filtrarRutasPorCodigoIATAOrigen(rutasPred, origen);
 				Cromosoma resultado = planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos,
-						vuelosActuales, planesDeVuelo);
+						vuelosActuales, planesDeVuelo, rutasOrigen);
 				if (resultado != null) {
 					System.out.println("Resultado del algoritmo genético procesado.");
 				} else {
 					System.out.println("No se obtuvo un resultado válido del algoritmo genético.");
 				}
 			}
+
+
+			
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();

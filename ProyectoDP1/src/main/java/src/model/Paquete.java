@@ -13,4 +13,11 @@ import lombok.NoArgsConstructor;
 public class Paquete {
     private String idEnvio;
     private int status;
+    private String codigoIATADestino;
+
+    public Paquete(String idEnvio, int status) {
+        this.idEnvio = idEnvio;
+        this.status = status;
+    }
+    
 }
