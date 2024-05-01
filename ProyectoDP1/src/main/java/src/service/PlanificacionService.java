@@ -181,11 +181,11 @@ public class PlanificacionService {
             if (origen.getCodigoIATA().equals("ZBAA")) {
                 for (Aeropuerto destino : aeropuertos) {
                     // solo a los 3 primeros destinos del archivo de envios
-                    if (!origen.equals(destino) && (destino.getCodigoIATA().equals("WMKK") || destino.getCodigoIATA().equals("SEQM") || destino.getCodigoIATA().equals("RPLL"))){
+                    if (!origen.equals(destino) && (destino.getCodigoIATA().equals("SEQM"))){
                         List<Integer> daysm = new ArrayList<>();
-                        Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
+                        // Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
                         List<List<PlanDeVuelo>> _planesRutas = generarEscalas(origen, destino, planes,
-                                daysm, sameContinent);
+                                daysm, false);
                         for (List<PlanDeVuelo> _planRuta : _planesRutas) {
                             RutaPredefinida ruta = new RutaPredefinida();
                             ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
@@ -212,19 +212,27 @@ public class PlanificacionService {
     private static void dfs(String current, String destination, List<PlanDeVuelo> currentRoute,
             List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm, int days, Boolean sameContinent) {
 
-        if (currentRoute.size() > 8) {
+        if (currentRoute.size() > 4) {
             return; // Si se exceden 8 escalas, detiene la recursión para esta ruta
         }
-
-        if (current.equals(destination)) {
+        else if (currentRoute.size() > 0){
             List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
             if (!containsRoute(allRoutes, routeToAdd)) {
                 allRoutes.add(routeToAdd);
                 daysm.add(days);
-                System.out.println("Ruta encontrada: " + routeToAdd.stream().map(PlanDeVuelo::getCodigoIATAOrigen).collect(Collectors.joining(" -> ")) + " -> " + destination + " en " + days + " días.");
-                return;
+                // System.out.println("Ruta encontrada: " + routeToAdd.stream().map(PlanDeVuelo::getCodigoIATAOrigen).collect(Collectors.joining(" -> ")) + " en " + days + " días.");
             }
         }
+
+        // if (current.equals(destination)) {
+        //     List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
+        //     if (!containsRoute(allRoutes, routeToAdd)) {
+        //         allRoutes.add(routeToAdd);
+        //         daysm.add(days);
+        //         System.out.println("Ruta encontrada: " + routeToAdd.stream().map(PlanDeVuelo::getCodigoIATAOrigen).collect(Collectors.joining(" -> ")) + " -> " + destination + " en " + days + " días.");
+        //         return;
+        //     }
+        // }
 
         for (PlanDeVuelo plan : planes) {
             if (plan.getCodigoIATAOrigen().equals(current)) {
