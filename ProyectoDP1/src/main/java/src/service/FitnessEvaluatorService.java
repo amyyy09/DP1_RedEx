@@ -67,20 +67,23 @@ public class FitnessEvaluatorService {
     }
 
     public double fitness(Map<Paquete, RutaTiempoReal> poblacion, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActivos) {
+            List<Vuelo> vuelosActivos) { //RUTA -> FITNESSVALUE
         double penalizacion = 0.0;
-        Map<String, Integer> usoCapacidadVuelos = new HashMap<>();
+        Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, Integer> usoCapacidadAlmacenes = new HashMap<>();
 
         for (Entry<Paquete, RutaTiempoReal> entrada : poblacion.entrySet()) {
             Paquete paquete = entrada.getKey();
             RutaTiempoReal ruta = entrada.getValue();
-            Vuelo _vuelosActivo = encontrarVueloActual(vuelosActivos, ruta);
+            List<Vuelo> vuelos = ruta.getVuelos();
+            //Vuelo _vuelosActivo = encontrarVueloActual(vuelosActivos, ruta);
+            //paquete.setStatus(3);
 
-            paquete.setStatus(3);
-
+            for(int i=0; i<vuelos.size();i++){
+                //aiuda
+            }
             // Agregando carga al vuelo
-            String claveVuelo = ruta.getOrigen().getCodigoIATA() + "-" + ruta.getDestino().getCodigoIATA();
+            String claveVuelo = ruta.getOrigen().getCodigoIATA() + "-" + ruta.getDestino().getCodigoIATA(); // ZBAA-UMMS
             usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
 
             // Verificar capacidad de vuelo

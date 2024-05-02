@@ -21,11 +21,11 @@ public class Particula {
     private double fbest;
 
     public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Paquete> paquetes,
-            List<RutaPredefinida> rutasPred, List<Aeropuerto> aeropuertos) {
+            List<RutaPredefinida> rutasPred, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos) {
         Map<Paquete, RutaTiempoReal> position = new HashMap<>();
         for (Paquete pkg : paquetes) {
             RutaPredefinida randomRoute = rutasPred.get(new Random().nextInt(rutasPred.size()));
-            RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos);
+            RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
             position.put(pkg, randTiempoReal);
         }
         return position;

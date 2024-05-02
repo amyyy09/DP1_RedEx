@@ -181,15 +181,17 @@ public class PlanificacionService {
             if (origen.getCodigoIATA().equals("ZBAA")) {
                 for (Aeropuerto destino : aeropuertos) {
                     // solo a los 3 primeros destinos del archivo de envios
-                    if (!origen.equals(destino) && (destino.getCodigoIATA().equals("SEQM"))){
+                    if (!origen.equals(destino) && (destino.getCodigoIATA().equals("WMKK"))){
                         List<Integer> daysm = new ArrayList<>();
                         // Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
                         List<List<PlanDeVuelo>> _planesRutas = generarEscalas(origen, destino, planes,
-                                daysm, false);
+                                daysm, true);
                         for (List<PlanDeVuelo> _planRuta : _planesRutas) {
                             RutaPredefinida ruta = new RutaPredefinida();
                             ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
                             ruta.setCodigoIATADestino(destino.getCodigoIATA());
+                            ruta.setHoraLlegada(_planRuta.get(_planRuta.size()-1).getHoraLlegada());
+                            ruta.setHoraSalida(_planRuta.get(0).getHoraSalida());
                             ruta.setEscalas(_planRuta);
                             rutas.add(ruta);
                         }
@@ -220,7 +222,7 @@ public class PlanificacionService {
             if (!containsRoute(allRoutes, routeToAdd)) {
                 allRoutes.add(routeToAdd);
                 daysm.add(days);
-                // System.out.println("Ruta encontrada: " + routeToAdd.stream().map(PlanDeVuelo::getCodigoIATAOrigen).collect(Collectors.joining(" -> ")) + " en " + days + " días.");
+                System.out.println("Ruta encontrada: " + routeToAdd.stream().map(PlanDeVuelo::getCodigoIATAOrigen).collect(Collectors.joining(" -> ")) + " en " + days + " días.");
             }
         }
 
@@ -307,14 +309,13 @@ public class PlanificacionService {
 
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
-            particle.setPosicion(Particula.inicializarPosicion(paquetes, rutasPred, aeropuertos));
+            particle.setPosicion(Particula.inicializarPosicion(paquetes, rutasPred, aeropuertos,vuelosActuales));
             particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
             particle.setFbest(evaluator.fitness(particle.getPbest(), aeropuertos, vuelosActuales));
             population.add(particle);
         }
         Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
-
         for (int j = 0; j < numIterationsMax; j++) {
             for (Particula particle : population) {
                 for (int k = 0; k < paquetes.size(); k++) {
