@@ -83,14 +83,14 @@ public class FitnessEvaluatorService {
                 //aiuda
             }
             // Agregando carga al vuelo
-            String claveVuelo = ruta.getOrigen().getCodigoIATA() + "-" + ruta.getDestino().getCodigoIATA(); // ZBAA-UMMS
-            usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
+            // String claveVuelo = ruta.getOrigen().getCodigoIATA() + "-" + ruta.getDestino().getCodigoIATA(); // ZBAA-UMMS
+            // usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
 
-            // Verificar capacidad de vuelo
-            if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
-                penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad())
-                        * penalizacionPorExceso;
-            }
+            // // Verificar capacidad de vuelo
+            // if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
+            //     penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad())
+            //             * penalizacionPorExceso;
+            // }
 
             // Gestión de capacidades de almacenes
             VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getOrigen().getCodigoIATA(), 1);
