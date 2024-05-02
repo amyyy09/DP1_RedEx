@@ -4,6 +4,7 @@ import src.model.*;
 import src.utility.FileUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetTime;
@@ -58,7 +59,13 @@ public class VueloService {
                 vuelo.setCapacidad(plan.getCapacidad());
                 vuelo.setStatus(1); // Establece el estado en tránsito.
                 vuelo.setPlanDeVuelo(plan);
-
+                LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), plan.getHoraSalida().toLocalTime());
+                vuelo.setHoraSalida(horaInicio);
+                LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), plan.getHoraLlegada().toLocalTime());
+                if(plan.getHoraLlegada().isBefore(plan.getHoraSalida())) {
+                    horaFin = horaFin.plusDays(1);
+                }
+                vuelo.setHoraLlegada(horaFin);
                 vuelosActuales.add(vuelo);
             }
         }

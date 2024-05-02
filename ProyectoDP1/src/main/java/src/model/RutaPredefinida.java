@@ -43,14 +43,14 @@ public class RutaPredefinida {
         LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), horaSalida.toLocalTime());
 
         List<Vuelo> vuelos = new ArrayList<>(); // Esto debería ser poblado según lógica específica
-        for (int i=0; i<this.escalas.size(); i++){
+        this.escalas.forEach((PlanDeVuelo element) -> {
             Vuelo vuelo1;
             vuelo1 = vuelosActuales.stream()
-                .filter(a -> a.getPlanDeVuelo().equals(this.escalas.get(i)))
+                .filter(a -> a.getPlanDeVuelo().equals(element))
                 .findFirst()
                 .orElse(null);
             vuelos.add(vuelo1);
-        }
+        });
         rutaTiempoReal.setIdRuta(1); // Generar un ID aleatorio o de alguna otra forma
         rutaTiempoReal.setOrigen(origen);
         rutaTiempoReal.setDestino(destino);
