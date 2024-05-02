@@ -189,7 +189,7 @@ public class PlanificacionService {
                         for (List<PlanDeVuelo> _planRuta : _planesRutas) {
                             RutaPredefinida ruta = new RutaPredefinida();
                             ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
-                            ruta.setCodigoIATADestino(destino.getCodigoIATA());
+                            ruta.setCodigoIATADestino(_planRuta.get(_planRuta.size()-1).getCodigoIATADestino());
                             ruta.setHoraLlegada(_planRuta.get(_planRuta.size()-1).getHoraLlegada());
                             ruta.setHoraSalida(_planRuta.get(0).getHoraSalida());
                             ruta.setEscalas(_planRuta);
@@ -339,7 +339,7 @@ public class PlanificacionService {
                             .get(filteredRutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())
                                     + velint);
 
-                    RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos);
+                    RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
 
                     particle.getPosicion().put(paquetes.get(k), newRTR);
                 }
