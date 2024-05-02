@@ -19,18 +19,12 @@ public class algoritmoGenetico {
 		String archivoRutaPlanes = FileUtils.chooseFile("Buscar Planes de Vuelo");
 
 		try {
-			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
+			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();//Realizar lectura de datos
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
-			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
-			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
-			String origen=envios.get(0).getCodigoIATAOrigen();
-
-
-			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
-				List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo );
-        		List<RutaPredefinida> rutasOrigen = planificacionService.filtrarRutasPorCodigoIATAOrigen(rutasPred, origen);
-				Cromosoma resultado = planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos,
-						vuelosActuales, planesDeVuelo, rutasOrigen);
+			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);// en planes de vuelo se tiene la hora y su GMT
+			
+			if (!envios.isEmpty()) {
+				Cromosoma resultado = planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos, planesDeVuelo);
 				if (resultado != null) {
 					System.out.println("Resultado del algoritmo genético procesado.");
 				} else {

@@ -25,8 +25,7 @@ public class FitnessEvaluatorService {
         this.valorBaseFitness = valorBaseFitness;
     }
 
-    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActivos) {
+    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Aeropuerto> aeropuertos) {
         List<Double> fitnessCromosomas = new ArrayList<>();
 
         for (Cromosoma cromosoma : poblacion) {
@@ -38,7 +37,7 @@ public class FitnessEvaluatorService {
                 
                 RutaPredefinida ruta = entrada.getValue();
                 Paquete paquete = entrada.getKey();
-                Vuelo _vuelosActivo = VueloService.encontrarVueloActual(vuelosActivos, ruta);
+                Vuelo _vuelosActivo = null;//VueloService.encontrarVueloActual(vuelosActivos, ruta);
 
                 String paqueteDestino = paquete.getCodigoIATADestino();
                 String rutaDestino = ruta.getCodigoIATADestino();
@@ -49,12 +48,12 @@ public class FitnessEvaluatorService {
                     usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
 
                     // Verificar capacidad de vuelo
-                    if(_vuelosActivo != null){
+                    
                         if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
                             penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad())
                                     * penalizacionPorExceso;
                         }
-                    }
+                    
 
                     // Gestión de capacidades de almacenes
                     VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATAOrigen(), 1);

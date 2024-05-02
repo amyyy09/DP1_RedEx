@@ -35,18 +35,18 @@ public class PlanificacionService {
         PlanificacionService.evaluator = new FitnessEvaluatorService();
     }
 
-    public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo, List<RutaPredefinida> rutasOrigen) throws IOException {
+    public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo) throws IOException {
 
         
-        List<Cromosoma> poblacion = createPopulation(envios, rutasOrigen, numCromosomas, aeropuertos);
+        List<Cromosoma> poblacion = createPopulation(envios, numCromosomas, aeropuertos,planesDeVuelo);//falta asiganrle ruta a pqeuete con A*
         Random rand = new Random();
         double fitnesfinal=0;
         
         for (int generacion = 0; generacion < numGeneraciones; generacion++) {
-            List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos, vuelosActuales);
+            List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos);//Falta - lo esta realizando Gonzalo
             
-            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);
+            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);//LISTO
+
             if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
                 System.out.println(fitnessAgregado.get(0));
                 System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
@@ -54,36 +54,38 @@ public class PlanificacionService {
             }
 
             List<Cromosoma> matingPool = TournamentSelection(poblacion, probabilidadSeleccion, tamanoTorneo,
-                    fitnessAgregado);
+                    fitnessAgregado); //LISTO
             List<Cromosoma> descendientes = new ArrayList<>();
 
             // Generar descendientes
-            for (int j = 0; j < numDescendientes; j++) {
+            for (int j = 0; j < numDescendientes/2; j++) {
                 int indexPadre1 = rand.nextInt(matingPool.size());
                 int indexPadre2 = rand.nextInt(matingPool.size());
                 if (Math.random() < probabilidadCruce) {
                     List<Cromosoma> hijos = new ArrayList<>();
-                    hijos.add(matingPool.get(indexPadre1) );
-                    hijos.add(matingPool.get(indexPadre2));
-                    //crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2));
+                    hijos= crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2)); //LISTO - revisar si es necesario ajustar
                     
-                    // Aplicar mutación con probabilidad probabilidadMutacion
-                    hijos.forEach(hijo -> {
-                        if (Math.random() < probabilidadMutacion) {
-                            mutarHijo(hijo, rutasOrigen); // Asumiendo que mutarHijos puede ahora manejar un solo hijo
-                        }
-                    });
-
+                    if (Math.random() < probabilidadMutacion) {
+                        //mutarHijo(hijos, planesDeVuelo); //FALTA
+                    }
                     descendientes.addAll(hijos);
                 }
             }
+            List<Double> fitnessAgregadoDesc = evaluator.calcularFitnessAgregado(descendientes, aeropuertos);
 
-            // Reemplazar la población vieja con los descendientes para la siguiente
-            // generación
-            poblacion = new ArrayList<>(descendientes);
+            //agregar a mi poblacion los descendientes
+            poblacion.addAll(descendientes);
+            //agregar el fitness agregado de los descendientes
+            fitnessAgregado.addAll(fitnessAgregadoDesc);
+
+            //ordenar la poblacion
+            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);
+
+            //eliminar los peores
+            poblacion = poblacion.subList(0, numCromosomas);
             fitnesfinal=fitnessAgregado.get(0);
         }
-
+        
         System.out.println(fitnesfinal);
         System.out
                 .println("No se encontró una solución satisfactoria después de " + numGeneraciones + " generaciones.");
@@ -172,8 +174,8 @@ public class PlanificacionService {
         return hijos;
     }
 
-    public static List<Cromosoma> createPopulation(List<Envio> envios, List<RutaPredefinida> rutasPred,
-            int numCromosomas, List<Aeropuerto> aeropuertos) {
+    public static List<Cromosoma> createPopulation(List<Envio> envios,
+            int numCromosomas, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo) {
         List<Cromosoma> poblacion = new ArrayList<>();
         Random random = new Random();
 
@@ -184,15 +186,19 @@ public class PlanificacionService {
                 String codigoIATADestinoEnvio = envio.getCodigoIATADestino();
                 int j=1;
                 for (Paquete paquete : paquetes) {
-                    //crea un nuevo paquete con los datos de la variable paquete
+                    
                     Paquete paqueteactual= new Paquete();
                     paqueteactual.setIdEnvio(paquete.getIdEnvio());
                     paqueteactual.setStatus(1); 
-                    String uniqueId = paquete.getIdEnvio() + "-" + j;//duncion para limitar los 4 digitos
-                    RutaPredefinida rutaPredefinida = rutasPred
-                            .get(random.nextInt(rutasPred.size()));
+                    String uniqueId = paquete.getIdEnvio() + "-" + j;
+                    
                     paqueteactual.setIdEnvio(uniqueId);
                     paqueteactual.setCodigoIATADestino(codigoIATADestinoEnvio);
+
+
+                    RutaPredefinida rutaPredefinida = null; //falta la asignacion de rutas
+
+
                     gen.put(paqueteactual,rutaPredefinida);
                     j++;
                 }
