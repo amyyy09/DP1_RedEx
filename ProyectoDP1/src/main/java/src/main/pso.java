@@ -32,8 +32,8 @@ public class pso {
             List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);
             List<Almacen> almacenes = aeropuertos.stream().map(Aeropuerto::getAlmacen).collect(Collectors.toList());
 
-            System.out.println("Rutas predefinidas generadas.");
-            System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
+            System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
+            System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " );
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
 				Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales);
 				if (resultado != null) {

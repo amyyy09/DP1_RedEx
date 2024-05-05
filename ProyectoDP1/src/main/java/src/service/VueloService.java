@@ -52,7 +52,7 @@ public class VueloService {
 
         int vueloId = 1;
         for (PlanDeVuelo plan : planesDeVuelo) {
-            if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
+            // if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
                 Vuelo vuelo = new Vuelo();
                 vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
                 vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
@@ -67,7 +67,7 @@ public class VueloService {
                 }
                 vuelo.setHoraLlegada(horaFin);
                 vuelosActuales.add(vuelo);
-            }
+            // }
         }
 
         return vuelosActuales;
