@@ -54,11 +54,11 @@ public class PlanificacionService {
             
             evaluator.ordernarPoblacion(poblacion, fitnessAgregado);//LISTO NO TOCAR
 
-            // if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
-            //     System.out.println(fitnessAgregado.get(0));
-            //     System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
-            //     return poblacion.get(0);
-            // }
+            if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
+                System.out.println(fitnessAgregado.get(0));
+                System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
+                return poblacion.get(0);
+            }
 
             List<Cromosoma> matingPool = TournamentSelection(poblacion, probabilidadSeleccion, tamanoTorneo,fitnessAgregado); //LISTO NO TOCAR
             List<Cromosoma> descendientes = new ArrayList<>();
