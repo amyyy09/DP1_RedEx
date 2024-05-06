@@ -25,7 +25,7 @@ public class Particula {
         Map<Paquete, RutaTiempoReal> position = new HashMap<>();
         for (Paquete pkg : paquetes) {
             RutaPredefinida randomRoute = rutasPred.get(new Random().nextInt(rutasPred.size()));
-            RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos);
+            RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, null);
             position.put(pkg, randTiempoReal);
         }
         return position;
