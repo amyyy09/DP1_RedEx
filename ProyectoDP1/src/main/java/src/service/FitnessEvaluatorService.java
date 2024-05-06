@@ -134,6 +134,46 @@ public class FitnessEvaluatorService {
             }
             double fitnessValue = valorBaseFitness - penalizacion;
             fitnessCromosomas.add(fitnessValue);
+
+
+            //VERSION GONZALO
+            /*
+             
+            double penalizacion = 0.0;
+            Map<String, Integer> usoCapacidadVuelos = new HashMap<>();
+            Map<String, Integer> usoCapacidadAlmacenes = new HashMap<>();
+
+            for (Map.Entry<RutaPredefinida, Paquete> entrada : cromosoma.getGen().entrySet()) {
+                RutaPredefinida ruta = entrada.getKey();
+                Paquete paquete = entrada.getValue();
+                Vuelo _vuelosActivo = VueloService.encontrarVueloActual(vuelosActivos, ruta);
+
+                paquete.setStatus(3);
+
+                // Agregando carga al vuelo
+                String claveVuelo = ruta.getCodigoIATAOrigen() + "-" + ruta.getCodigoIATADestino();
+                usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
+
+                // Verificar capacidad de vuelo
+                if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
+                    penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad())
+                            * penalizacionPorExceso;
+                }
+
+                // Gestión de capacidades de almacenes
+                VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATAOrigen(), 1);
+                VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATADestino(), 1);
+
+                Almacen almacenOrigen = VueloService.encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATAOrigen());
+                Almacen almacenDestino = VueloService.encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATADestino());
+                penalizacion += almacenOrigen.verificarCapacidadAlmacen() * penalizacionPorExceso;
+                penalizacion += almacenDestino.verificarCapacidadAlmacen() * penalizacionPorExceso;
+            }
+
+                double fitness = valorBaseFitness - penalizacion;
+                fitnessCromosomas.add(fitness);    
+             
+             */
         }
         return fitnessCromosomas;
     }
