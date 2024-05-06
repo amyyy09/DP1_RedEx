@@ -255,15 +255,15 @@ public class PlanificacionService {
                         newTotalDays++;
                     }
                     
-                    if (sameContinent && newTotalDays > 0 && (currentRoute.size() > 1 && 
-                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime()))){
+                    if (sameContinent && (newTotalDays > 1 || (newTotalDays > 0 && (currentRoute.size() > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime()))))){
                         currentRoute.remove(currentRoute.size() - 1);
                         visited.remove(current);
                         return; // Abort the route if it takes more than 1 day in the same continent
                     }
 
-                    if (!sameContinent && newTotalDays > 1 && 
-                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime())) {
+                    if (!sameContinent && (newTotalDays > 2 || (newTotalDays > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime())))) {
                         currentRoute.remove(currentRoute.size() - 1);
                         visited.remove(current);
                         return; // Abort the route if it exceeds 2 days and not in the same continent
@@ -285,7 +285,7 @@ public class PlanificacionService {
         List<Particula> population = new ArrayList<>();
         int numParticles = 50;
         int numIterationsMax = 100;
-        double w = 0.1, c1 = 0.1, c2 = 0.1;
+        double w = 0.1, c1 = 0.5, c2 = 1;
 
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
@@ -311,13 +311,13 @@ public class PlanificacionService {
                             c2 * r2 * (filteredRutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - filteredRutasPred
                                     .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
 
-                    int velint = Particula.verifyLimits(velocity, rutasPred);
+                    double newPosIndex = filteredRutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()) + velocity;
+
+                    int velint = Particula.verifyLimits(newPosIndex, filteredRutasPred);
 
                     particle.getVelocidad().set(k, (double) velint);
 
-                    RutaPredefinida newPosition = filteredRutasPred
-                            .get(filteredRutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())
-                                    + velint);
+                    RutaPredefinida newPosition = filteredRutasPred.get(velint);
 
                     RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
 

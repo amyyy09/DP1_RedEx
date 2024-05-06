@@ -2,6 +2,7 @@ package src.model;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,13 @@ public class Particula {
             List<RutaPredefinida> rutasPred, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos) {
         Map<Paquete, RutaTiempoReal> position = new HashMap<>();
         for (Paquete pkg : paquetes) {
-            RutaPredefinida randomRoute = rutasPred.get(new Random().nextInt(rutasPred.size()));
+            List<RutaPredefinida> filteredRutasPred = rutasPred.stream()
+            .filter(ruta -> ruta.getCodigoIATAOrigen().equals(pkg.getEnvio().getCodigoIATAOrigen()) 
+                && ruta.getCodigoIATADestino().equals(pkg.getEnvio().getCodigoIATADestino())
+                && ruta.getHoraSalida().getHour() >= pkg.getEnvio().getFechaHoraOrigen().getHour()
+                && ruta.getHoraLlegada().getHour() <= pkg.getEnvio().getFechaHoraOrigen().getHour())
+            .collect(Collectors.toList());
+            RutaPredefinida randomRoute = filteredRutasPred.get(new Random().nextInt(filteredRutasPred.size()));
             RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
             position.put(pkg, randTiempoReal);
         }
@@ -48,7 +55,7 @@ public class Particula {
             val = rutasPred.size() + val;
         }
         if (val >= rutasPred.size()) {
-            val = rutasPred.size() - val;
+            val = val - rutasPred.size();
         }
 
         return val;
