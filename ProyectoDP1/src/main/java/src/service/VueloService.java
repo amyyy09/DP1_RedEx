@@ -48,7 +48,7 @@ public class VueloService {
 
     public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
-        OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
+        // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
 
         int vueloId = 1;
         for (PlanDeVuelo plan : planesDeVuelo) {

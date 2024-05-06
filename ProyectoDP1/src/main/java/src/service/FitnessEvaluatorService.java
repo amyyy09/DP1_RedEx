@@ -3,7 +3,6 @@ package src.service;
 import src.model.*;
 
 import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +16,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class FitnessEvaluatorService {
     private double penalizacionPorExceso = 10.0; // Penalización por cada unidad que excede la capacidad
-    private double valorBaseFitness = 1000.0; // Puntaje base de fitness
+    private double valorBaseFitness = 0; // Puntaje base de fitness
 
     public FitnessEvaluatorService() {
     }
@@ -75,7 +74,6 @@ public class FitnessEvaluatorService {
         double penalizacion = 0.0;
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
-        int colisiones = 0;
 
         for (Entry<Paquete, RutaTiempoReal> entrada : particula.entrySet()) {
             // Paquete paquete = entrada.getKey();
@@ -179,24 +177,24 @@ public class FitnessEvaluatorService {
         return fitnessValue;
     }
 
-    private Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaTiempoReal ruta) {
-        for (Vuelo vuelo : vuelosActivos) {
-            for (Vuelo vueloEnRuta : ruta.getVuelos()) {
-                if (vuelo.getIdVuelo() == vueloEnRuta.getIdVuelo()) {
-                    return vuelo;
-                }
-            }
-        }
-        return null; // Retornar null si no se encuentra ningún vuelo que coincida
-    }
+    // private Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaTiempoReal ruta) {
+    //     for (Vuelo vuelo : vuelosActivos) {
+    //         for (Vuelo vueloEnRuta : ruta.getVuelos()) {
+    //             if (vuelo.getIdVuelo() == vueloEnRuta.getIdVuelo()) {
+    //                 return vuelo;
+    //             }
+    //         }
+    //     }
+    //     return null; // Retornar null si no se encuentra ningún vuelo que coincida
+    // }
 
-    private Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA) {
-        for (Aeropuerto aeropuerto : aeropuertos) {
-            if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
-                return aeropuerto.getAlmacen();
-            }
-        }
-        return null; // Retornar null si no se encuentra ningún almacén que coincida
-    }
+    // private Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA) {
+    //     for (Aeropuerto aeropuerto : aeropuertos) {
+    //         if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
+    //             return aeropuerto.getAlmacen();
+    //         }
+    //     }
+    //     return null; // Retornar null si no se encuentra ningún almacén que coincida
+    // }
 
 }

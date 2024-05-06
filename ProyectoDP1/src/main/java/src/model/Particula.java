@@ -2,7 +2,6 @@ package src.model;
 
 import java.util.Map;
 import java.util.Random;
-import java.util.stream.Collectors;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -21,19 +20,32 @@ public class Particula {
     private Map<Paquete, RutaTiempoReal> pbest;
     private double fbest;
 
-    public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Paquete> paquetes,
-            List<RutaPredefinida> rutasPred, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos) {
+    public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Envio> envios,List<RutaPredefinida> rutasPred, 
+            List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos) {
         Map<Paquete, RutaTiempoReal> position = new HashMap<>();
-        for (Paquete pkg : paquetes) {
+        for (Envio env : envios) {
+            String codigoIATAOrigen = env.getCodigoIATAOrigen();
+            String codigoIATADestino = env.getCodigoIATADestino();
+            int horaSalida = env.getFechaHoraOrigen().getHour()*100 + env.getFechaHoraOrigen().getMinute();
+            int horaLlegada = env.getFechaHoraOrigen().getHour()*100 + env.getFechaHoraOrigen().getMinute();
+    
             List<RutaPredefinida> filteredRutasPred = rutasPred.stream()
-            .filter(ruta -> ruta.getCodigoIATAOrigen().equals(pkg.getEnvio().getCodigoIATAOrigen()) 
-                && ruta.getCodigoIATADestino().equals(pkg.getEnvio().getCodigoIATADestino())
-                && ruta.getHoraSalida().getHour() >= pkg.getEnvio().getFechaHoraOrigen().getHour()
-                && ruta.getHoraLlegada().getHour() <= pkg.getEnvio().getFechaHoraOrigen().getHour())
-            .collect(Collectors.toList());
-            RutaPredefinida randomRoute = filteredRutasPred.get(new Random().nextInt(filteredRutasPred.size()));
-            RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
-            position.put(pkg, randTiempoReal);
+                .filter(ruta -> ruta.getCodigoIATAOrigen().equals(codigoIATAOrigen) 
+                    && ruta.getCodigoIATADestino().equals(codigoIATADestino)
+                    && ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute() >= horaLlegada
+                    && (ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute() <= horaSalida
+                    || (ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute() >= horaSalida
+                    && ruta.getDuracion() < 1))).toList();
+
+            if (filteredRutasPred.isEmpty()) {
+                System.err.println("ayuda, revisar el filtrado de rutas predefinidas");
+            } 
+            for (Paquete pkg : env.getPaquetes()) {
+                int index = new Random().nextInt(filteredRutasPred.size());
+                RutaPredefinida randomRoute = filteredRutasPred.get(index);
+                RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
+                position.put(pkg, randTiempoReal);
+            }
         }
         return position;
     }
@@ -48,16 +60,15 @@ public class Particula {
     }
 
     public static int verifyLimits(double velocity, List<RutaPredefinida> rutasPred) {
-
         int val = (int) Math.floor(velocity);
-
+    
         if (val < 0) {
-            val = rutasPred.size() + val;
+            val = (val % rutasPred.size() + rutasPred.size()) % rutasPred.size();
         }
         if (val >= rutasPred.size()) {
-            val = val - rutasPred.size();
+            val = val % rutasPred.size();
         }
-
+    
         return val;
     }
 
