@@ -31,6 +31,19 @@ public class pso {
             System.out.println("Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
             List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);
             List<Almacen> almacenes = aeropuertos.stream().map(Aeropuerto::getAlmacen).collect(Collectors.toList());
+
+			for (Envio envio : envios) {
+				// add number of packages to the warehouse according to the codigosIATA origin 
+				// of the packages in the envio
+				Aeropuerto aeropuerto = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(envio.getCodigoIATAOrigen())).findFirst().orElse(null);
+				if (aeropuerto != null) {
+					Almacen almacen = aeropuerto.getAlmacen();
+					for (Paquete paquete : envio.getPaquetes()) {
+						almacen.getPaquetes().add(paquete);
+						almacen.setCantPaquetes(almacen.getCantPaquetes() + 1);
+					}
+				}
+			}
 			
             System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
             System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " );
