@@ -131,7 +131,7 @@ public class VueloService {
                                 .getCodigoIATADestino(),
                         planDeVuelos.get(0).getHoraSalida(),
                         planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada(),
-                        planDeVuelos, duracion);
+                        planDeVuelos, duracion, false);
                 rutas.add(ruta);
             }
         }

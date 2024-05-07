@@ -21,6 +21,7 @@ public class RutaPredefinida {
     private OffsetTime horaLlegada;
     private List<PlanDeVuelo> escalas;
     private long duracion;
+    private boolean sameContinent;
 
     public RutaTiempoReal convertirAPredefinidaEnTiempoReal(List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActuales) {
         RutaTiempoReal rutaTiempoReal = new RutaTiempoReal();

@@ -190,7 +190,8 @@ public class PlanificacionService {
         for (Aeropuerto destino  : aeropuertos) {
             if (!origen.equals(destino)) {
                 List<Integer> daysm = new ArrayList<>();
-                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes,daysm, origen.getContinente().equals(destino.getContinente()));                
+                Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
+                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes,daysm, sameContinent);                
                 for (int i = 0; i < planesRutas.size(); i++) {
                     List<PlanDeVuelo> planRuta = planesRutas.get(i);
                     RutaPredefinida ruta = new RutaPredefinida(
@@ -199,7 +200,8 @@ public class PlanificacionService {
                         planRuta.get(0).getHoraSalida(),
                         planRuta.get(planRuta.size() - 1).getHoraLlegada(),
                         planRuta,
-                        daysm.get(i) // get the corresponding value from the daysm array
+                        daysm.get(i), // get the corresponding value from the daysm array
+                        sameContinent
                     );
                     rutas.add(ruta);
                 }
@@ -284,8 +286,8 @@ public class PlanificacionService {
             Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActuales) {
         List<Particula> population = new ArrayList<>();
-        int numParticles = 25;
-        int numIterationsMax = 20;
+        int numParticles = 50;
+        int numIterationsMax = 100;
         double w = 0.5, c1 = 1, c2 = 2;
 
         Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = createMap(rutasPred);
@@ -347,6 +349,10 @@ public class PlanificacionService {
                 gbest = currentGbest;
             }
         }
+        double fit = evaluator.fitness(gbest, almacenes, vuelosActuales);
+        if (fit < 0) {
+            System.out.println("Fitness: " + fit);
+        }
         return gbest;
         // return null;
     }
@@ -372,7 +378,8 @@ public class PlanificacionService {
             SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.tailMap(horaLlegada);
             for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
                 for (RutaPredefinida ruta : rutas) {
-                    if (ruta.getDuracion() == 0) {
+                    if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                        (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
                         filteredRutasPred.add(ruta);
                     }
                 }
