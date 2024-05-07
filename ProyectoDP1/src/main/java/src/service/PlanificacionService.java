@@ -183,10 +183,10 @@ public class PlanificacionService {
             .orElse(null);
             if (origen == null) return rutas;
         List<String> destinosEspecificos = Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI", "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI", "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro experimento tenemos solo un aeropuerto destino WMKK
-        // List<Aeropuerto> destinos = aeropuertos.stream()
-        //                                    .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
-        //                                    .collect(Collectors.toList());
-        for (Aeropuerto destino  : aeropuertos) {
+        List<Aeropuerto> destinos = aeropuertos.stream()
+                                           .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
+                                           .collect(Collectors.toList());
+        for (Aeropuerto destino  : destinos) {
             if (!origen.equals(destino)) {
                 List<Integer> daysm = new ArrayList<>();
                 List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes,daysm, origen.getContinente().equals(destino.getContinente()));                
@@ -255,15 +255,15 @@ public class PlanificacionService {
                         newTotalDays++;
                     }
                     
-                    if (sameContinent && (newTotalDays > 1 || (newTotalDays > 0 && (currentRoute.size() > 1 && 
-                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime()))))){
+                    if (sameContinent && newTotalDays > 0 && (currentRoute.size() > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime()))){
                         currentRoute.remove(currentRoute.size() - 1);
                         visited.remove(current);
                         return; // Abort the route if it takes more than 1 day in the same continent
                     }
 
-                    if (!sameContinent && (newTotalDays > 2 || (newTotalDays > 1 && 
-                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime())))) {
+                    if (!sameContinent && newTotalDays > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime())) {
                         currentRoute.remove(currentRoute.size() - 1);
                         visited.remove(current);
                         return; // Abort the route if it exceeds 2 days and not in the same continent
@@ -279,17 +279,17 @@ public class PlanificacionService {
 
     // PSO
 
-    public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
+    public Map<Paquete, RutaTiempoReal> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
             List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActuales) {
         List<Particula> population = new ArrayList<>();
-        int numParticles = 25;
-        int numIterationsMax = 20;
-        double w = 0.5, c1 = 1, c2 = 2;
-        
+        int numParticles = 50;
+        int numIterationsMax = 100;
+        double w = 0.1, c1 = 0.1, c2 = 0.1;
+
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
-            particle.setPosicion(Particula.inicializarPosicion(envios, rutasPred, aeropuertos,vuelosActuales));
+            particle.setPosicion(Particula.inicializarPosicion(paquetes, rutasPred, aeropuertos,vuelosActuales));
             particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
             particle.setFbest(evaluator.fitness(particle.getPbest(), aeropuertos, vuelosActuales));
@@ -297,37 +297,31 @@ public class PlanificacionService {
         }
         Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
         for (int j = 0; j < numIterationsMax; j++) {
-            // if(evaluator.fitness(gbest, aeropuertos, vuelosActuales) == 0){
-            //     return gbest;
-            // }
             for (Particula particle : population) {
-                for (int k = 0; k < envios.size(); k++) {
-                    List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k));
-                    for (int l = 0; l< envios.get(k).getPaquetes().size(); l++) {
-                        // Update velocity and position for each package (paquete) in the envio
-                        double r1 = rand.nextDouble(), r2 = rand.nextDouble();
-                        Paquete paquete = envios.get(k).getPaquetes().get(l);
-                        
-                        int indexPos = filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida());
-                        double velocity = w * particle.getVelocidad().get(k) +
-                            c1 * r1 * (indexPos
-                                - filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida()))
+                for (int k = 0; k < paquetes.size(); k++) {
+                    double r1 = rand.nextDouble(), r2 = rand.nextDouble();
+                    List<RutaPredefinida> filteredRutasPred = filterRutasForPaquete(rutasPred, paquetes.get(k));
+                    double velocity = w * particle.getVelocidad().get(k) +
+
+                            c1 * r1 * (filteredRutasPred.indexOf(particle.getPbest().get(paquetes.get(k)).getRutaPredefinida())
+                                    - filteredRutasPred
+                                            .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()))
                             +
-                            c2 * r2 * (indexPos
-                                - filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida()));
 
-                        particle.getVelocidad().set(k, velocity);
-                                    
-                        double newPosIndex = indexPos + velocity;
+                            c2 * r2 * (filteredRutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - filteredRutasPred
+                                    .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
 
-                        int posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
+                    int velint = Particula.verifyLimits(velocity, rutasPred);
 
-                        RutaPredefinida newPosition = rutasPred.get(posIndex);
+                    particle.getVelocidad().set(k, (double) velint);
 
-                        RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
+                    RutaPredefinida newPosition = filteredRutasPred
+                            .get(filteredRutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())
+                                    + velint);
 
-                        particle.getPosicion().put(paquete, newRTR);
-                    }
+                    RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
+
+                    particle.getPosicion().put(paquetes.get(k), newRTR);
                 }
 
                 double fit = evaluator.fitness(particle.getPosicion(), aeropuertos, vuelosActuales);
@@ -345,25 +339,15 @@ public class PlanificacionService {
             }
         }
         return gbest;
-        // return null;
     }
 
-    public static List<RutaPredefinida> filterRutasForEnvio(List<RutaPredefinida> rutasPred, Envio envio) {
-        
-        String codigoIATAOrigen = envio.getCodigoIATAOrigen();
-        String codigoIATADestino = envio.getCodigoIATADestino();
-        int horaSalida = envio.getFechaHoraOrigen().getHour()*100 + envio.getFechaHoraOrigen().getMinute();
-        int horaLlegada = envio.getFechaHoraOrigen().getHour()*100 + envio.getFechaHoraOrigen().getMinute();
-
-        List<RutaPredefinida> filteredRutasPred = rutasPred.stream()
-            .filter(ruta -> ruta.getCodigoIATAOrigen().equals(codigoIATAOrigen) 
-                && ruta.getCodigoIATADestino().equals(codigoIATADestino)
-                && ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute() >= horaLlegada
-                && (ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute() <= horaSalida
-                || (ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute() >= horaSalida
-                && ruta.getDuracion() < 1))).toList();
-
-        return filteredRutasPred;
+    public static List<RutaPredefinida> filterRutasForPaquete(List<RutaPredefinida> rutasPred, Paquete paquete) {
+        return rutasPred.stream()
+            .filter(ruta -> ruta.getCodigoIATAOrigen().equals(paquete.getEnvio().getCodigoIATAOrigen()) 
+                && ruta.getCodigoIATADestino().equals(paquete.getEnvio().getCodigoIATADestino())
+                && ruta.getHoraSalida().getHour() >= paquete.getEnvio().getFechaHoraOrigen().getHour()
+                && ruta.getHoraLlegada().getHour() <= paquete.getEnvio().getFechaHoraOrigen().getHour())
+            .collect(Collectors.toList());
     }
 
 }
