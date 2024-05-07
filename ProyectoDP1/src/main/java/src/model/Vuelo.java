@@ -1,5 +1,7 @@
 package src.model;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,5 +16,7 @@ public class Vuelo {
     private int cantPaquetes;
     private int capacidad;
     private int status;
+    private LocalDateTime horaSalida;
+    private LocalDateTime horaLlegada;
     private PlanDeVuelo planDeVuelo;
 }

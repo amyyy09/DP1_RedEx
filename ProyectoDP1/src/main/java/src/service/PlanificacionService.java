@@ -1,16 +1,22 @@
 package src.service;
 
 import src.model.*;
+import src.utility.AsignarRutas;
 
 import java.io.IOException;
 import java.time.OffsetTime;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +24,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PlanificacionService {
-    private final double probabilidadSeleccion = 0.7;
+    private double probabilidadSeleccion = 0.7;
     private double probabilidadMutacion = 0.1;
     private double probabilidadCruce = 0.85;
     private int numCromosomas = 100;
@@ -28,6 +34,7 @@ public class PlanificacionService {
 
     private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
     private static Random rand = new Random();
+    private static AsignarRutas asignador = new AsignarRutas();
 
     @Autowired
     public PlanificacionService() {
@@ -35,55 +42,59 @@ public class PlanificacionService {
         PlanificacionService.evaluator = new FitnessEvaluatorService();
     }
 
-    public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo, List<RutaPredefinida> rutasOrigen) throws IOException {
+    public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo,List<RutaPredefinida> rutasPred,List<Almacen> almacenes,List<Vuelo> vuelosActuales) throws IOException {
 
         
-        List<Cromosoma> poblacion = createPopulation(envios, rutasOrigen, numCromosomas, aeropuertos);
+        List<Cromosoma> poblacion = createPopulation(envios, numCromosomas, aeropuertos,planesDeVuelo,rutasPred,vuelosActuales); //LISTO NO TOCAR
         Random rand = new Random();
         double fitnesfinal=0;
         
         for (int generacion = 0; generacion < numGeneraciones; generacion++) {
-            List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos, vuelosActuales);
+            List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos,vuelosActuales);//FALTA Revisar porque todos los fitness salen iguales 
             
-            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);
+            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);//LISTO NO TOCAR
+
             if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
                 System.out.println(fitnessAgregado.get(0));
                 System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
                 return poblacion.get(0);
             }
 
-            List<Cromosoma> matingPool = TournamentSelection(poblacion, probabilidadSeleccion, tamanoTorneo,
-                    fitnessAgregado);
+            List<Cromosoma> matingPool = TournamentSelection(poblacion, probabilidadSeleccion, tamanoTorneo,fitnessAgregado); //LISTO NO TOCAR
             List<Cromosoma> descendientes = new ArrayList<>();
 
             // Generar descendientes
-            for (int j = 0; j < numDescendientes; j++) {
+            for (int j = 0; j < numDescendientes/2; j++) {
                 int indexPadre1 = rand.nextInt(matingPool.size());
                 int indexPadre2 = rand.nextInt(matingPool.size());
                 if (Math.random() < probabilidadCruce) {
                     List<Cromosoma> hijos = new ArrayList<>();
-                    hijos.add(matingPool.get(indexPadre1) );
-                    hijos.add(matingPool.get(indexPadre2));
-                    //crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2));
+                    hijos= crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2)); //LISTO NO TOCAR
                     
-                    // Aplicar mutación con probabilidad probabilidadMutacion
-                    hijos.forEach(hijo -> {
-                        if (Math.random() < probabilidadMutacion) {
-                            mutarHijo(hijo, rutasOrigen); // Asumiendo que mutarHijos puede ahora manejar un solo hijo
-                        }
-                    });
-
+                    if (Math.random() < probabilidadMutacion) {
+                        //mutarHijo(hijos, planesDeVuelo); //FALTA realizar ajustes
+                    }
                     descendientes.addAll(hijos);
                 }
             }
+            List<Double> fitnessAgregadoDesc = evaluator.calcularFitnessAgregado(descendientes, aeropuertos,vuelosActuales);
 
-            // Reemplazar la población vieja con los descendientes para la siguiente
-            // generación
-            poblacion = new ArrayList<>(descendientes);
+
+            //NO TOCAR nada de aqui 
+            //agregar a mi poblacion los descendientes
+            poblacion.addAll(descendientes);
+            //agregar el fitness agregado de los descendientes
+            fitnessAgregado.addAll(fitnessAgregadoDesc);
+
+            //ordenar la poblacion
+            evaluator.ordernarPoblacion(poblacion, fitnessAgregado);
+
+            //eliminar los peores
+            poblacion = poblacion.subList(0, numCromosomas);
             fitnesfinal=fitnessAgregado.get(0);
+            //NO TOCAR hasta de aqui 
         }
-
+        
         System.out.println(fitnesfinal);
         System.out
                 .println("No se encontró una solución satisfactoria después de " + numGeneraciones + " generaciones.");
@@ -105,59 +116,94 @@ public class PlanificacionService {
             
 
             // Selecciona un gen (ruta) al azar para mutar.
-            List<RutaPredefinida> rutas = new ArrayList<>(hijo.getGen().values());
-            RutaPredefinida rutaAMutar = rutas.get(rand.nextInt(rutas.size()));
+            List<RutaTiempoReal> rutas = new ArrayList<>(hijo.getGen().values());
+            //RutaPredefinida rutaAMutar = rutas.get(rand.nextInt(rutas.size()));
 
             // Selecciona una nueva ruta diferente a la actual.
-            RutaPredefinida nuevaRuta;
-            do {
-                nuevaRuta = rutasDisponibles.get(rand.nextInt(rutasDisponibles.size()));
-            } while (nuevaRuta.equals(rutaAMutar));
+            // RutaPredefinida nuevaRuta;
+            // do {
+            //     nuevaRuta = rutasDisponibles.get(rand.nextInt(rutasDisponibles.size()));
+            // } while (nuevaRuta.equals(rutaAMutar));
 
-            for (Map.Entry<Paquete, RutaPredefinida> entry : hijo.getGen().entrySet()) {
-                if (entry.getValue().equals(rutaAMutar)) {
-                    // Actualiza la asignación de la ruta
-                    hijo.getGen().put(entry.getKey(), nuevaRuta);
-                    break; // Romper el bucle después de actualizar el primer paquete encontrado
-                }
-            }
+            // for (Map.Entry<Paquete, RutaPredefinida> entry : hijo.getGen().entrySet()) {
+            //     if (entry.getValue().equals(rutaAMutar)) {
+            //         // Actualiza la asignación de la ruta
+            //         hijo.getGen().put(entry.getKey(), nuevaRuta);
+            //         break; // Romper el bucle después de actualizar el primer paquete encontrado
+            //     }
+            // }
         }
     }
+    
 
-    private static List<Cromosoma> TournamentSelection(List<Cromosoma> poblacion, double ps, int tamanoTorneo,
-            List<Double> fitnessAgregado) {
-        List<Cromosoma> matingPool = new ArrayList<>();
+    private static List<Cromosoma> TournamentSelection(List<Cromosoma> poblacion, double ps, int tamanoTorneo, List<Double> fitnessAgregado) {
+
+        List<Cromosoma> seleccionados = new ArrayList<>();
         Random rand = new Random();
-        for (int i = 0; i < poblacion.size(); i++) {
+            
+        // Realizar la selección tantas veces como el tamaño de la población
+
+        for (int i = 0; i < poblacion.size()/2; i++) {
             List<Cromosoma> torneo = new ArrayList<>();
+            List<Double> fitnessTorneo = new ArrayList<>();
+            
+            // Seleccionar aleatoriamente los participantes del torneo
             for (int j = 0; j < tamanoTorneo; j++) {
-                torneo.add(poblacion.get(rand.nextInt(poblacion.size())));
+                int idx = rand.nextInt(poblacion.size());
+                torneo.add(poblacion.get(idx));
+                fitnessTorneo.add(fitnessAgregado.get(idx));
             }
-            torneo.sort(Comparator.comparing(c -> fitnessAgregado.get(poblacion.indexOf(c))));
-            matingPool.add(torneo.get(torneo.size() - 1)); // Agregar el de mejor fitness
+            
+            // Determinar el ganador del torneo
+            int indexGanador = 0;
+            for (int j = 1; j < torneo.size(); j++) {
+                if (rand.nextDouble() < ps) {
+                    if (fitnessTorneo.get(j) >= fitnessTorneo.get(indexGanador)) {
+                        indexGanador = j;
+                        
+                    }
+                }
+            }
+            
+            seleccionados.add(torneo.get(indexGanador));
+            
+
         }
-        return matingPool;
+            
+            return seleccionados;
+                
+        // List<Cromosoma> matingPool = new ArrayList<>();
+        // Random rand = new Random();
+        // for (int i = 0; i < poblacion.size(); i++) {
+        //     List<Cromosoma> torneo = new ArrayList<>();
+        //     for (int j = 0; j < tamanoTorneo; j++) {
+        //         torneo.add(poblacion.get(rand.nextInt(poblacion.size())));
+        //     }
+        //     torneo.sort(Comparator.comparing(c -> fitnessAgregado.get(poblacion.indexOf(c))));
+        //     matingPool.add(torneo.get(torneo.size() - 1)); // Agregar el de mejor fitness
+        // }
+        // return matingPool;
     }
 
     public static List<Cromosoma> crossover(Cromosoma padre1, Cromosoma padre2) {
 
-        Map<Paquete,RutaPredefinida> genPadre1 = new HashMap<>(padre1.getGen());
-        Map<Paquete,RutaPredefinida> genPadre2 = new HashMap<>(padre2.getGen());
+        Map<Paquete,RutaTiempoReal> genPadre1 = new LinkedHashMap<>(padre1.getGen());
+        Map<Paquete,RutaTiempoReal> genPadre2 = new LinkedHashMap<>(padre2.getGen());
 
-        List<Map.Entry<Paquete,RutaPredefinida>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
-        List<Map.Entry<Paquete,RutaPredefinida>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
+        List<Map.Entry<Paquete,RutaTiempoReal>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
+        List<Map.Entry<Paquete,RutaTiempoReal>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
 
         Random random = new Random();
         int puntoCruce = random.nextInt(listaGenPadre1.size());
 
         for (int i = puntoCruce; i < listaGenPadre1.size(); i++) {
-            Map.Entry<Paquete,RutaPredefinida> temp = listaGenPadre1.get(i);
+            Map.Entry<Paquete,RutaTiempoReal> temp = listaGenPadre1.get(i);
             listaGenPadre1.set(i, listaGenPadre2.get(i));
             listaGenPadre2.set(i, temp);
         }
 
-        Map<Paquete,RutaPredefinida> genHijo1 = new HashMap<>();
-        Map<Paquete,RutaPredefinida> genHijo2 = new HashMap<>();
+        Map<Paquete,RutaTiempoReal> genHijo1 = new LinkedHashMap<>();
+        Map<Paquete,RutaTiempoReal> genHijo2 = new LinkedHashMap<>();
         for (int i = 0; i < listaGenPadre1.size(); i++) {
             genHijo1.put(listaGenPadre1.get(i).getKey(), listaGenPadre1.get(i).getValue());
             genHijo2.put(listaGenPadre2.get(i).getKey(), listaGenPadre2.get(i).getValue());
@@ -172,28 +218,32 @@ public class PlanificacionService {
         return hijos;
     }
 
-    public static List<Cromosoma> createPopulation(List<Envio> envios, List<RutaPredefinida> rutasPred,
-            int numCromosomas, List<Aeropuerto> aeropuertos) {
+    public static List<Cromosoma> createPopulation(List<Envio> envios,
+            int numCromosomas, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo, List<RutaPredefinida> rutasPred,List<Vuelo> vuelosActuales) {
         List<Cromosoma> poblacion = new ArrayList<>();
         Random random = new Random();
-
+        
         for (int i = 0; i < numCromosomas; i++) {
-            Map<Paquete,RutaPredefinida> gen = new HashMap<>();
+            Map<Paquete,RutaTiempoReal> gen = new HashMap<>();
             for (Envio envio : envios) {
                 List<Paquete> paquetes = envio.getPaquetes();
                 String codigoIATADestinoEnvio = envio.getCodigoIATADestino();
                 int j=1;
                 for (Paquete paquete : paquetes) {
-                    //crea un nuevo paquete con los datos de la variable paquete
+                    
                     Paquete paqueteactual= new Paquete();
                     paqueteactual.setIdEnvio(paquete.getIdEnvio());
                     paqueteactual.setStatus(1); 
-                    String uniqueId = paquete.getIdEnvio() + "-" + j;//duncion para limitar los 4 digitos
-                    RutaPredefinida rutaPredefinida = rutasPred
-                            .get(random.nextInt(rutasPred.size()));
+                    String uniqueId = paquete.getIdEnvio() + "-" + j;
+                    
                     paqueteactual.setIdEnvio(uniqueId);
                     paqueteactual.setCodigoIATADestino(codigoIATADestinoEnvio);
-                    gen.put(paqueteactual,rutaPredefinida);
+
+
+                    List<RutaPredefinida> filteredRutasPred = rutasPred.stream().filter(ruta -> ruta.getCodigoIATAOrigen().equals(envio.getCodigoIATAOrigen()) && ruta.getCodigoIATADestino().equals(envio.getCodigoIATADestino()) && ruta.getHoraSalida().getHour() >= envio.getFechaHoraOrigen().getHour() && ruta.getHoraLlegada().getHour() <= envio.getFechaHoraOrigen().getHour()).collect(Collectors.toList());
+                    RutaPredefinida randomRoute = filteredRutasPred.get(new Random().nextInt(filteredRutasPred.size()));
+                    RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
+                    gen.put(paqueteactual, randTiempoReal);
                     j++;
                 }
             }
@@ -206,174 +256,105 @@ public class PlanificacionService {
 
     public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
-        for (Aeropuerto origen : aeropuertos) {
-            for (Aeropuerto destino : aeropuertos) {
-                if (!origen.equals(destino) && origen.getContinente()
-                        .equals(destino.getContinente())) {
-                    List<Integer> daysm = new ArrayList<>();
-                    List<List<PlanDeVuelo>> _planesRutas = generarEscalas(origen, destino, planes,
-                            daysm);
-                    for (List<PlanDeVuelo> _planRuta : _planesRutas) {
-                        RutaPredefinida ruta = new RutaPredefinida();
-                        ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
-                        ruta.setCodigoIATADestino(destino.getCodigoIATA());
-                        ruta.setEscalas(_planRuta);
-                        rutas.add(ruta);
-                    }
+        Aeropuerto origen = aeropuertos.stream()//en este caso solo tenemos de origen ZBAA
+            .filter(a -> a.getCodigoIATA().equals("ZBAA"))
+            .findFirst()
+            .orElse(null);
+            if (origen == null) return rutas;
+        List<String> destinosEspecificos = Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI", "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI", "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro experimento tenemos solo un aeropuerto destino WMKK
+        List<Aeropuerto> destinos = aeropuertos.stream()
+                                           .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
+                                           .collect(Collectors.toList());
+        for (Aeropuerto destino  : destinos) {
+            if (!origen.equals(destino)) {
+                List<Integer> daysm = new ArrayList<>();
+                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes,daysm, origen.getContinente().equals(destino.getContinente()));                
+                for (int i = 0; i < planesRutas.size(); i++) {
+                    List<PlanDeVuelo> planRuta = planesRutas.get(i);
+                    RutaPredefinida ruta = new RutaPredefinida(
+                        origen.getCodigoIATA(),
+                        destino.getCodigoIATA(),
+                        planRuta.get(0).getHoraSalida(),
+                        planRuta.get(planRuta.size() - 1).getHoraLlegada(),
+                        planRuta,
+                        daysm.get(i) // get the corresponding value from the daysm array
+                    );
+                    rutas.add(ruta);
                 }
             }
         }
         return rutas;
     }
 
-    public static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino,
-            List<PlanDeVuelo> planes, List<Integer> daysm) {
+    public static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino, List<PlanDeVuelo> planes, List<Integer> daysm, Boolean sameContinent) {
         List<List<PlanDeVuelo>> allRoutes = new ArrayList<>();
         List<PlanDeVuelo> currentRoute = new ArrayList<>();
+        Set<String> visited = new HashSet<>();
 
-        dfs(origen.getCodigoIATA(), destino.getCodigoIATA(), currentRoute, allRoutes, planes, daysm, 0);
+        dfs(origen.getCodigoIATA(), destino.getCodigoIATA(), currentRoute, allRoutes, planes, daysm, 0, sameContinent, visited);
         return allRoutes;
     }
 
     private static void dfs(String current, String destination, List<PlanDeVuelo> currentRoute,
-            List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm, int days) {
-
-        if (currentRoute.size() > 8) {
-            return; // Si se exceden 8 escalas, detiene la recursión para esta ruta
-        }
+                 List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm,
+                 int totalDays, boolean sameContinent, Set<String> visited) {
 
         if (current.equals(destination)) {
-            List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
-            if (!containsRoute(allRoutes, routeToAdd)) {
+            if (!currentRoute.isEmpty() && !allRoutes.contains(currentRoute)) {
+                List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
                 allRoutes.add(routeToAdd);
-                daysm.add(days);
+                daysm.add(totalDays);
+                // print the route for debugging with the respective horas de salida y llegada
+                // System.out.println("Ruta encontrada: en " + totalDays + " días");
+                // for (PlanDeVuelo plan : routeToAdd) {
+                //     System.out.println(plan.getCodigoIATAOrigen() + " " + plan.getHoraSalida() + " -> " + plan.getCodigoIATADestino() + " " +  " " + plan.getHoraLlegada());
+                // }
                 return;
             }
         }
+        if (currentRoute.size() > 3 || visited.contains(current)) {
+            return; // Limit recursion depth and prevent visiting the same airport in one route
+        }
+    
+        visited.add(current);
+        List<PlanDeVuelo> filteredPlanes = planes.stream()
+            .filter(plan -> plan.getCodigoIATAOrigen().equals(current))
+            .collect(Collectors.toList());
 
-        for (PlanDeVuelo plan : planes) {
-            if (plan.getCodigoIATAOrigen().equals(current)) {
-                OffsetTime arrivalTime = plan.getHoraLlegada().withOffsetSameInstant(ZoneOffset.UTC);
-                OffsetTime departureTime = plan.getHoraSalida().withOffsetSameInstant(ZoneOffset.UTC);
-                OffsetTime finalTime = null;
+        for (PlanDeVuelo plan : filteredPlanes) {
+            if (!visited.contains(plan.getCodigoIATADestino())) {
+                
+                if (currentRoute.isEmpty() || currentRoute.get(currentRoute.size() - 1).getHoraLlegada().plusMinutes(5).isBefore(plan.getHoraSalida())) { // Ensure at least 5 minutes between flights
+                    currentRoute.add(plan);
+                    int newTotalDays = totalDays;
+                    if(plan.getHoraLlegada().isBefore(plan.getHoraSalida()) 
+                        || (currentRoute.size() > 1 && 
+                        plan.getHoraSalida().isBefore(currentRoute.get(currentRoute.size() - 2).getHoraLlegada()))){
 
-                if (currentRoute.size() > 0) {
-                    PlanDeVuelo lastPlan = currentRoute.get(currentRoute.size() - 1);
-                    finalTime = lastPlan.getHoraLlegada().withOffsetSameInstant(ZoneOffset.UTC);
-                    if (!finalTime.plusMinutes(5).isBefore(departureTime)) {
-                        continue;
+                        newTotalDays++;
                     }
-                    if (currentRoute.stream()
-                            .anyMatch(p -> p.getCodigoIATAOrigen()
-                                    .equals(plan.getCodigoIATADestino()))) {
-                        continue;
+                    
+                    if (sameContinent && (newTotalDays > 1 || (newTotalDays > 0 && (currentRoute.size() > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime()))))){
+                        currentRoute.remove(currentRoute.size() - 1);
+                        visited.remove(current);
+                        return; // Abort the route if it takes more than 1 day in the same continent
                     }
-                }
 
-                if (arrivalTime.isBefore(departureTime)
-                        || (finalTime != null && departureTime.isBefore(finalTime))) {
-                    days++;
-                }
-
-                if (plan.isSameContinent()) {
-                    if (!currentRoute.contains(plan)) {
-                        if (days <= 1) {
-                            currentRoute.add(plan);
-                            dfs(plan.getCodigoIATADestino(), destination, currentRoute,
-                                    allRoutes, planes, daysm, days);
-                            currentRoute.remove(currentRoute.size() - 1);
-                        }
-                        if (arrivalTime.isBefore(departureTime)
-                                || (finalTime != null
-                                        && departureTime.isBefore(finalTime))) {
-                            days--;
-                        }
+                    if (!sameContinent && (newTotalDays > 2 || (newTotalDays > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime())))) {
+                        currentRoute.remove(currentRoute.size() - 1);
+                        visited.remove(current);
+                        return; // Abort the route if it exceeds 2 days and not in the same continent
                     }
-                } else {
-                    if (!currentRoute.contains(plan)) {
-                        if (days <= 2) {
-                            currentRoute.add(plan);
-                            dfs(plan.getCodigoIATADestino(), destination, currentRoute,
-                                    allRoutes, planes, daysm, days);
-                            currentRoute.remove(currentRoute.size() - 1);
-                        }
-                        if (arrivalTime.isBefore(departureTime)
-                                || (finalTime != null
-                                        && departureTime.isBefore(finalTime))) {
-                            days--;
-                        }
-                    }
+    
+                    dfs(plan.getCodigoIATADestino(), destination, currentRoute, allRoutes, planes, daysm, newTotalDays, sameContinent, visited);
+                    currentRoute.remove(currentRoute.size() - 1);
                 }
             }
         }
+        visited.remove(current);
     }
 
-    private static boolean containsRoute(List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> currentRoute) {
-        return allRoutes.stream().anyMatch(route -> route.equals(currentRoute));
-    }
-
-    // PSO
-
-    public static Map<Paquete, RutaTiempoReal> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
-            List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales) {
-        List<Particula> population = new ArrayList<>();
-        int numParticles = 50;
-        int numIterationsMax = 100;
-        double w = 0.1, c1 = 0.1, c2 = 0.1;
-
-        for (int i = 0; i < numParticles; i++) {
-            Particula particle = new Particula();
-            particle.setPosicion(Particula.inicializarPosicion(paquetes, rutasPred, aeropuertos));
-            particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
-            particle.setPbest(particle.getPosicion());
-            particle.setFbest(evaluator.fitness(particle.getPbest(), aeropuertos, vuelosActuales));
-            population.add(particle);
-        }
-        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
-
-        for (int j = 0; j < numIterationsMax; j++) {
-            for (Particula particle : population) {
-                for (int k = 0; k < paquetes.size(); k++) {
-                    double r1 = rand.nextDouble(), r2 = rand.nextDouble();
-                    double velocity = w * particle.getVelocidad().get(k) +
-
-                            c1 * r1 * (rutasPred.indexOf(particle.getPbest().get(paquetes.get(k)).getRutaPredefinida())
-                                    - rutasPred
-                                            .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()))
-                            +
-
-                            c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - rutasPred
-                                    .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
-
-                    int velint = Particula.verifyLimits(velocity, rutasPred);
-
-                    particle.getVelocidad().set(k, (double) velint);
-
-                    RutaPredefinida newPosition = rutasPred
-                            .get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())
-                                    + velint);
-
-                    RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos);
-
-                    particle.getPosicion().put(paquetes.get(k), newRTR);
-                }
-
-                double fit = evaluator.fitness(particle.getPosicion(), aeropuertos, vuelosActuales);
-
-                if (fit < particle.getFbest()) {
-                    particle.setPbest(particle.getPosicion());
-                    particle.setFbest(fit);
-                }
-            }
-            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, aeropuertos,
-                    vuelosActuales);
-            if (evaluator.fitness(currentGbest, aeropuertos, vuelosActuales) < evaluator.fitness(gbest,
-                    aeropuertos, vuelosActuales)) {
-                gbest = currentGbest;
-            }
-        }
-        return gbest;
-    }
-
+   
 }

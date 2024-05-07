@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RutaTiempoReal {
+public class RutaTiempoReal { //Esta calse se usa solo para las respuestas la simulacion y tiempo real
     private int idRuta;
     private Aeropuerto origen;
     private Aeropuerto destino;

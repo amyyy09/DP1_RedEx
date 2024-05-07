@@ -4,6 +4,7 @@ import src.model.*;
 import src.utility.FileUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetTime;
@@ -41,22 +42,28 @@ public class VueloService {
 
     }
 
-    public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
+   public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
         OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
 
         int vueloId = 1;
         for (PlanDeVuelo plan : planesDeVuelo) {
-            if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
+            // if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
                 Vuelo vuelo = new Vuelo();
                 vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
                 vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
                 vuelo.setCapacidad(plan.getCapacidad());
                 vuelo.setStatus(1); // Establece el estado en tránsito.
                 vuelo.setPlanDeVuelo(plan);
-
+                LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), plan.getHoraSalida().toLocalTime());
+                vuelo.setHoraSalida(horaInicio);
+                LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), plan.getHoraLlegada().toLocalTime());
+                if(plan.getHoraLlegada().isBefore(plan.getHoraSalida())) {
+                    horaFin = horaFin.plusDays(1);
+                }
+                vuelo.setHoraLlegada(horaFin);
                 vuelosActuales.add(vuelo);
-            }
+            // }
         }
 
         return vuelosActuales;
