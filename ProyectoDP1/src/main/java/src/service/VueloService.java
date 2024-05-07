@@ -24,7 +24,10 @@ public class VueloService {
 
         for (String line : lines) {
             String[] partes = line.split("-");
+
             String codigoIATAOrigen = partes[0];
+            String codigoIATAOrigen = partes[0].substring(0, 4);
+
             String idEnvio = partes[1];
             LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
             String codigoIATADestino = partes[4].split(":")[0];
@@ -46,7 +49,7 @@ public class VueloService {
 
     }
 
-    public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
+   public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
         // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
 

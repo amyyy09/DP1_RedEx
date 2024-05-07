@@ -46,6 +46,7 @@ public class Particula {
                 RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
                 position.put(pkg, randTiempoReal);
             }
+
         }
         return position;
     }
