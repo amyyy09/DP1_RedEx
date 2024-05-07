@@ -69,7 +69,7 @@ public class FitnessEvaluatorService {
         return fitnessCromosomas;
     }
 
-    public double fitness(Map<Paquete, RutaTiempoReal> particula, List<Aeropuerto> aeropuertos,
+    public double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Almacen> almacenes,
             List<Vuelo> vuelosActivos) { //RUTA -> FITNESSVALUE
         double penalizacion = 0.0;
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
@@ -91,7 +91,7 @@ public class FitnessEvaluatorService {
                 TreeMap<LocalDateTime, Integer> usoCapacidadAlmacenesOrigen = usoCapacidadAlmacenes
                     .computeIfAbsent(codigoIATAOrigen, k -> new TreeMap<>());
                 
-                Almacen almacenOrigen = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(codigoIATAOrigen)).findFirst().get().getAlmacen();
+                Almacen almacenOrigen = almacenes.get(codigoIATAOrigen);
                 // int capacidadOrigen = almacenOrigen.getCapacidad();
                 int ocupacionOrigen;
                 // verificar que en el map de usoCapacidadAlmacenesOrigen no exista fechas anteriores a la fecha actual, es un treemap ordenado por fecha
@@ -116,7 +116,7 @@ public class FitnessEvaluatorService {
                     usoCapacidadAlmacenesOrigen.put(entry.getKey(), entry.getValue() - 1);
                 }
 
-                Almacen almacenDestino = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(codigoIATADestino)).findFirst().get().getAlmacen();
+                Almacen almacenDestino = almacenes.get(codigoIATADestino);
                 // int capacidadDestino = almacenDestino.getCapacidad();
                 int ocupacionDestino;
                 // si no existe la clave en usoCapacidadAlmacenes la creamos
@@ -163,7 +163,7 @@ public class FitnessEvaluatorService {
         for (Map.Entry<String, TreeMap<LocalDateTime, Integer>> entry : usoCapacidadAlmacenes.entrySet()) {
             String key = entry.getKey();
             TreeMap<LocalDateTime, Integer> value = entry.getValue();
-            Almacen almacen = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(key)).findFirst().get().getAlmacen();
+            Almacen almacen = almacenes.get(key);
             for (Map.Entry<LocalDateTime, Integer> entry2 : value.entrySet()) {
                 Integer value2 = entry2.getValue();
                 if (value2 > almacen.getCapacidad()) {

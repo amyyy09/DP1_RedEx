@@ -29,8 +29,12 @@ public class pso {
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
             System.out.println("Paquetes: " + paquetes.size());
             System.out.println("Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
-            List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);
-            List<Almacen> almacenes = aeropuertos.stream().map(Aeropuerto::getAlmacen).collect(Collectors.toList());
+            List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
+            System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
+
+			System.out.println("Pasos previos al PSO en el tiempo de ejecución: " + System.currentTimeMillis());
+            Map<String, Almacen> almacenes = aeropuertos.stream()
+    			.collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
 
 			for (Envio envio : envios) {
 				// add number of packages to the warehouse according to the codigosIATA origin 
@@ -44,9 +48,7 @@ public class pso {
 					}
 				}
 			}
-			
-            System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
-            System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " );
+            System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
 				Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales);
 				if (resultado != null) {

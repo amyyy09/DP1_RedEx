@@ -2,6 +2,8 @@ package src.model;
 
 import java.util.Map;
 import java.util.Random;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,27 +22,40 @@ public class Particula {
     private Map<Paquete, RutaTiempoReal> pbest;
     private double fbest;
 
-    public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Envio> envios,List<RutaPredefinida> rutasPred, 
+    public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Envio> envios,
+            Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred, 
             List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos) {
         Map<Paquete, RutaTiempoReal> position = new HashMap<>();
-        for (Envio env : envios) {
-            String codigoIATAOrigen = env.getCodigoIATAOrigen();
-            String codigoIATADestino = env.getCodigoIATADestino();
-            int horaSalida = env.getFechaHoraOrigen().getHour()*100 + env.getFechaHoraOrigen().getMinute();
-            int horaLlegada = env.getFechaHoraOrigen().getHour()*100 + env.getFechaHoraOrigen().getMinute();
-    
-            List<RutaPredefinida> filteredRutasPred = rutasPred.stream()
-                .filter(ruta -> ruta.getCodigoIATAOrigen().equals(codigoIATAOrigen) 
-                    && ruta.getCodigoIATADestino().equals(codigoIATADestino)
-                    && ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute() >= horaLlegada
-                    && (ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute() <= horaSalida
-                    || (ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute() >= horaSalida
-                    && ruta.getDuracion() < 1))).toList();
+        for (Envio envio : envios) {
+            String codigoIATAOrigen = envio.getCodigoIATAOrigen();
+            String codigoIATADestino = envio.getCodigoIATADestino();
+            int horaLlegada = envio.getFechaHoraOrigen().getHour()*100 + envio.getFechaHoraOrigen().getMinute();
+
+            Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPred.getOrDefault(codigoIATAOrigen, new HashMap<>());
+            TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(codigoIATADestino, new TreeMap<>());
+
+            SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap = destinoMap.headMap(horaLlegada);
+            List<RutaPredefinida> filteredRutasPred = new ArrayList<>();
+
+            for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap.values()) {
+                SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+                for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                    filteredRutasPred.addAll(rutas);
+                }
+                SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.tailMap(horaLlegada);
+                for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                    for (RutaPredefinida ruta : rutas) {
+                        if (ruta.getDuracion() == 0) {
+                            filteredRutasPred.add(ruta);
+                        }
+                    }
+                }
+            }
 
             if (filteredRutasPred.isEmpty()) {
                 System.err.println("ayuda, revisar el filtrado de rutas predefinidas");
             } 
-            for (Paquete pkg : env.getPaquetes()) {
+            for (Paquete pkg : envio.getPaquetes()) {
                 int index = new Random().nextInt(filteredRutasPred.size());
                 RutaPredefinida randomRoute = filteredRutasPred.get(index);
                 RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
@@ -72,11 +87,11 @@ public class Particula {
         return val;
     }
 
-    public static Map<Paquete, RutaTiempoReal> determineGbest(List<Particula> population, List<Aeropuerto> aeropuertos,
+    public static Map<Paquete, RutaTiempoReal> determineGbest(List<Particula> population, Map<String, Almacen> almacenes,
             List<Vuelo> vuelos) {
         Map<Paquete, RutaTiempoReal> gbest = new HashMap<Paquete, RutaTiempoReal>(population.get(0).getPosicion());
         FitnessEvaluatorService fitnessEvaluator = new FitnessEvaluatorService();
-        double bestFitness = fitnessEvaluator.fitness(gbest, aeropuertos, vuelos);
+        double bestFitness = fitnessEvaluator.fitness(gbest, almacenes, vuelos);
         for (Particula particle : population) {
             if (particle.getFbest() < bestFitness) {
                 gbest = new HashMap<Paquete, RutaTiempoReal>(particle.getPbest());
