@@ -75,12 +75,28 @@ public class FitnessEvaluatorService {
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
 
+        Double fitnessValue = 0.0;
+
+        int size = particula.size();
+
         for (Entry<Paquete, RutaTiempoReal> entrada : particula.entrySet()) {
-            // Paquete paquete = entrada.getKey();
+            Paquete paquete = entrada.getKey();
             RutaTiempoReal ruta = entrada.getValue();
             List<Vuelo> vuelos = ruta.getVuelos();
             //Vuelo _vuelosActivo = encontrarVueloActual(vuelosActivos, ruta);
             //paquete.setStatus(3);
+
+            int horaOrigen = paquete.getEnvio().getFechaHoraOrigen().getHour();
+            int horaSalida = ruta.getRutaPredefinida().getHoraSalida().getHour();
+
+            if (horaSalida < horaOrigen) {
+                horaSalida += 24;
+            }
+        
+            // Calculate the absolute difference in hours
+            int hoursDifference = Math.abs(horaSalida - horaOrigen);
+
+            fitnessValue += (24.0 - hoursDifference) / 2400*size;
 
             for(int i=0; i<vuelos.size();i++){
                 // agregamos un paquete a la capacidad del vuelo en usoCapacidadVuelos
@@ -172,7 +188,7 @@ public class FitnessEvaluatorService {
             }
         }
 
-        double fitnessValue = valorBaseFitness - penalizacion;
+        fitnessValue = fitnessValue - penalizacion;
 
         return fitnessValue;
     }

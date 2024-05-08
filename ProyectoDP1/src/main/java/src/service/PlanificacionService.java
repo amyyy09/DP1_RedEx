@@ -301,7 +301,9 @@ public class PlanificacionService {
             population.add(particle);
         }
         Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
-        for (int j = 0; j < numIterationsMax; j++) {
+        int noImprovementCounter = 0;
+        // for (int j = 0; j < numIterationsMax; j++) {
+        while (noImprovementCounter < numIterationsMax) {
             // if(evaluator.fitness(gbest, aeropuertos, vuelosActuales) == 0){
             //     return gbest;
             // }
@@ -344,15 +346,18 @@ public class PlanificacionService {
             }
             Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, almacenes,
                     vuelosActuales);
-            if (evaluator.fitness(currentGbest, almacenes, vuelosActuales) < evaluator.fitness(gbest,
-                    almacenes, vuelosActuales)) {
+            if (evaluator.fitness(currentGbest, almacenes, vuelosActuales) > evaluator.fitness(gbest, almacenes, vuelosActuales)) {
                 gbest = currentGbest;
+                noImprovementCounter = 0;  // reset the counter when there's an improvement
+            } else {
+                Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales);
+                noImprovementCounter++;  // increment the counter when there's no improvement
             }
         }
         double fit = evaluator.fitness(gbest, almacenes, vuelosActuales);
-        if (fit < 0) {
+        // if (fit < 0) {
             System.out.println("Fitness: " + fit);
-        }
+        // }
         return gbest;
         // return null;
     }
