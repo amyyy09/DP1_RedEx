@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FitnessEvaluatorService {
-    private double penalizacionPorExceso = 10.0; // Penalización por cada unidad que excede la capacidad
+    private double penalizacionPorExceso = 50.0; // Penalización por cada unidad que excede la capacidad
     private double valorBaseFitness = 0; // Puntaje base de fitness
 
     public FitnessEvaluatorService() {
@@ -96,7 +96,7 @@ public class FitnessEvaluatorService {
             // Calculate the absolute difference in hours
             int hoursDifference = Math.abs(horaSalida - horaOrigen);
 
-            fitnessValue += (24.0 - hoursDifference) / 2400*size;
+            fitnessValue += (24.0 - hoursDifference) / (2400*size);
 
             for(int i=0; i<vuelos.size();i++){
                 // agregamos un paquete a la capacidad del vuelo en usoCapacidadVuelos

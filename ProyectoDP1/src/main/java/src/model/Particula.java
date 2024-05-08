@@ -42,10 +42,32 @@ public class Particula {
                 for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
                     filteredRutasPred.addAll(rutas);
                 }
-                SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.tailMap(horaLlegada);
+                SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
                 for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
                     for (RutaPredefinida ruta : rutas) {
-                        if (ruta.getDuracion() == 0) {
+                        if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                            (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                            filteredRutasPred.add(ruta);
+                        }
+                    }
+                }
+            }
+
+            SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap2 = destinoMap.tailMap(horaLlegada);
+            for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap2.values()) {
+                SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+                for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                    for (RutaPredefinida ruta : rutas) {
+                        if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                            (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                            filteredRutasPred.add(ruta);
+                        }
+                    }
+                }
+                SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+                for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                    for (RutaPredefinida ruta : rutas) {
+                        if ((!ruta.isSameContinent() && ruta.getDuracion() < 1)) {
                             filteredRutasPred.add(ruta);
                         }
                     }

@@ -303,7 +303,8 @@ public class PlanificacionService {
         Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
         int noImprovementCounter = 0;
         // for (int j = 0; j < numIterationsMax; j++) {
-        while (noImprovementCounter < numIterationsMax) {
+        int j=0;
+        while (noImprovementCounter < numIterationsMax && j < 500) {
             // if(evaluator.fitness(gbest, aeropuertos, vuelosActuales) == 0){
             //     return gbest;
             // }
@@ -353,6 +354,7 @@ public class PlanificacionService {
                 Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales);
                 noImprovementCounter++;  // increment the counter when there's no improvement
             }
+            j++;
         }
         double fit = evaluator.fitness(gbest, almacenes, vuelosActuales);
         // if (fit < 0) {
@@ -380,11 +382,32 @@ public class PlanificacionService {
             for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
                 filteredRutasPred.addAll(rutas);
             }
-            SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.tailMap(horaLlegada);
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
             for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
                 for (RutaPredefinida ruta : rutas) {
                     if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
                         (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
+            }
+        }
+
+        SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap2 = destinoMap.tailMap(horaLlegada);
+        for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap2.values()) {
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                        (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
+            }
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((!ruta.isSameContinent() && ruta.getDuracion() < 1)) {
                         filteredRutasPred.add(ruta);
                     }
                 }

@@ -23,7 +23,7 @@ public class pso {
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
-            envios = envios.subList(0, 4);
+            envios = envios.subList(0, 50);
 			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
 			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
