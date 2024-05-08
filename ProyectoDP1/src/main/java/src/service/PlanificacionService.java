@@ -297,14 +297,14 @@ public class PlanificacionService {
             particle.setPosicion(Particula.inicializarPosicion(envios, rutasPredMap, aeropuertos, vuelosActuales));
             particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
-            particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales));
+            particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales, false));
             population.add(particle);
         }
         Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
         int noImprovementCounter = 0;
         // for (int j = 0; j < numIterationsMax; j++) {
         int j=0;
-        while (noImprovementCounter < numIterationsMax && j < 500) {
+        while (noImprovementCounter < numIterationsMax && j < 750) {
             // if(evaluator.fitness(gbest, aeropuertos, vuelosActuales) == 0){
             //     return gbest;
             // }
@@ -338,7 +338,7 @@ public class PlanificacionService {
                     }
                 }
 
-                double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales);
+                double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales, false);
 
                 if (fit < particle.getFbest()) {
                     particle.setPbest(particle.getPosicion());
@@ -347,16 +347,16 @@ public class PlanificacionService {
             }
             Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, almacenes,
                     vuelosActuales);
-            if (evaluator.fitness(currentGbest, almacenes, vuelosActuales) > evaluator.fitness(gbest, almacenes, vuelosActuales)) {
+            if (evaluator.fitness(currentGbest, almacenes, vuelosActuales, false) > evaluator.fitness(gbest, almacenes, vuelosActuales, false)) {
                 gbest = currentGbest;
                 noImprovementCounter = 0;  // reset the counter when there's an improvement
             } else {
-                Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales);
+                Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, false);
                 noImprovementCounter++;  // increment the counter when there's no improvement
             }
             j++;
         }
-        double fit = evaluator.fitness(gbest, almacenes, vuelosActuales);
+        double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, true);
         // if (fit < 0) {
             System.out.println("Fitness: " + fit);
         // }

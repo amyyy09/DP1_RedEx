@@ -113,7 +113,7 @@ public class Particula {
             List<Vuelo> vuelos) {
         Map<Paquete, RutaTiempoReal> gbest = new HashMap<Paquete, RutaTiempoReal>(population.get(0).getPosicion());
         FitnessEvaluatorService fitnessEvaluator = new FitnessEvaluatorService();
-        double bestFitness = fitnessEvaluator.fitness(gbest, almacenes, vuelos);
+        double bestFitness = fitnessEvaluator.fitness(gbest, almacenes, vuelos, false);
         for (Particula particle : population) {
             if (particle.getFbest() < bestFitness) {
                 gbest = new HashMap<Paquete, RutaTiempoReal>(particle.getPbest());

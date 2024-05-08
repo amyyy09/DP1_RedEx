@@ -48,13 +48,15 @@ public class pso {
 					}
 				}
 			}
-            System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
-			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
-				Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales);
-				if (resultado != null) {
-					System.out.println("Resultado del pso procesado en el tiempo de ejecución: " + System.currentTimeMillis());
-				} else {
-					System.out.println("No se obtuvo un resultado válido del pso.");
+			for (int i = 0; i < 4; i++) {
+				System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
+				if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
+					Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales);
+					if (resultado != null) {
+						System.out.println("Resultado del pso procesado en el tiempo de ejecución: " + System.currentTimeMillis());
+					} else {
+						System.out.println("No se obtuvo un resultado válido del pso.");
+					}
 				}
 			}
 		} catch (Exception e) {

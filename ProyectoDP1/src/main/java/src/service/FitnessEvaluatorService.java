@@ -69,11 +69,12 @@ public class FitnessEvaluatorService {
         return fitnessCromosomas;
     }
 
-    public double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Almacen> almacenes,
-            List<Vuelo> vuelosActivos) { //RUTA -> FITNESSVALUE
+    public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Almacen> almacenes,
+            List<Vuelo> vuelosActivos, boolean gbest) { //RUTA -> FITNESSVALUE
         double penalizacion = 0.0;
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
+        int contNoAtendidos = 0;
 
         Double fitnessValue = 0.0;
 
@@ -180,12 +181,23 @@ public class FitnessEvaluatorService {
             String key = entry.getKey();
             TreeMap<LocalDateTime, Integer> value = entry.getValue();
             Almacen almacen = almacenes.get(key);
+            int contInterno = 0;
             for (Map.Entry<LocalDateTime, Integer> entry2 : value.entrySet()) {
+                // c=5. 3, 4, 5, 6, 7, 6, 5, 4, 5, 6, 7, 8
                 Integer value2 = entry2.getValue();
                 if (value2 > almacen.getCapacidad()) {
                     penalizacion += (value2 - almacen.getCapacidad()) * penalizacionPorExceso;
+                    if(value2 > contInterno){
+                        contInterno = value2;
+                    }
                 }
             }
+            if(contInterno != 0){
+                contNoAtendidos += contInterno - almacen.getCapacidad();
+            }
+        }
+        if(gbest){
+            System.out.println("No atendidos: " + contNoAtendidos);
         }
 
         fitnessValue = fitnessValue - penalizacion;
