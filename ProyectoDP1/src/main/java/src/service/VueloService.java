@@ -27,6 +27,7 @@ public class VueloService {
             String codigoIATAOrigen = partes[0].substring(0, 4);
             String idEnvio = partes[1];
             LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
+            //LocalDateTime fechaHora = LocalDateTime.now();
             String codigoIATADestino = partes[4].split(":")[0];
             int cantPaquetes = Integer.parseInt(partes[4].split(":")[1]);
 
@@ -127,7 +128,7 @@ public class VueloService {
                                 .getCodigoIATADestino(),
                         planDeVuelos.get(0).getHoraSalida(),
                         planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada(),
-                        planDeVuelos, duracion);
+                        planDeVuelos, duracion, false);
                 rutas.add(ruta);
             }
         }

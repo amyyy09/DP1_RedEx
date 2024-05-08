@@ -21,6 +21,7 @@ public class RutaPredefinida {
     private OffsetTime horaLlegada;
     private List<PlanDeVuelo> escalas;
     private long duracion;
+    private boolean sameContinent;
 
     public RutaTiempoReal convertirAPredefinidaEnTiempoReal(List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActuales) {
         RutaTiempoReal rutaTiempoReal = new RutaTiempoReal();
@@ -40,7 +41,7 @@ public class RutaPredefinida {
         // directamente
         Almacen almacenOrigen = (origen != null) ? origen.getAlmacen() : null;
         LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), horaSalida.toLocalTime());
-        LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), horaSalida.toLocalTime());
+        LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), horaLlegada.toLocalTime());
 
         List<Vuelo> vuelos = new ArrayList<>(); // Esto debería ser poblado según lógica específica
         this.escalas.forEach((PlanDeVuelo element) -> {

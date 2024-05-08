@@ -1,7 +1,6 @@
 package src.service;
 
 import src.model.*;
-import src.utility.AsignarRutas;
 
 import java.io.IOException;
 import java.time.OffsetTime;
@@ -17,24 +16,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class PlanificacionService {
-    private double probabilidadSeleccion = 0.7;
+    private double probabilidadSeleccion = 0.2;
     private double probabilidadMutacion = 0.1;
     private double probabilidadCruce = 0.85;
-    private int numCromosomas = 100;
+    private int numCromosomas = 70;
     private int tamanoTorneo = 5;
-    private int numDescendientes = 50;
-    private int numGeneraciones = 150;
+    private int numDescendientes = 20;
+    private int numGeneraciones = 40;
 
     private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
     private static Random rand = new Random();
-    private static AsignarRutas asignador = new AsignarRutas();
 
     @Autowired
     public PlanificacionService() {
@@ -42,20 +43,27 @@ public class PlanificacionService {
         PlanificacionService.evaluator = new FitnessEvaluatorService();
     }
 
-    public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo,List<RutaPredefinida> rutasPred,List<Almacen> almacenes,List<Vuelo> vuelosActuales) throws IOException {
+    public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo,List<RutaPredefinida> rutasPred, Map<String, Almacen> almacenes,List<Vuelo> vuelosActuales) throws IOException {
 
         
-        List<Cromosoma> poblacion = createPopulation(envios, numCromosomas, aeropuertos,planesDeVuelo,rutasPred,vuelosActuales); //LISTO NO TOCAR
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = createMap(rutasPred);
+        List<Cromosoma> poblacion = createPopulation(envios, numCromosomas, aeropuertos,planesDeVuelo,rutasPredMap,vuelosActuales); //LISTO NO TOCAR
+        System.out.println();
         Random rand = new Random();
         double fitnesfinal=0;
-        
+        Cromosoma cromosomafinal = new Cromosoma();
         for (int generacion = 0; generacion < numGeneraciones; generacion++) {
-            List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos,vuelosActuales);//FALTA Revisar porque todos los fitness salen iguales 
+            //System.out.println("Generación " + generacion);
+            List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos,vuelosActuales,almacenes, false);//FALTA Revisar porque todos los fitness salen iguales 
             
             evaluator.ordernarPoblacion(poblacion, fitnessAgregado);//LISTO NO TOCAR
 
             if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
                 System.out.println(fitnessAgregado.get(0));
+                List<Cromosoma> cromofinalfinal= new ArrayList<>();
+                cromosomafinal=poblacion.get(0);
+                cromofinalfinal.add(cromosomafinal);
+                List<Double> fitnessAgregadofinal= evaluator.calcularFitnessAgregado(cromofinalfinal, aeropuertos,vuelosActuales,almacenes, true);
                 System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
                 return poblacion.get(0);
             }
@@ -73,13 +81,13 @@ public class PlanificacionService {
                     
                     for (Cromosoma hijo : hijos) {
                         if (Math.random() < probabilidadMutacion) {
-                            mutarHijo(hijo, probabilidadMutacion, rand,rutasPred,aeropuertos,vuelosActuales);
+                            mutarHijo(hijo, probabilidadMutacion, rand, rutasPredMap,aeropuertos,vuelosActuales);
                         }
                     }
                     descendientes.addAll(hijos);
                 }
             }
-            List<Double> fitnessAgregadoDesc = evaluator.calcularFitnessAgregado(descendientes, aeropuertos,vuelosActuales);
+            List<Double> fitnessAgregadoDesc = evaluator.calcularFitnessAgregado(descendientes, aeropuertos,vuelosActuales,almacenes,false);
 
 
             //NO TOCAR nada de aqui 
@@ -95,8 +103,13 @@ public class PlanificacionService {
             poblacion = poblacion.subList(0, numCromosomas);
             fitnesfinal=fitnessAgregado.get(0);
             //NO TOCAR hasta de aqui 
+            //System.out.println(fitnessAgregado.get(0));
+            cromosomafinal=poblacion.get(0);
         }
         
+        List<Cromosoma> cromofinal= new ArrayList<>();
+        cromofinal.add(cromosomafinal);
+        List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(cromofinal, aeropuertos,vuelosActuales,almacenes, true);
         System.out.println(fitnesfinal);
         System.out
                 .println("No se encontró una solución satisfactoria después de " + numGeneraciones + " generaciones.");
@@ -109,52 +122,73 @@ public class PlanificacionService {
                     .collect(Collectors.toList());
     }
 
-    public void mutarHijo(Cromosoma cromosoma, double probabilidadMutacion, Random rand,List<RutaPredefinida> rutasPred,List<Aeropuerto> aeropuertos,List<Vuelo> vuelosActuales) {
+    public void mutarHijo(Cromosoma cromosoma, double probabilidadMutacion, Random rand, Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred ,List<Aeropuerto> aeropuertos,List<Vuelo> vuelosActuales) {
         // Iterar sobre cada gen en el cromosoma
         for (Map.Entry<Paquete, RutaTiempoReal> entry : cromosoma.getGen().entrySet()) {
             if (rand.nextDouble() < probabilidadMutacion) {
                 // Seleccionar un nuevo plan de vuelo al azar para mutar este gen
                 Envio envio = entry.getKey().getEnvio();
-                List<RutaPredefinida> filteredRutasPred = rutasPred.stream().filter(ruta -> ruta.getCodigoIATAOrigen().equals(envio.getCodigoIATAOrigen()) && ruta.getCodigoIATADestino().equals(envio.getCodigoIATADestino()) && ruta.getHoraSalida().getHour() >= envio.getFechaHoraOrigen().getHour() && ruta.getHoraLlegada().getHour() <= envio.getFechaHoraOrigen().getHour()).collect(Collectors.toList());
+                String codigoIATAOrigen = envio.getCodigoIATAOrigen();
+                String codigoIATADestino = envio.getCodigoIATADestino();
+                int horaLlegada = envio.getFechaHoraOrigen().getHour()*100 + envio.getFechaHoraOrigen().getMinute();
+                Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPred.getOrDefault(codigoIATAOrigen, new HashMap<>());
+                TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(codigoIATADestino, new TreeMap<>());
+
+                SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap = destinoMap.headMap(horaLlegada);
+                List<RutaPredefinida> filteredRutasPred = new ArrayList<>();
+
+                for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap.values()) {
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                        filteredRutasPred.addAll(rutas);
+                    }
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                        for (RutaPredefinida ruta : rutas) {
+                            if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                                (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                                filteredRutasPred.add(ruta);
+                            }
+                        }
+                    }
+                }
+
+                SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap2 = destinoMap.tailMap(horaLlegada);
+                for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap2.values()) {
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                        for (RutaPredefinida ruta : rutas) {
+                            if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                                (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                                filteredRutasPred.add(ruta);
+                            }
+                        }
+                    }
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                        for (RutaPredefinida ruta : rutas) {
+                            if ((!ruta.isSameContinent() && ruta.getDuracion() < 1)) {
+                                filteredRutasPred.add(ruta);
+                            }
+                        }
+                    }
+                }
+
+                if (filteredRutasPred.isEmpty()) {
+                    System.err.println("ayuda, revisar el filtrado de rutas predefinidas");
+                
                     if(!filteredRutasPred.isEmpty()){
-                        RutaPredefinida randomRoute = filteredRutasPred.get(new Random().nextInt(filteredRutasPred.size()));
+                        RutaPredefinida randomRoute = filteredRutasPred.get(rand.nextInt(filteredRutasPred.size()));
                         RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
                         entry.setValue(randTiempoReal);
                     }else{
                         entry.setValue(null);
                     }
+                }
             }
         }
     }
-
-    public void mutarHijo(Cromosoma hijo, List<RutaPredefinida> rutasDisponibles) {
-        Random rand = new Random();
-
-        if (Math.random() < probabilidadMutacion) {
-            //SELECCIONA UN GEN AL AZAR PARA MUTAR DONDE MI CROMOSOMA ES DEL TIPO MAP<PAQUETE, RUTAPREDEFINIDA>
-
-            
-
-            // Selecciona un gen (ruta) al azar para mutar.
-            List<RutaTiempoReal> rutas = new ArrayList<>(hijo.getGen().values());
-            //RutaPredefinida rutaAMutar = rutas.get(rand.nextInt(rutas.size()));
-
-            // Selecciona una nueva ruta diferente a la actual.
-            // RutaPredefinida nuevaRuta;
-            // do {
-            //     nuevaRuta = rutasDisponibles.get(rand.nextInt(rutasDisponibles.size()));
-            // } while (nuevaRuta.equals(rutaAMutar));
-
-            // for (Map.Entry<Paquete, RutaPredefinida> entry : hijo.getGen().entrySet()) {
-            //     if (entry.getValue().equals(rutaAMutar)) {
-            //         // Actualiza la asignación de la ruta
-            //         hijo.getGen().put(entry.getKey(), nuevaRuta);
-            //         break; // Romper el bucle después de actualizar el primer paquete encontrado
-            //     }
-            // }
-        }
-    }
-    
+   
 
     private static List<Cromosoma> TournamentSelection(List<Cromosoma> poblacion, double ps, int tamanoTorneo, List<Double> fitnessAgregado) {
 
@@ -238,45 +272,168 @@ public class PlanificacionService {
         return hijos;
     }
 
+    // public static List<Cromosoma> createPopulation(List<Envio> envios,
+    //         int numCromosomas, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo, List<RutaPredefinida> rutasPred,List<Vuelo> vuelosActuales) {
+    //     List<Cromosoma> poblacion = new ArrayList<>();
+    //     Random random = new Random();
+        
+    //     for (int i = 0; i < numCromosomas; i++) {
+    //         Map<Paquete,RutaTiempoReal> gen = new HashMap<>();
+    //         for (Envio envio : envios) {
+    //             List<Paquete> paquetes = envio.getPaquetes();
+    //             String codigoIATADestinoEnvio = envio.getCodigoIATADestino();
+    //             int j=1;
+    //             for (Paquete paquete : paquetes) {
+                    
+    //                 Paquete paqueteactual= new Paquete();
+    //                 paqueteactual.setIdEnvio(paquete.getIdEnvio());
+    //                 paqueteactual.setStatus(1); 
+    //                 String uniqueId = paquete.getIdEnvio() + "-" + j;
+                    
+    //                 paqueteactual.setIdEnvio(uniqueId);
+    //                 paqueteactual.setCodigoIATADestino(codigoIATADestinoEnvio);
+    //                 paqueteactual.setEnvio(envio);
+
+    //                 List<RutaPredefinida> filteredRutasPred = rutasPred.stream().filter(ruta -> ruta.getCodigoIATAOrigen().equals(envio.getCodigoIATAOrigen()) && ruta.getCodigoIATADestino().equals(envio.getCodigoIATADestino()) && ruta.getHoraSalida().getHour() >= envio.getFechaHoraOrigen().getHour() && ruta.getHoraLlegada().getHour() <= envio.getFechaHoraOrigen().getHour()).collect(Collectors.toList());
+    //                 if(!filteredRutasPred.isEmpty()){
+    //                     RutaPredefinida randomRoute = filteredRutasPred.get(new Random().nextInt(filteredRutasPred.size()));
+    //                     RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
+    //                     gen.put(paqueteactual, randTiempoReal);
+    //                 }else{
+    //                     gen.put(paqueteactual, null);
+    //                 }
+    //                 j++;
+    //             }
+    //         }
+    //         Cromosoma cromosoma = new Cromosoma(gen);
+    //         poblacion.add(cromosoma);
+    //     }
+
+    //     return poblacion;
+    // }
+    // public static List<Cromosoma> createPopulation(List<Envio> envios,
+    //                                                int numCromosomas, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo,
+    //                                                List<RutaPredefinida> rutasPred, List<Vuelo> vuelosActuales) {
+    //     List<Cromosoma> poblacion = new ArrayList<>();
+    //     Random random = new Random();
+
+    //     // Crear un mapa para acceso rápido a rutas por origen y destino
+    //     Map<String, List<RutaPredefinida>> rutaCache = rutasPred.stream()
+    //             .collect(Collectors.groupingBy(r -> r.getCodigoIATAOrigen() + "-" + r.getCodigoIATADestino()));
+
+    //     // Generar población
+    //     envios.parallelStream().forEach(envio -> {
+    //         Map<Paquete, RutaPredefinida> gen = new HashMap<>();
+    //         List<RutaPredefinida> filteredRutasPred = rutaCache.getOrDefault(envio.getCodigoIATAOrigen() + "-" + envio.getCodigoIATADestino(), Collections.emptyList());
+
+    //         for (Paquete paquete : envio.getPaquetes()) {
+    //             RutaPredefinida randomRoute = !filteredRutasPred.isEmpty()
+    //                     ? filteredRutasPred.get(random.nextInt(filteredRutasPred.size()))
+    //                     : null;
+    //             gen.put(paquete, randomRoute);
+    //         }
+    //         synchronized (poblacion) {
+                
+    //             poblacion.add(new Cromosoma(gen));
+    //         }
+    //     });
+
+    //     return poblacion;
+    // }
+    ///////////////////////
+
     public static List<Cromosoma> createPopulation(List<Envio> envios,
-            int numCromosomas, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo, List<RutaPredefinida> rutasPred,List<Vuelo> vuelosActuales) {
+            int numCromosomas, List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planesDeVuelo, Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred, List<Vuelo> vuelosActuales) {
+        
         List<Cromosoma> poblacion = new ArrayList<>();
         Random random = new Random();
         
+        
         for (int i = 0; i < numCromosomas; i++) {
-            Map<Paquete,RutaTiempoReal> gen = new HashMap<>();
+            Map<Paquete, RutaTiempoReal> gen = new HashMap<>();
             for (Envio envio : envios) {
-                List<Paquete> paquetes = envio.getPaquetes();
-                String codigoIATADestinoEnvio = envio.getCodigoIATADestino();
-                int j=1;
-                for (Paquete paquete : paquetes) {
-                    
-                    Paquete paqueteactual= new Paquete();
-                    paqueteactual.setIdEnvio(paquete.getIdEnvio());
-                    paqueteactual.setStatus(1); 
-                    String uniqueId = paquete.getIdEnvio() + "-" + j;
-                    
-                    paqueteactual.setIdEnvio(uniqueId);
-                    paqueteactual.setCodigoIATADestino(codigoIATADestinoEnvio);
-                    paqueteactual.setEnvio(envio);
+                String codigoIATAOrigen = envio.getCodigoIATAOrigen();
+                String codigoIATADestino = envio.getCodigoIATADestino();
+                int horaLlegada = envio.getFechaHoraOrigen().getHour()*100 + envio.getFechaHoraOrigen().getMinute();
 
-                    List<RutaPredefinida> filteredRutasPred = rutasPred.stream().filter(ruta -> ruta.getCodigoIATAOrigen().equals(envio.getCodigoIATAOrigen()) && ruta.getCodigoIATADestino().equals(envio.getCodigoIATADestino()) && ruta.getHoraSalida().getHour() >= envio.getFechaHoraOrigen().getHour() && ruta.getHoraLlegada().getHour() <= envio.getFechaHoraOrigen().getHour()).collect(Collectors.toList());
-                    if(!filteredRutasPred.isEmpty()){
-                        RutaPredefinida randomRoute = filteredRutasPred.get(new Random().nextInt(filteredRutasPred.size()));
+                Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPred.getOrDefault(codigoIATAOrigen, new HashMap<>());
+                TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(codigoIATADestino, new TreeMap<>());
+
+                SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap = destinoMap.headMap(horaLlegada);
+                List<RutaPredefinida> filteredRutasPred = new ArrayList<>();
+
+                for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap.values()) {
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                        filteredRutasPred.addAll(rutas);
+                    }
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                        for (RutaPredefinida ruta : rutas) {
+                            if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                                (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                                filteredRutasPred.add(ruta);
+                            }
+                        }
+                    }
+                }
+
+                SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap2 = destinoMap.tailMap(horaLlegada);
+                for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap2.values()) {
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                        for (RutaPredefinida ruta : rutas) {
+                            if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                                (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                                filteredRutasPred.add(ruta);
+                            }
+                        }
+                    }
+                    SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+                    for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                        for (RutaPredefinida ruta : rutas) {
+                            if ((!ruta.isSameContinent() && ruta.getDuracion() < 1)) {
+                                filteredRutasPred.add(ruta);
+                            }
+                        }
+                    }
+                }
+
+                if (filteredRutasPred.isEmpty()) {
+                    System.err.println("ayuda, revisar el filtrado de rutas predefinidas");
+                } 
+
+                List<Paquete> paquetes = envio.getPaquetes();
+                for (int j = 1; j <= paquetes.size(); j++) {
+
+                    Paquete paqueteactual = clonePaquete(paquetes.get(j - 1), envio.getCodigoIATADestino(), j, envio);
+
+                    if (!filteredRutasPred.isEmpty()) {
+                        int index = new Random().nextInt(filteredRutasPred.size());
+                        RutaPredefinida randomRoute = filteredRutasPred.get(index);
                         RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
                         gen.put(paqueteactual, randTiempoReal);
-                    }else{
+                    } else {
                         gen.put(paqueteactual, null);
                     }
-                    j++;
                 }
             }
-            Cromosoma cromosoma = new Cromosoma(gen);
-            poblacion.add(cromosoma);
+            poblacion.add(new Cromosoma(gen));
         }
 
         return poblacion;
     }
+
+    private static Paquete clonePaquete(Paquete original, String destinoIATA, int secuencia, Envio envio) {
+        Paquete nuevo = new Paquete();
+        nuevo.setIdEnvio(original.getIdEnvio() + "-" + secuencia);
+        nuevo.setStatus(1);
+        nuevo.setCodigoIATADestino(destinoIATA);
+        nuevo.setEnvio(envio);
+        return nuevo;
+    }
+
+    /////////////////////
 
     public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
@@ -285,14 +442,15 @@ public class PlanificacionService {
             .findFirst()
             .orElse(null);
             if (origen == null) return rutas;
-        List<String> destinosEspecificos = Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI", "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI", "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro experimento tenemos solo un aeropuerto destino WMKK
-        List<Aeropuerto> destinos = aeropuertos.stream()
-                                           .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
-                                           .collect(Collectors.toList());
-        for (Aeropuerto destino  : destinos) {
+        // List<String> destinosEspecificos = Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI", "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI", "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro experimento tenemos solo un aeropuerto destino WMKK
+        // List<Aeropuerto> destinos = aeropuertos.stream()
+        //                                    .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
+        //                                    .collect(Collectors.toList());
+        for (Aeropuerto destino  : aeropuertos) {
             if (!origen.equals(destino)) {
                 List<Integer> daysm = new ArrayList<>();
-                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes,daysm, origen.getContinente().equals(destino.getContinente()));                
+                Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
+                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes,daysm, sameContinent);                
                 for (int i = 0; i < planesRutas.size(); i++) {
                     List<PlanDeVuelo> planRuta = planesRutas.get(i);
                     RutaPredefinida ruta = new RutaPredefinida(
@@ -301,7 +459,8 @@ public class PlanificacionService {
                         planRuta.get(0).getHoraSalida(),
                         planRuta.get(planRuta.size() - 1).getHoraLlegada(),
                         planRuta,
-                        daysm.get(i) // get the corresponding value from the daysm array
+                        daysm.get(i), // get the corresponding value from the daysm array
+                        sameContinent
                     );
                     rutas.add(ruta);
                 }
@@ -378,6 +537,85 @@ public class PlanificacionService {
             }
         }
         visited.remove(current);
+    }
+
+    public static List<RutaPredefinida> filterRutasForEnvio(
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred, Envio envio) {
+
+        String codigoIATAOrigen = envio.getCodigoIATAOrigen();
+        String codigoIATADestino = envio.getCodigoIATADestino();
+        int horaLlegada = envio.getFechaHoraOrigen().getHour()*100 + envio.getFechaHoraOrigen().getMinute();
+
+        Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPred.getOrDefault(codigoIATAOrigen, new HashMap<>());
+        TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(codigoIATADestino, new TreeMap<>());
+
+        SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap = destinoMap.headMap(horaLlegada);
+        List<RutaPredefinida> filteredRutasPred = new ArrayList<>();
+
+        for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap.values()) {
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                filteredRutasPred.addAll(rutas);
+            }
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                        (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
+            }
+        }
+
+        SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap2 = destinoMap.tailMap(horaLlegada);
+        for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap2.values()) {
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                        (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
+            }
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((!ruta.isSameContinent() && ruta.getDuracion() < 1)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
+            }
+        }
+
+        // Map<RutaPredefinida, Integer> filteredRutasPredMap = new HashMap<>();
+        // for (int i = 0; i < filteredRutasPred.size(); i++) {
+        //     filteredRutasPredMap.put(filteredRutasPred.get(i), i);
+        // }
+
+        return filteredRutasPred;
+    }
+
+    public static Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> createMap(List<RutaPredefinida> rutasPred) {
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = new HashMap<>();
+        for (RutaPredefinida ruta : rutasPred) {
+            String origen = ruta.getCodigoIATAOrigen();
+            String destino = ruta.getCodigoIATADestino();
+            int horaSalida = ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute();
+            int horaLlegada = ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute();
+
+            Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPredMap.getOrDefault(origen, new HashMap<>());
+            TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(destino, new TreeMap<>());
+            TreeMap<Integer, List<RutaPredefinida>> llegadaMap = destinoMap.getOrDefault(horaLlegada, new TreeMap<>());
+            List<RutaPredefinida> rutas = llegadaMap.getOrDefault(horaSalida, new ArrayList<>());
+            rutas.add(ruta);
+            llegadaMap.put(horaSalida, rutas);
+            destinoMap.put(horaLlegada, llegadaMap);
+            origenMap.put(destino, destinoMap);
+            rutasPredMap.put(origen, origenMap);
+        }
+        return rutasPredMap;
     }
 
    
