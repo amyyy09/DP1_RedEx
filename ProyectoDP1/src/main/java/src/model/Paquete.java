@@ -14,6 +14,7 @@ public class Paquete {
     private String idEnvio;
     private int status;
     private String codigoIATADestino;
+    private Envio envio;
 
     public Paquete(String idEnvio, int status) {
         this.idEnvio = idEnvio;

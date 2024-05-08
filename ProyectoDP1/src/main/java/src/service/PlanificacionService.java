@@ -71,8 +71,10 @@ public class PlanificacionService {
                     List<Cromosoma> hijos = new ArrayList<>();
                     hijos= crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2)); //LISTO NO TOCAR
                     
-                    if (Math.random() < probabilidadMutacion) {
-                        //mutarHijo(hijos, planesDeVuelo); //FALTA realizar ajustes
+                    for (Cromosoma hijo : hijos) {
+                        if (Math.random() < probabilidadMutacion) {
+                            mutarHijo(hijo, probabilidadMutacion, rand,rutasPred,aeropuertos,vuelosActuales);
+                        }
                     }
                     descendientes.addAll(hijos);
                 }
@@ -105,6 +107,24 @@ public class PlanificacionService {
         return rutas.stream()
                     .filter(ruta -> ruta.getCodigoIATAOrigen().equals(codigoIATAOrigen))
                     .collect(Collectors.toList());
+    }
+
+    public void mutarHijo(Cromosoma cromosoma, double probabilidadMutacion, Random rand,List<RutaPredefinida> rutasPred,List<Aeropuerto> aeropuertos,List<Vuelo> vuelosActuales) {
+        // Iterar sobre cada gen en el cromosoma
+        for (Map.Entry<Paquete, RutaTiempoReal> entry : cromosoma.getGen().entrySet()) {
+            if (rand.nextDouble() < probabilidadMutacion) {
+                // Seleccionar un nuevo plan de vuelo al azar para mutar este gen
+                Envio envio = entry.getKey().getEnvio();
+                List<RutaPredefinida> filteredRutasPred = rutasPred.stream().filter(ruta -> ruta.getCodigoIATAOrigen().equals(envio.getCodigoIATAOrigen()) && ruta.getCodigoIATADestino().equals(envio.getCodigoIATADestino()) && ruta.getHoraSalida().getHour() >= envio.getFechaHoraOrigen().getHour() && ruta.getHoraLlegada().getHour() <= envio.getFechaHoraOrigen().getHour()).collect(Collectors.toList());
+                    if(!filteredRutasPred.isEmpty()){
+                        RutaPredefinida randomRoute = filteredRutasPred.get(new Random().nextInt(filteredRutasPred.size()));
+                        RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
+                        entry.setValue(randTiempoReal);
+                    }else{
+                        entry.setValue(null);
+                    }
+            }
+        }
     }
 
     public void mutarHijo(Cromosoma hijo, List<RutaPredefinida> rutasDisponibles) {
@@ -238,7 +258,7 @@ public class PlanificacionService {
                     
                     paqueteactual.setIdEnvio(uniqueId);
                     paqueteactual.setCodigoIATADestino(codigoIATADestinoEnvio);
-
+                    paqueteactual.setEnvio(envio);
 
                     List<RutaPredefinida> filteredRutasPred = rutasPred.stream().filter(ruta -> ruta.getCodigoIATAOrigen().equals(envio.getCodigoIATAOrigen()) && ruta.getCodigoIATADestino().equals(envio.getCodigoIATADestino()) && ruta.getHoraSalida().getHour() >= envio.getFechaHoraOrigen().getHour() && ruta.getHoraLlegada().getHour() <= envio.getFechaHoraOrigen().getHour()).collect(Collectors.toList());
                     if(!filteredRutasPred.isEmpty()){
