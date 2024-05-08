@@ -75,7 +75,7 @@ public class FitnessEvaluatorService {
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
         int contNoAtendidos = 0;
-
+        int minPrev;
         Double fitnessValue = 0.0;
 
         int size = particula.size();
@@ -88,6 +88,20 @@ public class FitnessEvaluatorService {
             //paquete.setStatus(3);
 
             int horaOrigen = paquete.getEnvio().getFechaHoraOrigen().getHour();
+
+            if (gbest){
+                int horaMinOrigen = horaOrigen*100 + paquete.getEnvio().getFechaHoraOrigen().getMinute();
+                int horaLlegada = ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute();
+
+                if(horaMinOrigen < horaLlegada){
+                    horaLlegada += 2400;
+                }
+
+                minPrev = Math.abs(horaLlegada - horaMinOrigen);
+
+                System.out.println("Minutos que llegó antes: " + minPrev);
+            }
+
             int horaSalida = ruta.getRutaPredefinida().getHoraSalida().getHour();
 
             if (horaSalida < horaOrigen) {

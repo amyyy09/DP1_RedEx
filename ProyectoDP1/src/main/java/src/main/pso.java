@@ -48,7 +48,7 @@ public class pso {
 					}
 				}
 			}
-			for (int i = 0; i < 4; i++) {
+			for (int i = 0; i < 75; i++) {
 				System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
 				if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
 					Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales);
