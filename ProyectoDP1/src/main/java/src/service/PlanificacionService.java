@@ -351,7 +351,7 @@ public class PlanificacionService {
                 gbest = currentGbest;
                 noImprovementCounter = 0;  // reset the counter when there's an improvement
             } else {
-                Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, false);
+                // Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, false);
                 noImprovementCounter++;  // increment the counter when there's no improvement
             }
             j++;
