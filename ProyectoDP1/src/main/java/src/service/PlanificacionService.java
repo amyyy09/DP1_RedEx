@@ -319,10 +319,10 @@ public class PlanificacionService {
                         int indexPos = filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida());
                         double velocity = w * particle.getVelocidad().get(k) +
                             c1 * r1 * (indexPos
-                                - filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida()))
+                                - filteredRutasPred.indexOf(population.get(k).getPbest().get(paquete).getRutaPredefinida()))
                             +
                             c2 * r2 * (indexPos
-                                - filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida()));
+                                - filteredRutasPred.indexOf(gbest.get(paquete).getRutaPredefinida()));
 
                         particle.getVelocidad().set(k, velocity);
                                     
