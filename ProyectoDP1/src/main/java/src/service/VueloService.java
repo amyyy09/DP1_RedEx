@@ -4,6 +4,7 @@ import src.model.*;
 import src.utility.FileUtils;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetTime;
@@ -23,19 +24,25 @@ public class VueloService {
 
         for (String line : lines) {
             String[] partes = line.split("-");
-            String codigoIATAOrigen = partes[0].substring(0, 4);
-            String idEnvio = partes[0].substring(4);
-            LocalDateTime fechaHora = LocalDateTime.parse(partes[1] + "-" + partes[2], formatter);
-            String codigoIATADestino = partes[3].split(":")[0];
-            int cantPaquetes = Integer.parseInt(partes[3].split(":")[1]);
+            String codigoIATAOrigen = partes[0];
+            String idEnvio = partes[1];
+            // LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
+            LocalDateTime fechaHora = LocalDateTime.now();
+            
+            String codigoIATADestino = partes[4].split(":")[0];
+            int cantPaquetes = Integer.parseInt(partes[4].split(":")[1]);
+
+            Envio envio = new Envio(idEnvio, fechaHora, 0, codigoIATAOrigen,
+                    codigoIATADestino, cantPaquetes, null);
 
             List<Paquete> paquetes = new ArrayList<>();
             for (int i = 0; i < cantPaquetes; i++) {
-                paquetes.add(new Paquete(idEnvio, 0));
+                paquetes.add(new Paquete(idEnvio, 0, envio));
             }
 
-            envios.add(new Envio(idEnvio, fechaHora, 0, codigoIATAOrigen,
-                    codigoIATADestino, cantPaquetes, paquetes));
+            envio.setPaquetes(paquetes);
+
+            envios.add(envio);
         }
         return envios;
 
@@ -43,20 +50,26 @@ public class VueloService {
 
     public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
-        OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
+        // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
 
         int vueloId = 1;
         for (PlanDeVuelo plan : planesDeVuelo) {
-            if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
+            // if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
                 Vuelo vuelo = new Vuelo();
                 vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
                 vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
                 vuelo.setCapacidad(plan.getCapacidad());
                 vuelo.setStatus(1); // Establece el estado en tránsito.
                 vuelo.setPlanDeVuelo(plan);
-
+                LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), plan.getHoraSalida().toLocalTime());
+                vuelo.setHoraSalida(horaInicio);
+                LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), plan.getHoraLlegada().toLocalTime());
+                if(plan.getHoraLlegada().isBefore(plan.getHoraSalida())) {
+                    horaFin = horaFin.plusDays(1);
+                }
+                vuelo.setHoraLlegada(horaFin);
                 vuelosActuales.add(vuelo);
-            }
+            // }
         }
 
         return vuelosActuales;
@@ -120,7 +133,7 @@ public class VueloService {
                                 .getCodigoIATADestino(),
                         planDeVuelos.get(0).getHoraSalida(),
                         planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada(),
-                        planDeVuelos, duracion);
+                        planDeVuelos, duracion, false);
                 rutas.add(ruta);
             }
         }

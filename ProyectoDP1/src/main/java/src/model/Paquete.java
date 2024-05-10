@@ -13,4 +13,5 @@ import lombok.NoArgsConstructor;
 public class Paquete {
     private String idEnvio;
     private int status;
+    private Envio envio;
 }

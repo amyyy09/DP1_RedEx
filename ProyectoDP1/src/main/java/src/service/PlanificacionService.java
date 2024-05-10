@@ -3,14 +3,17 @@ package src.service;
 import src.model.*;
 
 import java.io.IOException;
-import java.time.OffsetTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -173,176 +176,271 @@ public class PlanificacionService {
         return poblacion;
     }
 
-    public static List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
+    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
-        for (Aeropuerto origen : aeropuertos) {
-            for (Aeropuerto destino : aeropuertos) {
-                if (!origen.equals(destino) && origen.getContinente()
-                        .equals(destino.getContinente())) {
-                    List<Integer> daysm = new ArrayList<>();
-                    List<List<PlanDeVuelo>> _planesRutas = generarEscalas(origen, destino, planes,
-                            daysm);
-                    for (List<PlanDeVuelo> _planRuta : _planesRutas) {
-                        RutaPredefinida ruta = new RutaPredefinida();
-                        ruta.setCodigoIATAOrigen(origen.getCodigoIATA());
-                        ruta.setCodigoIATADestino(destino.getCodigoIATA());
-                        ruta.setEscalas(_planRuta);
-                        rutas.add(ruta);
-                    }
+        Aeropuerto origen = aeropuertos.stream()//en este caso solo tenemos de origen ZBAA
+            .filter(a -> a.getCodigoIATA().equals("ZBAA"))
+            .findFirst()
+            .orElse(null);
+            if (origen == null) return rutas;
+        // List<String> destinosEspecificos = Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI", "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI", "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro experimento tenemos solo un aeropuerto destino WMKK
+        // List<Aeropuerto> destinos = aeropuertos.stream()
+        //                                    .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
+        //                                    .collect(Collectors.toList());
+        for (Aeropuerto destino  : aeropuertos) {
+            if (!origen.equals(destino)) {
+                List<Integer> daysm = new ArrayList<>();
+                Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
+                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes,daysm, sameContinent);                
+                for (int i = 0; i < planesRutas.size(); i++) {
+                    List<PlanDeVuelo> planRuta = planesRutas.get(i);
+                    RutaPredefinida ruta = new RutaPredefinida(
+                        origen.getCodigoIATA(),
+                        destino.getCodigoIATA(),
+                        planRuta.get(0).getHoraSalida(),
+                        planRuta.get(planRuta.size() - 1).getHoraLlegada(),
+                        planRuta,
+                        daysm.get(i), // get the corresponding value from the daysm array
+                        sameContinent
+                    );
+                    rutas.add(ruta);
                 }
             }
         }
         return rutas;
     }
 
-    public static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino,
-            List<PlanDeVuelo> planes, List<Integer> daysm) {
+    public static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino, List<PlanDeVuelo> planes, List<Integer> daysm, Boolean sameContinent) {
         List<List<PlanDeVuelo>> allRoutes = new ArrayList<>();
         List<PlanDeVuelo> currentRoute = new ArrayList<>();
+        Set<String> visited = new HashSet<>();
 
-        dfs(origen.getCodigoIATA(), destino.getCodigoIATA(), currentRoute, allRoutes, planes, daysm, 0);
+        dfs(origen.getCodigoIATA(), destino.getCodigoIATA(), currentRoute, allRoutes, planes, daysm, 0, sameContinent, visited);
         return allRoutes;
     }
 
     private static void dfs(String current, String destination, List<PlanDeVuelo> currentRoute,
-            List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm, int days) {
-
-        if (currentRoute.size() > 8) {
-            return; // Si se exceden 8 escalas, detiene la recursión para esta ruta
-        }
+                 List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> planes, List<Integer> daysm,
+                 int totalDays, boolean sameContinent, Set<String> visited) {
 
         if (current.equals(destination)) {
-            List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
-            if (!containsRoute(allRoutes, routeToAdd)) {
+            if (!currentRoute.isEmpty() && !allRoutes.contains(currentRoute)) {
+                List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
                 allRoutes.add(routeToAdd);
-                daysm.add(days);
+                daysm.add(totalDays);
+                // print the route for debugging with the respective horas de salida y llegada
+                // System.out.println("Ruta encontrada: en " + totalDays + " días");
+                // for (PlanDeVuelo plan : routeToAdd) {
+                //     System.out.println(plan.getCodigoIATAOrigen() + " " + plan.getHoraSalida() + " -> " + plan.getCodigoIATADestino() + " " +  " " + plan.getHoraLlegada());
+                // }
                 return;
             }
         }
+        if (currentRoute.size() > 3 || visited.contains(current)) {
+            return; // Limit recursion depth and prevent visiting the same airport in one route
+        }
+    
+        visited.add(current);
+        List<PlanDeVuelo> filteredPlanes = planes.stream()
+            .filter(plan -> plan.getCodigoIATAOrigen().equals(current))
+            .collect(Collectors.toList());
 
-        for (PlanDeVuelo plan : planes) {
-            if (plan.getCodigoIATAOrigen().equals(current)) {
-                OffsetTime arrivalTime = plan.getHoraLlegada().withOffsetSameInstant(ZoneOffset.UTC);
-                OffsetTime departureTime = plan.getHoraSalida().withOffsetSameInstant(ZoneOffset.UTC);
-                OffsetTime finalTime = null;
+        for (PlanDeVuelo plan : filteredPlanes) {
+            if (!visited.contains(plan.getCodigoIATADestino())) {
+                
+                if (currentRoute.isEmpty() || currentRoute.get(currentRoute.size() - 1).getHoraLlegada().plusMinutes(5).isBefore(plan.getHoraSalida())) { // Ensure at least 5 minutes between flights
+                    currentRoute.add(plan);
+                    int newTotalDays = totalDays;
+                    if(plan.getHoraLlegada().isBefore(plan.getHoraSalida()) 
+                        || (currentRoute.size() > 1 && 
+                        plan.getHoraSalida().isBefore(currentRoute.get(currentRoute.size() - 2).getHoraLlegada()))){
 
-                if (currentRoute.size() > 0) {
-                    PlanDeVuelo lastPlan = currentRoute.get(currentRoute.size() - 1);
-                    finalTime = lastPlan.getHoraLlegada().withOffsetSameInstant(ZoneOffset.UTC);
-                    if (!finalTime.plusMinutes(5).isBefore(departureTime)) {
-                        continue;
+                        newTotalDays++;
                     }
-                    if (currentRoute.stream()
-                            .anyMatch(p -> p.getCodigoIATAOrigen()
-                                    .equals(plan.getCodigoIATADestino()))) {
-                        continue;
+                    
+                    if (sameContinent && (newTotalDays > 1 || (newTotalDays > 0 && (currentRoute.size() > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime()))))){
+                        currentRoute.remove(currentRoute.size() - 1);
+                        visited.remove(current);
+                        return; // Abort the route if it takes more than 1 day in the same continent
                     }
-                }
 
-                if (arrivalTime.isBefore(departureTime)
-                        || (finalTime != null && departureTime.isBefore(finalTime))) {
-                    days++;
-                }
-
-                if (plan.isSameContinent()) {
-                    if (!currentRoute.contains(plan)) {
-                        if (days <= 1) {
-                            currentRoute.add(plan);
-                            dfs(plan.getCodigoIATADestino(), destination, currentRoute,
-                                    allRoutes, planes, daysm, days);
-                            currentRoute.remove(currentRoute.size() - 1);
-                        }
-                        if (arrivalTime.isBefore(departureTime)
-                                || (finalTime != null
-                                        && departureTime.isBefore(finalTime))) {
-                            days--;
-                        }
+                    if (!sameContinent && (newTotalDays > 2 || (newTotalDays > 1 && 
+                        plan.getHoraLlegada().toLocalTime().isAfter(currentRoute.get(0).getHoraSalida().toLocalTime())))) {
+                        currentRoute.remove(currentRoute.size() - 1);
+                        visited.remove(current);
+                        return; // Abort the route if it exceeds 2 days and not in the same continent
                     }
-                } else {
-                    if (!currentRoute.contains(plan)) {
-                        if (days <= 2) {
-                            currentRoute.add(plan);
-                            dfs(plan.getCodigoIATADestino(), destination, currentRoute,
-                                    allRoutes, planes, daysm, days);
-                            currentRoute.remove(currentRoute.size() - 1);
-                        }
-                        if (arrivalTime.isBefore(departureTime)
-                                || (finalTime != null
-                                        && departureTime.isBefore(finalTime))) {
-                            days--;
-                        }
-                    }
+    
+                    dfs(plan.getCodigoIATADestino(), destination, currentRoute, allRoutes, planes, daysm, newTotalDays, sameContinent, visited);
+                    currentRoute.remove(currentRoute.size() - 1);
                 }
             }
         }
-    }
-
-    private static boolean containsRoute(List<List<PlanDeVuelo>> allRoutes, List<PlanDeVuelo> currentRoute) {
-        return allRoutes.stream().anyMatch(route -> route.equals(currentRoute));
+        visited.remove(current);
     }
 
     // PSO
 
-    public static Map<Paquete, RutaTiempoReal> PSO(List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
-            List<Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
+    public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
+            Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActuales) {
         List<Particula> population = new ArrayList<>();
         int numParticles = 50;
         int numIterationsMax = 100;
-        double w = 0.1, c1 = 0.1, c2 = 0.1;
+        double w = 0.5, c1 = 1, c2 = 2;
 
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = createMap(rutasPred);
+        
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
-            particle.setPosicion(Particula.inicializarPosicion(paquetes, rutasPred, aeropuertos));
+            particle.setPosicion(Particula.inicializarPosicion(envios, rutasPredMap, aeropuertos, vuelosActuales));
             particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
-            particle.setFbest(evaluator.fitness(particle.getPbest(), aeropuertos, vuelosActuales));
+            particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales, false));
             population.add(particle);
         }
-        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, aeropuertos, vuelosActuales);
-
-        for (int j = 0; j < numIterationsMax; j++) {
+        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
+        int noImprovementCounter = 0;
+        // for (int j = 0; j < numIterationsMax; j++) {
+        int j=0;
+        while (noImprovementCounter < numIterationsMax && j < 750) {
+            // if(evaluator.fitness(gbest, aeropuertos, vuelosActuales) == 0){
+            //     return gbest;
+            // }
             for (Particula particle : population) {
-                for (int k = 0; k < paquetes.size(); k++) {
-                    double r1 = rand.nextDouble(), r2 = rand.nextDouble();
-                    double velocity = w * particle.getVelocidad().get(k) +
-
-                            c1 * r1 * (rutasPred.indexOf(particle.getPbest().get(paquetes.get(k)).getRutaPredefinida())
-                                    - rutasPred
-                                            .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()))
+                for (int k = 0; k < envios.size(); k++) {
+                    List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPredMap, envios.get(k));
+                    for (int l = 0; l< envios.get(k).getPaquetes().size(); l++) {
+                        // Update velocity and position for each package (paquete) in the envio
+                        double r1 = rand.nextDouble(), r2 = rand.nextDouble();
+                        Paquete paquete = envios.get(k).getPaquetes().get(l);
+                        
+                        int indexPos = filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida());
+                        double velocity = w * particle.getVelocidad().get(k) +
+                            c1 * r1 * (indexPos
+                                - filteredRutasPred.indexOf(population.get(k).getPbest().get(paquete).getRutaPredefinida()))
                             +
+                            c2 * r2 * (indexPos
+                                - filteredRutasPred.indexOf(gbest.get(paquete).getRutaPredefinida()));
 
-                            c2 * r2 * (rutasPred.indexOf(gbest.get(paquetes.get(k)).getRutaPredefinida()) - rutasPred
-                                    .indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida()));
+                        particle.getVelocidad().set(k, velocity);
+                                    
+                        double newPosIndex = indexPos + velocity;
 
-                    int velint = Particula.verifyLimits(velocity, rutasPred);
+                        int posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
 
-                    particle.getVelocidad().set(k, (double) velint);
+                        RutaPredefinida newPosition = rutasPred.get(posIndex);
 
-                    RutaPredefinida newPosition = rutasPred
-                            .get(rutasPred.indexOf(particle.getPosicion().get(paquetes.get(k)).getRutaPredefinida())
-                                    + velint);
+                        RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
 
-                    RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos);
-
-                    particle.getPosicion().put(paquetes.get(k), newRTR);
+                        particle.getPosicion().put(paquete, newRTR);
+                    }
                 }
 
-                double fit = evaluator.fitness(particle.getPosicion(), aeropuertos, vuelosActuales);
+                double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales, false);
 
                 if (fit < particle.getFbest()) {
                     particle.setPbest(particle.getPosicion());
                     particle.setFbest(fit);
                 }
             }
-            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, aeropuertos,
+            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, almacenes,
                     vuelosActuales);
-            if (evaluator.fitness(currentGbest, aeropuertos, vuelosActuales) < evaluator.fitness(gbest,
-                    aeropuertos, vuelosActuales)) {
+            if (evaluator.fitness(currentGbest, almacenes, vuelosActuales, false) > evaluator.fitness(gbest, almacenes, vuelosActuales, false)) {
                 gbest = currentGbest;
+                noImprovementCounter = 0;  // reset the counter when there's an improvement
+            } else {
+                // Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, false);
+                noImprovementCounter++;  // increment the counter when there's no improvement
+            }
+            j++;
+        }
+        double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, true);
+        // if (fit < 0) {
+            System.out.println("Fitness: " + fit);
+        // }
+        return gbest;
+        // return null;
+    }
+
+    public static List<RutaPredefinida> filterRutasForEnvio(
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred, Envio envio) {
+
+        String codigoIATAOrigen = envio.getCodigoIATAOrigen();
+        String codigoIATADestino = envio.getCodigoIATADestino();
+        int horaLlegada = envio.getFechaHoraOrigen().getHour()*100 + envio.getFechaHoraOrigen().getMinute();
+
+        Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPred.getOrDefault(codigoIATAOrigen, new HashMap<>());
+        TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(codigoIATADestino, new TreeMap<>());
+
+        SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap = destinoMap.headMap(horaLlegada);
+        List<RutaPredefinida> filteredRutasPred = new ArrayList<>();
+
+        for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap.values()) {
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                filteredRutasPred.addAll(rutas);
+            }
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                        (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
             }
         }
-        return gbest;
+
+        SortedMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> llegadaSubMap2 = destinoMap.tailMap(horaLlegada);
+        for (TreeMap<Integer, List<RutaPredefinida>> llegadaMap : llegadaSubMap2.values()) {
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMap = llegadaMap.tailMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMap.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((ruta.isSameContinent() && ruta.getDuracion() == 0) || 
+                        (!ruta.isSameContinent() && ruta.getDuracion() < 2)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
+            }
+            SortedMap<Integer, List<RutaPredefinida>> salidaSubMapExtra = llegadaMap.headMap(horaLlegada);
+            for (List<RutaPredefinida> rutas : salidaSubMapExtra.values()) {
+                for (RutaPredefinida ruta : rutas) {
+                    if ((!ruta.isSameContinent() && ruta.getDuracion() < 1)) {
+                        filteredRutasPred.add(ruta);
+                    }
+                }
+            }
+        }
+
+        // Map<RutaPredefinida, Integer> filteredRutasPredMap = new HashMap<>();
+        // for (int i = 0; i < filteredRutasPred.size(); i++) {
+        //     filteredRutasPredMap.put(filteredRutasPred.get(i), i);
+        // }
+
+        return filteredRutasPred;
+    }
+
+    public static Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> createMap(List<RutaPredefinida> rutasPred) {
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = new HashMap<>();
+        for (RutaPredefinida ruta : rutasPred) {
+            String origen = ruta.getCodigoIATAOrigen();
+            String destino = ruta.getCodigoIATADestino();
+            int horaSalida = ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute();
+            int horaLlegada = ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute();
+
+            Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPredMap.getOrDefault(origen, new HashMap<>());
+            TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(destino, new TreeMap<>());
+            TreeMap<Integer, List<RutaPredefinida>> llegadaMap = destinoMap.getOrDefault(horaLlegada, new TreeMap<>());
+            List<RutaPredefinida> rutas = llegadaMap.getOrDefault(horaSalida, new ArrayList<>());
+            rutas.add(ruta);
+            llegadaMap.put(horaSalida, rutas);
+            destinoMap.put(horaLlegada, llegadaMap);
+            origenMap.put(destino, destinoMap);
+            rutasPredMap.put(origen, origenMap);
+        }
+        return rutasPredMap;
     }
 
 }
