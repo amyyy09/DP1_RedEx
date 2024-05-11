@@ -16,6 +16,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.SQLDelete;
@@ -38,8 +39,9 @@ import lombok.Setter;
 @Setter
 
 public class VueloDTO extends BaseEntity{
-    @Column(name = "idVuelo")
-    private String idVuelo;
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_planDeVuelo", referencedColumnName = "id")
+    private PlanDeVueloDTO planDeVuelo;
 
     @Column(name = "cantPaquetes")
     private int cantPaquetes;
@@ -50,6 +52,6 @@ public class VueloDTO extends BaseEntity{
     @Column(name = "fecha")
     private LocalDateTime fecha;
     
-    @Column(name = "activo")
-    private boolean activo;
+    @Column(name = "activo2")
+    private boolean activo2;
 }

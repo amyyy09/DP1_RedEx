@@ -41,5 +41,13 @@ public class PaqueteDTO extends BaseEntity{
     @Column(name = "ubicacion")
     private String ubicacion;
 
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_rutapredefinida", referencedColumnName = "id")
+    private RutaPredefinidasDTO rutaPredefinida;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_envio", referencedColumnName = "id")
+    private EnvioDTO envio;
+
     
 }

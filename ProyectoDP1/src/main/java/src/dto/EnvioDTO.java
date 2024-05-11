@@ -40,13 +40,16 @@ public class EnvioDTO extends BaseEntity{
     @Column(name = "zonaHorariaGMT")
     private int zonaHorariaGMT;
 
-    @Column(name = "codigoIATAOrigen")
-    private String codigoIATAOrigen;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_aeropuertoOrigen", referencedColumnName = "id")
+    private AeropuertoDTO aeropuertoOrigen;
 
-    @Column(name = "codigoIATADestino")
-    private String codigoIATADestino;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_aeropuertoDestino", referencedColumnName = "id")
+    private AeropuertoDTO aeropuertoDestino;
 
     @Column(name = "cantPaquetes")
     private int cantPaquetes;
+
 
 }
