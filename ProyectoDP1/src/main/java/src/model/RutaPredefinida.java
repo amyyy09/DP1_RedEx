@@ -39,7 +39,7 @@ public class RutaPredefinida {
 
         // Asumimos que cada aeropuerto tiene un almacén asociado y podemos obtenerlo
         // directamente
-        Almacen almacenOrigen = (origen != null) ? origen.getAlmacen() : null;
+        // Almacen almacenOrigen = (origen != null) ? origen.getAlmacen() : null;
         LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), horaSalida.toLocalTime());
         LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), horaLlegada.toLocalTime());
 
@@ -55,7 +55,7 @@ public class RutaPredefinida {
         rutaTiempoReal.setIdRuta(1); // Generar un ID aleatorio o de alguna otra forma
         rutaTiempoReal.setOrigen(origen);
         rutaTiempoReal.setDestino(destino);
-        rutaTiempoReal.setXAlmacen(almacenOrigen);
+        // rutaTiempoReal.setXAlmacen(almacenOrigen);
         rutaTiempoReal.setHoraInicio(horaInicio);
         rutaTiempoReal.setHoraLlegada(horaFin);
         rutaTiempoReal.setVuelos(vuelos);

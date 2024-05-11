@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class VueloService {
 
     public List<Envio> getEnvios(String archivo) throws IOException {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
+        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         List<String> lines = FileUtils.readLines(archivo);
         List<Envio> envios = new ArrayList<>();
 
@@ -215,15 +215,6 @@ public class VueloService {
                     vuelo.getPlanDeVuelo().getHoraSalida().isBefore(horaActual) &&
                     vuelo.getPlanDeVuelo().getHoraLlegada().isAfter(horaActual)) {
                 return vuelo;
-            }
-        }
-        return null;
-    }
-
-    public static Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA) {
-        for (Aeropuerto aeropuerto : aeropuertos) {
-            if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
-                return aeropuerto.getAlmacen();
             }
         }
         return null;

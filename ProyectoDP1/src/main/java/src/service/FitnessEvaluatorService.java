@@ -3,7 +3,6 @@ package src.service;
 import src.model.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -26,57 +25,14 @@ public class FitnessEvaluatorService {
         this.valorBaseFitness = valorBaseFitness;
     }
 
-    public List<Double> calcularFitnessAgregado(List<Cromosoma> poblacion, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActivos) {
-        List<Double> fitnessCromosomas = new ArrayList<>();
-
-        for (Cromosoma cromosoma : poblacion) {
-            double penalizacion = 0.0;
-            Map<String, Integer> usoCapacidadVuelos = new HashMap<>();
-            Map<String, Integer> usoCapacidadAlmacenes = new HashMap<>();
-
-            for (Map.Entry<RutaPredefinida, Paquete> entrada : cromosoma.getGen().entrySet()) {
-                RutaPredefinida ruta = entrada.getKey();
-                Paquete paquete = entrada.getValue();
-                Vuelo _vuelosActivo = VueloService.encontrarVueloActual(vuelosActivos, ruta);
-
-                paquete.setStatus(3);
-
-                // Agregando carga al vuelo
-                String claveVuelo = ruta.getCodigoIATAOrigen() + "-" + ruta.getCodigoIATADestino();
-                usoCapacidadVuelos.put(claveVuelo, usoCapacidadVuelos.getOrDefault(claveVuelo, 0) + 1);
-
-                // Verificar capacidad de vuelo
-                if (usoCapacidadVuelos.get(claveVuelo) > _vuelosActivo.getCapacidad()) {
-                    penalizacion += (usoCapacidadVuelos.get(claveVuelo) - _vuelosActivo.getCapacidad())
-                            * penalizacionPorExceso;
-                }
-
-                // Gestión de capacidades de almacenes
-                VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATAOrigen(), 1);
-                VueloService.actualizarUsoCapacidadAlmacen(usoCapacidadAlmacenes, ruta.getCodigoIATADestino(), 1);
-
-                Almacen almacenOrigen = VueloService.encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATAOrigen());
-                Almacen almacenDestino = VueloService.encontrarAlmacenActual(aeropuertos, ruta.getCodigoIATADestino());
-                penalizacion += almacenOrigen.verificarCapacidadAlmacen() * penalizacionPorExceso;
-                penalizacion += almacenDestino.verificarCapacidadAlmacen() * penalizacionPorExceso;
-            }
-
-            double fitness = valorBaseFitness - penalizacion;
-            fitnessCromosomas.add(fitness);
-        }
-
-        return fitnessCromosomas;
-    }
-
-    public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Almacen> almacenes,
+    public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActivos, boolean gbest) { //RUTA -> FITNESSVALUE
         double penalizacion = 0.0;
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
         int contNoAtendidos = 0;
         int minPrev;
-        Double fitnessValue = 0.0;
+        Double fitnessValue = valorBaseFitness;
 
         int size = particula.size();
 
@@ -122,7 +78,8 @@ public class FitnessEvaluatorService {
                 TreeMap<LocalDateTime, Integer> usoCapacidadAlmacenesOrigen = usoCapacidadAlmacenes
                     .computeIfAbsent(codigoIATAOrigen, k -> new TreeMap<>());
                 
-                Almacen almacenOrigen = almacenes.get(codigoIATAOrigen);
+                // Almacen almacenOrigen = almacenes.get(codigoIATAOrigen);
+                Aeropuerto aeropuertoOrigen = aeropuertos.get(codigoIATAOrigen);
                 // int capacidadOrigen = almacenOrigen.getCapacidad();
                 int ocupacionOrigen;
                 // verificar que en el map de usoCapacidadAlmacenesOrigen no exista fechas anteriores a la fecha actual, es un treemap ordenado por fecha
@@ -132,11 +89,11 @@ public class FitnessEvaluatorService {
                         ocupacionOrigen = usoCapacidadAlmacenesOrigen.get(fechaAnterior);
                     }
                     else{
-                        ocupacionOrigen = almacenOrigen.getCantPaquetes();
+                        ocupacionOrigen = aeropuertoOrigen.getCantPaquetes();
                     }
                 }
                 else{
-                    ocupacionOrigen = almacenOrigen.getCantPaquetes();
+                    ocupacionOrigen = aeropuertoOrigen.getCantPaquetes();
                 }
 
                 usoCapacidadAlmacenesOrigen.put(vuelos.get(i).getHoraSalida(), ocupacionOrigen-1);
@@ -147,7 +104,8 @@ public class FitnessEvaluatorService {
                     usoCapacidadAlmacenesOrigen.put(entry.getKey(), entry.getValue() - 1);
                 }
 
-                Almacen almacenDestino = almacenes.get(codigoIATADestino);
+                // Almacen almacenDestino = almacenes.get(codigoIATADestino);
+                Aeropuerto aeropuertoDestino = aeropuertos.get(codigoIATADestino);
                 // int capacidadDestino = almacenDestino.getCapacidad();
                 int ocupacionDestino;
                 // si no existe la clave en usoCapacidadAlmacenes la creamos
@@ -160,11 +118,11 @@ public class FitnessEvaluatorService {
                         ocupacionDestino = usoCapacidadAlmacenesDestino.get(fechaAnterior);
                     }
                     else{
-                        ocupacionDestino = almacenDestino.getCantPaquetes();
+                        ocupacionDestino = aeropuertoDestino.getCantPaquetes();
                     }
                 }
                 else{
-                    ocupacionDestino = almacenDestino.getCantPaquetes();
+                    ocupacionDestino = aeropuertoDestino.getCantPaquetes();
                 }
 
                 usoCapacidadAlmacenesDestino.put(vuelos.get(i).getHoraLlegada(), ocupacionDestino+1);
@@ -194,20 +152,21 @@ public class FitnessEvaluatorService {
         for (Map.Entry<String, TreeMap<LocalDateTime, Integer>> entry : usoCapacidadAlmacenes.entrySet()) {
             String key = entry.getKey();
             TreeMap<LocalDateTime, Integer> value = entry.getValue();
-            Almacen almacen = almacenes.get(key);
+            // Almacen almacen = almacenes.get(key);
+            Aeropuerto aeropuerto = aeropuertos.get(key);
             int contInterno = 0;
             for (Map.Entry<LocalDateTime, Integer> entry2 : value.entrySet()) {
                 // c=5. 3, 4, 5, 6, 7, 6, 5, 4, 5, 6, 7, 8
                 Integer value2 = entry2.getValue();
-                if (value2 > almacen.getCapacidad()) {
-                    penalizacion += (value2 - almacen.getCapacidad()) * penalizacionPorExceso;
+                if (value2 > aeropuerto.getCapacidad()) {
+                    penalizacion += (value2 - aeropuerto.getCapacidad()) * penalizacionPorExceso;
                     if(value2 > contInterno){
                         contInterno = value2;
                     }
                 }
             }
             if(contInterno != 0){
-                contNoAtendidos += contInterno - almacen.getCapacidad();
+                contNoAtendidos += contInterno - aeropuerto.getCapacidad();
             }
         }
         if(gbest){

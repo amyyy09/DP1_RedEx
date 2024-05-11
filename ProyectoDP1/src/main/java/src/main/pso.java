@@ -33,25 +33,26 @@ public class pso {
             System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
 
 			System.out.println("Pasos previos al PSO en el tiempo de ejecución: " + System.currentTimeMillis());
-            Map<String, Almacen> almacenes = aeropuertos.stream()
-    			.collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
+            Map<String, Aeropuerto> aeropuertosMap = aeropuertos.stream().collect(Collectors.toMap(Aeropuerto::getCodigoIATA, a -> a));
 
 			for (Envio envio : envios) {
 				// add number of packages to the warehouse according to the codigosIATA origin 
 				// of the packages in the envio
 				Aeropuerto aeropuerto = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(envio.getCodigoIATAOrigen())).findFirst().orElse(null);
 				if (aeropuerto != null) {
-					Almacen almacen = aeropuerto.getAlmacen();
-					for (Paquete paquete : envio.getPaquetes()) {
-						almacen.getPaquetes().add(paquete);
-						almacen.setCantPaquetes(almacen.getCantPaquetes() + 1);
-					}
+					aeropuerto.setCantPaquetes(aeropuerto.getCantPaquetes() + envio.getCantPaquetes());
+					// Almacen almacen = aeropuerto.getAlmacen();
+					// for (Paquete paquete : envio.getPaquetes()) {
+					// 	// almacen.getPaquetes().add(paquete);
+					// 	aeropuerto.setCantPaquetes(aeropuerto.getCantPaquetes() + 1);
+					// 	// almacen.setCantPaquetes(almacen.getCantPaquetes() + 1);
+					// }
 				}
 			}
 			for (int i = 0; i < 25; i++) {
 				System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
 				if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
-					Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales);
+					Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(envios, paquetes, rutasPred, aeropuertosMap, planesDeVuelo, aeropuertos, vuelosActuales);
 					if (resultado != null) {
 						System.out.println("Resultado del pso procesado en el tiempo de ejecución: " + System.currentTimeMillis());
 					} else {

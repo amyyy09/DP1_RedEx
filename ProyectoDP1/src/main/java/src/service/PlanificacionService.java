@@ -2,9 +2,7 @@ package src.service;
 
 import src.model.*;
 
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -20,13 +18,6 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PlanificacionService {
-    private final double probabilidadSeleccion = 0.7;
-    private double probabilidadMutacion = 0.1;
-    private double probabilidadCruce = 0.85;
-    private int numCromosomas = 100;
-    private int tamanoTorneo = 5;
-    private int numDescendientes = 50;
-    private int numGeneraciones = 20;
 
     private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
     private static Random rand = new Random();
@@ -35,145 +26,6 @@ public class PlanificacionService {
     public PlanificacionService() {
         rand = new Random();
         PlanificacionService.evaluator = new FitnessEvaluatorService();
-    }
-
-    public Cromosoma ejecutarAlgoritmoGenetico(List<Envio> envios, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales, List<PlanDeVuelo> planesDeVuelo) throws IOException {
-
-        List<RutaPredefinida> rutasPred = generarRutas(aeropuertos, planesDeVuelo);
-        List<Cromosoma> poblacion = createPopulation(envios, rutasPred, numCromosomas, aeropuertos);
-        Random rand = new Random();
-
-        for (int generacion = 0; generacion < numGeneraciones; generacion++) {
-            List<Double> fitnessAgregado = evaluator.calcularFitnessAgregado(poblacion, aeropuertos, vuelosActuales);
-            if (!fitnessAgregado.isEmpty() && fitnessAgregado.get(0) >= 0) {
-                System.out.println("Se ha encontrado una solución satisfactoria en la generación " + generacion);
-                return poblacion.get(0);
-            }
-
-            List<Cromosoma> matingPool = TournamentSelection(poblacion, probabilidadSeleccion, tamanoTorneo,
-                    fitnessAgregado);
-            List<Cromosoma> descendientes = new ArrayList<>();
-
-            // Generar descendientes
-            for (int j = 0; j < numDescendientes; j++) {
-                int indexPadre1 = rand.nextInt(matingPool.size());
-                int indexPadre2 = rand.nextInt(matingPool.size());
-                if (Math.random() < probabilidadCruce) {
-                    List<Cromosoma> hijos = crossover(matingPool.get(indexPadre1), matingPool.get(indexPadre2));
-
-                    // Aplicar mutación con probabilidad probabilidadMutacion
-                    hijos.forEach(hijo -> {
-                        if (Math.random() < probabilidadMutacion) {
-                            mutarHijo(hijo, rutasPred); // Asumiendo que mutarHijos puede ahora manejar un solo hijo
-                        }
-                    });
-
-                    descendientes.addAll(hijos);
-                }
-            }
-
-            // Reemplazar la población vieja con los descendientes para la siguiente
-            // generación
-            poblacion = new ArrayList<>(descendientes);
-        }
-
-        System.out
-                .println("No se encontró una solución satisfactoria después de " + numGeneraciones + " generaciones.");
-        return null; // Devolver el mejor cromosoma encontrado o null si no se encontró solución
-    }
-
-    public void mutarHijo(Cromosoma hijo, List<RutaPredefinida> rutasDisponibles) {
-        Random rand = new Random();
-
-        if (Math.random() < probabilidadMutacion) {
-            // Selecciona un gen (ruta) al azar para mutar.
-            List<RutaPredefinida> claves = new ArrayList<>(hijo.getGen().keySet());
-            RutaPredefinida rutaAMutar = claves.get(rand.nextInt(claves.size()));
-
-            // Selecciona una nueva ruta diferente a la actual.
-            RutaPredefinida nuevaRuta;
-            do {
-                nuevaRuta = rutasDisponibles.get(rand.nextInt(rutasDisponibles.size()));
-            } while (nuevaRuta.equals(rutaAMutar));
-
-            // Encuentra el paquete asociado a la ruta que se va a mutar y actualiza la
-            // asignación.
-            Paquete paqueteAMutar = hijo.getGen().get(rutaAMutar);
-            hijo.getGen().remove(rutaAMutar);
-            hijo.getGen().put(nuevaRuta, paqueteAMutar);
-        }
-    }
-
-    private static List<Cromosoma> TournamentSelection(List<Cromosoma> poblacion, double ps, int tamanoTorneo,
-            List<Double> fitnessAgregado) {
-        List<Cromosoma> matingPool = new ArrayList<>();
-        Random rand = new Random();
-        for (int i = 0; i < poblacion.size(); i++) {
-            List<Cromosoma> torneo = new ArrayList<>();
-            for (int j = 0; j < tamanoTorneo; j++) {
-                torneo.add(poblacion.get(rand.nextInt(poblacion.size())));
-            }
-            torneo.sort(Comparator.comparing(c -> fitnessAgregado.get(poblacion.indexOf(c))));
-            matingPool.add(torneo.get(torneo.size() - 1)); // Agregar el de mejor fitness
-        }
-        return matingPool;
-    }
-
-    public static List<Cromosoma> crossover(Cromosoma padre1, Cromosoma padre2) {
-
-        Map<RutaPredefinida, Paquete> genPadre1 = new HashMap<>(padre1.getGen());
-        Map<RutaPredefinida, Paquete> genPadre2 = new HashMap<>(padre2.getGen());
-
-        List<Map.Entry<RutaPredefinida, Paquete>> listaGenPadre1 = new ArrayList<>(genPadre1.entrySet());
-        List<Map.Entry<RutaPredefinida, Paquete>> listaGenPadre2 = new ArrayList<>(genPadre2.entrySet());
-
-        Random random = new Random();
-        int puntoCruce = random.nextInt(listaGenPadre1.size());
-
-        for (int i = puntoCruce; i < listaGenPadre1.size(); i++) {
-            Map.Entry<RutaPredefinida, Paquete> temp = listaGenPadre1.get(i);
-            listaGenPadre1.set(i, listaGenPadre2.get(i));
-            listaGenPadre2.set(i, temp);
-        }
-
-        Map<RutaPredefinida, Paquete> genHijo1 = new HashMap<>();
-        Map<RutaPredefinida, Paquete> genHijo2 = new HashMap<>();
-        for (int i = 0; i < listaGenPadre1.size(); i++) {
-            genHijo1.put(listaGenPadre1.get(i).getKey(), listaGenPadre1.get(i).getValue());
-            genHijo2.put(listaGenPadre2.get(i).getKey(), listaGenPadre2.get(i).getValue());
-        }
-
-        Cromosoma hijo1 = new Cromosoma(genHijo1);
-        Cromosoma hijo2 = new Cromosoma(genHijo2);
-        List<Cromosoma> hijos = new ArrayList<>();
-        hijos.add(hijo1);
-        hijos.add(hijo2);
-
-        return hijos;
-    }
-
-    public static List<Cromosoma> createPopulation(List<Envio> envios, List<RutaPredefinida> rutasPred,
-            int numCromosomas, List<Aeropuerto> aeropuertos) {
-        List<Cromosoma> poblacion = new ArrayList<>();
-        Random random = new Random();
-
-        for (int i = 0; i < numCromosomas; i++) {
-            Map<RutaPredefinida, Paquete> gen = new HashMap<>();
-
-            for (Envio envio : envios) {
-                List<Paquete> paquetes = envio.getPaquetes();
-                for (Paquete paquete : paquetes) {
-                    RutaPredefinida rutaPredefinida = rutasPred
-                            .get(random.nextInt(rutasPred.size()));
-                    gen.put(rutaPredefinida, paquete);
-                }
-            }
-            Cromosoma cromosoma = new Cromosoma(gen);
-            poblacion.add(cromosoma);
-        }
-
-        return poblacion;
     }
 
     public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
@@ -283,7 +135,7 @@ public class PlanificacionService {
     // PSO
 
     public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
-            Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
+            Map<String, Aeropuerto> aeropuertosMap, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActuales) {
         List<Particula> population = new ArrayList<>();
         int numParticles = 50;
@@ -297,10 +149,10 @@ public class PlanificacionService {
             particle.setPosicion(Particula.inicializarPosicion(envios, rutasPredMap, aeropuertos, vuelosActuales));
             particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
-            particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales, false));
+            particle.setFbest(evaluator.fitness(particle.getPbest(), aeropuertosMap, vuelosActuales, false));
             population.add(particle);
         }
-        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
+        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, aeropuertosMap, vuelosActuales);
         int noImprovementCounter = 0;
         // for (int j = 0; j < numIterationsMax; j++) {
         int j=0;
@@ -338,16 +190,16 @@ public class PlanificacionService {
                     }
                 }
 
-                double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales, false);
+                double fit = evaluator.fitness(particle.getPosicion(), aeropuertosMap, vuelosActuales, false);
 
                 if (fit < particle.getFbest()) {
                     particle.setPbest(particle.getPosicion());
                     particle.setFbest(fit);
                 }
             }
-            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, almacenes,
+            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, aeropuertosMap,
                     vuelosActuales);
-            if (evaluator.fitness(currentGbest, almacenes, vuelosActuales, false) > evaluator.fitness(gbest, almacenes, vuelosActuales, false)) {
+            if (evaluator.fitness(currentGbest, aeropuertosMap, vuelosActuales, false) > evaluator.fitness(gbest, aeropuertosMap, vuelosActuales, false)) {
                 gbest = currentGbest;
                 noImprovementCounter = 0;  // reset the counter when there's an improvement
             } else {
@@ -356,7 +208,7 @@ public class PlanificacionService {
             }
             j++;
         }
-        double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, true);
+        double fit = evaluator.fitness(gbest, aeropuertosMap, vuelosActuales, true);
         // if (fit < 0) {
             System.out.println("Fitness: " + fit);
         // }

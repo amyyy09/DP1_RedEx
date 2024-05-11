@@ -17,5 +17,7 @@ public class Aeropuerto {
     private String continente;
     private String alias;
     private int zonaHorariaGMT;
-    private Almacen almacen;
+    private long capacidad;
+    private int cantPaquetes;
+    // private Almacen almacen;
 }
