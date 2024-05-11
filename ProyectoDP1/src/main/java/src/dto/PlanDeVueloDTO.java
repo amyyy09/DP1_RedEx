@@ -53,6 +53,4 @@ public class PlanDeVueloDTO extends BaseEntity{
     @Column(name = "capacidad")
     private int capacidad;
     
-    @Column(name = "transcontinental")
-    private boolean transcontinental;   
 }
