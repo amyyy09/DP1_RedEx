@@ -1,6 +1,7 @@
 package src.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -51,5 +52,6 @@ public class EnvioDTO extends BaseEntity{
     @Column(name = "cantPaquetes")
     private int cantPaquetes;
 
+    private List<PaqueteDTO> paquetes;
 
 }

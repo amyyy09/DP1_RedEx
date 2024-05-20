@@ -1,10 +1,11 @@
 package src.dto;
 
 import java.time.OffsetDateTime;
-
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.OffsetTime;
-
+import java.util.ArrayList;
+import java.util.List;
 import java.time.LocalDateTime;
 
 import javax.persistence.CascadeType;
@@ -27,8 +28,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "rutaPredefinidas")
-@SQLDelete(sql = "UPDATE rutaPredefinidas SET activo = 0 WHERE id = ?")
+@Table(name = "rutaPredefinida")
+@SQLDelete(sql = "UPDATE rutaPredefinida SET activo = 0 WHERE id = ?")
 @Where(clause = "activo = 1")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -36,7 +37,7 @@ import lombok.Setter;
 @Setter
 
 
-public class RutaPredefinidasDTO extends BaseEntity{
+public class RutaPredefinidaDTO extends BaseEntity{
     @Column(name = "codigoIATAOrigen")
     private String codigoIATAOrigen;
 
@@ -44,14 +45,17 @@ public class RutaPredefinidasDTO extends BaseEntity{
     private String codigoIATADestino;
 
     @Column(name = "horaSalida")
-    OffsetDateTime horaSalida;
+    private OffsetTime horaSalida;
 
     @Column(name = "horaLlegada")
-    OffsetDateTime horaLlegada;
+    private OffsetTime horaLlegada;
+
+    private List<PlanDeVueloDTO> escalas;
 
     @Column(name = "duracion")
-    int duracion;
+    private int duracion;
 
     @Column(name = "isSameContinente")
-    boolean isSameContinente;   
+    private boolean isSameContinente;  
+    
 }
