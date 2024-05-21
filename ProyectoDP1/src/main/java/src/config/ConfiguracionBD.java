@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Component
 @ConfigurationProperties(prefix = "spring.datasource")
-@Data // Esta anotación de Lombok genera getters, setters, toString, equals y hashCode
+@Data
 public class ConfiguracionBD {
 
     private String url;
