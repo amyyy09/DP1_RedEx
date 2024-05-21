@@ -1,46 +1,78 @@
 package src.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import src.entity.Aeropuerto;
-import src.service.AeropuertoService;
-
+import java.sql.SQLException;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import src.entity.AeropuertoEntity;
+import src.service.AeropuertoService;
+
 @RestController
-@RequestMapping("/api/aeropuertos")
+@RequestMapping("/aeropuerto")
+@CrossOrigin
 public class AeropuertoController {
 
     @Autowired
     private AeropuertoService aeropuertoService;
 
-    @GetMapping
-    public List<Aeropuerto> getAllAeropuertos() {
-        return aeropuertoService.getAllAeropuertos();
+    @CrossOrigin
+    @PostMapping(value = "/")
+    AeropuertoEntity register(@RequestBody AeropuertoEntity aeropuerto) throws SQLException {
+        AeropuertoEntity resultado = aeropuertoService.register(aeropuerto);
+        if (resultado == null) {
+            throw new SQLException("No se pudo registrar el aeropuerto");
+        }
+        return resultado;
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<Aeropuerto> getAeropuertoById(@PathVariable Long id) {
-        return aeropuertoService.getAeropuertoById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    @CrossOrigin
+    @GetMapping(value = "/")
+    List<AeropuertoEntity> getAll() throws SQLException {
+        List<AeropuertoEntity> resultado = aeropuertoService.getAll();
+        if (resultado == null) {
+            throw new SQLException("No se pudo obtener los aeropuertos");
+        }
+        return resultado;
     }
 
-    @PostMapping
-    public Aeropuerto createAeropuerto(@RequestBody Aeropuerto aeropuerto) {
-        return aeropuertoService.saveAeropuerto(aeropuerto);
+    @CrossOrigin
+    @GetMapping(value = "/{id}")
+    AeropuertoEntity getById(@PathVariable Long id) throws SQLException {
+        AeropuertoEntity resultado = aeropuertoService.getById(id);
+        if (resultado == null) {
+            throw new SQLException("No se pudo obtener el aeropuerto");
+        }
+        return resultado;
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Aeropuerto> updateAeropuerto(@PathVariable Long id,
-            @RequestBody Aeropuerto aeropuertoDetails) {
-        return ResponseEntity.ok(aeropuertoService.updateAeropuerto(id, aeropuertoDetails));
+    @CrossOrigin
+    @PutMapping(value = "/")
+    AeropuertoEntity update(@RequestBody AeropuertoEntity aeropuerto) throws SQLException {
+        AeropuertoEntity resultado = aeropuertoService.update(aeropuerto);
+        if (resultado == null) {
+            throw new SQLException("No se pudo actualizar el aeropuerto");
+        }
+        return resultado;
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteAeropuerto(@PathVariable Long id) {
-        aeropuertoService.deleteAeropuerto(id);
-        return ResponseEntity.noContent().build();
+    @CrossOrigin
+    @DeleteMapping(value = "/{id}")
+    boolean delete(@PathVariable Long id) throws SQLException {
+        boolean resultado = aeropuertoService.delete(id);
+        if (!resultado) {
+            throw new SQLException("No se pudo eliminar el aeropuerto");
+        }
+        return resultado;
     }
+
 }

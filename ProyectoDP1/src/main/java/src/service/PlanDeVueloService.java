@@ -14,68 +14,37 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import io.lettuce.core.dynamic.annotation.Param;
-import src.entity.AeropuertoEntity;
 import src.entity.PlanDeVueloEntity;
-import src.repository.AeropuertoRepository;
 import src.repository.PlanDeVueloRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 @Service
-public class AeropuertoService {
+public class PlanDeVueloService {
     private static final Logger logger = LoggerFactory.getLogger(PlanDeVueloService.class);
 
     @Autowired
-    private AeropuertoRepository aeropuertoRepository;
+    private PlanDeVueloRepository planDeVueloRepository;
 
     @PersistenceContext
     EntityManager entityManager;
 
-    public AeropuertoEntity register(AeropuertoEntity aeropuertoDTO) {
+    public PlanDeVueloEntity register(PlanDeVueloEntity planDeVuelo) {
         try {
-            return aeropuertoRepository.save(aeropuertoDTO);
+            return planDeVueloRepository.save(planDeVuelo);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;
         }
     }
 
-    public List<AeropuertoEntity> getAll() {
+    public List<PlanDeVueloEntity> getAll() {
         try {
-            return aeropuertoRepository.findAll();
+            return planDeVueloRepository.findAll();
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;
         }
     }
-
-    public AeropuertoEntity getById(Long id) {
-        try {
-            return aeropuertoRepository.findById(id).get();
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return null;
-        }
-    }
-
-    public AeropuertoEntity update(AeropuertoEntity aeropuertoDTO) {
-        try {
-            return aeropuertoRepository.save(aeropuertoDTO);
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return null;
-        }
-    }
-
-    public boolean delete(Long id) {
-        try {
-            aeropuertoRepository.deleteById(id);
-            return true;
-        } catch (Exception e) {
-            logger.error(e.getMessage());
-            return false;
-        }
-    }
-
 }
