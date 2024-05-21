@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
-import { PlaneProps } from '../types/Planes';
+import { PlaneProps } from "../../types/Planes";
 
 const planeIcon = L.icon({
-  iconUrl: "images/plane.svg",
+  iconUrl: "./icons/plane.svg",
   iconSize: [20, 20], // size of the icon
 });
 
@@ -39,6 +39,21 @@ const Plane: React.FC<PlaneProps> = ({
 
     requestAnimationFrame(animate);
   }, [origin, destination, duration]);
+
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+    }, duration + 700);
+
+    // Cleanup function to clear the timeout if the component unmounts before the duration
+    return () => clearTimeout(timer);
+  }, [duration]);
+
+  if (!isVisible) {
+    return null;
+  }
 
   // set the view of the map to the plane's position
   //   useEffect(() => {

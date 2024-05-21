@@ -1,5 +1,5 @@
-import Link from 'next/link'
- 
+import Link from "next/link";
+
 export default function NotFound() {
   return (
     <div>
@@ -7,5 +7,5 @@ export default function NotFound() {
       <p>Lo sentimos, no se pudo encontrar el recurso solicitado.</p>
       <Link href="/">Volver a inicio</Link>
     </div>
-  )
+  );
 }

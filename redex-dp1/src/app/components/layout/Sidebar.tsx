@@ -1,7 +1,6 @@
-
 // components/Sidebar.tsx
-import React from 'react';
-import '../../styles/Sidebar.css';
+import React from "react";
+import "../../styles/Sidebar.css";
 const Sidebar: React.FC = () => {
   return (
     <div className="sidebar">
