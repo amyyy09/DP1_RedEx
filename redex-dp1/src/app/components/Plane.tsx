@@ -1,18 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
+import { PlaneProps } from '../types/Planes';
 
 const planeIcon = L.icon({
   iconUrl: "images/plane.svg",
   iconSize: [20, 20], // size of the icon
 });
-
-interface PlaneProps {
-  origin: { lat: number; lng: number };
-  destination: { lat: number; lng: number };
-  name: string;
-  duration: number; // duration in milliseconds for the animation
-}
 
 const Plane: React.FC<PlaneProps> = ({
   origin,
