@@ -197,10 +197,4 @@ public class PlanificacionService {
         return rutasPredMap;
     }
 
-    public Cromosoma PSO(List<Envio> envios, List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActuales,
-            List<PlanDeVuelo> planesDeVuelo) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'PSO'");
-    }
-
 }
