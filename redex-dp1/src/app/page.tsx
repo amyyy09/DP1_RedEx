@@ -2,6 +2,8 @@
 
 import React, { useMemo, useState } from 'react';
 import dynamic from 'next/dynamic';
+import Topbar from './components/layout/Topbar';
+import Sidebar from './components/layout/Sidebar';
 
 const Home: React.FC = () => {
   const [planes, setPlanes] = useState([
@@ -29,9 +31,12 @@ const Home: React.FC = () => {
   ), []);
 
   return (
-    <div>
-      <h1>Plane Movements</h1>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Topbar />
+      <div style={{ display: 'flex', flex: 1 }}>
+        <Sidebar />
       <Map planes={planes}/>
+      </div>
     </div>
   );
 };

@@ -1,0 +1,39 @@
+/* components/Topbar.css */
+.topbar {
+  width: 100%;
+  height: 50px;
+  background-color: #C80405; /* Red color for top bar */
+  display: flex;
+  align-items: center;
+  padding: 20px;
+}
+
+.topbar-item-log {
+  display: flex;
+  align-items: center;
+  margin-right: 600px;
+  color: white;
+  font-size: 16px;
+}
+
+.topbar-item-log img {
+  width: 39px;
+  height: 24px;
+  margin-right: 0px;
+}
+
+.topbar-item {
+  display: flex;
+  align-items: center;
+  margin-right: 40px;
+  color: white;
+  font-size: 16px;
+}
+
+.topbar-item img {
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  filter: invert(100%);
+}
+
