@@ -1,5 +1,7 @@
 import React, { useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import Topbar from './components/layout/Topbar';
+import Sidebar from './components/layout/Sidebar';
 
 const Home: React.FC = () => {
   const Map = useMemo(() => dynamic(
@@ -11,8 +13,12 @@ const Home: React.FC = () => {
   ), []);
 
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <Topbar />
+      <div style={{ display: 'flex', flex: 1 }}>
+        <Sidebar />
       <Map />
+      </div>
     </div>
   );
 };

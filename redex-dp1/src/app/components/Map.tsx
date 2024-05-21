@@ -3,10 +3,8 @@
 
 import React from 'react';
 import { MapContainer, TileLayer, Marker, Popup, ZoomControl } from 'react-leaflet';
-import L from 'leaflet';
+import L, { LatLngTuple } from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import Sidebar from './Sidebar';
-import Topbar from './Topbar';
 
 
 const customIcon = new L.Icon({
@@ -55,12 +53,9 @@ const cities = [
 
 const Map: React.FC = () => {
   return (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <Topbar />
-      <div style={{ display: 'flex', flex: 1 }}>
-        <Sidebar />
+    
         <MapContainer 
-          center={[0, 0]} 
+          center={[20, 20]} 
           zoom={3} 
           style={{ height: 'calc(100vh - 50px)', width: 'calc(100vw - 50px)' }}
           zoomControl={false}
@@ -70,7 +65,7 @@ const Map: React.FC = () => {
             attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           />
           {cities.map((city, idx) => (
-            <Marker key={idx} position={city.coords} icon={customIcon}>
+            <Marker key={idx} position={city.coords as LatLngTuple} icon={customIcon}>
               <Popup>
                 {city.name}
               </Popup>
@@ -79,8 +74,7 @@ const Map: React.FC = () => {
           {/* Add custom zoom control */}
           <ZoomControl position="topright" />
         </MapContainer>
-      </div>
-    </div>
+      
   );
 };
 
