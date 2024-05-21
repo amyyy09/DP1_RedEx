@@ -52,6 +52,6 @@ public class EnvioDTO extends BaseEntity{
     @Column(name = "cantPaquetes")
     private int cantPaquetes;
 
-    private List<PaqueteDTO> paquetes;
+
 
 }

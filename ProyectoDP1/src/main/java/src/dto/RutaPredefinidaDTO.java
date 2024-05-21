@@ -50,8 +50,6 @@ public class RutaPredefinidaDTO extends BaseEntity{
     @Column(name = "horaLlegada")
     private OffsetTime horaLlegada;
 
-    private List<PlanDeVueloDTO> escalas;
-
     @Column(name = "duracion")
     private int duracion;
 
