@@ -12,7 +12,6 @@ const Home: React.FC = () => {
 
   return (
     <div>
-      <h1>Plane Movements</h1>
       <Map />
     </div>
   );
