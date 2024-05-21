@@ -7,10 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import src.model.Cromosoma;
-import src.model.Envio;
-import src.model.Aeropuerto;
-import src.model.Vuelo;
+
 import src.service.PlanificacionService;
 import src.service.VueloService;
 import java.io.IOException;
@@ -33,7 +30,7 @@ public class ApiController {
     public Cromosoma ejecutarAlgoritmoGenetico(@RequestBody List<Envio> envios,
             @RequestBody List<Aeropuerto> aeropuertos,
             @RequestBody List<Vuelo> vuelosActuales, @RequestBody List<PlanDeVuelo> planesDeVuelo) throws IOException {
-        return planificacionService.ejecutarAlgoritmoGenetico(envios, aeropuertos, vuelosActuales, planesDeVuelo);
+        return planificacionService.PSO(envios, aeropuertos, vuelosActuales, planesDeVuelo);
     }
 
     @GetMapping("/get-vuelos-actuales")

@@ -7,6 +7,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class RedexApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(RedexApplication.class, args);
-		System.out.println("Gonzalo");
+		System.out.println("Hola Mundo");
 	}
 }
