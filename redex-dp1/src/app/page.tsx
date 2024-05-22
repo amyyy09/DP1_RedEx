@@ -20,6 +20,18 @@ const Home: React.FC = () => {
       name: 'Flight 456',
       duration: 10000, // 3 seconds
     },
+
+    // plane.origin = flightPlans[index].origin.coords;
+    // plane.destination = flightPlans[index].destiny.coords;
+    // plane.name = `Flight ${index}`;
+    /*
+       inicio =  flightPlans[index].departureTime.toNumber() // se tiene convertir a gmt 0 de acuerdo a lo que diga flightPlans[index].origin.GMT
+       fin = flightPlans[index].arrivalTime.toNumber() // se tiene convertir a gmt 0 de acuerdo a lo que diga flightPlans[index].destiny.GMT
+
+       plane.duration = fin - duration (segundos o milisegundos -> each real-time second should be equivalent to 4.2 simulated minutes.)
+       
+
+    */ 
     // Add more plane objects here
   ]);
   const [showModal, setShowModal] = useState(true);
