@@ -83,7 +83,7 @@ public class RutaPredefinidaService {
             for (PlanDeVuelo plan : ruta.getEscalas()) {
                 EscalasEntity escala = new EscalasEntity();
                 escala.setRutaPredefinida(rutaEntity);
-                escala.setPlanDeVuelo(planDeVueloService.convertToEntity(plan)); // Assume this conversion method exists
+                escala.setPlanDeVuelo(planDeVueloService.convertToEntity(plan));
                 escalasRepository.save(escala);
             }
         }

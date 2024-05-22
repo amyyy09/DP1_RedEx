@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import io.lettuce.core.dynamic.annotation.Param;
 import src.entity.PlanDeVueloEntity;
+import src.model.PlanDeVuelo;
 import src.repository.PlanDeVueloRepository;
 
 import org.slf4j.Logger;
@@ -46,5 +47,18 @@ public class PlanDeVueloService {
             logger.error(e.getMessage());
             return null;
         }
+    }
+
+    public PlanDeVueloEntity convertToEntity(PlanDeVuelo planDeVuelo) {
+        if (planDeVuelo == null)
+            return null;
+
+        PlanDeVueloEntity entity = new PlanDeVueloEntity();
+        entity.setCodigoIATAOrigen(planDeVuelo.getCodigoIATAOrigen());
+        entity.setCodigoIATADestino(planDeVuelo.getCodigoIATADestino());
+        entity.setHoraSalida(planDeVuelo.getHoraSalida());
+        entity.setHoraLlegada(planDeVuelo.getHoraLlegada());
+        entity.setCapacidad(planDeVuelo.getCapacidad());
+        return entity;
     }
 }
