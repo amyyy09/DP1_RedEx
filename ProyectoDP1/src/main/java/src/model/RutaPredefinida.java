@@ -1,14 +1,13 @@
 package src.model;
 
-import java.time.LocalDateTime;
 import java.time.*;
-import java.time.OffsetTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import src.entity.RutaPredefinidaEntity;
 
 @Getter
 @Setter
@@ -20,12 +19,12 @@ public class RutaPredefinida {
     private OffsetTime horaSalida;
     private OffsetTime horaLlegada;
     private List<PlanDeVuelo> escalas;
-    private long duracion;
+    private int duracion;
     private boolean sameContinent;
 
     public RutaTiempoReal convertirAPredefinidaEnTiempoReal(List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActuales) {
         RutaTiempoReal rutaTiempoReal = new RutaTiempoReal();
-        
+
         // Suponemos que tienes una forma de obtener los objetos Aeropuerto basados en
         // el código IATA
         Aeropuerto origen = aeropuertos.stream()
@@ -47,9 +46,9 @@ public class RutaPredefinida {
         this.escalas.forEach((PlanDeVuelo element) -> {
             Vuelo vuelo1;
             vuelo1 = vuelosActuales.stream()
-                .filter(a -> a.getPlanDeVuelo().equals(element))
-                .findFirst()
-                .orElse(null);
+                    .filter(a -> a.getPlanDeVuelo().equals(element))
+                    .findFirst()
+                    .orElse(null);
             vuelos.add(vuelo1);
         });
         rutaTiempoReal.setIdRuta(1); // Generar un ID aleatorio o de alguna otra forma
@@ -65,4 +64,14 @@ public class RutaPredefinida {
         return rutaTiempoReal;
     }
 
+    public static RutaPredefinidaEntity convertirARutaPredefinidaEntity(RutaPredefinida ruta) {
+        RutaPredefinidaEntity entity = new RutaPredefinidaEntity();
+        entity.setCodigoIATAOrigen(ruta.getCodigoIATAOrigen());
+        entity.setCodigoIATADestino(ruta.getCodigoIATADestino());
+        entity.setHoraSalida(ruta.getHoraSalida());
+        entity.setHoraLlegada(ruta.getHoraLlegada());
+        entity.setDuracion(ruta.getDuracion());
+        entity.setSameContinente(ruta.isSameContinent());
+        return entity;
+    }
 }

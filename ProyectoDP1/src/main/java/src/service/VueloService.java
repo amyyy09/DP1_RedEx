@@ -104,7 +104,7 @@ public class VueloService {
         for (String line : lines) {
             String[] vuelos = line.split("\\|");
             List<PlanDeVuelo> planDeVuelos = new ArrayList<>();
-            long duracion = 0;
+            int duracion = 0;
 
             for (String vuelo : vuelos) {
                 String[] detalles = vuelo.split(",");

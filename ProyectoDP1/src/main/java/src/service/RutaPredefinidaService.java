@@ -28,6 +28,7 @@ public class RutaPredefinidaService {
     private RutaPredefinidaRepository rutaPredefinidaRepository;
     private AeropuertoService aeropuertoService;
     private PlanDeVueloService planDeVueloService;
+    private EscalasRepository escalasRepository;
 
     public RutaPredefinidaEntity register(RutaPredefinidaEntity ruta) {
         return rutaPredefinidaRepository.save(ruta);
@@ -70,10 +71,22 @@ public class RutaPredefinidaService {
 
         List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
         List<RutaPredefinidaEntity> rutasEntities = rutas.stream()
-                .map(RutaPredefinida::convertirARutaPredefinidaEntity)
+                .map(RutaPredefinida::convertirARutaPredefinidaEntity) // agregar esto
                 .collect(Collectors.toList());
 
         rutaPredefinidaRepository.saveAll(rutasEntities);
+
+        for (int i = 0; i < rutas.size(); i++) {
+            RutaPredefinida ruta = rutas.get(i);
+            RutaPredefinidaEntity rutaEntity = rutasEntities.get(i);
+
+            for (PlanDeVuelo plan : ruta.getEscalas()) {
+                EscalasEntity escala = new EscalasEntity();
+                escala.setRutaPredefinida(rutaEntity);
+                escala.setPlanDeVuelo(planDeVueloService.convertToEntity(plan)); // Assume this conversion method exists
+                escalasRepository.save(escala);
+            }
+        }
     }
 
     private List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
