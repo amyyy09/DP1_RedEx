@@ -75,8 +75,4 @@ public class AeropuertoController {
         return resultado;
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "Test endpoint is working";
-    }
 }
