@@ -66,7 +66,6 @@ public class RutaPredefinidaService {
     @Transactional
     public void generarRutasPredefinidas() {
         System.out.println("Iniciando generación de rutas predefinidas...");
-
         System.out.println("Obteniendo lista de aeropuertos...");
         List<AeropuertoEntity> aeropuertosEntities = aeropuertoRepository.findAll();
         System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertosEntities.size());
@@ -89,6 +88,12 @@ public class RutaPredefinidaService {
                 .collect(Collectors.toList());
 
         rutaPredefinidaRepository.saveAll(rutasEntities);
+
+        // Imprimir una ruta predefinida para validar que esté llegando correctamente
+        if (!rutas.isEmpty()) {
+            RutaPredefinida ruta = rutas.get(0); // Tomar la primera ruta como ejemplo
+            System.out.println("Ruta predefinida: " + ruta);
+        }
 
         for (int i = 0; i < rutas.size(); i++) {
             RutaPredefinida ruta = rutas.get(i);
