@@ -14,7 +14,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
 
+@Service
 public class VueloServices {
 
     public List<Envio> getEnvios(String archivo) throws IOException {
