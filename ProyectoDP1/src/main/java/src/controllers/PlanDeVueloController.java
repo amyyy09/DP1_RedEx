@@ -47,12 +47,13 @@ public class PlanDeVueloController {
     @PostMapping("/upload")
     public ResponseEntity<String> handleAeropuertoUpload(@RequestBody String jsonData) throws SQLException {
         try {
-            List<PlanDeVueloEntity> aeropuertosEntities = planDeVuelo.readValue(jsonData);
-            planDeVuelo.saveBatchPlanesVuelo(aeropuertosEntities);
+            List<PlanDeVueloEntity> plan = planDeVuelo.readValue(jsonData);
+            planDeVuelo.saveBatchPlanesVuelo(plan);
             return ResponseEntity.ok("Datos procesados con éxito");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error procesando los datos: " + e.getMessage());
         }
     }
+
 }

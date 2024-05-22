@@ -1,5 +1,6 @@
 package src.service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -21,6 +22,7 @@ import src.repository.AeropuertoRepository;
 import src.repository.EscalasRepository;
 import src.repository.PlanDeVueloRepository;
 import src.repository.RutaPredefinidaRepository;
+import src.utility.DatosAeropuertos;
 
 @Service
 public class RutaPredefinidaService {
@@ -64,31 +66,46 @@ public class RutaPredefinidaService {
     }
 
     @Transactional
-    public void generarRutasPredefinidas() {
+    public void generarRutasPredefinidas() throws IOException {
         System.out.println("Iniciando generación de rutas predefinidas...");
         List<AeropuertoEntity> aeropuertosEntities = aeropuertoRepository.findAll();
-        List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloRepository.findAll();
+        List<Aeropuerto> aeropuertos = aeropuertosEntities.stream().map(Aeropuerto::convertirAeropuetoFromEntity)
+                .collect(Collectors.toList());
 
         PlanDeVueloService planDeVueloService = new PlanDeVueloService();
+        // List<PlanDeVueloEntity> planesDeVueloEntities =
+        // planDeVueloRepository.findAll();
 
-        // Conversion from Entity to Model
-        List<Aeropuerto> aeropuertos = aeropuertosEntities.stream()
-                .map(Aeropuerto::convertirAeropuetoFromEntity)
-                .collect(Collectors.toList());
-        List<PlanDeVuelo> planes = planesDeVueloEntities.stream()
-                .map(PlanDeVuelo::convertirPlanDeVueloFromEntity)
-                .collect(Collectors.toList());
+        // AeropuertoService aeropuertoService = new AeropuertoService();
+        // List<Aeropuerto> aeropuertos =
+        // DatosAeropuertos.getAeropuertosInicializados();
+
+        VueloService vueloService = new VueloService();
+        String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+        List<PlanDeVuelo> planes = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
 
         System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertos.size());
         System.out.println("Cantidad de planes obtenidos: " + planes.size());
 
         List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
 
+        System.out.println("Cantidad de rutas obtenidos: " + rutas.size());
+
         List<RutaPredefinidaEntity> rutasEntities = rutas.stream()
                 .map(RutaPredefinida::convertirARutaPredefinidaEntity) // agregar esto
                 .collect(Collectors.toList());
 
-        rutaPredefinidaRepository.saveAll(rutasEntities);
+        int limite = 300;
+        int cantidadRutasInsertadas = 0;
+        for (RutaPredefinidaEntity rutaEntity : rutasEntities) {
+            if (cantidadRutasInsertadas >= limite) {
+                break; // Si ya hemos insertado 300 rutas, salimos del bucle
+            }
+
+            rutaPredefinidaRepository.save(rutaEntity);
+            cantidadRutasInsertadas++;
+            System.out.println("Ruta predefinida insertada - Entidad número: " + cantidadRutasInsertadas);
+        }
 
         // Imprimir una ruta predefinida para validar que esté llegando correctamente
         if (!rutas.isEmpty()) {
@@ -98,11 +115,11 @@ public class RutaPredefinidaService {
 
         for (int i = 0; i < rutas.size(); i++) {
             RutaPredefinida ruta = rutas.get(i);
-            RutaPredefinidaEntity rutaEntity = rutasEntities.get(i);
+            RutaPredefinidaEntity rutaentity = rutasEntities.get(i);
 
             for (PlanDeVuelo plan : ruta.getEscalas()) {
                 EscalasEntity escala = new EscalasEntity();
-                escala.setRutaPredefinida(rutaEntity);
+                escala.setRutaPredefinida(rutaentity);
                 escala.setPlanDeVuelo(planDeVueloService.convertToEntity(plan));
                 escalasRepository.save(escala);
             }
@@ -163,12 +180,6 @@ public class RutaPredefinidaService {
                 List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
                 allRoutes.add(routeToAdd);
                 daysm.add(totalDays);
-                // print the route for debugging with the respective horas de salida y llegada
-                // System.out.println("Ruta encontrada: en " + totalDays + " días");
-                // for (PlanDeVuelo plan : routeToAdd) {
-                // System.out.println(plan.getCodigoIATAOrigen() + " " + plan.getHoraSalida() +
-                // " -> " + plan.getCodigoIATADestino() + " " + " " + plan.getHoraLlegada());
-                // }
                 return;
             }
         }

@@ -7,6 +7,7 @@ import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -18,8 +19,11 @@ import org.springframework.transaction.annotation.Transactional;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import src.entity.AeropuertoEntity;
 import src.entity.PlanDeVueloEntity;
+import src.model.Aeropuerto;
 import src.model.PlanDeVuelo;
+import src.repository.AeropuertoRepository;
 import src.repository.PlanDeVueloRepository;
 
 import org.slf4j.Logger;
@@ -31,7 +35,8 @@ public class PlanDeVueloService {
 
     @Autowired
     private PlanDeVueloRepository planDeVueloRepository;
-
+    @Autowired
+    private AeropuertoRepository aeropuertoRepository; // Aquí agregamos la anotación @Autowired
     @PersistenceContext
     EntityManager entityManager;
 
@@ -83,24 +88,38 @@ public class PlanDeVueloService {
         // Divide la cadena de datos en líneas individuales
         String[] flightLines = flightDataString.split("\n");
 
-        List<PlanDeVueloEntity> flights = new ArrayList<>();
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-        ZoneOffset peruOffset = ZoneOffset.ofHours(-5);
+        List<PlanDeVueloEntity> planes = new ArrayList<>();
+
+        List<AeropuertoEntity> aeropuertosEntities = aeropuertoRepository.findAll();
+        List<Aeropuerto> aeropuertos = aeropuertosEntities.stream().map(Aeropuerto::convertirAeropuetoFromEntity)
+                .collect(Collectors.toList());
 
         // Procesa cada línea y crea un objeto PlanDeVueloEntity
         for (String line : flightLines) {
             String[] parts = line.split("-");
-            PlanDeVueloEntity flight = new PlanDeVueloEntity();
+            PlanDeVueloEntity plan = new PlanDeVueloEntity();
 
-            flight.setCodigoIATAOrigen(parts[0]);
-            flight.setCodigoIATADestino(parts[1]);
-            flight.setHoraSalida(OffsetTime.of(LocalTime.parse(parts[2], timeFormatter), peruOffset));
-            flight.setHoraLlegada(OffsetTime.of(LocalTime.parse(parts[3], timeFormatter), peruOffset));
-            flight.setCapacidad(Integer.parseInt(parts[4]));
+            plan.setCodigoIATAOrigen(parts[0]);
+            plan.setCodigoIATADestino(parts[1]);
 
-            flights.add(flight);
+            OffsetTime horaSalidaOffset = getOffsetTimeForAirport(parts[0], LocalTime.parse(parts[2]), aeropuertos);
+            OffsetTime horaLlegadaOffset = getOffsetTimeForAirport(parts[1], LocalTime.parse(parts[3]), aeropuertos);
+
+            plan.setHoraSalida(horaSalidaOffset);
+            plan.setHoraLlegada(horaLlegadaOffset);
+            plan.setCapacidad(Integer.parseInt(parts[4]));
+
+            planes.add(plan);
         }
 
-        return flights;
+        return planes;
+    }
+
+    private OffsetTime getOffsetTimeForAirport(String codigoIATA, LocalTime localTime, List<Aeropuerto> aeropuertos) {
+        return aeropuertos.stream()
+                .filter(a -> a.getCodigoIATA().equals(codigoIATA))
+                .findFirst()
+                .map(a -> OffsetTime.of(localTime, ZoneOffset.ofHours(a.getZonaHorariaGMT())))
+                .orElse(null);
     }
 }
