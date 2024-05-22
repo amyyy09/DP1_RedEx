@@ -46,7 +46,7 @@ public class AeropuertoEntity extends BaseEntity {
     private double latitud;
 
     @Column(name = "capacidad")
-    private long capacidad;
+    private int capacidad;
 
     @Column(name = "cantPaquetes")
     private int cantPaquetes;

@@ -37,4 +37,22 @@ public class Aeropuerto {
         aeropuertoDTO.setCantPaquetes(aeropuerto.getAlmacen().getCantPaquetes());
         return aeropuertoDTO;
     }
+
+    public static Aeropuerto convertirAeropuetoFromEntity(AeropuertoEntity entity) {
+        Aeropuerto aeropuerto = new Aeropuerto();
+        aeropuerto.setCodigoIATA(entity.getCodigoIATA());
+        aeropuerto.setCiudad(entity.getCiudad());
+        aeropuerto.setPais(entity.getPais());
+        aeropuerto.setContinente(entity.getContinente());
+        aeropuerto.setAlias(entity.getAlias());
+        aeropuerto.setZonaHorariaGMT(entity.getZonaHorariaGTM());
+        aeropuerto.setLongitud(entity.getLongitud());
+        aeropuerto.setLatitud(entity.getLatitud());
+        Almacen almacen = new Almacen();
+        almacen.setCantPaquetes(0);
+        almacen.setCapacidad(entity.getCapacidad());
+        almacen.setPaquetes(null);
+        aeropuerto.setAlmacen(almacen);
+        return aeropuerto;
+    }
 }
