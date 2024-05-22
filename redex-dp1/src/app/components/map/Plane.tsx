@@ -13,7 +13,7 @@ const Plane: React.FC<PlaneProps> = ({
   destiny,
   departureTime,
   arrivalTime,
-  capacidad  
+  capacidad,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([
     origin.coords.lat,
@@ -23,25 +23,25 @@ const Plane: React.FC<PlaneProps> = ({
 
   const [duration, setDuration] = useState(0);
 
-useEffect(() => {
-  const timeToMinutes = (time: string) => {
-    const [hours, minutes] = time.split(':').map(Number);
-    return hours * 60 + minutes;
-  };
+  useEffect(() => {
+    const timeToMinutes = (time: string) => {
+      const [hours, minutes] = time.split(":").map(Number);
+      return hours * 60 + minutes;
+    };
 
-  const departureTimeMinutes = timeToMinutes(departureTime);
-  let arrivalTimeMinutes = timeToMinutes(arrivalTime);
+    const departureTimeMinutes = timeToMinutes(departureTime);
+    let arrivalTimeMinutes = timeToMinutes(arrivalTime);
 
-  // If the arrival time is less than the departure time, add 24 hours (in minutes) to the arrival time
-  if (arrivalTimeMinutes < departureTimeMinutes) {
-    arrivalTimeMinutes += 24 * 60;
-  }
+    // If the arrival time is less than the departure time, add 24 hours (in minutes) to the arrival time
+    if (arrivalTimeMinutes < departureTimeMinutes) {
+      arrivalTimeMinutes += 24 * 60;
+    }
 
-  const durationMinutes = arrivalTimeMinutes - departureTimeMinutes;
+    const durationMinutes = arrivalTimeMinutes - departureTimeMinutes;
 
-  // Convert the duration to real-time seconds using the given rule
-  setDuration((durationMinutes / 4.2) * 1000); // Multiply by 1000 to convert seconds to milliseconds
-}, [departureTime, arrivalTime]);
+    // Convert the duration to real-time seconds using the given rule
+    setDuration((durationMinutes / 5) * 1000); // Multiply by 1000 to convert seconds to milliseconds
+  }, [departureTime, arrivalTime]);
 
   useEffect(() => {
     if (duration === 0) return;
@@ -52,8 +52,10 @@ useEffect(() => {
       if (!startTime) startTime = timestamp;
       const progress = Math.min((timestamp - startTime) / duration, 1);
 
-      const newLat = origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-      const newLng = origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+      const newLat =
+        origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+      const newLng =
+        origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
 
       setPosition([newLat, newLng] as LatLngExpression);
 
@@ -99,7 +101,26 @@ useEffect(() => {
         pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
       />
       <Marker position={position} icon={planeIcon}>
-        <Popup>{capacidad}</Popup>
+        <Popup>
+          <div>
+            <h2>Detalles de vuelo</h2>
+            <p>
+              <strong>Origen:</strong> {origin.name}
+            </p>
+            <p>
+              <strong>Destino:</strong> {destiny.name}
+            </p>
+            <p>
+              <strong>Hora de salida:</strong> {departureTime}
+            </p>
+            <p>
+              <strong>Hora de llegada:</strong> {arrivalTime}
+            </p>
+            <p>
+              <strong>Capacidad:</strong> {capacidad}
+            </p>
+          </div>
+        </Popup>
       </Marker>
     </>
   );
