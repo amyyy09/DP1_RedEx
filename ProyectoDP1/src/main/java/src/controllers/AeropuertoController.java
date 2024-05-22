@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import src.entity.AeropuertoEntity;
+import src.model.Aeropuerto;
 import src.service.AeropuertoService;
+import src.utility.DatosAeropuertos;
 
 @RestController
 @RequestMapping("/aeropuerto")
@@ -73,6 +75,14 @@ public class AeropuertoController {
             throw new SQLException("No se pudo eliminar el aeropuerto");
         }
         return resultado;
+    }
+
+    @GetMapping("/upload")
+    public String handleAeropuertoUpload() {
+        List<AeropuertoEntity> aeropuertosEntities = DatosAeropuertos.getAeropuertosSinInicializar();
+        aeropuertoService.saveBatchAeropuertos(aeropuertosEntities);
+
+        return "Datos procesados con éxito";
     }
 
 }

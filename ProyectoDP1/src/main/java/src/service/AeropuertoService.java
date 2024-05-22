@@ -78,4 +78,15 @@ public class AeropuertoService {
         }
     }
 
+    @Transactional
+    public void saveBatchAeropuertos(List<AeropuertoEntity> aeropuertosEntities) {
+        try {
+            aeropuertoRepository.saveAll(aeropuertosEntities);
+        } catch (Exception e) {
+            logger.error("Error saving batch of AeropuertoEntities: " + e.getMessage(), e);
+            // You might want to handle or rethrow the exception depending on your
+            // requirements
+        }
+    }
+
 }

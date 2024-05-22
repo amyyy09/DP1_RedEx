@@ -1,5 +1,6 @@
 package src.utility;
 
+import src.entity.AeropuertoEntity;
 import src.model.*;
 
 import java.io.BufferedReader;
@@ -79,6 +80,31 @@ public class DatosAeropuertos {
                 new Almacen(30, 0, new ArrayList<>()), 0, 0));
         aeropuertos.add(new Aeropuerto("RPLL", "Manila", "Filipinas", "Asia", "mani", 8,
                 new Almacen(30, 0, new ArrayList<>()), 0, 0));
+
+        return aeropuertos;
+    }
+
+    public static List<AeropuertoEntity> getAeropuertosSinInicializar() {
+        List<AeropuertoEntity> aeropuertos = new ArrayList<>();
+
+        aeropuertos.add(new AeropuertoEntity("SKBO", "Bogota", "Colombia", "America del Sur", "bogo", -5, 4.701389,
+                -74.146944, 430, 0));
+        aeropuertos.add(new AeropuertoEntity("SEQM", "Quito", "Ecuador", "America del Sur", "quit", -5, 0.113333,
+                -78.358611, 410, 0));
+        aeropuertos.add(new AeropuertoEntity("SVMI", "Caracas", "Venezuela", "America del Sur", "cara", -4, 10.603056,
+                -66.990556, 400, 0));
+        aeropuertos.add(new AeropuertoEntity("SBBR", "Brasilia", "Brasil", "America del Sur", "bras", -3, -15.869167,
+                -47.917778, 480, 0));
+        aeropuertos.add(new AeropuertoEntity("SPIM", "Lima", "Perú", "America del Sur", "lima", -5, -12.021944,
+                -77.114444, 440, 0));
+        // Añade más aeropuertos siguiendo el mismo patrón
+
+        // Ejemplo para Europa
+        aeropuertos.add(
+                new AeropuertoEntity("LATI", "Tirana", "Albania", "Europa", "tira", 2, 41.414722, 19.720556, 410, 0));
+        aeropuertos.add(
+                new AeropuertoEntity("EDDI", "Berlin", "Alemania", "Europa", "berl", 2, 52.474722, 13.401389, 480, 0));
+        // Continúa agregando más aeropuertos...
 
         return aeropuertos;
     }
