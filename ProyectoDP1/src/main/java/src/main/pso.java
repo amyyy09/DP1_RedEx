@@ -20,49 +20,6 @@ public class pso {
 		String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
 		String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
 
-		try {
-			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
-            envios = envios.subList(0, 50);
-			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
-			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
-            List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
-            System.out.println("Paquetes: " + paquetes.size());
-            System.out.println("Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
-            List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
-            System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
-
-			System.out.println("Pasos previos al PSO en el tiempo de ejecución: " + System.currentTimeMillis());
-            Map<String, Aeropuerto> aeropuertosMap = aeropuertos.stream().collect(Collectors.toMap(Aeropuerto::getCodigoIATA, a -> a));
-
-			for (Envio envio : envios) {
-				// add number of packages to the warehouse according to the codigosIATA origin 
-				// of the packages in the envio
-				Aeropuerto aeropuerto = aeropuertos.stream().filter(a -> a.getCodigoIATA().equals(envio.getCodigoIATAOrigen())).findFirst().orElse(null);
-				if (aeropuerto != null) {
-					aeropuerto.setCantPaquetes(aeropuerto.getCantPaquetes() + envio.getCantPaquetes());
-					// Almacen almacen = aeropuerto.getAlmacen();
-					// for (Paquete paquete : envio.getPaquetes()) {
-					// 	// almacen.getPaquetes().add(paquete);
-					// 	aeropuerto.setCantPaquetes(aeropuerto.getCantPaquetes() + 1);
-					// 	// almacen.setCantPaquetes(almacen.getCantPaquetes() + 1);
-					// }
-				}
-			}
-			for (int i = 0; i < 25; i++) {
-				System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
-				if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
-					Map<Paquete, RutaTiempoReal> resultado = planificacionService.PSO(envios, paquetes, rutasPred, aeropuertosMap, planesDeVuelo, aeropuertos, vuelosActuales);
-					if (resultado != null) {
-						System.out.println("Resultado del pso procesado en el tiempo de ejecución: " + System.currentTimeMillis());
-					} else {
-						System.out.println("No se obtuvo un resultado válido del pso.");
-					}
-				}
-			}
-		} catch (Exception e) {
-			System.err.println("Se ha producido un error: " + e.getMessage());
-			e.printStackTrace();
-		}
+		
 	}
 }
