@@ -32,7 +32,7 @@ import lombok.Setter;
 @Setter
 
 public class EnvioEntity extends BaseEntity {
-    @Column(name = "idEnvio")
+    @Column(name = "idEnvio", unique = true)
     private String idEnvio;
 
     @Column(name = "fechaHoraOrigen")

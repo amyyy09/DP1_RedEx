@@ -21,7 +21,7 @@ import lombok.Setter;
 @Setter
 
 public class AeropuertoEntity extends BaseEntity {
-    @Column(name = "codigoIATA")
+    @Column(name = "codigoIATA", unique = true)
     private String codigoIATA;
 
     @Column(name = "ciudad")
