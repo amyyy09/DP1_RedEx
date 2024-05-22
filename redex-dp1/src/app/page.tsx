@@ -9,29 +9,55 @@ import ConfigurationModal from '../app/components/map/ConfigurationModal';
 const Home: React.FC = () => {
   const [planes, setPlanes] = useState([
     {
-      origin: { lat: 25.2048, lng: 55.2708 }, // Dubai
-      destination: { lat: 1.3521, lng: 103.8198 }, // Singapore
-      name: 'Flight 123',
-      duration: 7000, // 5 seconds
+      "origin": {
+        "name": "Bogota",
+        "coords": {
+          "lat": 4.711,
+          "lng": -74.0721
+        },
+        "code": "SKBO",
+        "GMT": -5,
+        "capacidad": 430
+      },
+      "destiny": {
+        "name": "Quito",
+        "coords": {
+          "lat": -0.1807,
+          "lng": -78.4678
+        },
+        "code": "SEQM",
+        "GMT": -5,
+        "capacidad": 410
+      },
+      "departureTime": "22:34",
+      "arrivalTime": "00:21",
+      "capacidad": 300
     },
     {
-      origin: { lat: -12.0464, lng: -77.0428 },
-      destination: { lat: 50.8503, lng: 4.3517 },
-      name: 'Flight 456',
-      duration: 10000, // 3 seconds
+      "origin": {
+        "name": "Caracas",
+        "coords": {
+          "lat": 10.4806,
+          "lng": -66.9036
+        },
+        "code": "SVMI",
+        "GMT": -4,
+        "capacidad": 400
+      },
+      "destiny": {
+        "name": "Minsk",
+        "coords": {
+          "lat": 53.9045,
+          "lng": 27.5615
+        },
+        "code": "UMMS",
+        "GMT": 3,
+        "capacidad": 400
+      },
+      "departureTime": "08:54",
+      "arrivalTime": "11:42",
+      "capacidad": 360
     },
-
-    // plane.origin = flightPlans[index].origin.coords;
-    // plane.destination = flightPlans[index].destiny.coords;
-    // plane.name = `Flight ${index}`;
-    /*
-       inicio =  flightPlans[index].departureTime.toNumber() // se tiene convertir a gmt 0 de acuerdo a lo que diga flightPlans[index].origin.GMT
-       fin = flightPlans[index].arrivalTime.toNumber() // se tiene convertir a gmt 0 de acuerdo a lo que diga flightPlans[index].destiny.GMT
-
-       plane.duration = fin - duration (segundos o milisegundos -> each real-time second should be equivalent to 4.2 simulated minutes.)
-       
-
-    */ 
     // Add more plane objects here
   ]);
   const [showModal, setShowModal] = useState(true);

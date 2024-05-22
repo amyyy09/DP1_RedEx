@@ -61,9 +61,10 @@ const Map: React.FC<MapProps> = ({ planes }) => {
         <Plane
           key={index}
           origin={plane.origin}
-          destination={plane.destination}
-          name={plane.name}
-          duration={plane.duration}
+          destiny={plane.destiny}
+          departureTime={plane.departureTime}
+          arrivalTime={plane.arrivalTime}
+          capacidad={plane.capacidad}
         />
       ))}
     </MapContainer>

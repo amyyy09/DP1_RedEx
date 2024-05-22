@@ -1,6 +1,15 @@
-export interface PlaneProps {
-  origin: { lat: number; lng: number };
-  destination: { lat: number; lng: number };
+export interface Airport {
   name: string;
-  duration: number; // duration in milliseconds for the animation
+  coords: { lat: number; lng: number };
+  code: string;
+  GMT: number;
+  capacidad: number;
+}
+
+export interface PlaneProps {
+  origin: Airport;
+  destiny: Airport;
+  departureTime: string;
+  arrivalTime: string;
+  capacidad: number;
 }
