@@ -66,10 +66,7 @@ public class RutaPredefinidaService {
     @Transactional
     public void generarRutasPredefinidas() {
         System.out.println("Iniciando generación de rutas predefinidas...");
-        System.out.println("Obteniendo lista de aeropuertos...");
         List<AeropuertoEntity> aeropuertosEntities = aeropuertoRepository.findAll();
-        System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertosEntities.size());
-
         List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloRepository.findAll();
 
         PlanDeVueloService planDeVueloService = new PlanDeVueloService();
@@ -82,7 +79,11 @@ public class RutaPredefinidaService {
                 .map(PlanDeVuelo::convertirPlanDeVueloFromEntity)
                 .collect(Collectors.toList());
 
+        System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertos.size());
+        System.out.println("Cantidad de planes obtenidos: " + planes.size());
+
         List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
+
         List<RutaPredefinidaEntity> rutasEntities = rutas.stream()
                 .map(RutaPredefinida::convertirARutaPredefinidaEntity) // agregar esto
                 .collect(Collectors.toList());
