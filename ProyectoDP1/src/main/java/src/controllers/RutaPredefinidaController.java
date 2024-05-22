@@ -59,7 +59,7 @@ public class RutaPredefinidaController {
         }
     }
 
-    @PostMapping("/generate")
+    @GetMapping(value = "/generate")
     public ResponseEntity<String> generatePredefinedRoutes() {
         try {
             rutaPredefinidaService.generarRutasPredefinidas();

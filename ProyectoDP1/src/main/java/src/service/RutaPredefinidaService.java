@@ -91,29 +91,25 @@ public class RutaPredefinidaService {
 
     private List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
-        Aeropuerto origen = aeropuertos.stream()
-                .filter(a -> a.getCodigoIATA().equals("ZBAA"))
-                .findFirst()
-                .orElse(null);
-        if (origen == null)
-            return rutas;
 
-        for (Aeropuerto destino : aeropuertos) {
-            if (!origen.equals(destino)) {
-                List<Integer> daysm = new ArrayList<>();
-                Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
-                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes, daysm, sameContinent);
-                for (int i = 0; i < planesRutas.size(); i++) {
-                    List<PlanDeVuelo> planRuta = planesRutas.get(i);
-                    RutaPredefinida ruta = new RutaPredefinida(
-                            origen.getCodigoIATA(),
-                            destino.getCodigoIATA(),
-                            planRuta.get(0).getHoraSalida(),
-                            planRuta.get(planRuta.size() - 1).getHoraLlegada(),
-                            planRuta,
-                            daysm.get(i), // get the corresponding value from the daysm array
-                            sameContinent);
-                    rutas.add(ruta);
+        for (Aeropuerto origen : aeropuertos) {
+            for (Aeropuerto destino : aeropuertos) {
+                if (!origen.equals(destino)) {
+                    List<Integer> daysm = new ArrayList<>();
+                    Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
+                    List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes, daysm, sameContinent);
+                    for (int i = 0; i < planesRutas.size(); i++) {
+                        List<PlanDeVuelo> planRuta = planesRutas.get(i);
+                        RutaPredefinida ruta = new RutaPredefinida(
+                                origen.getCodigoIATA(),
+                                destino.getCodigoIATA(),
+                                planRuta.get(0).getHoraSalida(),
+                                planRuta.get(planRuta.size() - 1).getHoraLlegada(),
+                                planRuta,
+                                daysm.get(i), // get the corresponding value from the daysm array
+                                sameContinent);
+                        rutas.add(ruta);
+                    }
                 }
             }
         }
