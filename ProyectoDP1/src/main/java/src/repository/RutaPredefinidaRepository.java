@@ -16,7 +16,4 @@ import java.util.List;
 @Repository
 @Transactional
 public interface RutaPredefinidaRepository extends JpaRepository<RutaPredefinidaEntity, Long> {
-    public List<RutaPredefinidaEntity> findAll();
-
-    public RutaPredefinidaEntity findProyectoById(int id);
 }

@@ -19,6 +19,7 @@ import src.model.PlanDeVuelo;
 import src.model.RutaPredefinida;
 import src.repository.AeropuertoRepository;
 import src.repository.EscalasRepository;
+import src.repository.PlanDeVueloRepository;
 import src.repository.RutaPredefinidaRepository;
 
 @Service
@@ -26,8 +27,14 @@ public class RutaPredefinidaService {
 
     @Autowired
     private RutaPredefinidaRepository rutaPredefinidaRepository;
-    private AeropuertoService aeropuertoService;
-    private PlanDeVueloService planDeVueloService;
+
+    @Autowired
+    private AeropuertoRepository aeropuertoRepository; // Aquí agregamos la anotación @Autowired
+
+    @Autowired
+    private PlanDeVueloRepository planDeVueloRepository;
+
+    @Autowired
     private EscalasRepository escalasRepository;
 
     public RutaPredefinidaEntity register(RutaPredefinidaEntity ruta) {
@@ -59,14 +66,14 @@ public class RutaPredefinidaService {
     @Transactional
     public void generarRutasPredefinidas() {
         System.out.println("Iniciando generación de rutas predefinidas...");
-        aeropuertoService = new AeropuertoService();
-        planDeVueloService = new PlanDeVueloService();
 
         System.out.println("Obteniendo lista de aeropuertos...");
-        List<AeropuertoEntity> aeropuertosEntities = aeropuertoService.getAll();
+        List<AeropuertoEntity> aeropuertosEntities = aeropuertoRepository.findAll();
         System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertosEntities.size());
 
-        List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloService.getAll();
+        List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloRepository.findAll();
+
+        PlanDeVueloService planDeVueloService = new PlanDeVueloService();
 
         // Conversion from Entity to Model
         List<Aeropuerto> aeropuertos = aeropuertosEntities.stream()
