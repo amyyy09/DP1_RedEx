@@ -22,7 +22,7 @@ public class Aeropuerto {
     private double longitud;
     private double latitud;
 
-    // conversion implicita
+    // ejemplo de conversion implicita DTO -> entidad
     public static AeropuertoEntity convetirAeropuetoToDTO(Aeropuerto aeropuerto) {
         AeropuertoEntity aeropuertoDTO = new AeropuertoEntity();
         aeropuertoDTO.setCodigoIATA(aeropuerto.getCodigoIATA());
