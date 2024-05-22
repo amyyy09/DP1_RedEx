@@ -58,7 +58,14 @@ public class RutaPredefinidaService {
 
     @Transactional
     public void generarRutasPredefinidas() {
+        System.out.println("Iniciando generación de rutas predefinidas...");
+        aeropuertoService = new AeropuertoService();
+        planDeVueloService = new PlanDeVueloService();
+
+        System.out.println("Obteniendo lista de aeropuertos...");
         List<AeropuertoEntity> aeropuertosEntities = aeropuertoService.getAll();
+        System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertosEntities.size());
+
         List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloService.getAll();
 
         // Conversion from Entity to Model
@@ -92,27 +99,34 @@ public class RutaPredefinidaService {
     private List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
 
-        for (Aeropuerto origen : aeropuertos) {
-            for (Aeropuerto destino : aeropuertos) {
-                if (!origen.equals(destino)) {
-                    List<Integer> daysm = new ArrayList<>();
-                    Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
-                    List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes, daysm, sameContinent);
-                    for (int i = 0; i < planesRutas.size(); i++) {
-                        List<PlanDeVuelo> planRuta = planesRutas.get(i);
-                        RutaPredefinida ruta = new RutaPredefinida(
-                                origen.getCodigoIATA(),
-                                destino.getCodigoIATA(),
-                                planRuta.get(0).getHoraSalida(),
-                                planRuta.get(planRuta.size() - 1).getHoraLlegada(),
-                                planRuta,
-                                daysm.get(i), // get the corresponding value from the daysm array
-                                sameContinent);
-                        rutas.add(ruta);
-                    }
+        Aeropuerto origen = aeropuertos.stream()
+                .filter(a -> a.getCodigoIATA().equals("ZBAA"))
+                .findFirst()
+                .orElse(null);
+        if (origen == null)
+            return rutas;
+
+        // for (Aeropuerto origen : aeropuertos) {
+        for (Aeropuerto destino : aeropuertos) {
+            if (!origen.equals(destino)) {
+                List<Integer> daysm = new ArrayList<>();
+                Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
+                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes, daysm, sameContinent);
+                for (int i = 0; i < planesRutas.size(); i++) {
+                    List<PlanDeVuelo> planRuta = planesRutas.get(i);
+                    RutaPredefinida ruta = new RutaPredefinida(
+                            origen.getCodigoIATA(),
+                            destino.getCodigoIATA(),
+                            planRuta.get(0).getHoraSalida(),
+                            planRuta.get(planRuta.size() - 1).getHoraLlegada(),
+                            planRuta,
+                            daysm.get(i), // get the corresponding value from the daysm array
+                            sameContinent);
+                    rutas.add(ruta);
                 }
             }
         }
+        // }
         return rutas;
     }
 
