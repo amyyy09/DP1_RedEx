@@ -3,16 +3,22 @@ package src.service;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import src.entity.AeropuertoEntity;
+import src.entity.EscalasEntity;
+import src.entity.PlanDeVueloEntity;
 import src.entity.RutaPredefinidaEntity;
 import src.model.Aeropuerto;
 import src.model.PlanDeVuelo;
 import src.model.RutaPredefinida;
+import src.repository.AeropuertoRepository;
+import src.repository.EscalasRepository;
 import src.repository.RutaPredefinidaRepository;
 
 @Service
@@ -20,6 +26,8 @@ public class RutaPredefinidaService {
 
     @Autowired
     private RutaPredefinidaRepository rutaPredefinidaRepository;
+    private AeropuertoService aeropuertoService;
+    private PlanDeVueloService planDeVueloService;
 
     public RutaPredefinidaEntity register(RutaPredefinidaEntity ruta) {
         return rutaPredefinidaRepository.save(ruta);
@@ -47,22 +55,36 @@ public class RutaPredefinidaService {
         }
     }
 
-    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
+    @Transactional
+    public void generarRutasPredefinidas() {
+        List<AeropuertoEntity> aeropuertosEntities = aeropuertoService.getAll();
+        List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloService.getAll();
+
+        // Conversion from Entity to Model
+        List<Aeropuerto> aeropuertos = aeropuertosEntities.stream()
+                .map(Aeropuerto::convertirAeropuetoFromEntity)
+                .collect(Collectors.toList());
+        List<PlanDeVuelo> planes = planesDeVueloEntities.stream()
+                .map(PlanDeVuelo::convertirPlanDeVueloFromEntity)
+                .collect(Collectors.toList());
+
+        List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
+        List<RutaPredefinidaEntity> rutasEntities = rutas.stream()
+                .map(RutaPredefinida::convertirARutaPredefinidaEntity)
+                .collect(Collectors.toList());
+
+        rutaPredefinidaRepository.saveAll(rutasEntities);
+    }
+
+    private List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
-        Aeropuerto origen = aeropuertos.stream()// en este caso solo tenemos de origen ZBAA
+        Aeropuerto origen = aeropuertos.stream()
                 .filter(a -> a.getCodigoIATA().equals("ZBAA"))
                 .findFirst()
                 .orElse(null);
         if (origen == null)
             return rutas;
-        // List<String> destinosEspecificos =
-        // Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI",
-        // "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI",
-        // "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro
-        // experimento tenemos solo un aeropuerto destino WMKK
-        // List<Aeropuerto> destinos = aeropuertos.stream()
-        // .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
-        // .collect(Collectors.toList());
+
         for (Aeropuerto destino : aeropuertos) {
             if (!origen.equals(destino)) {
                 List<Integer> daysm = new ArrayList<>();
@@ -85,7 +107,7 @@ public class RutaPredefinidaService {
         return rutas;
     }
 
-    public static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino,
+    private static List<List<PlanDeVuelo>> generarEscalas(Aeropuerto origen, Aeropuerto destino,
             List<PlanDeVuelo> planes, List<Integer> daysm, Boolean sameContinent) {
         List<List<PlanDeVuelo>> allRoutes = new ArrayList<>();
         List<PlanDeVuelo> currentRoute = new ArrayList<>();

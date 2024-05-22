@@ -14,8 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import src.entity.AeropuertoEntity;
-import src.service.AeropuertoService;
+import src.entity.PlanDeVueloEntity;
+import src.service.PlanDeVueloService;
 
 @RestController
 @RequestMapping("/plandevuelo")
@@ -23,12 +23,12 @@ import src.service.AeropuertoService;
 public class PlanDeVueloController {
 
     @Autowired
-    private AeropuertoService aeropuertoService;
+    private PlanDeVueloService planDeVuelo;
 
     @CrossOrigin
     @PostMapping(value = "/")
-    AeropuertoEntity register(@RequestBody AeropuertoEntity aeropuerto) throws SQLException {
-        AeropuertoEntity resultado = aeropuertoService.register(aeropuerto);
+    PlanDeVueloEntity register(@RequestBody PlanDeVueloEntity plan) throws SQLException {
+        PlanDeVueloEntity resultado = planDeVuelo.register(plan);
         if (resultado == null) {
             throw new SQLException("No se pudo registrar el aeropuerto");
         }
@@ -37,8 +37,8 @@ public class PlanDeVueloController {
 
     @CrossOrigin
     @GetMapping(value = "/")
-    List<AeropuertoEntity> getAll() throws SQLException {
-        List<AeropuertoEntity> resultado = aeropuertoService.getAll();
+    List<PlanDeVueloEntity> getAll() throws SQLException {
+        List<PlanDeVueloEntity> resultado = planDeVuelo.getAll();
         if (resultado == null) {
             throw new SQLException("No se pudo obtener los aeropuertos");
         }
