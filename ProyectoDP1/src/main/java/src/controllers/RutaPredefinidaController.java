@@ -58,4 +58,14 @@ public class RutaPredefinidaController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @PostMapping("/generate")
+    public ResponseEntity<String> generatePredefinedRoutes() {
+        try {
+            rutaPredefinidaService.generarRutasPredefinidas();
+            return ResponseEntity.ok("Predefined routes generated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body("Failed to generate routes: " + e.getMessage());
+        }
+    }
 }

@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import src.entity.AeropuertoEntity;
-import src.model.Aeropuerto;
 import src.service.AeropuertoService;
 import src.utility.DatosAeropuertos;
 
