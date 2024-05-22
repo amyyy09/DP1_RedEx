@@ -1,4 +1,4 @@
-package src.controller;
+package src.controllers;
 
 import java.sql.SQLException;
 import java.util.List;

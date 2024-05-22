@@ -17,3 +17,7 @@ node_modules/
 Thumbs.db
 *.log
 *.txt
+.idea/dev-merge.iml
+.idea/misc.xml
+.idea/modules.xml
+.idea/vcs.xml
