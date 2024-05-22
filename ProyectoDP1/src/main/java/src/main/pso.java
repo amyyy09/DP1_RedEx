@@ -1,8 +1,13 @@
 package src.main;
 
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.ApplicationContext;
 
+import src.Application;
+import src.dto.AeropuertoDTO;
 import src.model.*;
+import src.service.AeropuertoService;
 import src.services.*;
 import src.utility.*;
 
@@ -10,20 +15,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = "src")
 public class pso {
 
 	public static void main(String[] args) {
-		PlanificacionService planificacionService = new PlanificacionService();
-		VueloService vueloService = new VueloService();
+		// PlanificacionService planificacionService = new PlanificacionService();
+		// VueloService vueloService = new VueloService();
+		// AeropuertoService aeropuertoService = new AeropuertoService();
 
-		String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
-		String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+		ApplicationContext context = SpringApplication.run(Application.class, args);
 
+        AeropuertoService aeropuertoService = context.getBean(AeropuertoService.class);
+
+		
+
+		
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
-            envios = envios.subList(0, 50);
+			aeropuertoService.saveAllAeropuertos(aeropuertos);
+			
+			
+
+			//String archivoRutaEnvios = "src/main/resources/envios.csv";
+			
+			//List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
+            //envios = envios.subList(0, 50);
+			/* 
 			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
 			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
@@ -59,9 +76,11 @@ public class pso {
 					}
 				}
 			}
+			*/
 		} catch (Exception e) {
 			System.err.println("Se ha producido un error: " + e.getMessage());
 			e.printStackTrace();
 		}
+		
 	}
 }

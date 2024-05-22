@@ -1,6 +1,7 @@
 package src.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -16,8 +17,10 @@ import org.springframework.transaction.annotation.Transactional;
 import io.lettuce.core.dynamic.annotation.Param;
 import src.dto.AeropuertoDTO;
 import src.dto.PlanDeVueloDTO;
+import src.model.Aeropuerto;
 import src.repository.AeropuertoRepository;
 import src.repository.PlanDeVueloRepository;
+import src.utility.ConversionesModelDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +79,17 @@ public class AeropuertoService {
             logger.error(e.getMessage());
             return false;
         }
+    }
+
+    // Model a DTO
+    public void saveAeropuerto(Aeropuerto aeropuerto){
+        AeropuertoDTO aeropuertoDTO = ConversionesModelDTO.convetirAeropuetoToDTO(aeropuerto);
+        aeropuertoRepository.save(aeropuertoDTO);
+    }
+
+    public void saveAllAeropuertos(List<Aeropuerto> aeropuertos){
+        List<AeropuertoDTO> aeropuertoDTOs= aeropuertos.stream().map(ConversionesModelDTO :: convetirAeropuetoToDTO).collect(Collectors.toList());
+        aeropuertoRepository.saveAll(aeropuertoDTOs);
     }
     
 }
