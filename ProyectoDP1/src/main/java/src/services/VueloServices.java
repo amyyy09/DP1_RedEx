@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class VueloService {
+public class VueloServices {
 
     public List<Envio> getEnvios(String archivo) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
@@ -157,7 +157,7 @@ public class VueloService {
 
     public static void guardarRutasEnCSV(List<RutaPredefinida> rutas, String archivoDestino) {
         List<String> lineas = rutas.stream()
-                .map(VueloService::formatoRutaCSV)
+                .map(VueloServices::formatoRutaCSV)
                 .collect(Collectors.toList());
 
         try {

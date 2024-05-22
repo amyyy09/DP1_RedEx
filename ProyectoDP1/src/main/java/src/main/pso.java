@@ -20,7 +20,7 @@ public class pso {
 
 	public static void main(String[] args) {
 		// PlanificacionService planificacionService = new PlanificacionService();
-		// VueloService vueloService = new VueloService();
+		VueloServices vueloService = new VueloServices();
 		// AeropuertoService aeropuertoService = new AeropuertoService();
 
 		ApplicationContext context = SpringApplication.run(Application.class, args);
@@ -36,9 +36,9 @@ public class pso {
 			
 			
 
-			//String archivoRutaEnvios = "src/main/resources/envios.csv";
+			String archivoRutaEnvios = "src/main/resources/envios.csv";
 			
-			//List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
+			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
             //envios = envios.subList(0, 50);
 			/* 
 			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
