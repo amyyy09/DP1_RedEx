@@ -43,7 +43,12 @@ public class PlanDeVueloEntity extends BaseEntity {
     @Column(name = "fechaHoraLlegada")
     private OffsetTime horaLlegada;
 
+    @Column(name = "zonaHorariaSalida")
+    private int zonaHorariaSalida;
+
+    @Column(name = "zonaHorariaLlegada")
+    private int zonaHorariaLlegada;
+
     @Column(name = "capacidad")
     private int capacidad;
-
 }

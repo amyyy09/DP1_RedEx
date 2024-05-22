@@ -102,11 +102,12 @@ public class PlanDeVueloService {
             plan.setCodigoIATAOrigen(parts[0]);
             plan.setCodigoIATADestino(parts[1]);
 
-            OffsetTime horaSalidaOffset = getOffsetTimeForAirport(parts[0], LocalTime.parse(parts[2]), aeropuertos);
-            OffsetTime horaLlegadaOffset = getOffsetTimeForAirport(parts[1], LocalTime.parse(parts[3]), aeropuertos);
+            int zonaHorariaSalida = getOffsetForAirport(parts[0], aeropuertos);
+            int zonaHorariaLlegada = getOffsetForAirport(parts[1], aeropuertos);
 
-            plan.setHoraSalida(horaSalidaOffset);
-            plan.setHoraLlegada(horaLlegadaOffset);
+            plan.setZonaHorariaSalida(zonaHorariaSalida);
+            plan.setZonaHorariaLlegada(zonaHorariaLlegada);
+
             plan.setCapacidad(Integer.parseInt(parts[4]));
 
             planes.add(plan);
@@ -115,11 +116,11 @@ public class PlanDeVueloService {
         return planes;
     }
 
-    private OffsetTime getOffsetTimeForAirport(String codigoIATA, LocalTime localTime, List<Aeropuerto> aeropuertos) {
+    private int getOffsetForAirport(String codigoIATA, List<Aeropuerto> aeropuertos) {
         return aeropuertos.stream()
                 .filter(a -> a.getCodigoIATA().equals(codigoIATA))
                 .findFirst()
-                .map(a -> OffsetTime.of(localTime, ZoneOffset.ofHours(a.getZonaHorariaGMT())))
-                .orElse(null);
+                .map(a -> a.getZonaHorariaGMT()) // Assuming getZonaHorariaGMT() returns int; adjust if needed
+                .orElse(0); // Default to UTC if not found
     }
 }

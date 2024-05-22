@@ -114,6 +114,10 @@ public class RutaPredefinidaService {
         }
 
         for (int i = 0; i < rutas.size(); i++) {
+            if (cantidadRutasInsertadas >= limite) {
+                break; // Si ya hemos insertado 300 rutas, salimos del bucle
+            }
+
             RutaPredefinida ruta = rutas.get(i);
             RutaPredefinidaEntity rutaentity = rutasEntities.get(i);
 
