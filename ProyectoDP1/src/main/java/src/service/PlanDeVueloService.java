@@ -94,6 +94,9 @@ public class PlanDeVueloService {
         List<Aeropuerto> aeropuertos = aeropuertosEntities.stream().map(Aeropuerto::convertirAeropuetoFromEntity)
                 .collect(Collectors.toList());
 
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+        ZoneOffset noOffset = ZoneOffset.ofHours(0); // offset de referencia
+
         // Procesa cada línea y crea un objeto PlanDeVueloEntity
         for (String line : flightLines) {
             String[] parts = line.split("-");
@@ -104,6 +107,9 @@ public class PlanDeVueloService {
 
             int zonaHorariaSalida = getOffsetForAirport(parts[0], aeropuertos);
             int zonaHorariaLlegada = getOffsetForAirport(parts[1], aeropuertos);
+
+            plan.setHoraSalida(OffsetTime.of(LocalTime.parse(parts[2], timeFormatter), noOffset));
+            plan.setHoraLlegada(OffsetTime.of(LocalTime.parse(parts[3], timeFormatter), noOffset));
 
             plan.setZonaHorariaSalida(zonaHorariaSalida);
             plan.setZonaHorariaLlegada(zonaHorariaLlegada);

@@ -22,7 +22,6 @@ import src.repository.AeropuertoRepository;
 import src.repository.EscalasRepository;
 import src.repository.PlanDeVueloRepository;
 import src.repository.RutaPredefinidaRepository;
-import src.utility.DatosAeropuertos;
 
 @Service
 public class RutaPredefinidaService {
@@ -73,16 +72,9 @@ public class RutaPredefinidaService {
                 .collect(Collectors.toList());
 
         PlanDeVueloService planDeVueloService = new PlanDeVueloService();
-        // List<PlanDeVueloEntity> planesDeVueloEntities =
-        // planDeVueloRepository.findAll();
-
-        // AeropuertoService aeropuertoService = new AeropuertoService();
-        // List<Aeropuerto> aeropuertos =
-        // DatosAeropuertos.getAeropuertosInicializados();
-
-        VueloService vueloService = new VueloService();
-        String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
-        List<PlanDeVuelo> planes = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
+        List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloRepository.findAll();
+        List<PlanDeVuelo> planes = planesDeVueloEntities.stream().map(PlanDeVuelo::convertirPlanDeVueloFromEntity)
+                .collect(Collectors.toList());
 
         System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertos.size());
         System.out.println("Cantidad de planes obtenidos: " + planes.size());
