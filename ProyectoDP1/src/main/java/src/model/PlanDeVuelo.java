@@ -13,6 +13,7 @@ import java.time.ZoneOffset;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlanDeVuelo {
+        private int id;
         private String codigoIATAOrigen;
         private String codigoIATADestino;
         private OffsetTime horaSalida;
@@ -22,6 +23,7 @@ public class PlanDeVuelo {
 
         public static PlanDeVuelo convertirPlanDeVueloFromEntity(PlanDeVueloEntity entity) {
                 PlanDeVuelo plan = new PlanDeVuelo();
+                plan.setId(entity.getId());
                 plan.setCodigoIATAOrigen(entity.getCodigoIATAOrigen());
                 plan.setCodigoIATADestino(entity.getCodigoIATADestino());
 
@@ -38,6 +40,7 @@ public class PlanDeVuelo {
                 }
 
                 plan.setCapacidad(entity.getCapacidad());
+
                 return plan;
         }
 
