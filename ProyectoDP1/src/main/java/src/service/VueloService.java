@@ -25,8 +25,6 @@ public class VueloService {
             String[] partes = line.split("-");
             String codigoIATAOrigen = partes[0];
             String idEnvio = partes[1];
-            // LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3],
-            // formatter);
             LocalDateTime fechaHora = LocalDateTime.now();
 
             String codigoIATADestino = partes[4].split(":")[0];
@@ -50,18 +48,13 @@ public class VueloService {
 
     public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
-        // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona
-        // horaria correspondiente.
-
         int vueloId = 1;
         for (PlanDeVuelo plan : planesDeVuelo) {
-            // if (ahora.isAfter(plan.getHoraSalida()) &&
-            // ahora.isBefore(plan.getHoraLlegada())) {
             Vuelo vuelo = new Vuelo();
-            vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
-            vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
+            vuelo.setIdVuelo(vueloId++);
+            vuelo.setCantPaquetes(0);
             vuelo.setCapacidad(plan.getCapacidad());
-            vuelo.setStatus(1); // Establece el estado en tránsito.
+            vuelo.setStatus(1);
             vuelo.setPlanDeVuelo(plan);
             LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), plan.getHoraSalida().toLocalTime());
             vuelo.setHoraSalida(horaInicio);
@@ -71,7 +64,6 @@ public class VueloService {
             }
             vuelo.setHoraLlegada(horaFin);
             vuelosActuales.add(vuelo);
-            // }
         }
 
         return vuelosActuales;
@@ -84,7 +76,7 @@ public class VueloService {
         for (String line : lines) {
             String[] parts = line.split("-");
             if (parts.length < 5)
-                continue; // Asegura que todas las partes necesarias están presentes.
+                continue;
 
             PlanDeVuelo plan = parsePlanDeVuelo(parts, aeropuertos);
             if (plan != null) {
