@@ -91,9 +91,12 @@ public class RutaPredefinidaService {
             RutaPredefinida ruta = rutas.get(cantidadRutasInsertadas);
             rutaPredefinidaRepository.save(rutaEntity);
 
-            for (PlanDeVuelo i : ruta.getEscalas()) {
+            for (PlanDeVuelo plan : ruta.getEscalas()) {
                 EscalasEntity escala = new EscalasEntity();
                 escala.setRutaPredefinida(rutaEntity);
+                PlanDeVueloEntity planDeVueloEntity = new PlanDeVueloEntity();
+                planDeVueloEntity.setId(plan.getId());
+                escala.setPlanDeVuelo(planDeVueloEntity);
                 escalasRepository.save(escala);
             }
 
