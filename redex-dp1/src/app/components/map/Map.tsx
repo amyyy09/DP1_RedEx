@@ -17,6 +17,7 @@ import { cities } from "../../data/cities";
 
 interface MapProps {
   planes: PlaneProps[];
+  controlClock: number;
 }
 
 const customIcon = new L.Icon({
@@ -32,7 +33,7 @@ const customIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const Map: React.FC<MapProps> = ({ planes }) => {
+const Map: React.FC<MapProps> = ({ planes, controlClock }) => {
   return (
     <MapContainer
       center={[20, 20]}
@@ -57,7 +58,7 @@ const Map: React.FC<MapProps> = ({ planes }) => {
         </Marker>
       ))}
 
-      {planes.map((plane, index) => (
+      {planes.length>0 && planes.map((plane, index) => (
         <Plane
           key={index}
           origin={plane.origin}
@@ -65,6 +66,7 @@ const Map: React.FC<MapProps> = ({ planes }) => {
           departureTime={plane.departureTime}
           arrivalTime={plane.arrivalTime}
           capacidad={plane.capacidad}
+          controlClock={controlClock}
         />
       ))}
     </MapContainer>

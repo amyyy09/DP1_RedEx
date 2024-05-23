@@ -10,102 +10,41 @@ import { PlaneProps } from "./types/Planes";
 import { timeToMinutes, minutesToTime } from "./utils/timeHelper";
 
 const Home: React.FC = () => {
-  const [planes, setPlanes] = useState<PlaneProps[]>([]);
+  const [planes, setPlanes] = useState<PlaneProps[]>(flightPlans);
   const [showModal, setShowModal] = useState(true);
   const [startSimulation, setStartSimulation] = useState(false);
   const [controlClock, setControlClock] = useState(0); // Control clock in minutes
 
+  const speedFactor = 5; // 1 real-time second = 100,000 simulation seconds
+  const interval = 604800  / speedFactor;
+
   // Update control clock every real-time second
   useEffect(() => {
     if (!startSimulation) return; // Don't start the clock if startSimulation is not true
-  
+
+    // Convert to Peru time
+    const peruTime = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Lima' });
+
+    console.log(`Simulation started at ${peruTime} Peru time`);
+
     const intervalId = setInterval(() => {
-      setControlClock((prevClock) => (prevClock + 5) % (24 * 60)); // Wrap around every 24 hours
-    }, 1000); // Every real-time second
-  
+      setControlClock((prevClock) => (prevClock + 0.5) % (24 * 60)); // Wrap around every 24 hours
+    }, 500/speedFactor); // Every real-time second
+
     const timeoutId = setTimeout(() => {
       clearInterval(intervalId); // Stop the interval after 10 seconds
-    }, 10000); // 10 real-time seconds
-  
+      setStartSimulation(false); // Set startSimulation to false
+
+      const peruTime = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Lima' });
+      console.log(`Simulation stopped at ${peruTime} Peru time`);
+
+    }, interval*1000); // 10 real-time seconds
+
     return () => {
       clearInterval(intervalId); // Clean up on unmount
       clearTimeout(timeoutId); // Clear the timeout on unmount
     };
   }, [startSimulation]);
-
-  // Update planes based on control clock
-  useEffect(() => {
-    if (!startSimulation) return;
-
-    setPlanes((prevPlanes) => {
-      let newPlanes: PlaneProps[] = [...prevPlanes];
-
-      console.log("controlClock", minutesToTime(controlClock));
-      console.log("newPlanes before departure", newPlanes);
-
-      let flag = false;
-
-      // Add planes with departureTime equal to control clock
-      const departingPlanes = flightPlans.filter(
-        (plan) =>
-          timeToMinutes(plan.departureTime) <= controlClock &&
-          !newPlanes.includes(plan)
-      );
-      if (departingPlanes.length > 0) {
-        newPlanes = [...newPlanes, ...departingPlanes];
-        flag = true;
-      }
-        
-
-      // console.log("departingPlanes", departingPlanes);
-
-      // Remove planes whose arrivalTime plus one hour has passed
-      let ninitial = newPlanes.length;
-      newPlanes = newPlanes.filter((plane) => {
-        const arrivalTimeMinutes = timeToMinutes(plane.arrivalTime);
-        const oneHourLater = (arrivalTimeMinutes + 30) % (24 * 60); // Wrap around every 24 hours
-        return controlClock < oneHourLater;
-      });
-
-      if (newPlanes.length !== ninitial) flag = true;
-
-      console.log("newPlanes after arrival", newPlanes);
-
-      if (flag) return newPlanes;
-      return prevPlanes;
-    });
-  }, [controlClock, startSimulation]);
-
-  // useEffect(() => {
-  //   if (!startSimulation) return;
-  
-  //   let currentTime = controlClock;
-  //   let currentPlanes: PlaneProps[] = [...planes];
-  
-  //   while(currentTime) { // Run the loop for 5 iterations
-  //     currentTime = (currentTime + 2) % (24 * 60); // Wrap around every 24 hours
-  
-  //     // Add planes with departureTime equal to currentTime
-  //     const departingPlanes = flightPlans.filter(
-  //       (plan) =>
-  //         timeToMinutes(plan.departureTime) <= currentTime &&
-  //         !currentPlanes.includes(plan)
-  //     );
-  //     currentPlanes = [...currentPlanes, ...departingPlanes];
-  
-  //     // Remove planes whose arrivalTime plus one hour has passed
-  //     currentPlanes = currentPlanes.filter((plane) => {
-  //       const arrivalTimeMinutes = timeToMinutes(plane.arrivalTime);
-  //       const oneHourLater = (arrivalTimeMinutes + 30) % (24 * 60); // Wrap around every 24 hours
-  //       return currentTime < oneHourLater;
-  //     });
-
-  //     setPlanes(currentPlanes);
-  //   }
-  
-  //   setControlClock(currentTime);
-    
-  // }, [startSimulation]);
 
   useEffect(() => {
     console.log("PLANES HAVE CHANGED!");
@@ -130,7 +69,10 @@ const Home: React.FC = () => {
       <Topbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <Map planes={startSimulation ? planes : []} />{" "}
+        <Map
+          planes={startSimulation ? planes : []}
+          controlClock={controlClock}
+        />
         {/* Pass planes only if simulation starts */}
         {showModal && (
           <ConfigurationModal onApply={handleApplyConfiguration} />

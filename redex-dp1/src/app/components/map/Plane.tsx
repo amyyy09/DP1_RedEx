@@ -14,6 +14,7 @@ const Plane: React.FC<PlaneProps> = ({
   departureTime,
   arrivalTime,
   capacidad,
+  controlClock,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([
     origin.coords.lat,
@@ -23,51 +24,88 @@ const Plane: React.FC<PlaneProps> = ({
 
   const [duration, setDuration] = useState(0);
 
+  // useEffect(() => {
+  //   const timeToMinutes = (time: string) => {
+  //     const [hours, minutes] = time.split(":").map(Number);
+  //     return hours * 60 + minutes;
+  //   };
+
+  //   const departureTimeMinutes = timeToMinutes(departureTime);
+  //   let arrivalTimeMinutes = timeToMinutes(arrivalTime);
+
+  //   // If the arrival time is less than the departure time, add 24 hours (in minutes) to the arrival time
+  //   if (arrivalTimeMinutes < departureTimeMinutes) {
+  //     arrivalTimeMinutes += 24 * 60;
+  //   }
+
+  //   const durationMinutes = arrivalTimeMinutes - departureTimeMinutes;
+
+  //   // Convert the duration to real-time seconds using the given rule
+  //   setDuration((durationMinutes / 5) * 1000); // Multiply by 1000 to convert seconds to milliseconds
+  // }, [departureTime, arrivalTime]);
+
+  // useEffect(() => {
+  //   if (duration === 0) return;
+
+  //   let startTime: number | null = null;
+
+  //   const animate = (timestamp: number) => {
+  //     if (!startTime) startTime = timestamp;
+  //     const progress = Math.min((timestamp - startTime) / duration, 1);
+
+  //     const newLat =
+  //       origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+  //     const newLng =
+  //       origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+
+  //     setPosition([newLat, newLng] as LatLngExpression);
+
+  //     if (progress < 1) {
+  //       requestAnimationFrame(animate);
+  //     }
+  //   };
+
+  //   requestAnimationFrame(animate);
+  // }, [origin, destiny, duration]);
+
   useEffect(() => {
+    if (controlClock === undefined) return;
+
     const timeToMinutes = (time: string) => {
       const [hours, minutes] = time.split(":").map(Number);
       return hours * 60 + minutes;
     };
 
     const departureTimeMinutes = timeToMinutes(departureTime);
-    let arrivalTimeMinutes = timeToMinutes(arrivalTime);
+    const arrivalTimeMinutes = timeToMinutes(arrivalTime);
 
-    // If the arrival time is less than the departure time, add 24 hours (in minutes) to the arrival time
-    if (arrivalTimeMinutes < departureTimeMinutes) {
-      arrivalTimeMinutes += 24 * 60;
+    // If controlClock is greater than departureTime, don't start the animation
+    if (controlClock > departureTimeMinutes) {
+      setIsVisible(true);
+    } else {
+      return;
     }
 
-    const durationMinutes = arrivalTimeMinutes - departureTimeMinutes;
+    // If controlClock is greater than arrivalTime, end the animation
+    if (controlClock > arrivalTimeMinutes) {
+      setIsVisible(false);
+      return;
+    }
 
-    // Convert the duration to real-time seconds using the given rule
-    setDuration((durationMinutes / 5) * 1000); // Multiply by 1000 to convert seconds to milliseconds
-  }, [departureTime, arrivalTime]);
+    // Calculate progress based on controlClock, departureTime and arrivalTime
+    const progress =
+      (controlClock - departureTimeMinutes) /
+      (arrivalTimeMinutes - departureTimeMinutes);
 
-  useEffect(() => {
-    if (duration === 0) return;
+    const newLat =
+      origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+    const newLng =
+      origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
 
-    let startTime: number | null = null;
+    setPosition([newLat, newLng] as LatLngExpression);
+  }, [origin, destiny, controlClock, departureTime, arrivalTime]);
 
-    const animate = (timestamp: number) => {
-      if (!startTime) startTime = timestamp;
-      const progress = Math.min((timestamp - startTime) / duration, 1);
-
-      const newLat =
-        origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-      const newLng =
-        origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-
-      setPosition([newLat, newLng] as LatLngExpression);
-
-      if (progress < 1) {
-        requestAnimationFrame(animate);
-      }
-    };
-
-    requestAnimationFrame(animate);
-  }, [origin, destiny, duration]);
-
-  const [isVisible, setIsVisible] = useState(true);
+  const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
     if (duration === 0) return;
@@ -93,35 +131,39 @@ const Plane: React.FC<PlaneProps> = ({
 
   return (
     <>
-      <Polyline
-        positions={[
-          [origin.coords.lat, origin.coords.lng],
-          [destiny.coords.lat, destiny.coords.lng],
-        ]}
-        pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
-      />
-      <Marker position={position} icon={planeIcon}>
-        <Popup>
-          <div>
-            <h2>Detalles de vuelo</h2>
-            <p>
-              <strong>Origen:</strong> {origin.name}
-            </p>
-            <p>
-              <strong>Destino:</strong> {destiny.name}
-            </p>
-            <p>
-              <strong>Hora de salida:</strong> {departureTime}
-            </p>
-            <p>
-              <strong>Hora de llegada:</strong> {arrivalTime}
-            </p>
-            <p>
-              <strong>Capacidad:</strong> {capacidad}
-            </p>
-          </div>
-        </Popup>
-      </Marker>
+      {isVisible && (
+        <Polyline
+          positions={[
+            [origin.coords.lat, origin.coords.lng],
+            [destiny.coords.lat, destiny.coords.lng],
+          ]}
+          pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
+        />
+      )}
+      {isVisible && (
+        <Marker position={position} icon={planeIcon}>
+          <Popup>
+            <div>
+              <h2>Detalles de vuelo</h2>
+              <p>
+                <strong>Origen:</strong> {origin.name}
+              </p>
+              <p>
+                <strong>Destino:</strong> {destiny.name}
+              </p>
+              <p>
+                <strong>Hora de salida:</strong> {departureTime}
+              </p>
+              <p>
+                <strong>Hora de llegada:</strong> {arrivalTime}
+              </p>
+              <p>
+                <strong>Capacidad:</strong> {capacidad}
+              </p>
+            </div>
+          </Popup>
+        </Marker>
+      )}
     </>
   );
 };
