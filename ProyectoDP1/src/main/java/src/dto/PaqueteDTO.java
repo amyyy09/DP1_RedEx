@@ -36,7 +36,7 @@ public class PaqueteDTO extends BaseEntity{
     private String idPaquete;
 
     @Column(name = "estado")
-    private String estado;//ver el cambio de esto a enum
+    private int estado;//ver el cambio de esto a enum
 
     @Column(name = "ubicacion")
     private String ubicacion;

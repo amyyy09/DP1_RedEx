@@ -18,4 +18,6 @@ public class Aeropuerto {
     private String alias;
     private int zonaHorariaGMT;
     private Almacen almacen;
+    private String latitud;
+    private String longitud;
 }

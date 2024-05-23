@@ -8,6 +8,7 @@ import src.Application;
 import src.dto.AeropuertoDTO;
 import src.model.*;
 import src.service.AeropuertoService;
+import src.service.EnvioService;
 import src.services.*;
 import src.utility.*;
 
@@ -21,12 +22,13 @@ public class pso {
 	public static void main(String[] args) {
 		// PlanificacionService planificacionService = new PlanificacionService();
 		VueloServices vueloService = new VueloServices();
+		
 		// AeropuertoService aeropuertoService = new AeropuertoService();
 
 		ApplicationContext context = SpringApplication.run(Application.class, args);
 
         AeropuertoService aeropuertoService = context.getBean(AeropuertoService.class);
-
+		EnvioService envioService = context.getBean(EnvioService.class);
 		
 
 		
@@ -35,10 +37,11 @@ public class pso {
 			aeropuertoService.saveAllAeropuertos(aeropuertos);
 			
 			
-
-			String archivoRutaEnvios = "src/main/resources/envios.csv";
-			
+			System.out.println("Almacenando envios en la base de datos... en el tiempo de ejecución: " + System.currentTimeMillis());
+			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
+			envioService.guardarEnvios(envios);
+			System.out.println("Envios almacenados en la base de datos. en el tiempo de ejecución: " + System.currentTimeMillis());
             //envios = envios.subList(0, 50);
 			/* 
 			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);

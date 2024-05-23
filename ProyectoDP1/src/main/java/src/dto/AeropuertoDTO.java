@@ -50,10 +50,10 @@ public class AeropuertoDTO extends BaseEntity {
     private int zonaHorariaGTM;
 
     @Column(name = "longitud")
-    private double longitud;
+    private String longitud;
 
     @Column(name = "latitud")
-    private double latitud; 
+    private String latitud; 
 
     @Column(name = "capacidad")
     private long capacidad;
