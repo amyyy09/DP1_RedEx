@@ -71,17 +71,11 @@ public class RutaPredefinidaService {
         List<Aeropuerto> aeropuertos = aeropuertosEntities.stream().map(Aeropuerto::convertirAeropuetoFromEntity)
                 .collect(Collectors.toList());
 
-        PlanDeVueloService planDeVueloService = new PlanDeVueloService();
         List<PlanDeVueloEntity> planesDeVueloEntities = planDeVueloRepository.findAll();
         List<PlanDeVuelo> planes = planesDeVueloEntities.stream().map(PlanDeVuelo::convertirPlanDeVueloFromEntity)
                 .collect(Collectors.toList());
 
-        System.out.println("Cantidad de aeropuertos obtenidos: " + aeropuertos.size());
-        System.out.println("Cantidad de planes obtenidos: " + planes.size());
-
         List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
-
-        System.out.println("Cantidad de rutas obtenidos: " + rutas.size());
 
         List<RutaPredefinidaEntity> rutasEntities = rutas.stream()
                 .map(RutaPredefinida::convertirARutaPredefinidaEntity) // agregar esto
@@ -94,31 +88,17 @@ public class RutaPredefinidaService {
                 break; // Si ya hemos insertado 300 rutas, salimos del bucle
             }
 
+            RutaPredefinida ruta = rutas.get(cantidadRutasInsertadas);
             rutaPredefinidaRepository.save(rutaEntity);
-            cantidadRutasInsertadas++;
-            System.out.println("Ruta predefinida insertada - Entidad número: " + cantidadRutasInsertadas);
-        }
 
-        // Imprimir una ruta predefinida para validar que esté llegando correctamente
-        if (!rutas.isEmpty()) {
-            RutaPredefinida ruta = rutas.get(0); // Tomar la primera ruta como ejemplo
-            System.out.println("Ruta predefinida: " + ruta);
-        }
-
-        for (int i = 0; i < rutas.size(); i++) {
-            if (cantidadRutasInsertadas >= limite) {
-                break; // Si ya hemos insertado 300 rutas, salimos del bucle
-            }
-
-            RutaPredefinida ruta = rutas.get(i);
-            RutaPredefinidaEntity rutaentity = rutasEntities.get(i);
-
-            for (PlanDeVuelo plan : ruta.getEscalas()) {
+            for (PlanDeVuelo i : ruta.getEscalas()) {
                 EscalasEntity escala = new EscalasEntity();
-                escala.setRutaPredefinida(rutaentity);
-                escala.setPlanDeVuelo(planDeVueloService.convertToEntity(plan));
+                escala.setRutaPredefinida(rutaEntity);
                 escalasRepository.save(escala);
             }
+
+            cantidadRutasInsertadas++;
+            System.out.println("Ruta predefinida insertada - Entidad número: " + cantidadRutasInsertadas);
         }
     }
 
