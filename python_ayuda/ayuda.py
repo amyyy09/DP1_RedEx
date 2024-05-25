@@ -1,7 +1,7 @@
 
 import os
 # Path to the input files
-input_dir = 'python_ayuda/data.envios.pasado.futuro'
+input_dir = 'python_ayuda/enviado'
 
 # Path to the output file
 output_file = 'python_ayuda/combined.txt'

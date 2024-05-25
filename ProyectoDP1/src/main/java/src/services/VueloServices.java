@@ -28,8 +28,8 @@ public class VueloServices {
             String[] partes = line.split("-");
             String codigoIATAOrigen = partes[0];
             String idEnvio = partes[1];
-            // LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
-            LocalDateTime fechaHora = LocalDateTime.now();
+            LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
+            //LocalDateTime fechaHora = LocalDateTime.now();
             
             String codigoIATADestino = partes[4].split(":")[0];
             int cantPaquetes = Integer.parseInt(partes[4].split(":")[1]);

@@ -40,7 +40,7 @@ public class pso {
 			System.out.println("Almacenando envios en la base de datos... en el tiempo de ejecución: " + System.currentTimeMillis());
 			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
-			envioService.guardarEnvios(envios);
+			//envioService.guardarEnvios(envios);
 			System.out.println("Envios almacenados en la base de datos. en el tiempo de ejecución: " + System.currentTimeMillis());
             //envios = envios.subList(0, 50);
 			/* 
