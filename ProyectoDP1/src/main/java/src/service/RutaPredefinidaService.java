@@ -65,8 +65,9 @@ public class RutaPredefinidaService {
     }
 
     @Transactional
-    public void generarRutasPredefinidas() throws IOException {
-        System.out.println("Iniciando generación de rutas predefinidas...");
+    public List<RutaPredefinida> generarRutasPredefinidas() throws IOException {
+        System.out.println(
+                "Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
         List<AeropuertoEntity> aeropuertosEntities = aeropuertoRepository.findAll();
         List<Aeropuerto> aeropuertos = aeropuertosEntities.stream().map(Aeropuerto::convertirAeropuetoFromEntity)
                 .collect(Collectors.toList());
@@ -75,67 +76,31 @@ public class RutaPredefinidaService {
         List<PlanDeVuelo> planes = planesDeVueloEntities.stream().map(PlanDeVuelo::convertirPlanDeVueloFromEntity)
                 .collect(Collectors.toList());
 
-        List<RutaPredefinida> rutas = generarRutas(aeropuertos, planes);
-
-        List<RutaPredefinidaEntity> rutasEntities = rutas.stream()
-                .map(RutaPredefinida::convertirARutaPredefinidaEntity) // agregar esto
-                .collect(Collectors.toList());
-
-        int limite = 300;
-        int cantidadRutasInsertadas = 0;
-        for (RutaPredefinidaEntity rutaEntity : rutasEntities) {
-            if (cantidadRutasInsertadas >= limite) {
-                break; // Si ya hemos insertado 300 rutas, salimos del bucle
-            }
-
-            RutaPredefinida ruta = rutas.get(cantidadRutasInsertadas);
-            rutaPredefinidaRepository.save(rutaEntity);
-
-            for (PlanDeVuelo plan : ruta.getEscalas()) {
-                EscalasEntity escala = new EscalasEntity();
-                escala.setRutaPredefinida(rutaEntity);
-                PlanDeVueloEntity planDeVueloEntity = new PlanDeVueloEntity();
-                planDeVueloEntity.setId(plan.getId());
-                escala.setPlanDeVuelo(planDeVueloEntity);
-                escalasRepository.save(escala);
-            }
-
-            cantidadRutasInsertadas++;
-            System.out.println("Ruta predefinida insertada - Entidad número: " + cantidadRutasInsertadas);
-        }
-    }
-
-    private List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
+        for (Aeropuerto origen : aeropuertos) {
+            for (Aeropuerto destino : aeropuertos) {
+                if (!origen.equals(destino)) {
+                    List<Integer> daysm = new ArrayList<>();
+                    Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
+                    List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes, daysm, sameContinent);
 
-        Aeropuerto origen = aeropuertos.stream()
-                .filter(a -> a.getCodigoIATA().equals("ZBAA"))
-                .findFirst()
-                .orElse(null);
-        if (origen == null)
-            return rutas;
-
-        // for (Aeropuerto origen : aeropuertos) {
-        for (Aeropuerto destino : aeropuertos) {
-            if (!origen.equals(destino)) {
-                List<Integer> daysm = new ArrayList<>();
-                Boolean sameContinent = origen.getContinente().equals(destino.getContinente());
-                List<List<PlanDeVuelo>> planesRutas = generarEscalas(origen, destino, planes, daysm, sameContinent);
-                for (int i = 0; i < planesRutas.size(); i++) {
-                    List<PlanDeVuelo> planRuta = planesRutas.get(i);
-                    RutaPredefinida ruta = new RutaPredefinida(
-                            origen.getCodigoIATA(),
-                            destino.getCodigoIATA(),
-                            planRuta.get(0).getHoraSalida(),
-                            planRuta.get(planRuta.size() - 1).getHoraLlegada(),
-                            planRuta,
-                            daysm.get(i), // get the corresponding value from the daysm array
-                            sameContinent);
-                    rutas.add(ruta);
+                    for (int i = 0; i < planesRutas.size(); i++) {
+                        List<PlanDeVuelo> planRuta = planesRutas.get(i);
+                        RutaPredefinida ruta = new RutaPredefinida(
+                                origen.getCodigoIATA(),
+                                destino.getCodigoIATA(),
+                                planRuta.get(0).getHoraSalida(),
+                                planRuta.get(planRuta.size() - 1).getHoraLlegada(),
+                                planRuta,
+                                daysm.get(i), // Obtener el valor correspondiente del array daysm
+                                sameContinent);
+                        rutas.add(ruta);
+                    }
                 }
             }
         }
-        // }
+
+        System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
         return rutas;
     }
 
@@ -156,12 +121,12 @@ public class RutaPredefinidaService {
 
         if (current.equals(destination)) {
             if (!currentRoute.isEmpty() && !allRoutes.contains(currentRoute)) {
-                List<PlanDeVuelo> routeToAdd = new ArrayList<>(currentRoute);
-                allRoutes.add(routeToAdd);
+                allRoutes.add(new ArrayList<>(currentRoute));
                 daysm.add(totalDays);
                 return;
             }
         }
+
         if (currentRoute.size() > 3 || visited.contains(current)) {
             return; // Limit recursion depth and prevent visiting the same airport in one route
         }
@@ -173,7 +138,6 @@ public class RutaPredefinidaService {
 
         for (PlanDeVuelo plan : filteredPlanes) {
             if (!visited.contains(plan.getCodigoIATADestino())) {
-
                 if (currentRoute.isEmpty() || currentRoute.get(currentRoute.size() - 1).getHoraLlegada().plusMinutes(5)
                         .isBefore(plan.getHoraSalida())) { // Ensure at least 5 minutes between flights
                     currentRoute.add(plan);
