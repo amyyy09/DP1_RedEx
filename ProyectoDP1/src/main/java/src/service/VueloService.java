@@ -25,8 +25,6 @@ public class VueloService {
             String[] partes = line.split("-");
             String codigoIATAOrigen = partes[0];
             String idEnvio = partes[1];
-            // LocalDateTime fechaHora = LocalDateTime.parse(partes[2] + "-" + partes[3],
-            // formatter);
             LocalDateTime fechaHora = LocalDateTime.now();
 
             String codigoIATADestino = partes[4].split(":")[0];
@@ -50,18 +48,13 @@ public class VueloService {
 
     public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
-        // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona
-        // horaria correspondiente.
-
         int vueloId = 1;
         for (PlanDeVuelo plan : planesDeVuelo) {
-            // if (ahora.isAfter(plan.getHoraSalida()) &&
-            // ahora.isBefore(plan.getHoraLlegada())) {
             Vuelo vuelo = new Vuelo();
-            vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
-            vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
+            vuelo.setIdVuelo(vueloId++);
+            vuelo.setCantPaquetes(0);
             vuelo.setCapacidad(plan.getCapacidad());
-            vuelo.setStatus(1); // Establece el estado en tránsito.
+            vuelo.setStatus(1);
             vuelo.setPlanDeVuelo(plan);
             LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), plan.getHoraSalida().toLocalTime());
             vuelo.setHoraSalida(horaInicio);
@@ -71,7 +64,6 @@ public class VueloService {
             }
             vuelo.setHoraLlegada(horaFin);
             vuelosActuales.add(vuelo);
-            // }
         }
 
         return vuelosActuales;
@@ -84,7 +76,7 @@ public class VueloService {
         for (String line : lines) {
             String[] parts = line.split("-");
             if (parts.length < 5)
-                continue; // Asegura que todas las partes necesarias están presentes.
+                continue;
 
             PlanDeVuelo plan = parsePlanDeVuelo(parts, aeropuertos);
             if (plan != null) {
@@ -93,53 +85,6 @@ public class VueloService {
         }
 
         return planesDeVuelo;
-    }
-
-    public static List<RutaPredefinida> getRutasConEscalas(List<Aeropuerto> aeropuertos, String archivo)
-            throws IOException {
-        List<String> lines = FileUtils.readLines(archivo);
-        List<RutaPredefinida> rutas = new ArrayList<>();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-
-        for (String line : lines) {
-            String[] vuelos = line.split("\\|");
-            List<PlanDeVuelo> planDeVuelos = new ArrayList<>();
-            int duracion = 0;
-
-            for (String vuelo : vuelos) {
-                String[] detalles = vuelo.split(",");
-                Aeropuerto aeropuertoOrigen = findAeropuertoByCodigo(aeropuertos, detalles[0]);
-                Aeropuerto aeropuertoDestino = findAeropuertoByCodigo(aeropuertos, detalles[1]);
-
-                if (aeropuertoOrigen == null || aeropuertoDestino == null)
-                    continue; // Skip if no airport data
-
-                LocalTime horaSalidaLocal = LocalTime.parse(detalles[2], formatter);
-                LocalTime horaLlegadaLocal = LocalTime.parse(detalles[3], formatter);
-                int capacidad = Integer.parseInt(detalles[4]);
-
-                OffsetTime salida = OffsetTime.of(horaSalidaLocal,
-                        ZoneOffset.ofHours(aeropuertoOrigen.getZonaHorariaGMT()));
-                OffsetTime llegada = OffsetTime.of(horaLlegadaLocal,
-                        ZoneOffset.ofHours(aeropuertoDestino.getZonaHorariaGMT()));
-
-                PlanDeVuelo planDeVuelo = new PlanDeVuelo(detalles[0], detalles[1], salida,
-                        llegada, capacidad, false);
-                planDeVuelos.add(planDeVuelo);
-            }
-
-            if (!planDeVuelos.isEmpty()) {
-                RutaPredefinida ruta = new RutaPredefinida(
-                        planDeVuelos.get(0).getCodigoIATAOrigen(),
-                        planDeVuelos.get(planDeVuelos.size() - 1)
-                                .getCodigoIATADestino(),
-                        planDeVuelos.get(0).getHoraSalida(),
-                        planDeVuelos.get(planDeVuelos.size() - 1).getHoraLlegada(),
-                        planDeVuelos, duracion, false);
-                rutas.add(ruta);
-            }
-        }
-        return rutas;
     }
 
     private static String formatoRutaCSV(RutaPredefinida ruta) {
@@ -181,7 +126,8 @@ public class VueloService {
 
         if (horaSalidaOffset != null && horaLlegadaOffset != null) {
             boolean isSameContinent = isSameContinent(codigoIATAOrigen, codigoIATADestino, aeropuertos);
-            return new PlanDeVuelo(codigoIATAOrigen, codigoIATADestino, horaSalidaOffset, horaLlegadaOffset, capacidad,
+            return new PlanDeVuelo(0, codigoIATAOrigen, codigoIATADestino, horaSalidaOffset, horaLlegadaOffset,
+                    capacidad,
                     isSameContinent);
         }
         return null;
@@ -217,15 +163,6 @@ public class VueloService {
                     vuelo.getPlanDeVuelo().getHoraSalida().isBefore(horaActual) &&
                     vuelo.getPlanDeVuelo().getHoraLlegada().isAfter(horaActual)) {
                 return vuelo;
-            }
-        }
-        return null;
-    }
-
-    public static Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String codigoIATA) {
-        for (Aeropuerto aeropuerto : aeropuertos) {
-            if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
-                return aeropuerto.getAlmacen();
             }
         }
         return null;

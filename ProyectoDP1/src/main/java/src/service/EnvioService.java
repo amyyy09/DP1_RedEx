@@ -1,4 +1,5 @@
 package src.service;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +25,7 @@ public class EnvioService {
     VueloService vueloService = new VueloService();
 
     private List<Envio> envios;
-    private final String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt" ;
+    private final String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
 
     @PostConstruct
     public void init() {
@@ -43,9 +44,9 @@ public class EnvioService {
 
     @Autowired
     private PaqueteRepository paqueteRepository;
-    
+
     public List<Envio> getEnvios() {
         return envios;
     }
-    
+
 }

@@ -33,10 +33,6 @@ public class PlanDeVueloEntity extends BaseEntity {
     @Column(name = "codigoIATADestino")
     private String codigoIATADestino;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_aeropuertoDestino", referencedColumnName = "id")
-    private AeropuertoEntity aeropuertoDestino;
-
     @Column(name = "fechaHoraSalida")
     private OffsetTime horaSalida;
 

@@ -15,22 +15,24 @@ import org.springframework.stereotype.Component;
 @Component
 public class FitnessEvaluatorService {
     private double penalizacionPorExceso = 50.0; // Penalización por cada unidad que excede la capacidad
+    private double valorBaseFitness = 0; // Puntaje base de fitness
 
     public FitnessEvaluatorService() {
     }
 
     public FitnessEvaluatorService(double penalizacionPorExceso, double valorBaseFitness) {
         this.penalizacionPorExceso = penalizacionPorExceso;
+        this.valorBaseFitness = valorBaseFitness;
     }
 
-    public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Almacen> almacenes,
+    public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActivos, boolean gbest) { // RUTA -> FITNESSVALUE
         double penalizacion = 0.0;
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
         int contNoAtendidos = 0;
         int minPrev;
-        Double fitnessValue = 0.0;
+        Double fitnessValue = valorBaseFitness;
 
         int size = particula.size();
 
@@ -77,7 +79,8 @@ public class FitnessEvaluatorService {
                 TreeMap<LocalDateTime, Integer> usoCapacidadAlmacenesOrigen = usoCapacidadAlmacenes
                         .computeIfAbsent(codigoIATAOrigen, k -> new TreeMap<>());
 
-                Almacen almacenOrigen = almacenes.get(codigoIATAOrigen);
+                // Almacen almacenOrigen = almacenes.get(codigoIATAOrigen);
+                Aeropuerto aeropuertoOrigen = aeropuertos.get(codigoIATAOrigen);
                 // int capacidadOrigen = almacenOrigen.getCapacidad();
                 int ocupacionOrigen;
                 // verificar que en el map de usoCapacidadAlmacenesOrigen no exista fechas
@@ -87,10 +90,10 @@ public class FitnessEvaluatorService {
                     if (fechaAnterior != null) {
                         ocupacionOrigen = usoCapacidadAlmacenesOrigen.get(fechaAnterior);
                     } else {
-                        ocupacionOrigen = almacenOrigen.getCantPaquetes();
+                        ocupacionOrigen = aeropuertoOrigen.getCantPaquetes();
                     }
                 } else {
-                    ocupacionOrigen = almacenOrigen.getCantPaquetes();
+                    ocupacionOrigen = aeropuertoOrigen.getCantPaquetes();
                 }
 
                 usoCapacidadAlmacenesOrigen.put(vuelos.get(i).getHoraSalida(), ocupacionOrigen - 1);
@@ -102,7 +105,8 @@ public class FitnessEvaluatorService {
                     usoCapacidadAlmacenesOrigen.put(entry.getKey(), entry.getValue() - 1);
                 }
 
-                Almacen almacenDestino = almacenes.get(codigoIATADestino);
+                // Almacen almacenDestino = almacenes.get(codigoIATADestino);
+                Aeropuerto aeropuertoDestino = aeropuertos.get(codigoIATADestino);
                 // int capacidadDestino = almacenDestino.getCapacidad();
                 int ocupacionDestino;
                 // si no existe la clave en usoCapacidadAlmacenes la creamos
@@ -115,10 +119,10 @@ public class FitnessEvaluatorService {
                     if (fechaAnterior != null) {
                         ocupacionDestino = usoCapacidadAlmacenesDestino.get(fechaAnterior);
                     } else {
-                        ocupacionDestino = almacenDestino.getCantPaquetes();
+                        ocupacionDestino = aeropuertoDestino.getCantPaquetes();
                     }
                 } else {
-                    ocupacionDestino = almacenDestino.getCantPaquetes();
+                    ocupacionDestino = aeropuertoDestino.getCantPaquetes();
                 }
 
                 usoCapacidadAlmacenesDestino.put(vuelos.get(i).getHoraLlegada(), ocupacionDestino + 1);
@@ -148,20 +152,21 @@ public class FitnessEvaluatorService {
         for (Map.Entry<String, TreeMap<LocalDateTime, Integer>> entry : usoCapacidadAlmacenes.entrySet()) {
             String key = entry.getKey();
             TreeMap<LocalDateTime, Integer> value = entry.getValue();
-            Almacen almacen = almacenes.get(key);
+            // Almacen almacen = almacenes.get(key);
+            Aeropuerto aeropuerto = aeropuertos.get(key);
             int contInterno = 0;
             for (Map.Entry<LocalDateTime, Integer> entry2 : value.entrySet()) {
                 // c=5. 3, 4, 5, 6, 7, 6, 5, 4, 5, 6, 7, 8
                 Integer value2 = entry2.getValue();
-                if (value2 > almacen.getCapacidad()) {
-                    penalizacion += (value2 - almacen.getCapacidad()) * penalizacionPorExceso;
+                if (value2 > aeropuerto.getCapacidad()) {
+                    penalizacion += (value2 - aeropuerto.getCapacidad()) * penalizacionPorExceso;
                     if (value2 > contInterno) {
                         contInterno = value2;
                     }
                 }
             }
             if (contInterno != 0) {
-                contNoAtendidos += contInterno - almacen.getCapacidad();
+                contNoAtendidos += contInterno - aeropuerto.getCapacidad();
             }
         }
         if (gbest) {
@@ -172,27 +177,4 @@ public class FitnessEvaluatorService {
 
         return fitnessValue;
     }
-
-    // private Vuelo encontrarVueloActual(List<Vuelo> vuelosActivos, RutaTiempoReal
-    // ruta) {
-    // for (Vuelo vuelo : vuelosActivos) {
-    // for (Vuelo vueloEnRuta : ruta.getVuelos()) {
-    // if (vuelo.getIdVuelo() == vueloEnRuta.getIdVuelo()) {
-    // return vuelo;
-    // }
-    // }
-    // }
-    // return null; // Retornar null si no se encuentra ningún vuelo que coincida
-    // }
-
-    // private Almacen encontrarAlmacenActual(List<Aeropuerto> aeropuertos, String
-    // codigoIATA) {
-    // for (Aeropuerto aeropuerto : aeropuertos) {
-    // if (aeropuerto.getCodigoIATA().equals(codigoIATA)) {
-    // return aeropuerto.getAlmacen();
-    // }
-    // }
-    // return null; // Retornar null si no se encuentra ningún almacén que coincida
-    // }
-
 }
