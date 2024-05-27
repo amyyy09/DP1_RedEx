@@ -1,26 +1,24 @@
 package src.controllers;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import de.mkammerer.argon2.Argon2;
-import de.mkammerer.argon2.Argon2Factory;
 import src.dto.AeropuertoDTO;
+import src.model.Aeropuerto;
 import src.service.AeropuertoService;
 
 
@@ -82,5 +80,20 @@ public class AeropuertoController {
         return resultado;
     }
     
+    //implementacion
+    @PostMapping("/cargar")
+    public ResponseEntity<String> cargarAeropuertos(@RequestBody String json) {
+        try {
+            aeropuertoService.cargarAeropuertos(json);
+            return new ResponseEntity<>("Aeropuertos cargados correctamente", HttpStatus.OK);
+        } catch (IOException e) {
+            return new ResponseEntity<>("Error al cargar los aeropuertos", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Aeropuerto>> obtenerAeropuertos() {
+        return new ResponseEntity<>(aeropuertoService.obtenerAeropuertos(), HttpStatus.OK);
+    }
     
 }

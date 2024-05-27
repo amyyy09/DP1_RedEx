@@ -1,5 +1,6 @@
 package src.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -14,6 +15,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import io.lettuce.core.dynamic.annotation.Param;
 import src.dto.AeropuertoDTO;
 import src.dto.PlanDeVueloDTO;
@@ -24,6 +27,10 @@ import src.utility.ConversionesModelDTO;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
+import com.fasterxml.jackson.core.type.TypeReference;
+
 
 @Service
 public class AeropuertoService {
@@ -90,6 +97,18 @@ public class AeropuertoService {
     public void saveAllAeropuertos(List<Aeropuerto> aeropuertos){
         List<AeropuertoDTO> aeropuertoDTOs= aeropuertos.stream().map(ConversionesModelDTO :: convetirAeropuetoToDTO).collect(Collectors.toList());
         aeropuertoRepository.saveAll(aeropuertoDTOs);
+    }
+
+    // Implementacion
+    private List<Aeropuerto> aeropuertos;
+
+    public void cargarAeropuertos(String json) throws IOException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        aeropuertos = objectMapper.readValue(json, new TypeReference<List<Aeropuerto>>() {});
+    }
+
+    public List<Aeropuerto> obtenerAeropuertos() {
+        return aeropuertos;
     }
     
 }

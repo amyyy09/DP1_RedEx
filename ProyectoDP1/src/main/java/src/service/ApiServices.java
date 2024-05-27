@@ -15,6 +15,7 @@ import src.model.*;
 import src.services.PlanificacionService;
 import src.services.VueloServices;
 import src.utility.*;
+import src.service.AeropuertoService;
 
 @Service
 public class ApiServices {
@@ -29,7 +30,7 @@ public class ApiServices {
         Map<Paquete, RutaTiempoReal> resultado = null;
         String jsonResult = null;
         try {
-            List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
+            List<Aeropuerto> aeropuertos = AeropuertoService.obtenerAeropuertos();
             //String archivoRutaEnvios = "../../resources/pack_enviado_ZBAA.txt";
 			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
             
