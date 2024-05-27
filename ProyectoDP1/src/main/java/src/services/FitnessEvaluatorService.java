@@ -72,6 +72,7 @@ public class FitnessEvaluatorService {
 
             for(int i=0; i<vuelos.size();i++){
                 // agregamos un paquete a la capacidad del vuelo en usoCapacidadVuelos
+                // cambiar para que se compare el indexPlan en lugar del idVuelo
                 usoCapacidadVuelos.put(vuelos.get(i).getIdVuelo(), usoCapacidadVuelos.getOrDefault(vuelos.get(i).getIdVuelo(), 0) + 1);
                 String codigoIATAOrigen = vuelos.get(i).getPlanDeVuelo().getCodigoIATAOrigen();
                 String codigoIATADestino = vuelos.get(i).getPlanDeVuelo().getCodigoIATADestino();
