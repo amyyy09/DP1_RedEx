@@ -4,6 +4,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,7 +25,7 @@ public class Particula {
 
     public static Map<Paquete, RutaTiempoReal> inicializarPosicion(List<Envio> envios,
             Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred, 
-            List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos) {
+            List<Aeropuerto> aeropuertos, List<Vuelo> vuelosActivos, LocalDateTime fechaHora) {
         Map<Paquete, RutaTiempoReal> position = new HashMap<>();
         for (Envio envio : envios) {
             String codigoIATAOrigen = envio.getCodigoIATAOrigen();
@@ -81,7 +82,7 @@ public class Particula {
                 int index = new Random().nextInt(filteredRutasPred.size());
                 RutaPredefinida randomRoute = filteredRutasPred.get(index);
                 // cambia un poco la lógica de la siguiente línea, se le añade la fecha hora del envío
-                RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
+                RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos, fechaHora);
                 position.put(pkg, randTiempoReal);
             }
         }

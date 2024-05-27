@@ -54,11 +54,11 @@ public class VueloServices {
         List<Vuelo> vuelosActuales = new ArrayList<>();
         // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
 
-        int vueloId = 1;
+        // int vueloId = 1;
         for (PlanDeVuelo plan : planesDeVuelo) {
             // if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
                 Vuelo vuelo = new Vuelo();
-                vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
+                // vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
                 vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
                 vuelo.setCapacidad(plan.getCapacidad());
                 vuelo.setStatus(1); // Establece el estado en tránsito.

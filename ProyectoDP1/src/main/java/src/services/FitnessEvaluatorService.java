@@ -3,7 +3,6 @@ package src.services;
 import src.model.*;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -16,20 +15,20 @@ import org.springframework.stereotype.Component;
 @Component
 public class FitnessEvaluatorService {
     private double penalizacionPorExceso = 50.0; // Penalización por cada unidad que excede la capacidad
-    private double valorBaseFitness = 0; // Puntaje base de fitness
+    // private double valorBaseFitness = 0; // Puntaje base de fitness
 
     public FitnessEvaluatorService() {
     }
 
     public FitnessEvaluatorService(double penalizacionPorExceso, double valorBaseFitness) {
         this.penalizacionPorExceso = penalizacionPorExceso;
-        this.valorBaseFitness = valorBaseFitness;
+        // this.valorBaseFitness = valorBaseFitness;
     }
 
     public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Almacen> almacenes,
             List<Vuelo> vuelosActivos, boolean gbest) { //RUTA -> FITNESSVALUE
         double penalizacion = 0.0;
-        Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
+        Map<String, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
         int contNoAtendidos = 0;
         int minPrev;
@@ -138,8 +137,8 @@ public class FitnessEvaluatorService {
 
 
         // Verificar capacidad de vuelo
-        for (Map.Entry<Integer, Integer> entry : usoCapacidadVuelos.entrySet()) {
-            Integer key = entry.getKey();
+        for (Map.Entry<String, Integer> entry : usoCapacidadVuelos.entrySet()) {
+            String key = entry.getKey();
             Integer value = entry.getValue();
             // si la cantidad de paquetes en el vuelo es mayor a la capacidad del vuelo
             Vuelo vuelo = vuelosActivos.stream().filter(v -> v.getIdVuelo() == key).findFirst().orElse(null);

@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import java.time.LocalDateTime;
 
 import src.model.*;
 import src.services.PlanificacionService;
@@ -57,7 +58,7 @@ public class ApiServices {
 			}
 			System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
 			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
-				resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales);
+				resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales, LocalDateTime.now());
 			}
             // Convertir el resultado a JSON
             ObjectMapper objectMapper = new ObjectMapper();

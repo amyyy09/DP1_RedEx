@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -34,9 +32,9 @@ public class api {
 
         
 
-        // Aquí pasarías los datos de envíos, almacenes y vuelos al algoritmo PSO
+        // Aquí pasarías los datos de envíos, almacenes y vuelos al algoritmo PSO, también la fecha y hora
         // Por ejemplo:
-        // psoAlgorithm.ejecutar(envios, peticionPSO.getAlmacenes(), peticionPSO.getVuelos());
+        // psoAlgorithm.ejecutar(fechaHoraParsed, envios, peticionPSO.getAlmacenes(), peticionPSO.getVuelos());
 
         return "PSO ejecutado con éxito"; // Puedes devolver un resultado más significativo según sea necesario
     }

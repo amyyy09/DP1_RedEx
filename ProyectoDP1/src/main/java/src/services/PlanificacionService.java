@@ -3,6 +3,7 @@ package src.services;
 import src.model.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -145,7 +146,7 @@ public class PlanificacionService {
 
     public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
             Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales) {
+            List<Vuelo> vuelosActuales, LocalDateTime fechaHoraEjecucion) {
         List<Particula> population = new ArrayList<>();
         int numParticles = 50;
         int numIterationsMax = 100;
@@ -155,7 +156,7 @@ public class PlanificacionService {
         
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
-            particle.setPosicion(Particula.inicializarPosicion(envios, rutasPredMap, aeropuertos, vuelosActuales));
+            particle.setPosicion(Particula.inicializarPosicion(envios, rutasPredMap, aeropuertos, vuelosActuales, fechaHoraEjecucion));
             particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
             particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales, false));
@@ -193,7 +194,7 @@ public class PlanificacionService {
 
                         RutaPredefinida newPosition = rutasPred.get(posIndex);
 
-                        RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales);
+                        RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales, fechaHoraEjecucion);
 
                         particle.getPosicion().put(paquete, newRTR);
                     }
