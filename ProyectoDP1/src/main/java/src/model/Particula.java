@@ -80,6 +80,7 @@ public class Particula {
             for (Paquete pkg : envio.getPaquetes()) {
                 int index = new Random().nextInt(filteredRutasPred.size());
                 RutaPredefinida randomRoute = filteredRutasPred.get(index);
+                // cambia un poco la lógica de la siguiente línea, se le añade la fecha hora del envío
                 RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos);
                 position.put(pkg, randTiempoReal);
             }

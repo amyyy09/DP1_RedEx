@@ -16,6 +16,7 @@ public class Vuelo {
     private int cantPaquetes;
     private int capacidad;
     private int status;
+    private int indexPlan;
     private LocalDateTime horaSalida;
     private LocalDateTime horaLlegada;
     private PlanDeVuelo planDeVuelo;

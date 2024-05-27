@@ -38,6 +38,7 @@ public class ApiServices {
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
             envios = envios.subList(0, 1);
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
+            // aquí vuelos Actuales sería básicamente lo que manda back mezclado con lo que necesita la clase Vuelo.
 			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
             List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
