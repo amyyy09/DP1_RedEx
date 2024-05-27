@@ -14,3 +14,9 @@ export interface PlaneProps {
   capacidad: number;
   controlClock?: number;
 }
+
+export interface FlightProps {
+  origin: Airport;
+  destiny: Airport;
+  arrivalTime: string;
+}
