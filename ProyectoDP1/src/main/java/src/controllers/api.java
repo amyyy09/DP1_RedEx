@@ -2,6 +2,7 @@ package src.controllers;
 
 import src.model.*;
 import src.service.ApiServices;
+import src.service.EnvioService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -19,6 +20,9 @@ public class api {
     @Autowired
     private ApiServices psoService;
 
+    @Autowired  
+    private EnvioService envioService;
+
     @CrossOrigin
     @GetMapping(value= "/pso")
     String ejecutarPso() {
@@ -32,7 +36,7 @@ public class api {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
 
-        
+        List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
 
         // Aquí pasarías los datos de envíos, almacenes y vuelos al algoritmo PSO
         // Por ejemplo:

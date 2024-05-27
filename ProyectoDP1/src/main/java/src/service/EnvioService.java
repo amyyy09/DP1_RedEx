@@ -37,6 +37,9 @@ public class EnvioService {
 
     VueloServices vueloService = new VueloServices();
 
+    @Autowired
+    private AeropuertoService aeropuertoService;
+
     private List<Envio> envios;
     private final String archivoRutaEnvios = "ProyectoDP1/src/main/resources/combined.txt" ;
 
@@ -59,8 +62,16 @@ public class EnvioService {
     public List<Envio> getEnviosPorFechaHora(LocalDateTime fechaHora) {
         LocalDateTime fechaHoraFin = fechaHora.plusMinutes(20);
         return envios.stream()
-                     .filter(envio -> !envio.getFechaHoraOrigen().isBefore(fechaHora) && envio.getFechaHoraOrigen().isBefore(fechaHoraFin))
+                     .filter(envio -> {
+                         LocalDateTime fechaHoraGMT0 = convertirAGMT0(envio.getFechaHoraOrigen(), envio.getCodigoIATAOrigen());
+                         return !fechaHoraGMT0.isBefore(fechaHora) && fechaHoraGMT0.isBefore(fechaHoraFin);
+                     })
                      .collect(Collectors.toList());
+    }
+
+    public LocalDateTime convertirAGMT0(LocalDateTime fechaHora, String codigoIATAOrigen) {
+        int zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(codigoIATAOrigen);
+        return fechaHora.minusHours(zonaHorariaGMT);
     }
 
     public void guardarEnvios (List<Envio> envios) {
