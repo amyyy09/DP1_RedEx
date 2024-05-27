@@ -18,10 +18,6 @@ import java.util.stream.Collectors;
 public class VueloService {
 
     public List<Envio> getEnvios(String archivo) throws IOException {
-<<<<<<< HEAD
-=======
-        // DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
->>>>>>> origin/Amy
         List<String> lines = FileUtils.readLines(archivo);
         List<Envio> envios = new ArrayList<>();
 

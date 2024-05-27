@@ -6,17 +6,11 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import io.lettuce.core.dynamic.annotation.Param;
 import src.entity.AeropuertoEntity;
-import src.entity.PlanDeVueloEntity;
 import src.repository.AeropuertoRepository;
-import src.repository.PlanDeVueloRepository;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
