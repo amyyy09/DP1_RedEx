@@ -21,16 +21,24 @@ public class FitnessEvaluatorService {
 
     public FitnessEvaluatorService(double penalizacionPorExceso, double valorBaseFitness) {
         this.penalizacionPorExceso = penalizacionPorExceso;
+<<<<<<< HEAD
     }
 
     public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Almacen> almacenes,
             List<Vuelo> vuelosActivos, boolean gbest) { // RUTA -> FITNESSVALUE
+=======
+        this.valorBaseFitness = valorBaseFitness;
+    }
+
+    public Double fitness(Map<Paquete, RutaTiempoReal> particula, Map<String, Aeropuerto> aeropuertos,
+            List<Vuelo> vuelosActivos, boolean gbest) { //RUTA -> FITNESSVALUE
+>>>>>>> origin/Amy
         double penalizacion = 0.0;
         Map<Integer, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
         int contNoAtendidos = 0;
         int minPrev;
-        Double fitnessValue = 0.0;
+        Double fitnessValue = valorBaseFitness;
 
         int size = particula.size();
 
@@ -75,9 +83,16 @@ public class FitnessEvaluatorService {
                 String codigoIATADestino = vuelos.get(i).getPlanDeVuelo().getCodigoIATADestino();
                 // si no existe la clave en usoCapacidadAlmacenes la creamos
                 TreeMap<LocalDateTime, Integer> usoCapacidadAlmacenesOrigen = usoCapacidadAlmacenes
+<<<<<<< HEAD
                         .computeIfAbsent(codigoIATAOrigen, k -> new TreeMap<>());
 
                 Almacen almacenOrigen = almacenes.get(codigoIATAOrigen);
+=======
+                    .computeIfAbsent(codigoIATAOrigen, k -> new TreeMap<>());
+                
+                // Almacen almacenOrigen = almacenes.get(codigoIATAOrigen);
+                Aeropuerto aeropuertoOrigen = aeropuertos.get(codigoIATAOrigen);
+>>>>>>> origin/Amy
                 // int capacidadOrigen = almacenOrigen.getCapacidad();
                 int ocupacionOrigen;
                 // verificar que en el map de usoCapacidadAlmacenesOrigen no exista fechas
@@ -86,11 +101,21 @@ public class FitnessEvaluatorService {
                     LocalDateTime fechaAnterior = usoCapacidadAlmacenesOrigen.lowerKey(vuelos.get(i).getHoraSalida());
                     if (fechaAnterior != null) {
                         ocupacionOrigen = usoCapacidadAlmacenesOrigen.get(fechaAnterior);
+<<<<<<< HEAD
                     } else {
                         ocupacionOrigen = almacenOrigen.getCantPaquetes();
                     }
                 } else {
                     ocupacionOrigen = almacenOrigen.getCantPaquetes();
+=======
+                    }
+                    else{
+                        ocupacionOrigen = aeropuertoOrigen.getCantPaquetes();
+                    }
+                }
+                else{
+                    ocupacionOrigen = aeropuertoOrigen.getCantPaquetes();
+>>>>>>> origin/Amy
                 }
 
                 usoCapacidadAlmacenesOrigen.put(vuelos.get(i).getHoraSalida(), ocupacionOrigen - 1);
@@ -102,7 +127,8 @@ public class FitnessEvaluatorService {
                     usoCapacidadAlmacenesOrigen.put(entry.getKey(), entry.getValue() - 1);
                 }
 
-                Almacen almacenDestino = almacenes.get(codigoIATADestino);
+                // Almacen almacenDestino = almacenes.get(codigoIATADestino);
+                Aeropuerto aeropuertoDestino = aeropuertos.get(codigoIATADestino);
                 // int capacidadDestino = almacenDestino.getCapacidad();
                 int ocupacionDestino;
                 // si no existe la clave en usoCapacidadAlmacenes la creamos
@@ -114,11 +140,21 @@ public class FitnessEvaluatorService {
                     LocalDateTime fechaAnterior = usoCapacidadAlmacenesDestino.lowerKey(vuelos.get(i).getHoraLlegada());
                     if (fechaAnterior != null) {
                         ocupacionDestino = usoCapacidadAlmacenesDestino.get(fechaAnterior);
+<<<<<<< HEAD
                     } else {
                         ocupacionDestino = almacenDestino.getCantPaquetes();
                     }
                 } else {
                     ocupacionDestino = almacenDestino.getCantPaquetes();
+=======
+                    }
+                    else{
+                        ocupacionDestino = aeropuertoDestino.getCantPaquetes();
+                    }
+                }
+                else{
+                    ocupacionDestino = aeropuertoDestino.getCantPaquetes();
+>>>>>>> origin/Amy
                 }
 
                 usoCapacidadAlmacenesDestino.put(vuelos.get(i).getHoraLlegada(), ocupacionDestino + 1);
@@ -148,20 +184,32 @@ public class FitnessEvaluatorService {
         for (Map.Entry<String, TreeMap<LocalDateTime, Integer>> entry : usoCapacidadAlmacenes.entrySet()) {
             String key = entry.getKey();
             TreeMap<LocalDateTime, Integer> value = entry.getValue();
-            Almacen almacen = almacenes.get(key);
+            // Almacen almacen = almacenes.get(key);
+            Aeropuerto aeropuerto = aeropuertos.get(key);
             int contInterno = 0;
             for (Map.Entry<LocalDateTime, Integer> entry2 : value.entrySet()) {
                 // c=5. 3, 4, 5, 6, 7, 6, 5, 4, 5, 6, 7, 8
                 Integer value2 = entry2.getValue();
+<<<<<<< HEAD
                 if (value2 > almacen.getCapacidad()) {
                     penalizacion += (value2 - almacen.getCapacidad()) * penalizacionPorExceso;
                     if (value2 > contInterno) {
+=======
+                if (value2 > aeropuerto.getCapacidad()) {
+                    penalizacion += (value2 - aeropuerto.getCapacidad()) * penalizacionPorExceso;
+                    if(value2 > contInterno){
+>>>>>>> origin/Amy
                         contInterno = value2;
                     }
                 }
             }
+<<<<<<< HEAD
             if (contInterno != 0) {
                 contNoAtendidos += contInterno - almacen.getCapacidad();
+=======
+            if(contInterno != 0){
+                contNoAtendidos += contInterno - aeropuerto.getCapacidad();
+>>>>>>> origin/Amy
             }
         }
         if (gbest) {

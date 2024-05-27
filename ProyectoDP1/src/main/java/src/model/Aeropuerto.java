@@ -18,6 +18,7 @@ public class Aeropuerto {
     private String continente;
     private String alias;
     private int zonaHorariaGMT;
+<<<<<<< HEAD
     private Almacen almacen;
     private double longitud;
     private double latitud;
@@ -55,4 +56,9 @@ public class Aeropuerto {
         aeropuerto.setAlmacen(almacen);
         return aeropuerto;
     }
+=======
+    private long capacidad;
+    private int cantPaquetes;
+    // private Almacen almacen;
+>>>>>>> origin/Amy
 }
