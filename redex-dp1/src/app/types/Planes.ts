@@ -16,7 +16,7 @@ export interface PlaneProps {
 }
 
 export interface FlightProps {
-  origin: Airport;
-  destiny: Airport;
-  arrivalTime: string;
+  id: string;
+  date: Airport;
+  paquetes: string;
 }
