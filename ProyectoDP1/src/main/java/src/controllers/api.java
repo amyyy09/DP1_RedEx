@@ -36,6 +36,9 @@ public class api {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
 
+        List<Aeropuerto> aeropuertos = peticionPSO.getAeropuertos();
+        List<Vuelo> vuelos = peticionPSO.getVuelos();
+
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
 
         // Aquí pasarías los datos de envíos, almacenes y vuelos al algoritmo PSO
