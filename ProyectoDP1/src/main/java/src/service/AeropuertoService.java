@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
@@ -24,6 +25,9 @@ import src.model.Aeropuerto;
 import src.repository.AeropuertoRepository;
 import src.repository.PlanDeVueloRepository;
 import src.utility.ConversionesModelDTO;
+import src.utility.DatosAeropuertos;
+
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -41,6 +45,29 @@ public class AeropuertoService {
 
     @PersistenceContext
     EntityManager entityManager;
+
+    private List<Aeropuerto> aeropuertos;
+
+    @PostConstruct
+    public void init() {
+        aeropuertos = new CopyOnWriteArrayList<>();
+        try {
+            aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
+            System.out.println("Se cargaron los aeropuertos");
+        } catch (Exception e) {
+            // Maneja la excepción de acuerdo a tus necesidades
+            System.err.println("Error al cargar los aeropuertos: " + e.getMessage());
+        }
+        
+    }
+
+    public int getZonaHorariaGMT(String codigoIATA) {
+        return aeropuertos.stream()
+                          .filter(aeropuerto -> aeropuerto.getCodigoIATA().equals(codigoIATA))
+                          .map(Aeropuerto::getZonaHorariaGMT)
+                          .findFirst()
+                          .orElse(0);
+    }
 
     public AeropuertoDTO register (AeropuertoDTO aeropuertoDTO) {
         try {
@@ -100,7 +127,6 @@ public class AeropuertoService {
     }
 
     // Implementacion
-    private List<Aeropuerto> aeropuertos;
 
     public void cargarAeropuertos(String json) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
