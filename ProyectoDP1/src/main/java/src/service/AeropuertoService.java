@@ -1,7 +1,9 @@
 package src.service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -58,7 +60,6 @@ public class AeropuertoService {
             // Maneja la excepción de acuerdo a tus necesidades
             System.err.println("Error al cargar los aeropuertos: " + e.getMessage());
         }
-        
     }
 
     public int getZonaHorariaGMT(String codigoIATA) {
@@ -125,16 +126,22 @@ public class AeropuertoService {
         List<AeropuertoDTO> aeropuertoDTOs= aeropuertos.stream().map(ConversionesModelDTO :: convetirAeropuetoToDTO).collect(Collectors.toList());
         aeropuertoRepository.saveAll(aeropuertoDTOs);
     }
-
-    // Implementacion
-
-    public void cargarAeropuertos(String json) throws IOException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        aeropuertos = objectMapper.readValue(json, new TypeReference<List<Aeropuerto>>() {});
-    }
-
-    public List<Aeropuerto> obtenerAeropuertos() {
-        return aeropuertos;
-    }
     
+    public static List<Aeropuerto> actualizarAeropuertos(List<Aeropuerto> modAeroList) {
+        // Convertir la lista inicial de aeropuertos a un Map
+        Map<String, Aeropuerto> aeropuertoMap = DatosAeropuertos.getAeropuertosInicializados().stream()
+            .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, aero -> aero));
+
+        // Iterar sobre la lista modificada y actualizar el Map
+        for (Aeropuerto modAero : modAeroList) {
+            Aeropuerto aero = aeropuertoMap.get(modAero.getCodigoIATA());
+            if (aero != null) {
+                aero.getAlmacen().setCapacidad(modAero.getAlmacen().getCapacidad());
+                aero.getAlmacen().setCantPaquetes(modAero.getAlmacen().getCantPaquetes());
+            }
+        }
+
+        // Convertir el Map de vuelta a una lista
+        return new ArrayList<>(aeropuertoMap.values());
+    }
 }

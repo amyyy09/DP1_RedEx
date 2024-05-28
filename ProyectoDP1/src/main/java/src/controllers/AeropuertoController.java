@@ -80,20 +80,4 @@ public class AeropuertoController {
         return resultado;
     }
     
-    //implementacion
-    @PostMapping("/cargar")
-    public ResponseEntity<String> cargarAeropuertos(@RequestBody String json) {
-        try {
-            aeropuertoService.cargarAeropuertos(json);
-            return new ResponseEntity<>("Aeropuertos cargados correctamente", HttpStatus.OK);
-        } catch (IOException e) {
-            return new ResponseEntity<>("Error al cargar los aeropuertos", HttpStatus.INTERNAL_SERVER_ERROR);
-        }
-    }
-
-    @GetMapping
-    public ResponseEntity<List<Aeropuerto>> obtenerAeropuertos() {
-        return new ResponseEntity<>(aeropuertoService.obtenerAeropuertos(), HttpStatus.OK);
-    }
-    
 }

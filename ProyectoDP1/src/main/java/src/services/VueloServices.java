@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class VueloServices {
 
-    public List<Envio> getEnvios(String archivo) throws IOException {
+    public static List<Envio>  getEnvios(String archivo) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         List<String> lines = FileUtils.readLines(archivo);
         List<Envio> envios = new ArrayList<>();
@@ -50,7 +50,7 @@ public class VueloServices {
 
     }
 
-    public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
+    public static List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
         // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
 
@@ -77,7 +77,7 @@ public class VueloServices {
         return vuelosActuales;
     }
 
-    public List<PlanDeVuelo> getPlanesDeVuelo(List<Aeropuerto> aeropuertos, String archivo) throws IOException {
+    public static List<PlanDeVuelo> getPlanesDeVuelo(List<Aeropuerto> aeropuertos, String archivo) throws IOException {
         List<String> lines = FileUtils.readLines(archivo);
         List<PlanDeVuelo> planesDeVuelo = new ArrayList<>();
 
@@ -171,7 +171,7 @@ public class VueloServices {
         }
     }
 
-    private PlanDeVuelo parsePlanDeVuelo(int i, String[] parts, List<Aeropuerto> aeropuertos) {
+    private static PlanDeVuelo parsePlanDeVuelo(int i, String[] parts, List<Aeropuerto> aeropuertos) {
         String codigoIATAOrigen = parts[0];
         String codigoIATADestino = parts[1];
         LocalTime horaSalidaLocal = LocalTime.parse(parts[2]);
@@ -189,7 +189,7 @@ public class VueloServices {
         return null;
     }
 
-    private OffsetTime getOffsetTimeForAirport(String codigoIATA, LocalTime localTime, List<Aeropuerto> aeropuertos) {
+    private static OffsetTime getOffsetTimeForAirport(String codigoIATA, LocalTime localTime, List<Aeropuerto> aeropuertos) {
         return aeropuertos.stream()
                 .filter(a -> a.getCodigoIATA().equals(codigoIATA))
                 .findFirst()
@@ -197,7 +197,7 @@ public class VueloServices {
                 .orElse(null);
     }
 
-    private boolean isSameContinent(String codigoIATAOrigen, String codigoIATADestino, List<Aeropuerto> aeropuertos) {
+    private static boolean isSameContinent(String codigoIATAOrigen, String codigoIATADestino, List<Aeropuerto> aeropuertos) {
         Aeropuerto origen = findAeropuertoByCodigo(aeropuertos, codigoIATAOrigen);
         Aeropuerto destino = findAeropuertoByCodigo(aeropuertos, codigoIATADestino);
         return origen != null && destino != null && origen.getContinente().equals(destino.getContinente());

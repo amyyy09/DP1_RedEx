@@ -22,19 +22,18 @@ import src.service.AeropuertoService;
 public class ApiServices {
 
     @Autowired
-    private PlanificacionService planificacionService;
+    private static PlanificacionService planificacionService;
 
     @Autowired
-    private VueloServices vueloService;
+    private static VueloServices vueloService;
 
-    public String ejecutarPso() {
+    public static String ejecutarPso(List <Aeropuerto> modAero) {
         Map<Paquete, RutaTiempoReal> resultado = null;
         String jsonResult = null;
         try {
-            List<Aeropuerto> aeropuertos = AeropuertoService.obtenerAeropuertos();
+            List<Aeropuerto> aeropuertos = AeropuertoService.actualizarAeropuertos(modAero); //actualización de aeropuertos
             //String archivoRutaEnvios = "../../resources/pack_enviado_ZBAA.txt";
-			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
-            
+			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";   
             String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
             envios = envios.subList(0, 1);
