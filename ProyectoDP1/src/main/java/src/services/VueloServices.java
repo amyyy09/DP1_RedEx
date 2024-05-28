@@ -21,6 +21,7 @@ public class VueloServices {
 
     public List<Envio> getEnvios(String archivo) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
+        
         List<String> lines = FileUtils.readLines(archivo);
         List<Envio> envios = new ArrayList<>();
 
@@ -143,18 +144,27 @@ public class VueloServices {
     }
 
     private static String formatoRutaCSV(RutaPredefinida ruta) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        DateTimeFormatter OFFSET_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mmXXX");
+
+        // Formatear la información principal de la ruta
+        String rutaInfo = String.format("%s,%s,%s,%s,%d,%b",
+                ruta.getCodigoIATAOrigen(),
+                ruta.getCodigoIATADestino(),
+                ruta.getHoraSalida() != null ? ruta.getHoraSalida().format(OFFSET_TIME_FORMATTER)  : "N/D",
+                ruta.getHoraLlegada() != null ? ruta.getHoraLlegada().format(OFFSET_TIME_FORMATTER)  : "N/D",
+                ruta.getDuracion(),
+                ruta.isSameContinent());
+
         String detallesPlanes = ruta.getEscalas().stream()
                 .map(plan -> String.format("%s,%s,%s,%s,%d",
                         plan.getCodigoIATAOrigen(),
                         plan.getCodigoIATADestino(),
-                        plan.getHoraSalida() != null ? plan.getHoraSalida().format(formatter)
-                                : "N/D",
-                        plan.getHoraLlegada() != null ? plan.getHoraLlegada().format(formatter)
-                                : "N/D",
+                        plan.getHoraSalida() != null ? plan.getHoraSalida().format(OFFSET_TIME_FORMATTER)  : "N/D",
+                        plan.getHoraLlegada() != null ? plan.getHoraLlegada().format(OFFSET_TIME_FORMATTER) : "N/D",
                         plan.getCapacidad()))
                 .collect(Collectors.joining("|"));
-        return detallesPlanes;
+        
+        return rutaInfo + "|" + detallesPlanes;
     }
 
     public static void guardarRutasEnCSV(List<RutaPredefinida> rutas, String archivoDestino) {

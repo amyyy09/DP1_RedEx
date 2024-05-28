@@ -3,6 +3,7 @@ package src.controllers;
 import src.model.*;
 import src.service.ApiServices;
 import src.service.EnvioService;
+import src.service.RutaPredefinidaService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -23,6 +24,9 @@ public class api {
     @Autowired  
     private EnvioService envioService;
 
+    @Autowired
+    private RutaPredefinidaService rutaPredefinidaService;
+
     @CrossOrigin
     @GetMapping(value= "/pso")
     String ejecutarPso() {
@@ -41,6 +45,7 @@ public class api {
 
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
 
+        List<RutaPredefinida> rutasPredefinidas = rutaPredefinidaService.getRutasPredefinidas();
         // Aquí pasarías los datos de envíos, almacenes y vuelos al algoritmo PSO
         // Por ejemplo:
         // psoAlgorithm.ejecutar(envios, peticionPSO.getAlmacenes(), peticionPSO.getVuelos());

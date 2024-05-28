@@ -9,6 +9,7 @@ import src.dto.AeropuertoDTO;
 import src.model.*;
 import src.service.AeropuertoService;
 import src.service.EnvioService;
+import src.service.RutaPredefinidaService;
 import src.services.*;
 import src.utility.*;
 
@@ -20,8 +21,9 @@ import java.util.stream.Collectors;
 public class pso {
 
 	public static void main(String[] args) {
-		// PlanificacionService planificacionService = new PlanificacionService();
+		PlanificacionService planificacionService = new PlanificacionService();
 		VueloServices vueloService = new VueloServices();
+		//RutaPredefinidaService rutaPredefinidaService = new RutaPredefinidaService();
 		
 		// AeropuertoService aeropuertoService = new AeropuertoService();
 
@@ -29,7 +31,7 @@ public class pso {
 
         AeropuertoService aeropuertoService = context.getBean(AeropuertoService.class);
 		EnvioService envioService = context.getBean(EnvioService.class);
-		
+		RutaPredefinidaService rutaPredefinidaService = context.getBean(RutaPredefinidaService.class);
 
 		
 		try {
@@ -39,19 +41,36 @@ public class pso {
 			
 			System.out.println("Almacenando envios en la base de datos... en el tiempo de ejecución: " + System.currentTimeMillis());
 			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
+			
+			String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
 			//envioService.guardarEnvios(envios);
 			System.out.println("Envios almacenados en la base de datos. en el tiempo de ejecución: " + System.currentTimeMillis());
             //envios = envios.subList(0, 50);
-			/* 
+			 
 			List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
 			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
             System.out.println("Paquetes: " + paquetes.size());
-            System.out.println("Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
-            List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
-            System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
+            
+			// System.out.println("Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
+            // List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
+            // System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
+			
+			
+			//vueloService.guardarRutasEnCSV(rutasPred, "ProyectoDP1/src/main/resources/rutas_predefinidas.csv");
+			//System.out.println("Rutas predefinidas almacenadas en el archivo rutas_predefinidas.csv." );
+			
+			List<RutaPredefinida> rutasPred3 = rutaPredefinidaService.getRutasPredefinidas();
 
+			System.out.println("leyendo el archivo rutaspred... en el tiempo de ejecución: " + System.currentTimeMillis());
+            List<RutaPredefinida> rutasPred2 = rutaPredefinidaService.cargarRutas("ProyectoDP1/src/main/resources/rutas_predefinidas.csv");		
+            System.out.println("lecturas de rutas pred en." + System.currentTimeMillis());
+
+			System.out.println("cierre");
+			
+			
+			/* 
 			System.out.println("Pasos previos al PSO en el tiempo de ejecución: " + System.currentTimeMillis());
             Map<String, Almacen> almacenes = aeropuertos.stream()
     			.collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
