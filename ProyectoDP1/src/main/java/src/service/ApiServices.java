@@ -59,7 +59,7 @@ public class ApiServices {
 			}
 
 			System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
-			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
+			if (!envios.isEmpty()) {
 				resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales, LocalDateTime.now());
                 json=planificacionService.transformResult(resultado);
 			}
