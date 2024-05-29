@@ -15,7 +15,7 @@ const Home: React.FC = () => {
   const [startSimulation, setStartSimulation] = useState(false);
   const [controlClock, setControlClock] = useState(0); // Control clock in minutes
 
-  const speedFactor = 5; // 1 real-time second = 100,000 simulation seconds
+  const speedFactor = 252; 
   const interval = 604800  / speedFactor;
 
   // Update control clock every real-time second
@@ -28,7 +28,17 @@ const Home: React.FC = () => {
     console.log(`Simulation started at ${peruTime} Peru time`);
 
     const intervalId = setInterval(() => {
-      setControlClock((prevClock) => (prevClock + 0.5) % (24 * 60)); // Wrap around every 24 hours
+      setControlClock((prevClock) => {
+        const newClock = (prevClock + 0.5) % (24 * 60); // Wrap around every 24 hours
+    
+        // If newClock is a multiple of 20, log a message
+        if (newClock % 120 === 0) {
+          console.log(`120 minutes of simulation time have passed at ${new Date().toLocaleTimeString('en-US', { timeZone: 'America/Lima' })} Peru time`);
+          console.log(`Control clock: ${minutesToTime(newClock)}`); // Convert the control clock to HH:MM format
+        }
+    
+        return newClock;
+      });
     }, 500/speedFactor); // Every real-time second
 
     const timeoutId = setTimeout(() => {
@@ -38,7 +48,7 @@ const Home: React.FC = () => {
       const peruTime = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Lima' });
       console.log(`Simulation stopped at ${peruTime} Peru time`);
 
-    }, interval*1000); // 10 real-time seconds
+    }, interval*1000);
 
     return () => {
       clearInterval(intervalId); // Clean up on unmount
