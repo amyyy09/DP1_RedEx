@@ -38,7 +38,7 @@ public class api {
         List<Vuelo> vuelos = peticionPSO.getVuelos();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
         List<RutaPredefinida> rutasPredefinidas = rutaPredefinidaService.getRutasPredefinidas();
-        
+        List<RutaPredefinida> rutasPredefinidas2 = rutaPredefinidaService.getRutasPredefinidas2();
         ApiServices.ejecutarPso(aeropuertos,vuelos,envios,rutasPredefinidas);
 
         return "PSO ejecutado con éxito"; // Puedes devolver un resultado más significativo según sea necesario

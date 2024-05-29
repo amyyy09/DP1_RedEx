@@ -20,30 +20,48 @@ public class RutaPredefinidaService {
     private static final DateTimeFormatter OFFSET_TIME = DateTimeFormatter.ofPattern("HH:mm");
     
     private List<RutaPredefinida> rutasPredefinidas;
+    private List<RutaPredefinida> rutasPredefinidas2;
 
     @PostConstruct
     public void init() {
         rutasPredefinidas = new CopyOnWriteArrayList<>();
+        rutasPredefinidas2 = new CopyOnWriteArrayList<>();
         try {
             rutasPredefinidas = cargarRutas(
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredZBAA.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEBCI.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEDDI.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEBCI.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEDDI.csv", 
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredLATI.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLBSF.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLKPR.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLOWW.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLBSF.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLKPR.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLOWW.csv", 
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredSABE.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSBBR.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSBBR.csv", 
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredSCEL.csv",
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredSEQM.csv",
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredSGAS.csv",
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredSKBO.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSLLP.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSPIM.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSLLP.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSPIM.csv", 
             "ProyectoDP1/src/main/resources/rutasPred/rutasPredSUAA.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSVMI.csv"
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEHAM.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEKCH.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLDZA.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutasPredOMDB.csv"
         );
+           rutasPredefinidas2 =cargarRutas(
+        "ProyectoDP1/src/main/resources/rutasPred/rutasPredRJTT.csv",
+        "ProyectoDP1/src/main/resources/rutasPred/rutasPredRKSI.csv",
+        "ProyectoDP1/src/main/resources/rutasPred/rutasPredRPLL.csv",
+         "ProyectoDP1/src/main/resources/rutasPred/rutasPredUMMS.csv",
+         "ProyectoDP1/src/main/resources/rutasPred/rutasPredVIDP.csv",
+         "ProyectoDP1/src/main/resources/rutasPred/rutasPredVTBS.csv",
+         "ProyectoDP1/src/main/resources/rutasPred/rutasPredWIII.csv",
+         "ProyectoDP1/src/main/resources/rutasPred/rutasPredWMKK.csv",
+         "ProyectoDP1/src/main/resources/rutasPred/rutasPredWSSS.csv",
+         "ProyectoDP1/src/main/resources/rutasPred/rutasPredSVMI.csv" )
+        
+        ;
             System.out.println("Rutas predefinidas cargadas correctamente.");
         } catch (IOException e) {
             System.err.println("Error al cargar las rutas predefinidas: " + e.getMessage());
@@ -54,6 +72,9 @@ public class RutaPredefinidaService {
 
     public List<RutaPredefinida> getRutasPredefinidas() {
         return rutasPredefinidas;
+    }
+    public List<RutaPredefinida> getRutasPredefinidas2() {
+        return rutasPredefinidas2;
     }
 
     public List<RutaPredefinida> cargarRutas(String... archivos) throws IOException {
