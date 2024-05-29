@@ -177,29 +177,44 @@ public class PlanificacionService {
                         // Update velocity and position for each package (paquete) in the envio
                         double r1 = rand.nextDouble(), r2 = rand.nextDouble();
                         Paquete paquete = envios.get(k).getPaquetes().get(l);
-                        
-                        int indexPos = filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida());
-                        double velocity = w * particle.getVelocidad().get(k) +
+                        int indexPos=0;
+                        int posIndex=0;
+                        try{
+                        if(particle.getPosicion().get(paquete)==null){
+                            continue;
+                        }
+                        indexPos = filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida());
+                        double velocity=0;
+                        try{
+                        velocity = w * particle.getVelocidad().get(k) +
                             c1 * r1 * (indexPos
-                                - filteredRutasPred.indexOf(population.get(k).getPbest().get(paquete).getRutaPredefinida()))
+                                - filteredRutasPred.indexOf(particle.getPbest().get(paquete).getRutaPredefinida()))
                             +
                             c2 * r2 * (indexPos
                                 - filteredRutasPred.indexOf(gbest.get(paquete).getRutaPredefinida()));
+                        }catch(Exception e){
+                            System.err.println(k);
+                            e.printStackTrace();
+                        }
 
                         particle.getVelocidad().set(k, velocity);
                                     
                         double newPosIndex = indexPos + velocity;
 
-                        int posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
+                        posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
 
                         RutaPredefinida newPosition = rutasPred.get(posIndex);
 
                         RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales, fechaHoraEjecucion);
 
                         particle.getPosicion().put(paquete, newRTR);
+                        } catch(Exception e){
+                            System.err.println(posIndex);
+                            e.printStackTrace();
+                        }
                     }
                 }
-
+            
                 double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales, false);
 
                 if (fit < particle.getFbest()) {

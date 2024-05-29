@@ -29,6 +29,8 @@ public class ApiServices {
 
     public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios, List<RutaPredefinida> rutasPred) {
         Map<Paquete, RutaTiempoReal> resultado = null;
+        planificacionService = new PlanificacionService();
+        vueloService = new VueloServices();
         String jsonResult = null;
         try {
             List<Aeropuerto> aeropuertos = AeropuertoService.actualizarAeropuertos(modAero); //actualización de aeropuertos
