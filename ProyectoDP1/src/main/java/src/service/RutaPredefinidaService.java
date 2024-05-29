@@ -91,13 +91,14 @@ public class RutaPredefinidaService {
             List<PlanDeVuelo> escalas = new ArrayList<>();
             for (int i = 1; i < partesRuta.length; i++) {
                 String[] escalaPartes = partesRuta[i].split(",");
-                String escalaOrigen = escalaPartes[0];
-                String escalaDestino = escalaPartes[1];
-                OffsetTime escalaHoraSalida = OffsetTime.parse(escalaPartes[2], OFFSET_TIME_FORMATTER);
-                OffsetTime escalaHoraLlegada = OffsetTime.parse(escalaPartes[3], OFFSET_TIME_FORMATTER);
-                int escalaDuracion = Integer.parseInt(escalaPartes[4]);
+                int index = Integer.parseInt(escalaPartes[0]);
+                String escalaOrigen = escalaPartes[1];
+                String escalaDestino = escalaPartes[2];
+                OffsetTime escalaHoraSalida = OffsetTime.parse(escalaPartes[3], OFFSET_TIME_FORMATTER);
+                OffsetTime escalaHoraLlegada = OffsetTime.parse(escalaPartes[4], OFFSET_TIME_FORMATTER);
+                int escalaDuracion = Integer.parseInt(escalaPartes[5]);
 
-                PlanDeVuelo escala = new PlanDeVuelo(i, escalaOrigen, escalaDestino, escalaHoraSalida, escalaHoraLlegada, escalaDuracion, false);
+                PlanDeVuelo escala = new PlanDeVuelo(index, escalaOrigen, escalaDestino, escalaHoraSalida, escalaHoraLlegada, escalaDuracion, false);
                 escalas.add(escala);
             }
 

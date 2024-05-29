@@ -6,6 +6,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.util.List;
 import java.util.Map;
@@ -27,8 +30,11 @@ public class ApiServices {
     @Autowired
     private static VueloServices vueloService;
 
+
+    
     public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios, List<RutaPredefinida> rutasPred) {
-        Map<Paquete, RutaTiempoReal> resultado = null;
+        Map<Paquete, Resultado> json= null;
+        Map<Paquete, RutaTiempoReal> resultado = null;     
         planificacionService = new PlanificacionService();
         vueloService = new VueloServices();
         String jsonResult = null;
@@ -53,12 +59,14 @@ public class ApiServices {
 			}
 
 			System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
-			if (!envios.isEmpty() && !vuelosActuales.isEmpty()) {
+			if (!envios.isEmpty()) {
 				resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales, LocalDateTime.now());
+                json=planificacionService.transformResult(resultado);
 			}
             // Convertir el resultado a JSON
-            ObjectMapper objectMapper = new ObjectMapper();
-            jsonResult = objectMapper.writeValueAsString(resultado);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            jsonResult = mapper.writeValueAsString(json);
         } catch (Exception e) {
             e.printStackTrace();
         }

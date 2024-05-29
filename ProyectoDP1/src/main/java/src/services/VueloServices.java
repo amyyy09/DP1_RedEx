@@ -82,6 +82,7 @@ public class VueloServices {
 
             PlanDeVuelo plan = parsePlanDeVuelo(i, parts, aeropuertos);
             if (plan != null) {
+                plan.setIndexPlan(i);
                 planesDeVuelo.add(plan);
                 i++;
             }

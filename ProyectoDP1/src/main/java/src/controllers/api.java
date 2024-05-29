@@ -30,7 +30,7 @@ public class api {
 
     @PostMapping("/pso")
     public String ejecutarPSO(@RequestBody PeticionPSO peticionPSO) {
-        
+        String JSON;
         String fechaHora = peticionPSO.getFechahora();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
@@ -38,8 +38,8 @@ public class api {
         List<Vuelo> vuelos = peticionPSO.getVuelos();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
         List<RutaPredefinida> rutasPredefinidas = rutaPredefinidaService.getRutasPredefinidas();
-        ApiServices.ejecutarPso(aeropuertos,vuelos,envios,rutasPredefinidas);
+        JSON=ApiServices.ejecutarPso(aeropuertos,vuelos,envios,rutasPredefinidas);
 
-        return "PSO ejecutado con éxito"; // Puedes devolver un resultado más significativo según sea necesario
+        return JSON; // Puedes devolver un resultado más significativo según sea necesario
     }
 }

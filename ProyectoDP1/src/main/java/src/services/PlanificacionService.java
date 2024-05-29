@@ -320,4 +320,58 @@ public class PlanificacionService {
         return rutasPredMap;
     }
 
+    public static Map<Paquete, Resultado> transformResult(Map<Paquete, RutaTiempoReal> originalResult) {
+        Map<Paquete, Resultado> transformedResult = new HashMap<>();
+
+        for (Map.Entry<Paquete, RutaTiempoReal> entry : originalResult.entrySet()) {
+            RutaTiempoReal ruta = entry.getValue();
+            Resultado resultado = new Resultado();
+
+            resultado.setIdRuta(ruta.getIdRuta());
+
+            if (ruta.getOrigen() != null) {
+                String origen;
+                origen=ruta.getOrigen().getCodigoIATA();
+                resultado.setAeropuertoOrigen(origen);
+            }
+
+            if (ruta.getDestino() != null) {
+                String destino;
+                destino=ruta.getDestino().getCodigoIATA();
+                resultado.setAeropuertoDestino(destino);
+            }
+
+            resultado.setHoraInicio(ruta.getHoraInicio());
+            resultado.setHoraLlegada(ruta.getHoraLlegada());
+
+            if (ruta.getVuelos() != null) {
+                List<Vuelo> vuelosSimples = new ArrayList<>();
+                for (Vuelo vuelo : ruta.getVuelos()) {
+                    Vuelo vueloSimple = new Vuelo();
+                    vueloSimple.setIdVuelo(vuelo.getIdVuelo());
+                    vueloSimple.setCantPaquetes(vuelo.getCantPaquetes());
+                    vueloSimple.setCapacidad(vuelo.getCapacidad());
+                    vueloSimple.setStatus(vuelo.getStatus());
+                    vueloSimple.setIndexPlan(vuelo.getIndexPlan());
+                    vueloSimple.setHoraSalida(vuelo.getHoraSalida());
+                    vueloSimple.setHoraLlegada(vuelo.getHoraLlegada());
+                    vuelosSimples.add(vueloSimple);
+                }
+                resultado.setVuelos(vuelosSimples);
+            }
+
+            resultado.setStatus(ruta.getStatus());
+
+            if (ruta.getXAlmacen() != null) {
+                int almacenSimple;
+                almacenSimple=ruta.getXAlmacen().getCantPaquetes();
+                resultado.setCapacidadAlmacen(almacenSimple);
+            }
+
+            transformedResult.put(entry.getKey(), resultado);
+        }
+
+        return transformedResult;
+    }
+
 }
