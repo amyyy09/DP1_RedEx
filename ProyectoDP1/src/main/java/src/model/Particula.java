@@ -111,7 +111,7 @@ public class Particula {
         return val;
     }
 
-    public static Map<Paquete, RutaTiempoReal> determineGbest(List<Particula> population, Map<String, Aeropuerto> aeropuertos,
+    public static Map<Paquete, RutaTiempoReal> determineGbest(List<Particula> population, Map<String, Almacen> aeropuertos,
             List<Vuelo> vuelos) {
         Map<Paquete, RutaTiempoReal> gbest = new HashMap<Paquete, RutaTiempoReal>(population.get(0).getPosicion());
         FitnessEvaluatorService fitnessEvaluator = new FitnessEvaluatorService();
