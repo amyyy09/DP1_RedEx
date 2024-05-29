@@ -29,7 +29,7 @@ const Home: React.FC = () => {
 
     const intervalId = setInterval(() => {
       setControlClock((prevClock) => {
-        const newClock = (prevClock + 0.5) % (24 * 60); // Wrap around every 24 hours
+        const newClock = (prevClock + 1) % (24 * 60); // Wrap around every 24 hours
     
         // If newClock is a multiple of 20, log a message
         if (newClock % 120 === 0) {
@@ -39,7 +39,7 @@ const Home: React.FC = () => {
     
         return newClock;
       });
-    }, 500/speedFactor); // Every real-time second
+    }, 1000/speedFactor); // Every real-time second
 
     const timeoutId = setTimeout(() => {
       clearInterval(intervalId); // Stop the interval after 10 seconds
