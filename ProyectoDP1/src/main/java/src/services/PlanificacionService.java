@@ -97,7 +97,7 @@ public class PlanificacionService {
                 return;
             }
         }
-        if (currentRoute.size() > 3 || visited.contains(current)) {
+        if (currentRoute.size() > 2 || visited.contains(current)) {
             return; // Limit recursion depth and prevent visiting the same airport in one route
         }
     
