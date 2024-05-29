@@ -27,7 +27,7 @@ public class ApiServices {
     @Autowired
     private static VueloServices vueloService;
 
-    public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos) {
+    public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios) {
         Map<Paquete, RutaTiempoReal> resultado = null;
         String jsonResult = null;
         try {
@@ -35,11 +35,6 @@ public class ApiServices {
             String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);//obtencion de planesdevuelos
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo,vuelos);
-
-			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";   
-			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
-            envios = envios.subList(0, 1);
-           
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
             List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
             Map<String, Almacen> almacenes = aeropuertos.stream()

@@ -34,7 +34,7 @@ public class api {
         List<Vuelo> vuelos = peticionPSO.getVuelos();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
 
-        ApiServices.ejecutarPso(aeropuertos,vuelos);
+        ApiServices.ejecutarPso(aeropuertos,vuelos,envios);
         // Aquí pasarías los datos de envíos, almacenes y vuelos al algoritmo PSO, también la fecha y hora
         // Por ejemplo:
         // psoAlgorithm.ejecutar(fechaHoraParsed, envios, peticionPSO.getAlmacenes(), peticionPSO.getVuelos());
