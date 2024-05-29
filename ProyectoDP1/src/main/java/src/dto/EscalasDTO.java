@@ -33,10 +33,10 @@ import lombok.Setter;
 public class EscalasDTO extends BaseEntity{
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_rutaPredefinida", referencedColumnName = "id")
-    private RutaPredefinidasDTO rutaPredefinida;
+    private RutaPredefinidaDTO rutaPredefinida;
 
 
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_vuelo", referencedColumnName = "id")
-    private VueloDTO vuelo;
+    @JoinColumn(name = "id_PlanDeVuelo", referencedColumnName = "id")
+    private PlanDeVueloDTO planDeVuelo;
 }

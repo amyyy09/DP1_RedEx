@@ -31,8 +31,8 @@ import lombok.Setter;
 @Setter
 
 public class AeropuertoDTO extends BaseEntity {
-    @Column(name = "id_aeropuerto")
-    private String idAeropuerto;
+    @Column(name = "codigoIATA")
+    private String codigoIATA;
     
     @Column(name = "ciudad")
     private String ciudad;
@@ -50,10 +50,10 @@ public class AeropuertoDTO extends BaseEntity {
     private int zonaHorariaGTM;
 
     @Column(name = "longitud")
-    private double longitud;
+    private String longitud;
 
     @Column(name = "latitud")
-    private double latitud; 
+    private String latitud; 
 
     @Column(name = "capacidad")
     private long capacidad;

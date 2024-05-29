@@ -1,6 +1,7 @@
 package src.dto;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -9,6 +10,7 @@ import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import org.hibernate.annotations.SQLDelete;
@@ -48,5 +50,10 @@ public class EnvioDTO extends BaseEntity{
 
     @Column(name = "cantPaquetes")
     private int cantPaquetes;
+
+    @OneToMany(mappedBy = "envio", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<PaqueteDTO> paquetes;
+
+
 
 }

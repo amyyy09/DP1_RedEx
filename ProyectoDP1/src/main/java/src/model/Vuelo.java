@@ -12,10 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Vuelo {
-    private int IdVuelo;
+    private String IdVuelo;
     private int cantPaquetes;
     private int capacidad;
     private int status;
+    private int indexPlan;
     private LocalDateTime horaSalida;
     private LocalDateTime horaLlegada;
     private PlanDeVuelo planDeVuelo;

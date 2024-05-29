@@ -35,24 +35,23 @@ import lombok.Setter;
 
 public class PlanDeVueloDTO extends BaseEntity{
 
-    @Column(name = "idPlanDeVuelo")
-    private String idPlanDeVuelo;
+    @Column(name = "codigoIATAOrigen")
+    private String codigoIATAOrigen;
 
-    @Column(name = "idAeropuertoOrigen")
-    private String idAeropuertoOrigen;
+    @Column(name = "codigoIATADestino")
+    private String codigoIATADestino;
 
-    @Column(name = "idAeropuertoDestino")
-    private String idAeropuertoDestino;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_aeropuertoDestino", referencedColumnName = "id")
+    private AeropuertoDTO aeropuertoDestino;
 
     @Column(name = "fechaHoraSalida")
-    private OffsetTime horaSalidadLocal; 
+    private OffsetTime horaSalida; 
 
     @Column(name = "fechaHoraLlegada")
-    private OffsetTime horaLlegadaLocal;
+    private OffsetTime horaLlegada;
 
     @Column(name = "capacidad")
     private int capacidad;
     
-    @Column(name = "transcontinental")
-    private boolean transcontinental;   
 }

@@ -36,10 +36,18 @@ public class PaqueteDTO extends BaseEntity{
     private String idPaquete;
 
     @Column(name = "estado")
-    private String estado;//ver el cambio de esto a enum
+    private int estado;//ver el cambio de esto a enum
 
     @Column(name = "ubicacion")
     private String ubicacion;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_rutapredefinida", referencedColumnName = "id")
+    private RutaPredefinidaDTO rutaPredefinida;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name="id_envio", referencedColumnName = "id")
+    private EnvioDTO envio;
 
     
 }
