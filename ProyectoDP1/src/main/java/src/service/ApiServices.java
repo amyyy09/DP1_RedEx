@@ -27,19 +27,19 @@ public class ApiServices {
     @Autowired
     private static VueloServices vueloService;
 
-    public static String ejecutarPso(List <Aeropuerto> modAero) {
+    public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos) {
         Map<Paquete, RutaTiempoReal> resultado = null;
         String jsonResult = null;
         try {
             List<Aeropuerto> aeropuertos = AeropuertoService.actualizarAeropuertos(modAero); //actualización de aeropuertos
-            //String archivoRutaEnvios = "../../resources/pack_enviado_ZBAA.txt";
-			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";   
             String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+            List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);//obtencion de planesdevuelos
+            List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo,vuelos);
+
+			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";   
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
             envios = envios.subList(0, 1);
-            List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);
-            // aquí vuelos Actuales sería básicamente lo que manda back mezclado con lo que necesita la clase Vuelo.
-			List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo);
+           
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
             List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
             Map<String, Almacen> almacenes = aeropuertos.stream()

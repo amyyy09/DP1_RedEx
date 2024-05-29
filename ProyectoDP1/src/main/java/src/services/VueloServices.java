@@ -50,28 +50,21 @@ public class VueloServices {
 
     }
 
-    public static List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo) {
+    public static List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo,List<Vuelo> vuelos) {
         List<Vuelo> vuelosActuales = new ArrayList<>();
-        // OffsetTime ahora = OffsetTime.now(); // Captura la hora actual con su zona horaria correspondiente.
 
-        // int vueloId = 1;
-        for (PlanDeVuelo plan : planesDeVuelo) {
-            // if (ahora.isAfter(plan.getHoraSalida()) && ahora.isBefore(plan.getHoraLlegada())) {
-                Vuelo vuelo = new Vuelo();
-                // vuelo.setIdVuelo(vueloId++); // Genera un ID secuencial para el vuelo.
-                vuelo.setCantPaquetes(0); // Inicialmente sin paquetes.
-                vuelo.setCapacidad(plan.getCapacidad());
-                vuelo.setStatus(1); // Establece el estado en tránsito.
-                vuelo.setPlanDeVuelo(plan);
-                LocalDateTime horaInicio = LocalDateTime.of(LocalDate.now(), plan.getHoraSalida().toLocalTime());
-                vuelo.setHoraSalida(horaInicio);
-                LocalDateTime horaFin = LocalDateTime.of(LocalDate.now(), plan.getHoraLlegada().toLocalTime());
-                if(plan.getHoraLlegada().isBefore(plan.getHoraSalida())) {
-                    horaFin = horaFin.plusDays(1);
-                }
-                vuelo.setHoraLlegada(horaFin);
+        // Crear un mapa para acceder a los planes de vuelo rápidamente por indexPlan
+        Map<Integer, PlanDeVuelo> planDeVueloMap = planesDeVuelo.stream()
+                .collect(Collectors.toMap(PlanDeVuelo::getIndexPlan, plan -> plan));
+
+        // Iterar sobre la lista de vuelos y asignar el plan de vuelo correspondiente
+        for (Vuelo vuelo : vuelos) {
+            PlanDeVuelo planDeVuelo = planDeVueloMap.get(vuelo.getIndexPlan());
+            if (planDeVuelo != null) {
+                vuelo.setPlanDeVuelo(planDeVuelo);
+                vuelo.setCapacidad(planDeVuelo.getCapacidad());
                 vuelosActuales.add(vuelo);
-            // }
+            }
         }
 
         return vuelosActuales;
