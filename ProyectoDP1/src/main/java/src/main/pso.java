@@ -13,6 +13,7 @@ import src.service.RutaPredefinidaService;
 import src.services.*;
 import src.utility.*;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,12 +54,18 @@ public class pso {
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
             System.out.println("Paquetes: " + paquetes.size());
             
-			System.out.println("Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
-            List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
-            System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
+
+			// System.out.println("Empezando a generar rutas predefinidas... en el tiempo de ejecución: " + System.currentTimeMillis());
+            // List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo);			
+            // System.out.println("Rutas predefinidas generadas." + System.currentTimeMillis());
 			
+			List<String> destinosEspecificos = Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI", "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI", "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro experimento tenemos solo un aeropuerto destino WMKK
+			for (String destino : destinosEspecificos) {
+				List<RutaPredefinida> rutasPred = planificacionService.generarRutas(aeropuertos, planesDeVuelo, destino);
+				System.out.println("Rutas predefinidas para el destino " + destino );
+				vueloService.guardarRutasEnCSV(rutasPred, "ProyectoDP1/src/main/resources/rutas_predefinidas_" + destino + ".csv");
+			}
 			
-			vueloService.guardarRutasEnCSV(rutasPred, "ProyectoDP1/src/main/resources/rutas_predefinidas.csv");
 			//System.out.println("Rutas predefinidas almacenadas en el archivo rutas_predefinidas.csv." );
 			
 			// List<RutaPredefinida> rutasPred3 = rutaPredefinidaService.getRutasPredefinidas();

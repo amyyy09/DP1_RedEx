@@ -11,7 +11,7 @@ import java.time.OffsetTime;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlanDeVuelo {
-        // private int idPlanVuelo;
+        private int idPlanVuelo;
         private String codigoIATAOrigen;
         private String codigoIATADestino;
         private OffsetTime horaSalida;

@@ -37,10 +37,10 @@ public class PlanificacionService {
         PlanificacionService.evaluator = new FitnessEvaluatorService();
     }
 
-    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
+    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes, String origenS) {
         List<RutaPredefinida> rutas = new ArrayList<>();
         Aeropuerto origen = aeropuertos.stream()//en este caso solo tenemos de origen ZBAA
-            .filter(a -> a.getCodigoIATA().equals("ZBAA"))
+            .filter(a -> a.getCodigoIATA().equals(origenS))
             .findFirst()
             .orElse(null);
             if (origen == null) return rutas;
