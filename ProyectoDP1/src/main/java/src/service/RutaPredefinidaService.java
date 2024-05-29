@@ -20,46 +20,41 @@ public class RutaPredefinidaService {
     private static final DateTimeFormatter OFFSET_TIME = DateTimeFormatter.ofPattern("HH:mm");
     
     private List<RutaPredefinida> rutasPredefinidas;
-    private List<RutaPredefinida> rutasPredefinidas2;
 
     @PostConstruct
     public void init() {
         rutasPredefinidas = new CopyOnWriteArrayList<>();
-        rutasPredefinidas2 = new CopyOnWriteArrayList<>();
         try {
             rutasPredefinidas = cargarRutas(
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredZBAA.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEBCI.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEDDI.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLATI.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLBSF.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLKPR.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLOWW.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSABE.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSBBR.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSCEL.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSEQM.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSGAS.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSKBO.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSLLP.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSPIM.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredSUAA.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEHAM.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredEKCH.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredLDZA.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutasPredOMDB.csv"
-        );
-           rutasPredefinidas2 =cargarRutas(
-        "ProyectoDP1/src/main/resources/rutasPred/rutasPredRJTT.csv",
-        "ProyectoDP1/src/main/resources/rutasPred/rutasPredRKSI.csv",
-        "ProyectoDP1/src/main/resources/rutasPred/rutasPredRPLL.csv",
-         "ProyectoDP1/src/main/resources/rutasPred/rutasPredUMMS.csv",
-         "ProyectoDP1/src/main/resources/rutasPred/rutasPredVIDP.csv",
-         "ProyectoDP1/src/main/resources/rutasPred/rutasPredVTBS.csv",
-         "ProyectoDP1/src/main/resources/rutasPred/rutasPredWIII.csv",
-         "ProyectoDP1/src/main/resources/rutasPred/rutasPredWMKK.csv",
-         "ProyectoDP1/src/main/resources/rutasPred/rutasPredWSSS.csv",
-         "ProyectoDP1/src/main/resources/rutasPred/rutasPredSVMI.csv" )
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_ZBAA.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_EBCI.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_EDDI.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_LATI.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_LBSF.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_LKPR.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_LOWW.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SABE.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SBBR.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SCEL.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SEQM.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SGAS.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SKBO.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SLLP.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SPIM.csv", 
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SUAA.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_EHAM.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_EKCH.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_LDZA.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_OMDB.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_RJTT.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_RKSI.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_RPLL.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_UMMS.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_VTBS.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_WIII.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_WMKK.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_WSSS.csv",
+            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SVMI.csv" )
         
         ;
             System.out.println("Rutas predefinidas cargadas correctamente.");
@@ -72,9 +67,6 @@ public class RutaPredefinidaService {
 
     public List<RutaPredefinida> getRutasPredefinidas() {
         return rutasPredefinidas;
-    }
-    public List<RutaPredefinida> getRutasPredefinidas2() {
-        return rutasPredefinidas2;
     }
 
     public List<RutaPredefinida> cargarRutas(String... archivos) throws IOException {

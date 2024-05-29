@@ -12,6 +12,8 @@ import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
 
+import lombok.val;
+
 @Component
 public class FitnessEvaluatorService {
     private double penalizacionPorExceso = 50.0; // Penalización por cada unidad que excede la capacidad
@@ -38,6 +40,7 @@ public class FitnessEvaluatorService {
 
         for (Entry<Paquete, RutaTiempoReal> entrada : particula.entrySet()) {
             Paquete paquete = entrada.getKey();
+            if(entrada.getValue()==null){continue;}
             RutaTiempoReal ruta = entrada.getValue();
             List<Vuelo> vuelos = ruta.getVuelos();
             //Vuelo _vuelosActivo = encontrarVueloActual(vuelosActivos, ruta);

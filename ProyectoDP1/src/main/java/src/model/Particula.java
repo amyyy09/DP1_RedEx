@@ -75,16 +75,18 @@ public class Particula {
                 }
             }
 
-            if (filteredRutasPred.isEmpty()) {
-                System.err.println("ayuda, revisar el filtrado de rutas predefinidas");
-            } 
             for (Paquete pkg : envio.getPaquetes()) {
+                if(filteredRutasPred.isEmpty()){
+                    position.put(pkg, null);
+                }else{
                 int index = new Random().nextInt(filteredRutasPred.size());
                 RutaPredefinida randomRoute = filteredRutasPred.get(index);
                 // cambia un poco la lógica de la siguiente línea, se le añade la fecha hora del envío
                 RutaTiempoReal randTiempoReal = randomRoute.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActivos, fechaHora);
                 position.put(pkg, randTiempoReal);
+                }
             }
+            
         }
         return position;
     }
