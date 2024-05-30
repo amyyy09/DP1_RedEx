@@ -322,28 +322,30 @@ public class PlanificacionService {
 
     public static Map<Paquete, Resultado> transformResult(Map<Paquete, RutaTiempoReal> originalResult) {
         Map<Paquete, Resultado> transformedResult = new HashMap<>();
-
+    
         for (Map.Entry<Paquete, RutaTiempoReal> entry : originalResult.entrySet()) {
             RutaTiempoReal ruta = entry.getValue();
+            if (ruta == null) {
+                transformedResult.put(entry.getKey(), null);
+                continue;
+            }
+            
             Resultado resultado = new Resultado();
-
             resultado.setIdRuta(ruta.getIdRuta());
-
+    
             if (ruta.getOrigen() != null) {
-                String origen;
-                origen=ruta.getOrigen().getCodigoIATA();
+                String origen = ruta.getOrigen().getCodigoIATA();
                 resultado.setAeropuertoOrigen(origen);
             }
-
+    
             if (ruta.getDestino() != null) {
-                String destino;
-                destino=ruta.getDestino().getCodigoIATA();
+                String destino = ruta.getDestino().getCodigoIATA();
                 resultado.setAeropuertoDestino(destino);
             }
-
+    
             resultado.setHoraInicio(ruta.getHoraInicio());
             resultado.setHoraLlegada(ruta.getHoraLlegada());
-
+    
             if (ruta.getVuelos() != null) {
                 List<Vuelo> vuelosSimples = new ArrayList<>();
                 for (Vuelo vuelo : ruta.getVuelos()) {
@@ -359,18 +361,17 @@ public class PlanificacionService {
                 }
                 resultado.setVuelos(vuelosSimples);
             }
-
+    
             resultado.setStatus(ruta.getStatus());
-
+    
             if (ruta.getXAlmacen() != null) {
-                int almacenSimple;
-                almacenSimple=ruta.getXAlmacen().getCantPaquetes();
+                int almacenSimple = ruta.getXAlmacen().getCantPaquetes();
                 resultado.setCapacidadAlmacen(almacenSimple);
             }
-
+    
             transformedResult.put(entry.getKey(), resultado);
         }
-
+    
         return transformedResult;
     }
 
