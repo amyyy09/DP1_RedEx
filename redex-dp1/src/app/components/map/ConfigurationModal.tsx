@@ -120,6 +120,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ onApply }) => {
       console.error('Error:', error);
     } finally {
       setLoading(false); // Desactivar estado de cargando
+      onApply();
     }
   };
 
