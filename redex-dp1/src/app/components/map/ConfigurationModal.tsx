@@ -35,7 +35,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ onApply }) => {
   const [startDate, setStartDate] = useState('');
   const [startTime, setStartTime] = useState('');
   const [loading, setLoading] = useState(false);
-  const [vuelos, setVuelos] = useState([]);
+  const [vuelos, setVuelos] = useState<Vuelo[]>([]);
 
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSimulationMode(e.target.value);
@@ -90,18 +90,20 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({ onApply }) => {
         body: JSON.stringify(data)
       });
 
+      console.log('Response:', response);
+
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
 
       const responseData = await response.json();
-      const vuelosData = [];
+      const vuelosData: Vuelo[] = [];
 
       // Procesar los vuelos desde el responseData
       for (const key in responseData) {
         if (responseData.hasOwnProperty(key)) {
           const paquete = responseData[key];
-          paquete.vuelos.forEach(vueloData => {
+          paquete.vuelos.forEach((vueloData: Vuelo) => {
             const vuelo = new Vuelo({
               ...vueloData,
               aeropuertoOrigen: paquete.aeropuertoOrigen,

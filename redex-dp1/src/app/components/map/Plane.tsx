@@ -24,50 +24,6 @@ const Plane: React.FC<PlaneProps> = ({
 
   const [duration, setDuration] = useState(0);
 
-  // useEffect(() => {
-  //   const timeToMinutes = (time: string) => {
-  //     const [hours, minutes] = time.split(":").map(Number);
-  //     return hours * 60 + minutes;
-  //   };
-
-  //   const departureTimeMinutes = timeToMinutes(departureTime);
-  //   let arrivalTimeMinutes = timeToMinutes(arrivalTime);
-
-  //   // If the arrival time is less than the departure time, add 24 hours (in minutes) to the arrival time
-  //   if (arrivalTimeMinutes < departureTimeMinutes) {
-  //     arrivalTimeMinutes += 24 * 60;
-  //   }
-
-  //   const durationMinutes = arrivalTimeMinutes - departureTimeMinutes;
-
-  //   // Convert the duration to real-time seconds using the given rule
-  //   setDuration((durationMinutes / 5) * 1000); // Multiply by 1000 to convert seconds to milliseconds
-  // }, [departureTime, arrivalTime]);
-
-  // useEffect(() => {
-  //   if (duration === 0) return;
-
-  //   let startTime: number | null = null;
-
-  //   const animate = (timestamp: number) => {
-  //     if (!startTime) startTime = timestamp;
-  //     const progress = Math.min((timestamp - startTime) / duration, 1);
-
-  //     const newLat =
-  //       origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-  //     const newLng =
-  //       origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-
-  //     setPosition([newLat, newLng] as LatLngExpression);
-
-  //     if (progress < 1) {
-  //       requestAnimationFrame(animate);
-  //     }
-  //   };
-
-  //   requestAnimationFrame(animate);
-  // }, [origin, destiny, duration]);
-
   useEffect(() => {
     if (controlClock === undefined) return;
 
