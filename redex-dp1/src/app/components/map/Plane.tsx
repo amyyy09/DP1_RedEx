@@ -14,7 +14,8 @@ const Plane: React.FC<PlaneProps> = ({
   departureTime,
   arrivalTime,
   capacidad,
-  controlClock,
+  startTime,
+  speedFactor,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([
     origin.coords.lat,
@@ -25,41 +26,41 @@ const Plane: React.FC<PlaneProps> = ({
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
-    if (controlClock === undefined) return;
+    // if (controlClock === undefined) return;
 
-    const timeToMinutes = (time: string) => {
-      const [hours, minutes] = time.split(":").map(Number);
-      return hours * 60 + minutes;
-    };
+    // const timeToMinutes = (time: string) => {
+    //   const [hours, minutes] = time.split(":").map(Number);
+    //   return hours * 60 + minutes;
+    // };
 
-    const departureTimeMinutes = timeToMinutes(departureTime);
-    const arrivalTimeMinutes = timeToMinutes(arrivalTime);
+    // const departureTimeMinutes = timeToMinutes(departureTime);
+    // const arrivalTimeMinutes = timeToMinutes(arrivalTime);
 
-    // If controlClock is greater than departureTime, don't start the animation
-    if (controlClock > departureTimeMinutes) {
-      setIsVisible(true);
-    } else {
-      return;
-    }
+    // // If controlClock is greater than departureTime, don't start the animation
+    // if (controlClock > departureTimeMinutes) {
+    //   setIsVisible(true);
+    // } else {
+    //   return;
+    // }
 
-    // If controlClock is greater than arrivalTime, end the animation
-    if (controlClock > arrivalTimeMinutes) {
-      setIsVisible(false);
-      return;
-    }
+    // // If controlClock is greater than arrivalTime, end the animation
+    // if (controlClock > arrivalTimeMinutes) {
+    //   setIsVisible(false);
+    //   return;
+    // }
 
-    // Calculate progress based on controlClock, departureTime and arrivalTime
-    const progress =
-      (controlClock - departureTimeMinutes) /
-      (arrivalTimeMinutes - departureTimeMinutes);
+    // // Calculate progress based on controlClock, departureTime and arrivalTime
+    // const progress =
+    //   (controlClock - departureTimeMinutes) /
+    //   (arrivalTimeMinutes - departureTimeMinutes);
 
-    const newLat =
-      origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-    const newLng =
-      origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+    // const newLat =
+    //   origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+    // const newLng =
+    //   origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
 
-    setPosition([newLat, newLng] as LatLngExpression);
-  }, [origin, destiny, controlClock, departureTime, arrivalTime]);
+    // setPosition([newLat, newLng] as LatLngExpression);
+  }, [origin, destiny, startTime, speedFactor, departureTime, arrivalTime]);
 
   const [isVisible, setIsVisible] = useState(false);
 

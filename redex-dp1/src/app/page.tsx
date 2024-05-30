@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Topbar from "../app/components/layout/Topbar";
 import Sidebar from "../app/components/layout/Sidebar";
@@ -8,51 +8,78 @@ import ConfigurationModal from "../app/components/map/ConfigurationModal";
 import { flightPlans } from "../app/data/flightPlans";
 import { PlaneProps } from "./types/Planes";
 import { timeToMinutes, minutesToTime } from "./utils/timeHelper";
+import { start } from "repl";
 
 const Home: React.FC = () => {
   const [planes, setPlanes] = useState<PlaneProps[]>(flightPlans);
   const [showModal, setShowModal] = useState(true);
   const [startSimulation, setStartSimulation] = useState(false);
-  const [controlClock, setControlClock] = useState(0); // Control clock in minutes
+  const controlClock = useRef(new Date()); // Initialize with the current date and time
+  const startTime = useRef(0);
+  const [simulationMode, setSimulationMode] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [startHour, setStartHour] = useState("");
+  const [vuelos, setVuelos] = useState<Vuelo[]>([]);
 
-  const speedFactor = 252; 
-  const interval = 604800  / speedFactor;
+  const speedFactor = 288; // Real-time seconds per simulated second
+  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
 
-  // Update control clock every real-time second
+  // State to store the display time
+  const [displayTime, setDisplayTime] = useState("");
+
   useEffect(() => {
-    if (!startSimulation) return; // Don't start the clock if startSimulation is not true
+    if (!startSimulation) return;
 
-    // Convert to Peru time
-    const peruTime = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Lima' });
+    // Set the start time
+    startTime.current = Date.now();
 
-    console.log(`Simulation started at ${peruTime} Peru time`);
+    // Update the simulated time
+    const updateSimulatedTime = () => {
 
-    const intervalId = setInterval(() => {
-      setControlClock((prevClock) => {
-        const newClock = (prevClock + 1) % (24 * 60); // Wrap around every 24 hours
-    
-        // If newClock is a multiple of 20, log a message
-        if (newClock % 120 === 0) {
-          console.log(`120 minutes of simulation time have passed at ${new Date().toLocaleTimeString('en-US', { timeZone: 'America/Lima' })} Peru time`);
-          console.log(`Control clock: ${minutesToTime(newClock)}`); // Convert the control clock to HH:MM format
-        }
-    
-        return newClock;
-      });
-    }, 1000/speedFactor); // Every real-time second
 
-    const timeoutId = setTimeout(() => {
-      clearInterval(intervalId); // Stop the interval after 10 seconds
-      setStartSimulation(false); // Set startSimulation to false
+      if (!startSimulation) return;
 
-      const peruTime = new Date().toLocaleTimeString('en-US', { timeZone: 'America/Lima' });
-      console.log(`Simulation stopped at ${peruTime} Peru time`);
+      // console.log("startTime", startTime.current);
 
-    }, interval*1000);
+      const currentTime = Date.now();
+      // console.log("currentTime", currentTime);
+      const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
+      const simulatedTime = elapsedTime * speedFactor;
+      // Create a new Date object for the start of the simulation
+      const startDateSim = new Date(startDate + "T" + startHour + ":00");
+      // startDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
 
+      // Add the simulated time to the start date
+      const simulatedDate = new Date(startDateSim.getTime() + simulatedTime * 1000);
+      controlClock.current = simulatedDate;
+
+      // Wrap around every 24 hours
+      const simulatedMinutes = (simulatedDate.getHours() * 60 + simulatedDate.getMinutes()) % (24 * 60);
+
+      // Update the display time
+      setDisplayTime(simulatedDate.toLocaleString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
+
+      // Stop the simulation after the total simulated seconds have passed
+      if (simulatedTime >= totalSimulatedSeconds) {
+        // console.log("simulatedTime", simulatedTime);
+        // console.log("totalSimulatedSeconds", totalSimulatedSeconds);
+        setStartSimulation(false);
+        const peruTime = new Date().toLocaleTimeString("en-US", {
+          timeZone: "America/Lima",
+        });
+        console.log(`Simulation stopped at ${peruTime} Peru time`);
+      }
+    };
+
+    // Call updateSimulatedTime every second
+    const intervalId = setInterval(
+      updateSimulatedTime,
+      500/speedFactor
+    );
+
+    // Clean up on unmount
     return () => {
-      clearInterval(intervalId); // Clean up on unmount
-      clearTimeout(timeoutId); // Clear the timeout on unmount
+      clearInterval(intervalId);
     };
   }, [startSimulation]);
 
@@ -72,6 +99,7 @@ const Home: React.FC = () => {
   const handleApplyConfiguration = () => {
     setShowModal(false);
     setStartSimulation(true);
+    // console.log("Simulation started");
   };
 
   return (
@@ -81,11 +109,25 @@ const Home: React.FC = () => {
         <Sidebar />
         <Map
           planes={startSimulation ? planes : []}
-          controlClock={controlClock}
+          startTime={startTime}
+          startDate={startDate}
+          startHour={startHour}
+          speedFactor={speedFactor}
         />
+        <p>Simulated time: {displayTime}</p>
         {/* Pass planes only if simulation starts */}
         {showModal && (
-          <ConfigurationModal onApply={handleApplyConfiguration} />
+          <ConfigurationModal
+            onApply={handleApplyConfiguration}
+            startDate={startDate}
+            setStartDate={setStartDate}
+            startTime={startHour}
+            setStartTime={setStartHour}
+            simulationMode={simulationMode}
+            setSimulationMode={setSimulationMode}
+            vuelos={vuelos}
+            setVuelos={setVuelos}
+          />
         )}{" "}
         {/* Show modal */}
       </div>
