@@ -1,32 +1,35 @@
 package src.controllers;
 
-import src.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+import src.model.Aeropuerto;
+import src.model.Envio;
+import src.model.PeticionPSO;
+import src.model.RutaPredefinida;
+import src.model.Vuelo;
 import src.service.ApiServices;
 import src.service.EnvioService;
 import src.service.RutaPredefinidaService;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @RestController
 @RequestMapping("/api")
 @CrossOrigin
-public class api {
+public class ApiController {
 
     @Autowired
-    private ApiServices psoService;
+    private ApiServices apiServices;
 
     @Autowired
     private EnvioService envioService;
 
     @Autowired
     private RutaPredefinidaService rutaPredefinidaService;
-
-    @CrossOrigin
 
     @PostMapping("/pso")
     public String ejecutarPSO(@RequestBody PeticionPSO peticionPSO) {
@@ -37,9 +40,10 @@ public class api {
         List<Aeropuerto> aeropuertos = peticionPSO.getAeropuertos();
         List<Vuelo> vuelos = peticionPSO.getVuelos();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
-        List<RutaPredefinida> rutasPredefinidas = rutaPredefinidaService.getRutasPredefinidas();
-        JSON=ApiServices.ejecutarPso(aeropuertos,vuelos,envios,rutasPredefinidas);
-
-        return JSON; // Puedes devolver un resultado más significativo según sea necesario
+        List<RutaPredefinida> rutasPredMap = rutaPredefinidaService.getRutasPredefinidas();
+        JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap);
+        
+        return JSON;
     }
 }
+

@@ -57,8 +57,6 @@ public class FitnessEvaluatorService {
                 }
 
                 minPrev = Math.abs(horaLlegada - horaMinOrigen);
-
-                System.out.println("Minutos que llegó antes: " + minPrev);
             }
 
             int horaSalida = ruta.getRutaPredefinida().getHoraSalida().getHour();
@@ -169,9 +167,6 @@ public class FitnessEvaluatorService {
             if(contInterno != 0){
                 contNoAtendidos += contInterno - almacen.getCapacidad();
             }
-        }
-        if(gbest){
-            System.out.println("No atendidos: " + contNoAtendidos);
         }
 
         fitnessValue = fitnessValue - penalizacion;
