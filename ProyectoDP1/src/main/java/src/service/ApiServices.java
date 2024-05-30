@@ -32,7 +32,7 @@ public class ApiServices {
 
 
     
-    public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios, List<RutaPredefinida> rutasPred) {
+    public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios, List<RutaPredefinida> rutasPred,LocalDateTime fechaHora) {
         Map<Paquete, Resultado> json= null;
         Map<Paquete, RutaTiempoReal> resultado = null;     
         planificacionService = new PlanificacionService();
@@ -60,7 +60,7 @@ public class ApiServices {
 
 			System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
 			if (!envios.isEmpty()) {
-				resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales, LocalDateTime.now());
+				resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales, fechaHora);
                 json=planificacionService.transformResult(resultado);
 			}
             // Convertir el resultado a JSON

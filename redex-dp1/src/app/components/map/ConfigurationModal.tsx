@@ -64,31 +64,32 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     const selectedDate = new Date(startDate);
     const formattedDate = formatDateTime(selectedDate, startTime);
     // onApply();
-
+  
     // Definir los datos JSON para la solicitud
     const data = {
       fechahora: formattedDate,
       aeropuertos: [],
       vuelos: [],
     };
-
+  
     try {
-      const response = await fetch("http://localhost:8080/api/pso", {
-        method: "POST",
+      const response = await fetch('http://localhost:8080/api/pso', {
+        method: 'POST',
         headers: {
-          "Content-Type": "application/json",
+          'Content-Type': 'application/json'
         },
-        body: JSON.stringify(data),
+        body: JSON.stringify(data)
       });
-
-      console.log("Response:", response);
-
+  
+      console.log('Response:', response);
+  
       if (!response.ok) {
-        throw new Error("Network response was not ok");
+        throw new Error('Network response was not ok');
       }
-
+  
       const responseData = await response.json();
-
+  
+      // Procesar los vuelos desde el responseData
       console.log("Response data:", responseData);
       const vuelosData: Vuelo[] = [];
 
@@ -101,12 +102,12 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
           }
         }
       }
-
+  
       console.log("Vuelos:", vuelos.current);
     } catch (error) {
-      console.error("Error:", error);
+      console.error('Error:', error);
     } finally {
-      // Desactivar estado de cargando
+      setLoading(false); // Desactivar estado de cargando
       onApply();
     }
   };

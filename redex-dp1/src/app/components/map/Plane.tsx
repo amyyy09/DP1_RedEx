@@ -16,6 +16,7 @@ const Plane: React.FC<PlaneProps> = ({
   startHour,
   simulatedDate,
   speedFactor,
+  startSimulation
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
@@ -92,10 +93,10 @@ const Plane: React.FC<PlaneProps> = ({
     if (vuelo === undefined) return;
     if(startTime === undefined) return;
     if(startDate === undefined) return;
-
+    if(!startSimulation) return;
     updatePlanePosition();
     
-  }, [vuelo, startTime, startDate]);
+  }, [vuelo, startTime, startDate,startSimulation]);
 
   useEffect(() => {
     updatePlanePosition();
