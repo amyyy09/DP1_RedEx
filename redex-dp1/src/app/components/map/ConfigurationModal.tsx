@@ -1,6 +1,7 @@
 "use client";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import "../../styles/ConfigurationModal.css";
+import { Vuelo } from "../../types/Planes";
 
 interface ConfigurationModalProps {
   onApply: () => void;
@@ -58,10 +59,10 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   };
 
   const handleApplyClick = async () => {
-    // setLoading(true);
+    setLoading(true);
     const selectedDate = new Date(startDate);
     const formattedDate = formatDateTime(selectedDate, startTime);
-    onApply();
+    // onApply();
 
     // Definir los datos JSON para la solicitud
     const data = {
@@ -70,47 +71,47 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
       vuelos: [],
     };
 
-    // try {
-    //   const response = await fetch('http://localhost:8080/api/pso', {
-    //     method: 'POST',
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     body: JSON.stringify(data)
-    //   });
+    try {
+      const response = await fetch('http://localhost:8080/api/pso', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
 
-    //   console.log('Response:', response);
+      console.log('Response:', response);
 
-    //   if (!response.ok) {
-    //     throw new Error('Network response was not ok');
-    //   }
+      if (!response.ok) {
+        throw new Error('Network response was not ok');
+      }
 
-    //   const responseData = await response.json();
-    //   const vuelosData: Vuelo[] = [];
+      const responseData = await response.json();
+      const vuelosData: Vuelo[] = [];
 
-    //   // Procesar los vuelos desde el responseData
-    //   for (const key in responseData) {
-    //     if (responseData.hasOwnProperty(key)) {
-    //       const paquete = responseData[key];
-    //       paquete.vuelos.forEach((vueloData: Vuelo) => {
-    //         const vuelo = new Vuelo({
-    //           ...vueloData,
-    //           aeropuertoOrigen: paquete.aeropuertoOrigen,
-    //           aeropuertoDestino: paquete.aeropuertoDestino
-    //         });
-    //         vuelosData.push(vuelo);
-    //       });
-    //     }
-    //   }
+      // Procesar los vuelos desde el responseData
+      for (const key in responseData) {
+        if (responseData.hasOwnProperty(key)) {
+          const paquete = responseData[key];
+          paquete.vuelos.forEach((vueloData: Vuelo) => {
+            const vuelo = new Vuelo({
+              ...vueloData,
+              aeropuertoOrigen: paquete.aeropuertoOrigen,
+              aeropuertoDestino: paquete.aeropuertoDestino
+            });
+            vuelosData.push(vuelo);
+          });
+        }
+      }
 
-    //   setVuelos(vuelosData);
-    //   console.log('Vuelos:', vuelosData);
-    // } catch (error) {
-    //   console.error('Error:', error);
-    // } finally {
-    //   setLoading(false); // Desactivar estado de cargando
-    //   onApply();
-    // }
+      setVuelos(vuelosData);
+      console.log('Vuelos:', vuelosData);
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false); // Desactivar estado de cargando
+      onApply();
+    }
   };
 
   if (loading) {

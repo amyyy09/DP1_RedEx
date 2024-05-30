@@ -210,3 +210,9 @@ export const cities = [
     capacidad: 400,
   },
 ];
+
+export const citiesByCode: { [code: string]: typeof cities[0] } = {};
+
+cities.forEach(city => {
+  citiesByCode[city.code] = city;
+});

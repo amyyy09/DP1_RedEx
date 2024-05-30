@@ -7,16 +7,14 @@ export interface Airport {
 }
 
 export interface PlaneProps {
-  origin: Airport;
-  destiny: Airport;
-  departureTime: string;
-  arrivalTime: string;
-  capacidad: number;
-  startTime?: React.RefObject<number>;
-  speedFactor?: number;
+  vuelo: Vuelo;
+  startTime: React.RefObject<number>;
+  startDate: string;
+  startHour: string;
+  speedFactor: number;
 }
 
-class Vuelo {
+export class Vuelo {
   cantPaquetes: number;
   capacidad: number;
   status: number;

@@ -12,11 +12,11 @@ import {
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
-import { PlaneProps } from "../../types/Planes";
-import { cities } from "../../data/cities";
+import { PlaneProps } from "@/app/types/Planes";
+import { cities } from "@/app/data/cities";
 
 interface MapProps {
-  planes: PlaneProps[];
+  planes: Vuelo[];
   startTime: React.RefObject<number>;
   startDate: string;
   startHour: string;
@@ -36,7 +36,13 @@ const customIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-const Map: React.FC<MapProps> = ({ planes, startTime, speedFactor }) => {
+const Map: React.FC<MapProps> = ({
+  planes,
+  startTime,
+  startDate,
+  startHour,
+  speedFactor,
+}) => {
   return (
     <MapContainer
       center={[20, 20]}
@@ -61,18 +67,17 @@ const Map: React.FC<MapProps> = ({ planes, startTime, speedFactor }) => {
         </Marker>
       ))}
 
-      {planes.length>0 && planes.map((plane, index) => (
-        <Plane
-          key={index}
-          origin={plane.origin}
-          destiny={plane.destiny}
-          departureTime={plane.departureTime}
-          arrivalTime={plane.arrivalTime}
-          capacidad={plane.capacidad}
-          startTime={startTime}
-          speedFactor={speedFactor}
-        />
-      ))}
+      {planes.length > 0 &&
+        planes.map((plane, index) => (
+          <Plane
+            key={index}
+            vuelo={plane}
+            startTime={startTime}
+            startDate={startDate}
+            startHour={startHour}
+            speedFactor={speedFactor}
+          />
+        ))}
     </MapContainer>
   );
 };

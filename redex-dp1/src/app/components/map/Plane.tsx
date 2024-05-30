@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
+import { citiesByCode } from "@/app/data/cities";
 
 const planeIcon = L.icon({
   iconUrl: "./icons/plane.svg",
@@ -9,23 +10,70 @@ const planeIcon = L.icon({
 });
 
 const Plane: React.FC<PlaneProps> = ({
-  origin,
-  destiny,
-  departureTime,
-  arrivalTime,
-  capacidad,
+  vuelo,
   startTime,
+  startDate,
+  startHour,
   speedFactor,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([
-    origin.coords.lat,
-    origin.coords.lng,
+    0,
+    0,
   ]);
   const map = useMap();
 
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
+
+    const currentTime = Date.now();
+    const elapsedTime = startTime.current ? (currentTime - startTime.current) / 1000 : 0; // in seconds
+    const simulatedTime = elapsedTime * speedFactor;
+    const startDateSim = new Date(startDate + "T" + startHour + ":00");
+
+    const simulatedDate = new Date(startDateSim.getTime() + simulatedTime * 1000);
+
+    const systemTimezoneOffset = new Date().getTimezoneOffset();
+
+    const origin = citiesByCode[vuelo.aeropuertoOrigen];
+    const destiny = citiesByCode[vuelo.aeropuertoDestino];
+
+    // Get the origin and destiny city's GMT offsets in minutes
+    const originGMTOffset = origin.GMT * 60;
+    const destinyGMTOffset = destiny.GMT * 60;
+
+    // Convert the departure and arrival times to the system's timezone
+    const horaSalida = new Date(vuelo.horaSalida);
+    horaSalida.setUTCHours(horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset);
+
+    const horaLlegada = new Date(vuelo.horaLlegada);
+    horaLlegada.setUTCHours(horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset);
+
+    if (simulatedDate >= horaLlegada) {
+      setIsVisible(false);
+      return;
+    }
+
+    // if (simulatedDate < vuelo.horaSalida) {
+    //   setIsVisible(false);
+    //   return;
+    // }
+
+    if(simulatedDate >= horaSalida && simulatedDate < horaLlegada){
+      setIsVisible(true);
+    }
+
+    const progress =
+      (simulatedDate.getTime() - horaSalida.getTime()) /
+      (horaLlegada.getTime() - horaSalida.getTime());
+
+    const newLat =
+      origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+    const newLng =
+      origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+
+    setPosition([newLat, newLng] as LatLngExpression);
+
     // if (controlClock === undefined) return;
 
     // const timeToMinutes = (time: string) => {
@@ -60,7 +108,8 @@ const Plane: React.FC<PlaneProps> = ({
     //   origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
 
     // setPosition([newLat, newLng] as LatLngExpression);
-  }, [origin, destiny, startTime, speedFactor, departureTime, arrivalTime]);
+
+  }, [vuelo, startTime, speedFactor, position]);
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -91,8 +140,8 @@ const Plane: React.FC<PlaneProps> = ({
       {isVisible && (
         <Polyline
           positions={[
-            [origin.coords.lat, origin.coords.lng],
-            [destiny.coords.lat, destiny.coords.lng],
+            // [origin.coords.lat, origin.coords.lng],
+            // [destiny.coords.lat, destiny.coords.lng],
           ]}
           pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
         />
@@ -102,7 +151,7 @@ const Plane: React.FC<PlaneProps> = ({
           <Popup>
             <div>
               <h2>Detalles de vuelo</h2>
-              <p>
+              {/* <p>
                 <strong>Origen:</strong> {origin.name}
               </p>
               <p>
@@ -116,7 +165,7 @@ const Plane: React.FC<PlaneProps> = ({
               </p>
               <p>
                 <strong>Capacidad:</strong> {capacidad}
-              </p>
+              </p> */}
             </div>
           </Popup>
         </Marker>

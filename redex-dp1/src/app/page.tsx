@@ -2,16 +2,12 @@
 
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
-import Topbar from "../app/components/layout/Topbar";
-import Sidebar from "../app/components/layout/Sidebar";
-import ConfigurationModal from "../app/components/map/ConfigurationModal";
-import { flightPlans } from "../app/data/flightPlans";
-import { PlaneProps } from "./types/Planes";
-import { timeToMinutes, minutesToTime } from "./utils/timeHelper";
-import { start } from "repl";
+import Topbar from "./components/layout/Topbar";
+import Sidebar from "./components/layout/Sidebar";
+import ConfigurationModal from "./components/map/ConfigurationModal";
+import { Vuelo } from "./types/Planes";
 
 const Home: React.FC = () => {
-  const [planes, setPlanes] = useState<PlaneProps[]>(flightPlans);
   const [showModal, setShowModal] = useState(true);
   const [startSimulation, setStartSimulation] = useState(false);
   const controlClock = useRef(new Date()); // Initialize with the current date and time
@@ -30,13 +26,13 @@ const Home: React.FC = () => {
   useEffect(() => {
     if (!startSimulation) return;
 
+    console.log("Simulation started");
+
     // Set the start time
     startTime.current = Date.now();
 
     // Update the simulated time
     const updateSimulatedTime = () => {
-
-
       if (!startSimulation) return;
 
       // console.log("startTime", startTime.current);
@@ -50,14 +46,28 @@ const Home: React.FC = () => {
       // startDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
 
       // Add the simulated time to the start date
-      const simulatedDate = new Date(startDateSim.getTime() + simulatedTime * 1000);
+      const simulatedDate = new Date(
+        startDateSim.getTime() + simulatedTime * 1000
+      );
       controlClock.current = simulatedDate;
 
       // Wrap around every 24 hours
-      const simulatedMinutes = (simulatedDate.getHours() * 60 + simulatedDate.getMinutes()) % (24 * 60);
+      const simulatedMinutes =
+        (simulatedDate.getHours() * 60 + simulatedDate.getMinutes()) %
+        (24 * 60);
 
       // Update the display time
-      setDisplayTime(simulatedDate.toLocaleString(undefined, { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false }));
+      setDisplayTime(
+        simulatedDate.toLocaleString(undefined, {
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+        })
+      );
 
       // Stop the simulation after the total simulated seconds have passed
       if (simulatedTime >= totalSimulatedSeconds) {
@@ -72,20 +82,13 @@ const Home: React.FC = () => {
     };
 
     // Call updateSimulatedTime every second
-    const intervalId = setInterval(
-      updateSimulatedTime,
-      500/speedFactor
-    );
+    const intervalId = setInterval(updateSimulatedTime, 500 / speedFactor);
 
     // Clean up on unmount
     return () => {
       clearInterval(intervalId);
     };
   }, [startSimulation]);
-
-  useEffect(() => {
-    console.log("PLANES HAVE CHANGED!");
-  }, [planes]);
 
   const Map = useMemo(
     () =>
@@ -97,10 +100,18 @@ const Home: React.FC = () => {
   );
 
   const handleApplyConfiguration = () => {
-    setShowModal(false);
-    setStartSimulation(true);
-    // console.log("Simulation started");
+    // setShowModal(false);
+    // setStartSimulation(true);
+    console.log("Simulation started");
   };
+
+  useEffect(() => {
+    if (vuelos.length > 0) {
+      console.log(vuelos);
+      setShowModal(false);
+      setStartSimulation(true);
+    }
+  }, [vuelos]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -108,7 +119,7 @@ const Home: React.FC = () => {
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <Map
-          planes={startSimulation ? planes : []}
+          planes={startSimulation ? vuelos : []}
           startTime={startTime}
           startDate={startDate}
           startHour={startHour}
