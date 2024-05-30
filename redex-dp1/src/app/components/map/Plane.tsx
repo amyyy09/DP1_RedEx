@@ -16,63 +16,79 @@ const Plane: React.FC<PlaneProps> = ({
   startHour,
   speedFactor,
 }) => {
-  const [position, setPosition] = useState<LatLngExpression>([
-    0,
-    0,
-  ]);
+  const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const map = useMap();
 
   const [duration, setDuration] = useState(0);
 
   useEffect(() => {
+    if (vuelo === undefined) return;
 
-    const currentTime = Date.now();
-    const elapsedTime = startTime.current ? (currentTime - startTime.current) / 1000 : 0; // in seconds
-    const simulatedTime = elapsedTime * speedFactor;
-    const startDateSim = new Date(startDate + "T" + startHour + ":00");
+    const updateSimulatedTime = () => {
+      if (vuelo === undefined) return;
 
-    const simulatedDate = new Date(startDateSim.getTime() + simulatedTime * 1000);
+      const currentTime = Date.now();
+      const elapsedTime = startTime.current
+        ? (currentTime - startTime.current) / 1000
+        : 0; // in seconds
+      const simulatedTime = elapsedTime * speedFactor;
+      const startDateSim = new Date(startDate + "T" + startHour + ":00");
 
-    const systemTimezoneOffset = new Date().getTimezoneOffset();
+      const simulatedDate = new Date(
+        startDateSim.getTime() + simulatedTime * 1000
+      );
 
-    const origin = citiesByCode[vuelo.aeropuertoOrigen];
-    const destiny = citiesByCode[vuelo.aeropuertoDestino];
+      const systemTimezoneOffset = new Date().getTimezoneOffset();
 
-    // Get the origin and destiny city's GMT offsets in minutes
-    const originGMTOffset = origin.GMT * 60;
-    const destinyGMTOffset = destiny.GMT * 60;
+      const origin = citiesByCode[vuelo.aeropuertoOrigen];
+      const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
-    // Convert the departure and arrival times to the system's timezone
-    const horaSalida = new Date(vuelo.horaSalida);
-    horaSalida.setUTCHours(horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset);
+      // Get the origin and destiny city's GMT offsets in minutes
+      const originGMTOffset = origin.GMT * 60;
+      const destinyGMTOffset = destiny.GMT * 60;
 
-    const horaLlegada = new Date(vuelo.horaLlegada);
-    horaLlegada.setUTCHours(horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset);
+      // Convert the departure and arrival times to the system's timezone
+      const horaSalida = new Date(vuelo.horaSalida);
+      horaSalida.setUTCHours(
+        horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset
+      );
 
-    if (simulatedDate >= horaLlegada) {
-      setIsVisible(false);
-      return;
-    }
+      const horaLlegada = new Date(vuelo.horaLlegada);
+      horaLlegada.setUTCHours(
+        horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset
+      );
 
-    // if (simulatedDate < vuelo.horaSalida) {
-    //   setIsVisible(false);
-    //   return;
-    // }
+      if (simulatedDate >= horaLlegada) {
+        setIsVisible(false);
+        return;
+      }
 
-    if(simulatedDate >= horaSalida && simulatedDate < horaLlegada){
-      setIsVisible(true);
-    }
+      // if (simulatedDate < vuelo.horaSalida) {
+      //   setIsVisible(false);
+      //   return;
+      // }
 
-    const progress =
-      (simulatedDate.getTime() - horaSalida.getTime()) /
-      (horaLlegada.getTime() - horaSalida.getTime());
+      if (simulatedDate >= horaSalida && simulatedDate < horaLlegada) {
+        setIsVisible(true);
+      }
 
-    const newLat =
-      origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-    const newLng =
-      origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+      const progress =
+        (simulatedDate.getTime() - horaSalida.getTime()) /
+        (horaLlegada.getTime() - horaSalida.getTime());
 
-    setPosition([newLat, newLng] as LatLngExpression);
+      const newLat =
+        origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+      const newLng =
+        origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+
+      setPosition([newLat, newLng] as LatLngExpression);
+    };
+
+    // Call updateSimulatedTime every second
+    const intervalId = setInterval(updateSimulatedTime, 500 / speedFactor);
+
+    // Cleanup function to clear the interval if the component unmounts
+    return () => clearInterval(intervalId);
 
     // if (controlClock === undefined) return;
 
@@ -108,8 +124,7 @@ const Plane: React.FC<PlaneProps> = ({
     //   origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
 
     // setPosition([newLat, newLng] as LatLngExpression);
-
-  }, [vuelo, startTime, speedFactor, position]);
+  }, [vuelo, startTime, speedFactor]);
 
   const [isVisible, setIsVisible] = useState(false);
 
@@ -139,10 +154,12 @@ const Plane: React.FC<PlaneProps> = ({
     <>
       {isVisible && (
         <Polyline
-          positions={[
-            // [origin.coords.lat, origin.coords.lng],
-            // [destiny.coords.lat, destiny.coords.lng],
-          ]}
+          positions={
+            [
+              // [origin.coords.lat, origin.coords.lng],
+              // [destiny.coords.lat, destiny.coords.lng],
+            ]
+          }
           pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
         />
       )}
@@ -151,21 +168,44 @@ const Plane: React.FC<PlaneProps> = ({
           <Popup>
             <div>
               <h2>Detalles de vuelo</h2>
-              {/* <p>
-                <strong>Origen:</strong> {origin.name}
+              <p>
+                <strong>Origen:</strong>{" "}
+                {citiesByCode[vuelo.aeropuertoOrigen].name}
               </p>
               <p>
-                <strong>Destino:</strong> {destiny.name}
+                <strong>Destino:</strong>{" "}
+                {citiesByCode[vuelo.aeropuertoDestino].name}
               </p>
               <p>
-                <strong>Hora de salida:</strong> {departureTime}
+                <strong>Hora de salida:</strong>{" "}
+                {vuelo.horaSalida.toLocaleString(undefined, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}
               </p>
               <p>
-                <strong>Hora de llegada:</strong> {arrivalTime}
+                <strong>Hora de llegada:</strong>{" "}
+                {vuelo.horaLlegada.toLocaleString(undefined, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}
               </p>
               <p>
-                <strong>Capacidad:</strong> {capacidad}
-              </p> */}
+                <strong>Capacidad:</strong> {vuelo.capacidad}
+              </p>
+              <p>
+                <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
+              </p>
             </div>
           </Popup>
         </Marker>
