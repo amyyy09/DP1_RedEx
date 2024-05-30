@@ -14,7 +14,7 @@ const Home: React.FC = () => {
   const [simulationMode, setSimulationMode] = useState("");
   const [startDate, setStartDate] = useState("");
   const [startHour, setStartHour] = useState("");
-  const [vuelos, setVuelos] = useState<Vuelo[]>([]);
+  const vuelos = useRef<Vuelo[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [trigger, setTrigger] = useState(0);
@@ -51,7 +51,6 @@ const Home: React.FC = () => {
       simulatedDate.current = new Date(
         startDateSim.getTime() + simulatedTime * 1000
       );
-      setTrigger((prev) => prev + 1);
       // Update the display time
       setDisplayTime(
         simulatedDate.current.toLocaleString(undefined, {
@@ -96,19 +95,12 @@ const Home: React.FC = () => {
   );
 
   const handleApplyConfiguration = () => {
-    // setShowModal(false);
-    // setStartSimulation(true);
+    console.log(vuelos);
+    setShowModal(false);
+    setStartSimulation(true);
+    setLoading(false);
     console.log("Simulation started");
   };
-
-  useEffect(() => {
-    if (vuelos.length > 0) {
-      console.log(vuelos);
-      setShowModal(false);
-      setStartSimulation(true);
-      setLoading(false);
-    }
-  }, [vuelos]);
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -116,7 +108,7 @@ const Home: React.FC = () => {
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <Map
-          planes={startSimulation ? vuelos : []}
+          planes={startSimulation ? vuelos : { current: [] }}
           startTime={startTime}
           startDate={startDate}
           startHour={startHour}
@@ -134,7 +126,7 @@ const Home: React.FC = () => {
             setStartTime={setStartHour}
             simulationMode={simulationMode}
             setSimulationMode={setSimulationMode}
-            setVuelos={setVuelos}
+            vuelos={vuelos}
             loading={loading}
             setLoading={setLoading}
           />

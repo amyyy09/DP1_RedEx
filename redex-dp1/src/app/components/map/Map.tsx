@@ -12,11 +12,11 @@ import {
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
-import { PlaneProps } from "@/app/types/Planes";
+import { Vuelo } from "@/app/types/Planes";
 import { cities } from "@/app/data/cities";
 
 interface MapProps {
-  planes: Vuelo[];
+  planes: React.RefObject<Vuelo[]>;
   startTime: React.RefObject<number>;
   startDate: string;
   startHour: string;
@@ -69,8 +69,8 @@ const Map: React.FC<MapProps> = ({
         </Marker>
       ))}
 
-      {planes.length > 0 &&
-        planes.map((plane, index) => (
+      {planes.current && planes.current.length > 0 &&
+        planes.current.map((plane, index) => (
           <Plane
             key={index}
             vuelo={plane}

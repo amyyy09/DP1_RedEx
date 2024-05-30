@@ -18,15 +18,14 @@ const Plane: React.FC<PlaneProps> = ({
   speedFactor,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
+  const [isVisible, setIsVisible] = useState(false);
   const map = useMap();
 
   const [duration, setDuration] = useState(0);
 
-  useEffect(() => {
-    if (vuelo === undefined) return;
+  const updatePlanePosition = () => {
     if (simulatedDate === undefined) return;
-
-    console.log("simulatedDate at Plane", simulatedDate.current);
+    // console.log("simulatedDate at Plane", simulatedDate.current);
     // console.log("currentTime at Plane", currentTime);
 
     const systemTimezoneOffset = new Date().getTimezoneOffset();
@@ -35,37 +34,45 @@ const Plane: React.FC<PlaneProps> = ({
     const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
     // Get the origin and destiny city's GMT offsets in minutes
-    const originGMTOffset = origin.GMT * 60;
-    const destinyGMTOffset = destiny.GMT * 60;
+    const originGMTOffset = origin.GMT ;
+    const destinyGMTOffset = destiny.GMT ;
 
     // Convert the departure and arrival times to the system's timezone
     const horaSalida = new Date(vuelo.horaSalida);
+    // console.log("horaSalida", horaSalida);
+    // console.log("systemTimezoneOffset", systemTimezoneOffset);
+    // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
+
     horaSalida.setUTCHours(
-      horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset
+      horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset/100
     );
+
+    console.log("horaSalida after", horaSalida);
 
     const horaLlegada = new Date(vuelo.horaLlegada);
     horaLlegada.setUTCHours(
       horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset
     );
 
-    if (simulatedDate.current && simulatedDate.current >= horaLlegada) {
+    if (simulatedDate.current && (simulatedDate.current >= horaLlegada || simulatedDate.current < horaSalida)) {
       setIsVisible(false);
+      console.log("Plane is not visible");
+      console.log("simulatedDate.current", simulatedDate.current);
+      console.log("horaSalida", horaSalida);
       return;
     }
-
-    // if (simulatedDate < vuelo.horaSalida) {
-    //   setIsVisible(false);
-    //   return;
-    // }
 
     if (
       simulatedDate.current &&
       simulatedDate.current >= horaSalida &&
       simulatedDate.current < horaLlegada
     ) {
+      console.log("Plane is visible");
+      console.log("simulatedDate.current", simulatedDate.current);
+      console.log("horaSalida", horaSalida);
       setIsVisible(true);
     }
+
 
     const progress =
       ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
@@ -77,20 +84,34 @@ const Plane: React.FC<PlaneProps> = ({
       origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
 
     setPosition([newLat, newLng] as LatLngExpression);
-  }, [vuelo, startTime, speedFactor, simulatedDate]);
 
-  const [isVisible, setIsVisible] = useState(false);
+  };
+
 
   useEffect(() => {
-    if (duration === 0) return;
+    if (vuelo === undefined) return;
+    if(startTime === undefined) return;
+    if(startDate === undefined) return;
 
-    const timer = setTimeout(() => {
-      setIsVisible(false);
-    }, duration + 500);
+    updatePlanePosition();
+    
+  }, [vuelo, startTime, startDate]);
 
-    // Cleanup function to clear the timeout if the component unmounts before the duration
-    return () => clearTimeout(timer);
-  }, [duration]);
+  useEffect(() => {
+    updatePlanePosition();
+  }, [position]);
+  
+
+  // useEffect(() => {
+  //   if (duration === 0) return;
+
+  //   const timer = setTimeout(() => {
+  //     setIsVisible(false);
+  //   }, duration + 500);
+
+  //   // Cleanup function to clear the timeout if the component unmounts before the duration
+  //   return () => clearTimeout(timer);
+  // }, [duration]);
 
   if (!isVisible) {
     return null;

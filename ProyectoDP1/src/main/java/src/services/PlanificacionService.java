@@ -237,7 +237,7 @@ public class PlanificacionService {
             }
             j++;
         }
-        double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, true);
+        // double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, true);
         return gbest;
         // return null;
     }
