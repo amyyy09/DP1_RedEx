@@ -10,12 +10,14 @@ import { Vuelo } from "./types/Planes";
 const Home: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
   const [startSimulation, setStartSimulation] = useState(false);
-  const controlClock = useRef(new Date()); // Initialize with the current date and time
   const startTime = useRef(0);
   const [simulationMode, setSimulationMode] = useState("");
   const [startDate, setStartDate] = useState("");
   const [startHour, setStartHour] = useState("");
   const [vuelos, setVuelos] = useState<Vuelo[]>([]);
+  const [loading, setLoading] = useState(false);
+  const simulatedDate = useRef(new Date());
+  const [trigger, setTrigger] = useState(0);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -46,19 +48,13 @@ const Home: React.FC = () => {
       // startDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
 
       // Add the simulated time to the start date
-      const simulatedDate = new Date(
+      simulatedDate.current = new Date(
         startDateSim.getTime() + simulatedTime * 1000
       );
-      controlClock.current = simulatedDate;
-
-      // Wrap around every 24 hours
-      const simulatedMinutes =
-        (simulatedDate.getHours() * 60 + simulatedDate.getMinutes()) %
-        (24 * 60);
-
+      setTrigger((prev) => prev + 1);
       // Update the display time
       setDisplayTime(
-        simulatedDate.toLocaleString(undefined, {
+        simulatedDate.current.toLocaleString(undefined, {
           day: "2-digit",
           month: "2-digit",
           year: "numeric",
@@ -110,6 +106,7 @@ const Home: React.FC = () => {
       console.log(vuelos);
       setShowModal(false);
       setStartSimulation(true);
+      setLoading(false);
     }
   }, [vuelos]);
 
@@ -123,7 +120,8 @@ const Home: React.FC = () => {
           startTime={startTime}
           startDate={startDate}
           startHour={startHour}
-          speedFactor={speedFactor}
+          simulatedDate={simulatedDate}
+          speedFactor={trigger}
         />
         <p>Simulated time: {displayTime}</p>
         {/* Pass planes only if simulation starts */}
@@ -136,8 +134,9 @@ const Home: React.FC = () => {
             setStartTime={setStartHour}
             simulationMode={simulationMode}
             setSimulationMode={setSimulationMode}
-            vuelos={vuelos}
             setVuelos={setVuelos}
+            loading={loading}
+            setLoading={setLoading}
           />
         )}{" "}
         {/* Show modal */}

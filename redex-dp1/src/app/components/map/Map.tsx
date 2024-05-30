@@ -20,6 +20,7 @@ interface MapProps {
   startTime: React.RefObject<number>;
   startDate: string;
   startHour: string;
+  simulatedDate: React.RefObject<Date>;
   speedFactor: number;
 }
 
@@ -41,6 +42,7 @@ const Map: React.FC<MapProps> = ({
   startTime,
   startDate,
   startHour,
+  simulatedDate,
   speedFactor,
 }) => {
   return (
@@ -75,6 +77,7 @@ const Map: React.FC<MapProps> = ({
             startTime={startTime}
             startDate={startDate}
             startHour={startHour}
+            simulatedDate={simulatedDate}
             speedFactor={speedFactor}
           />
         ))}

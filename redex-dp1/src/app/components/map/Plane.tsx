@@ -14,6 +14,7 @@ const Plane: React.FC<PlaneProps> = ({
   startTime,
   startDate,
   startHour,
+  simulatedDate,
   speedFactor,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
@@ -23,108 +24,60 @@ const Plane: React.FC<PlaneProps> = ({
 
   useEffect(() => {
     if (vuelo === undefined) return;
+    if (simulatedDate === undefined) return;
 
-    const updateSimulatedTime = () => {
-      if (vuelo === undefined) return;
+    console.log("simulatedDate at Plane", simulatedDate.current);
+    // console.log("currentTime at Plane", currentTime);
 
-      const currentTime = Date.now();
-      const elapsedTime = startTime.current
-        ? (currentTime - startTime.current) / 1000
-        : 0; // in seconds
-      const simulatedTime = elapsedTime * speedFactor;
-      const startDateSim = new Date(startDate + "T" + startHour + ":00");
+    const systemTimezoneOffset = new Date().getTimezoneOffset();
 
-      const simulatedDate = new Date(
-        startDateSim.getTime() + simulatedTime * 1000
-      );
+    const origin = citiesByCode[vuelo.aeropuertoOrigen];
+    const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
-      const systemTimezoneOffset = new Date().getTimezoneOffset();
+    // Get the origin and destiny city's GMT offsets in minutes
+    const originGMTOffset = origin.GMT * 60;
+    const destinyGMTOffset = destiny.GMT * 60;
 
-      const origin = citiesByCode[vuelo.aeropuertoOrigen];
-      const destiny = citiesByCode[vuelo.aeropuertoDestino];
+    // Convert the departure and arrival times to the system's timezone
+    const horaSalida = new Date(vuelo.horaSalida);
+    horaSalida.setUTCHours(
+      horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset
+    );
 
-      // Get the origin and destiny city's GMT offsets in minutes
-      const originGMTOffset = origin.GMT * 60;
-      const destinyGMTOffset = destiny.GMT * 60;
+    const horaLlegada = new Date(vuelo.horaLlegada);
+    horaLlegada.setUTCHours(
+      horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset
+    );
 
-      // Convert the departure and arrival times to the system's timezone
-      const horaSalida = new Date(vuelo.horaSalida);
-      horaSalida.setUTCHours(
-        horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset
-      );
+    if (simulatedDate.current && simulatedDate.current >= horaLlegada) {
+      setIsVisible(false);
+      return;
+    }
 
-      const horaLlegada = new Date(vuelo.horaLlegada);
-      horaLlegada.setUTCHours(
-        horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset
-      );
-
-      if (simulatedDate >= horaLlegada) {
-        setIsVisible(false);
-        return;
-      }
-
-      // if (simulatedDate < vuelo.horaSalida) {
-      //   setIsVisible(false);
-      //   return;
-      // }
-
-      if (simulatedDate >= horaSalida && simulatedDate < horaLlegada) {
-        setIsVisible(true);
-      }
-
-      const progress =
-        (simulatedDate.getTime() - horaSalida.getTime()) /
-        (horaLlegada.getTime() - horaSalida.getTime());
-
-      const newLat =
-        origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-      const newLng =
-        origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-
-      setPosition([newLat, newLng] as LatLngExpression);
-    };
-
-    // Call updateSimulatedTime every second
-    const intervalId = setInterval(updateSimulatedTime, 500 / speedFactor);
-
-    // Cleanup function to clear the interval if the component unmounts
-    return () => clearInterval(intervalId);
-
-    // if (controlClock === undefined) return;
-
-    // const timeToMinutes = (time: string) => {
-    //   const [hours, minutes] = time.split(":").map(Number);
-    //   return hours * 60 + minutes;
-    // };
-
-    // const departureTimeMinutes = timeToMinutes(departureTime);
-    // const arrivalTimeMinutes = timeToMinutes(arrivalTime);
-
-    // // If controlClock is greater than departureTime, don't start the animation
-    // if (controlClock > departureTimeMinutes) {
-    //   setIsVisible(true);
-    // } else {
-    //   return;
-    // }
-
-    // // If controlClock is greater than arrivalTime, end the animation
-    // if (controlClock > arrivalTimeMinutes) {
+    // if (simulatedDate < vuelo.horaSalida) {
     //   setIsVisible(false);
     //   return;
     // }
 
-    // // Calculate progress based on controlClock, departureTime and arrivalTime
-    // const progress =
-    //   (controlClock - departureTimeMinutes) /
-    //   (arrivalTimeMinutes - departureTimeMinutes);
+    if (
+      simulatedDate.current &&
+      simulatedDate.current >= horaSalida &&
+      simulatedDate.current < horaLlegada
+    ) {
+      setIsVisible(true);
+    }
 
-    // const newLat =
-    //   origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-    // const newLng =
-    //   origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+    const progress =
+      ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
+      (horaLlegada.getTime() - horaSalida.getTime());
 
-    // setPosition([newLat, newLng] as LatLngExpression);
-  }, [vuelo, startTime, speedFactor]);
+    const newLat =
+      origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+    const newLng =
+      origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+
+    setPosition([newLat, newLng] as LatLngExpression);
+  }, [vuelo, startTime, speedFactor, simulatedDate]);
 
   const [isVisible, setIsVisible] = useState(false);
 
