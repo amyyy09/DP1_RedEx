@@ -1,6 +1,7 @@
 package src.services;
 
 import src.model.*;
+import src.service.AeropuertoService;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -15,9 +16,14 @@ import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-
+import java.util.concurrent.RecursiveTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class PlanificacionService {
@@ -142,14 +148,12 @@ public class PlanificacionService {
         visited.remove(current);
     }
 
-    // PSO
-
     public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
             Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActuales, LocalDateTime fechaHoraEjecucion) {
         List<Particula> population = new ArrayList<>();
-        int numParticles = 50;
-        int numIterationsMax = 100;
+        int numParticles = 8;
+        int numIterationsMax = 30;
         double w = 0.5, c1 = 1, c2 = 2;
 
         Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = createMap(rutasPred);
@@ -166,7 +170,7 @@ public class PlanificacionService {
         int noImprovementCounter = 0;
         // for (int j = 0; j < numIterationsMax; j++) {
         int j=0;
-        while (noImprovementCounter < numIterationsMax && j < 750) {
+        while (noImprovementCounter < numIterationsMax && j < 350) {
             // if(evaluator.fitness(gbest, aeropuertos, vuelosActuales) == 0){
             //     return gbest;
             // }
@@ -234,12 +238,13 @@ public class PlanificacionService {
             j++;
         }
         double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, true);
-        // if (fit < 0) {
-            System.out.println("Fitness: " + fit);
-        // }
         return gbest;
         // return null;
     }
+
+
+
+
 
     public static List<RutaPredefinida> filterRutasForEnvio(
         Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred, Envio envio) {
