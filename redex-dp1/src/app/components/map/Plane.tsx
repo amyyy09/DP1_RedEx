@@ -100,14 +100,6 @@ const Plane: React.FC<PlaneProps> = ({
   // }, [vuelo, startTime, startDate]);
 
   useEffect(() => {
-<<<<<<< HEAD
-    if (!vuelo) return;
-    if (!startTime.current) return;
-    if (!startDate) return;
-
-    updatePlanePosition();
-  }, [vuelo, startTime.current, startDate, simulatedDate.current]);
-=======
     if (vuelo === undefined) return;
     if(startTime === undefined) return;
     if(startDate === undefined) return;
@@ -115,7 +107,6 @@ const Plane: React.FC<PlaneProps> = ({
     updatePlanePosition();
     
   }, [vuelo, startTime, startDate,startSimulation]);
->>>>>>> Sergio
 
   // Periodically update the plane's position
   useEffect(() => {
