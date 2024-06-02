@@ -18,7 +18,6 @@ const Home: React.FC = () => {
   const vuelos = useRef<Vuelo[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
-  const [trigger, setTrigger] = useState(0);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -46,7 +45,7 @@ const Home: React.FC = () => {
       const simulatedTime = elapsedTime * speedFactor;
       // Create a new Date object for the start of the simulation
       const startDateSim = new Date(startDate + "T" + startHour + ":00");
-      // startDate.setHours(0, 0, 0, 0); // Set the time to 00:00:00
+      // console.log("startDateSim", startDateSim);
 
       // Add the simulated time to the start date
       simulatedDate.current = new Date(
@@ -78,7 +77,7 @@ const Home: React.FC = () => {
     };
 
     // Call updateSimulatedTime every second
-    const intervalId = setInterval(updateSimulatedTime, 500 / speedFactor);
+    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
 
     // Clean up on unmount
     return () => {
@@ -88,7 +87,7 @@ const Home: React.FC = () => {
 
   const Map = useMemo(
     () =>
-      dynamic(() => import("../app/components/map/Map"), {
+      dynamic(() => import("./components/map/Map"), {
         loading: () => <p>A map is loading</p>,
         ssr: false,
       }),
@@ -113,8 +112,7 @@ const Home: React.FC = () => {
           startTime={startTime}
           startDate={startDate}
           startHour={startHour}
-          simulatedDate={simulatedDate}
-          speedFactor={trigger}
+          speedFactor={speedFactor}
           startSimulation={startSimulation}
         />
           {/* Contenedor para el tiempo simulado */}

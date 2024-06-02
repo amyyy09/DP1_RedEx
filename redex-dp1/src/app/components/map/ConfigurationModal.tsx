@@ -61,8 +61,11 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
   const handleApplyClick = async () => {
     setLoading(true);
-    const selectedDate = new Date(startDate);
+    const [year, month, day] = startDate.split('-').map(Number);
+    const selectedDate = new Date(year, month - 1, day);
+    console.log(`Start Date: ${startDate}`);
     const formattedDate = formatDateTime(selectedDate, startTime);
+    console.log(`Start Date: ${formattedDate}`);
     // onApply();
   
     // Definir los datos JSON para la solicitud

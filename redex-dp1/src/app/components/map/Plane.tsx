@@ -14,81 +14,186 @@ const Plane: React.FC<PlaneProps> = ({
   startTime,
   startDate,
   startHour,
-  simulatedDate,
   speedFactor,
   startSimulation
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
+  const simulatedDate = React.useRef<Date>();
   const map = useMap();
 
   const [duration, setDuration] = useState(0);
 
-  const updatePlanePosition = () => {
-    if (simulatedDate === undefined) return;
-    // console.log("simulatedDate at Plane", simulatedDate.current);
-    // console.log("currentTime at Plane", currentTime);
+  useEffect(() => {
+    if (!startSimulation) return;
 
-    const systemTimezoneOffset = new Date().getTimezoneOffset();
+    console.log("plane started");
 
-    const origin = citiesByCode[vuelo.aeropuertoOrigen];
-    const destiny = citiesByCode[vuelo.aeropuertoDestino];
+    // Update the simulated time
+    const updateSimulatedTime = () => {
+      if (!startSimulation || !startTime.current) return;
 
-    // Get the origin and destiny city's GMT offsets in minutes
-    const originGMTOffset = origin.GMT;
-    const destinyGMTOffset = destiny.GMT;
+      // console.log("startTime", startTime.current);
 
-    // Convert the departure and arrival times to the system's timezone
-    const horaSalida = new Date(vuelo.horaSalida);
-    // console.log("horaSalida", horaSalida);
-    // console.log("systemTimezoneOffset", systemTimezoneOffset);
-    // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
+      const currentTime = Date.now();
+      // console.log("currentTime", currentTime);
+      const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
+      // console.log("elapsedTime", elapsedTime);
+      const simulatedTime = elapsedTime * speedFactor;
+      // console.log("simulatedTime", simulatedTime);
+      // Create a new Date object for the start of the simulation
+      const startDateSim = new Date(startDate + "T" + startHour + ":00");
+      // console.log("startDateSim", startDateSim);
 
-    horaSalida.setUTCHours(
-      horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset / 100
-    );
+      // Add the simulated time to the start date
+      simulatedDate.current = new Date(
+        startDateSim.getTime() + simulatedTime * 1000
+      );
 
-    console.log("horaSalida after", horaSalida);
+      // console.log("simulatedDate.current", simulatedDate.current);
 
-    const horaLlegada = new Date(vuelo.horaLlegada);
-    horaLlegada.setUTCHours(
-      horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset
-    );
+      const systemTimezoneOffset = new Date().getTimezoneOffset();
 
-    if (
-      simulatedDate.current &&
-      (simulatedDate.current >= horaLlegada ||
-        simulatedDate.current < horaSalida)
-    ) {
-      setIsVisible(false);
-      console.log("Plane is not visible");
-      console.log("simulatedDate.current", simulatedDate.current);
-      console.log("horaSalida", horaSalida);
-      return;
-    }
+      const origin = citiesByCode[vuelo.aeropuertoOrigen];
+      const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
-    if (
-      simulatedDate.current &&
-      simulatedDate.current >= horaSalida &&
-      simulatedDate.current < horaLlegada
-    ) {
-      console.log("Plane is visible");
-      console.log("simulatedDate.current", simulatedDate.current);
-      console.log("horaSalida", horaSalida);
-      setIsVisible(true);
-    }
+      // Get the origin and destiny city's GMT offsets in minutes
+      const originGMTOffset = origin.GMT;
+      const destinyGMTOffset = destiny.GMT;
 
-    const progress =
-      ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
-      (horaLlegada.getTime() - horaSalida.getTime());
+      // Convert the departure and arrival times to the system's timezone
+      const horaSalida = new Date(vuelo.horaSalida);
+      console.log("horaSalida vuelo", vuelo.horaSalida);
+      console.log("horaSalida inicial", horaSalida);
+      // console.log("systemTimezoneOffset", systemTimezoneOffset);
+      // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
 
-    const newLat =
-      origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-    const newLng =
-      origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+      horaSalida.setUTCHours(
+        horaSalida.getUTCHours() - originGMTOffset 
+      );
+      console.log("offset", originGMTOffset);
+      console.log("horaSalida after", horaSalida);
 
-    setPosition([newLat, newLng] as LatLngExpression);
-  };
+      const horaLlegada = new Date(vuelo.horaLlegada);
+      console.log("horaLlegada inicial", horaLlegada);
+      horaLlegada.setUTCHours(
+        horaLlegada.getUTCHours() - destinyGMTOffset
+      );
+      console.log("offset", destinyGMTOffset);
+      console.log("horaLlegada after", horaLlegada);
+
+      if (
+        simulatedDate.current &&
+        (simulatedDate.current > horaLlegada ||
+          simulatedDate.current < horaSalida)
+      ) {
+        setIsVisible(false);
+        console.log("Plane is not visible");
+        console.log("simulatedDate.current", simulatedDate.current);
+        // console.log("horaLlegada aquí", horaLlegada);
+        return;
+      }
+
+      if (
+        simulatedDate.current &&
+        simulatedDate.current >= horaSalida &&
+        simulatedDate.current <= horaLlegada
+      ) {
+        console.log("Plane is visible");
+        console.log("simulatedDate.current", simulatedDate.current);
+        console.log("horaSalida", horaSalida);
+        setIsVisible(true);
+      }
+
+      const progress =
+        ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
+        (horaLlegada.getTime() - horaSalida.getTime());
+
+      const newLat =
+        origin.coords.lat +
+        (destiny.coords.lat - origin.coords.lat) * progress;
+
+      const newLng =
+        origin.coords.lng +
+        (destiny.coords.lng - origin.coords.lng) * progress;
+
+      setPosition([newLat, newLng] as LatLngExpression);
+    };
+
+    // Call updateSimulatedTime every second
+    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
+
+    // Clean up on unmount
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [startSimulation]);
+
+  // const updatePlanePosition = () => {
+  //   if (simulatedDate === undefined) return;
+  //   // console.log("simulatedDate at Plane", simulatedDate.current);
+  //   // console.log("currentTime at Plane", currentTime);
+
+  //   const systemTimezoneOffset = new Date().getTimezoneOffset();
+
+  //   const origin = citiesByCode[vuelo.aeropuertoOrigen];
+  //   const destiny = citiesByCode[vuelo.aeropuertoDestino];
+
+  //   // Get the origin and destiny city's GMT offsets in minutes
+  //   const originGMTOffset = origin.GMT;
+  //   const destinyGMTOffset = destiny.GMT;
+
+  //   // Convert the departure and arrival times to the system's timezone
+  //   const horaSalida = new Date(vuelo.horaSalida);
+  //   console.log("horaSalida", horaSalida);
+  //   // console.log("systemTimezoneOffset", systemTimezoneOffset);
+  //   // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
+
+  //   horaSalida.setUTCHours(
+  //     horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset / 100
+  //   );
+
+  //   console.log("horaSalida after", horaSalida);
+
+  //   const horaLlegada = new Date(vuelo.horaLlegada);
+  //   horaLlegada.setUTCHours(
+  //     horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset
+  //   );
+
+  //   if (
+  //     simulatedDate.current &&
+  //     (simulatedDate.current >= horaLlegada ||
+  //       simulatedDate.current < horaSalida)
+  //   ) {
+  //     setIsVisible(false);
+  //     console.log("Plane is not visible");
+  //     console.log("simulatedDate.current", simulatedDate.current);
+  //     console.log("horaSalida aquí", horaSalida);
+  //     return;
+  //   }
+
+  //   if (
+  //     simulatedDate.current &&
+  //     simulatedDate.current >= horaSalida &&
+  //     simulatedDate.current < horaLlegada
+  //   ) {
+  //     console.log("Plane is visible");
+  //     console.log("simulatedDate.current", simulatedDate.current);
+  //     console.log("horaSalida", horaSalida);
+  //     setIsVisible(true);
+  //   }
+
+  //   const progress =
+  //     ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
+  //     (horaLlegada.getTime() - horaSalida.getTime());
+
+  //   const newLat =
+  //     origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+  //   const newLng =
+  //     origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+
+  //   setPosition([newLat, newLng] as LatLngExpression);
+  // };
 
   // useEffect(() => {
   //   if (vuelo === undefined) return;
@@ -104,14 +209,14 @@ const Plane: React.FC<PlaneProps> = ({
     if(startTime === undefined) return;
     if(startDate === undefined) return;
     if(!startSimulation) return;
-    updatePlanePosition();
+    // updatePlanePosition();
     
   }, [vuelo, startTime, startDate,startSimulation]);
 
   // Periodically update the plane's position
   useEffect(() => {
-    const intervalId = setInterval(updatePlanePosition, 1000 / speedFactor);
-    return () => clearInterval(intervalId);
+    // const intervalId = setInterval(updatePlanePosition, 1000 / speedFactor);
+    // return () => clearInterval(intervalId);
   }, [simulatedDate.current, speedFactor]);
 
   // useEffect(() => {
