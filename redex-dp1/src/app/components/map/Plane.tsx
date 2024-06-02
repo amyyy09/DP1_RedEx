@@ -34,8 +34,8 @@ const Plane: React.FC<PlaneProps> = ({
     const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
     // Get the origin and destiny city's GMT offsets in minutes
-    const originGMTOffset = origin.GMT ;
-    const destinyGMTOffset = destiny.GMT ;
+    const originGMTOffset = origin.GMT;
+    const destinyGMTOffset = destiny.GMT;
 
     // Convert the departure and arrival times to the system's timezone
     const horaSalida = new Date(vuelo.horaSalida);
@@ -44,7 +44,7 @@ const Plane: React.FC<PlaneProps> = ({
     // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
 
     horaSalida.setUTCHours(
-      horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset/100
+      horaSalida.getUTCHours() + originGMTOffset - systemTimezoneOffset / 100
     );
 
     console.log("horaSalida after", horaSalida);
@@ -54,7 +54,11 @@ const Plane: React.FC<PlaneProps> = ({
       horaLlegada.getUTCHours() + destinyGMTOffset - systemTimezoneOffset
     );
 
-    if (simulatedDate.current && (simulatedDate.current >= horaLlegada || simulatedDate.current < horaSalida)) {
+    if (
+      simulatedDate.current &&
+      (simulatedDate.current >= horaLlegada ||
+        simulatedDate.current < horaSalida)
+    ) {
       setIsVisible(false);
       console.log("Plane is not visible");
       console.log("simulatedDate.current", simulatedDate.current);
@@ -73,7 +77,6 @@ const Plane: React.FC<PlaneProps> = ({
       setIsVisible(true);
     }
 
-
     const progress =
       ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
       (horaLlegada.getTime() - horaSalida.getTime());
@@ -84,23 +87,30 @@ const Plane: React.FC<PlaneProps> = ({
       origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
 
     setPosition([newLat, newLng] as LatLngExpression);
-
   };
 
+  // useEffect(() => {
+  //   if (vuelo === undefined) return;
+  //   if(startTime === undefined) return;
+  //   if(startDate === undefined) return;
+
+  //   updatePlanePosition();
+
+  // }, [vuelo, startTime, startDate]);
 
   useEffect(() => {
-    if (vuelo === undefined) return;
-    if(startTime === undefined) return;
-    if(startDate === undefined) return;
+    if (!vuelo) return;
+    if (!startTime.current) return;
+    if (!startDate) return;
 
     updatePlanePosition();
-    
-  }, [vuelo, startTime, startDate]);
+  }, [vuelo, startTime.current, startDate, simulatedDate.current]);
 
+  // Periodically update the plane's position
   useEffect(() => {
-    updatePlanePosition();
-  }, [position]);
-  
+    const intervalId = setInterval(updatePlanePosition, 1000 / speedFactor);
+    return () => clearInterval(intervalId);
+  }, [simulatedDate.current, speedFactor]);
 
   // useEffect(() => {
   //   if (duration === 0) return;
@@ -130,8 +140,8 @@ const Plane: React.FC<PlaneProps> = ({
         <Polyline
           positions={
             [
-              // [origin.coords.lat, origin.coords.lng],
-              // [destiny.coords.lat, destiny.coords.lng],
+              [citiesByCode[vuelo.aeropuertoOrigen].coords.lat, citiesByCode[vuelo.aeropuertoOrigen].coords.lng],
+              [citiesByCode[vuelo.aeropuertoDestino].coords.lat, citiesByCode[vuelo.aeropuertoDestino].coords.lng],
             ]
           }
           pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
