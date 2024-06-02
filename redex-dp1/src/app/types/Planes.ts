@@ -13,6 +13,7 @@ export interface PlaneProps {
   startHour: string;
   simulatedDate: React.RefObject<Date>;
   speedFactor: number;
+  startSimulation: boolean;
 }
 
 export class Vuelo {

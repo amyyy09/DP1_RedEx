@@ -22,6 +22,7 @@ interface MapProps {
   startHour: string;
   simulatedDate: React.RefObject<Date>;
   speedFactor: number;
+  startSimulation: boolean;
 }
 
 const customIcon = new L.Icon({
@@ -44,6 +45,7 @@ const Map: React.FC<MapProps> = ({
   startHour,
   simulatedDate,
   speedFactor,
+  startSimulation
 }) => {
   return (
     <MapContainer
@@ -79,6 +81,7 @@ const Map: React.FC<MapProps> = ({
             startHour={startHour}
             simulatedDate={simulatedDate}
             speedFactor={speedFactor}
+            startSimulation={startSimulation}
           />
         ))}
     </MapContainer>

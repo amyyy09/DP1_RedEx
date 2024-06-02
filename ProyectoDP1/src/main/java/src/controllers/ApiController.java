@@ -41,7 +41,7 @@ public class ApiController {
         List<Vuelo> vuelos = peticionPSO.getVuelos();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
         List<RutaPredefinida> rutasPredMap = rutaPredefinidaService.getRutasPredefinidas();
-        JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap);
+        JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap,fechaHoraParsed);
         
         return JSON;
     }

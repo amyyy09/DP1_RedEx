@@ -6,6 +6,7 @@ import Topbar from "./components/layout/Topbar";
 import Sidebar from "./components/layout/Sidebar";
 import ConfigurationModal from "./components/map/ConfigurationModal";
 import { Vuelo } from "./types/Planes";
+import "./styles/SimulatedTime.css";
 
 const Home: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -114,9 +115,12 @@ const Home: React.FC = () => {
           startHour={startHour}
           simulatedDate={simulatedDate}
           speedFactor={trigger}
+          startSimulation={startSimulation}
         />
-        <p>Simulated time: {displayTime}</p>
-        {/* Pass planes only if simulation starts */}
+          {/* Contenedor para el tiempo simulado */}
+        <div className="simulated-time-container">
+          Simulated time: {displayTime}
+         </div>
         {showModal && (
           <ConfigurationModal
             onApply={handleApplyConfiguration}
