@@ -60,60 +60,86 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   };
 
   const handleApplyClick = async () => {
-    setLoading(true);
+    const numberOfCalls = 84; // Número de llamadas a la API
+    const intervalHours = 2; // Intervalo de horas entre cada llamada
+
+    // Formatear la fecha inicial
     const [year, month, day] = startDate.split('-').map(Number);
     const selectedDate = new Date(year, month - 1, day);
-    console.log(`Start Date: ${startDate}`);
-    const formattedDate = formatDateTime(selectedDate, startTime);
-    console.log(`Start Date: ${formattedDate}`);
-    // onApply();
-  
-    // Definir los datos JSON para la solicitud
-    const data = {
-      fechahora: formattedDate,
-      aeropuertos: [],
-      vuelos: [],
-    };
-  
-    try {
-      const response = await fetch('http://localhost:8080/api/pso', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      });
-  
-      console.log('Response:', response);
-  
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-  
-      const responseData = await response.json();
-  
-      // Procesar los vuelos desde el responseData
-      console.log("Response data:", responseData);
-      const vuelosData: Vuelo[] = [];
+    let [startHours, startMinutes] = startTime.split(':').map(Number);
 
-      // Procesar los vuelos desde el responseData
-      for (const key in responseData) {
-        if (responseData.hasOwnProperty(key)) {
-          const paquete = responseData[key];
-          if (paquete && paquete.vuelos) {
-            vuelosWithCapacity(paquete, vuelos)
-          }
+    // Lista para almacenar todas las respuestas
+    const allResponses = [];
+
+    for (let i = 0; i < numberOfCalls; i++) {
+        if (i === 0) {
+            setLoading(true); // Activar estado de cargando en la primera iteración
         }
-      }
-  
-      console.log("Vuelos:", vuelos.current);
-    } catch (error) {
-      console.error('Error:', error);
-    } finally {
-      setLoading(false); // Desactivar estado de cargando
-      onApply();
+        // Formatear la fecha y hora actualizadas
+        let formattedTime = `${startHours.toString().padStart(2, '0')}:${startMinutes.toString().padStart(2, '0')}`;
+        let formattedDate = formatDateTime(selectedDate, formattedTime);
+        console.log('Formatted Date:', formattedDate);
+        // Definir los datos JSON para la solicitud
+        const data = {
+            fechahora: formattedDate,
+            aeropuertos: [],
+            vuelos: [],
+        };
+
+        try {
+            const response = await fetch('http://localhost:8080/api/pso', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            });
+
+            //console.log('Response:', response);
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const responseData = await response.json();
+            allResponses.push(responseData); // Guardar la respuesta en la lista
+            console.log('allResponses:', allResponses);
+
+            // Procesar los vuelos desde el responseData
+            //console.log("Response data:", responseData);
+            const vuelosData: Vuelo[] = [];
+
+            for (const key in responseData) {
+                if (responseData.hasOwnProperty(key)) {
+                    const paquete = responseData[key];
+                    if (paquete && paquete.vuelos) {
+                        vuelosWithCapacity(paquete, vuelos);
+                    }
+                }
+            }
+
+            //console.log("Vuelos:", vuelos.current);
+        } catch (error) {
+            console.error('Error:', error);
+        } finally {
+            if (i === 0) {
+                setLoading(false); // Desactivar estado de cargando después de la primera iteración
+                onApply(); // Realizar cualquier acción adicional después de la primera solicitud
+            }
+        }
+
+        // Incrementar la hora para la siguiente solicitud
+        startHours += intervalHours;
+
+        if (i > 0) {
+            setLoading(true); // Mantener el estado de cargando en las iteraciones siguientes
+        }
     }
-  };
+
+    setLoading(false); // Desactivar estado de cargando al finalizar todas las iteraciones
+    onApply(); // Realizar cualquier acción adicional después de la última solicitud
+};
+
 
   if (loading) {
     return (
