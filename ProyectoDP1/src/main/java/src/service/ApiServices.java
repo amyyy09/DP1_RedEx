@@ -34,7 +34,8 @@ public class ApiServices {
     
     public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios, List<RutaPredefinida> rutasPred,LocalDateTime fechaHora) {
         Map<Paquete, Resultado> json= null;
-        Map<Paquete, RutaTiempoReal> resultado = null;     
+        Map<Paquete, RutaTiempoReal> resultado = null;   
+        List<VueloNuevo> json2 = null;
         planificacionService = new PlanificacionService();
         vueloService = new VueloServices();
         String jsonResult = null;
@@ -62,11 +63,12 @@ public class ApiServices {
 			if (!envios.isEmpty()) {
 				resultado = planificacionService.PSO(envios, paquetes, rutasPred, almacenes, planesDeVuelo, aeropuertos, vuelosActuales, fechaHora);
                 json=planificacionService.transformResult(resultado);
+                json2=planificacionService.transformarResultado(json);
 			}
             // Convertir el resultado a JSON
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
-            jsonResult = mapper.writeValueAsString(json);
+            jsonResult = mapper.writeValueAsString(json2);
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -380,4 +380,40 @@ public class PlanificacionService {
         return transformedResult;
     }
 
+    public static List<VueloNuevo> transformarResultado(Map<Paquete, Resultado> json) {
+        List<VueloNuevo> acumuladoVuelos = new ArrayList<>();
+
+        for (Map.Entry<Paquete, Resultado> entry : json.entrySet()) {
+            Resultado resultado = entry.getValue();
+
+            if (resultado == null) {
+                continue; 
+            }
+
+            String aeropuertoOrigen = resultado.getAeropuertoOrigen();
+            String aeropuertoDestino = resultado.getAeropuertoDestino();
+
+            if (resultado.getVuelos() == null) {
+                continue; 
+            }
+
+            for (Vuelo vuelo : resultado.getVuelos()) {
+                VueloNuevo vueloNuevo = new VueloNuevo();
+                vueloNuevo.setCantPaquetes(vuelo.getCantPaquetes());
+                vueloNuevo.setCapacidad(vuelo.getCapacidad());
+                vueloNuevo.setStatus(vuelo.getStatus());
+                vueloNuevo.setIndexPlan(vuelo.getIndexPlan());
+                vueloNuevo.setHoraSalida(vuelo.getHoraSalida());
+                vueloNuevo.setHoraLlegada(vuelo.getHoraLlegada());
+                vueloNuevo.setAeropuertoOrigen(aeropuertoOrigen);
+                vueloNuevo.setAeropuertoDestino(aeropuertoDestino);
+                vueloNuevo.setIdVuelo(vuelo.getIdVuelo());
+
+                acumuladoVuelos.add(vueloNuevo);
+            }
+        }
+
+        return acumuladoVuelos;
+    }
+
 }
