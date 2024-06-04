@@ -44,6 +44,7 @@ public class ApiServices {
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertos, archivoRutaPlanes);//obtencion de planesdevuelos
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo,vuelos);
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());		
+            System.out.println("cantidad de paquetes: " + paquetes.size());
             Map<String, Almacen> almacenes = aeropuertos.stream()
     			.collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
 
