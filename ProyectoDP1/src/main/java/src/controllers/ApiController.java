@@ -14,6 +14,8 @@ import src.service.RutaPredefinidaService;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @RestController
 @RequestMapping("/api")
@@ -39,8 +41,9 @@ public class ApiController {
         List<Vuelo> vuelos = ApiServices.getVuelosGuardados();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
         List<RutaPredefinida> rutasPredMap = rutaPredefinidaService.getRutasPredefinidas();
-        JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap, fechaHoraParsed);
-
+        JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap,fechaHoraParsed);
+        
         return JSON;
     }
 }
+
