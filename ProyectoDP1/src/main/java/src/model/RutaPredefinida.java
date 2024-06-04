@@ -94,6 +94,7 @@ public class RutaPredefinida {
                 vuelo1.setHoraLlegada(fechaLlegada);
                 vuelo1.setPlanDeVuelo(element);
                 vuelo1.setStatus(0); // Status inicial, suponemos '0' para no activo
+                vuelo1.setCapacidad(element.getCapacidad());
                 vuelosActuales.add(vuelo1);
             }
             fechaInicioVuelo = fechaLlegada;

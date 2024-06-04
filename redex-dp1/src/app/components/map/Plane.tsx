@@ -37,7 +37,7 @@ const Plane: React.FC<PlaneProps> = ({
   useEffect(() => {
     if (!startSimulation) return;
 
-    console.log("plane started");
+    //console.log("plane started");
 
     // Update the simulated time
     const updateSimulatedTime = () => {
@@ -73,20 +73,25 @@ const Plane: React.FC<PlaneProps> = ({
 
       // Convert the departure and arrival times to the system's timezone
       const horaSalida = new Date(vuelo.horaSalida);
-      console.log("horaSalida vuelo", vuelo.horaSalida);
-      console.log("horaSalida inicial", horaSalida);
+      //console.log("horaSalida vuelo", vuelo.horaSalida);
+      //console.log("horaSalida inicial", horaSalida);
       // console.log("systemTimezoneOffset", systemTimezoneOffset);
       // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
 
-      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
-      console.log("offset", originGMTOffset);
-      console.log("horaSalida after", horaSalida);
+      horaSalida.setUTCHours(
+        horaSalida.getUTCHours() - originGMTOffset 
+      );
+      //console.log("offset", originGMTOffset);
+      //console.log("horaSalida after", horaSalida);
 
       const horaLlegada = new Date(vuelo.horaLlegada);
-      console.log("horaLlegada inicial", horaLlegada);
-      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
-      console.log("offset", destinyGMTOffset);
-      console.log("horaLlegada after", horaLlegada);
+      //console.log("horaLlegada inicial", horaLlegada);
+      horaLlegada.setUTCHours(
+        horaLlegada.getUTCHours() - destinyGMTOffset
+      );
+      //console.log("offset", destinyGMTOffset);
+      //console.log("horaLlegada after", horaLlegada);
+
 
       if (
         simulatedDate.current &&
@@ -94,8 +99,8 @@ const Plane: React.FC<PlaneProps> = ({
           simulatedDate.current < horaSalida)
       ) {
         setIsVisible(false);
-        console.log("Plane is not visible");
-        console.log("simulatedDate.current", simulatedDate.current);
+        //console.log("Plane is not visible");
+        //console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaLlegada aquí", horaLlegada);
         return;
       }
@@ -105,9 +110,9 @@ const Plane: React.FC<PlaneProps> = ({
         simulatedDate.current >= horaSalida &&
         simulatedDate.current <= horaLlegada
       ) {
-        console.log("Plane is visible");
-        console.log("simulatedDate.current", simulatedDate.current);
-        console.log("horaSalida", horaSalida);
+        //console.log("Plane is visible");
+        //console.log("simulatedDate.current", simulatedDate.current);
+        //console.log("horaSalida", horaSalida);
         setIsVisible(true);
       }
 
