@@ -84,7 +84,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         const data = {
             fechahora: formattedDate,
             aeropuertos: [],
-            vuelos: updatedVuelos,
+            vuelos: [],
         };
         console.log('Request:', data);
 
@@ -110,17 +110,17 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             // Procesar los vuelos desde el responseData
             //console.log("Response data:", responseData);
             const vuelosData: Vuelo[] = [];
-            const vuelosRef = { current: updatedVuelos };
+            //const vuelosRef = { current: updatedVuelos };
             for (const key in responseData) {
                 if (responseData.hasOwnProperty(key)) {
                     const paquete = responseData[key];
                     if (paquete && paquete.vuelos) {
-                        vuelosWithCapacity(paquete, vuelosRef);
+                        vuelosWithCapacity(paquete, vuelos);
                     }
                 }
             }
 
-            updatedVuelos = vuelosRef.current || []; // Actualizar la lista de vuelos
+            //updatedVuelos = vuelosRef.current || []; // Actualizar la lista de vuelos
             //console.log("Vuelos:", vuelos.current);
         } catch (error) {
             console.error('Error:', error);
