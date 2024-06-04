@@ -96,7 +96,7 @@ public class ApiServices {
                 List<VueloNuevo> jsonVuelosProximos = new ArrayList<>();
                 
                 for (VueloNuevo vn : json) {
-                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());// la hora salida esta con la hora del origen o destino? si es destino cambiar vn.getAeropuertoOrigen() por vn.getAeropuertoDestino() 
+                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());// la hora salida esta con la hora del origen o destino? si es destino cambiar vn.getAeropuertoOrigen() por vn.getAeropuertoDestino() si es origen cambiarlo a vn.getAeropuertoOrigen()
                     horaSalidaGMT0=vn.getHoraSalida().plusHours(zonaHorariaGMT);
                     if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
