@@ -14,6 +14,4 @@ import lombok.NoArgsConstructor;
 
 public class PeticionPSO {
     private String fechahora;
-    private List<Aeropuerto> aeropuertos;
-    private List<Vuelo> vuelos;
 }

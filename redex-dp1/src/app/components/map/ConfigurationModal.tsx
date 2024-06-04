@@ -97,7 +97,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
                 body: JSON.stringify(data)
             });
             
-            //console.log('Response:', response);
+            console.log('Response:', response);
 
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -110,15 +110,19 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             // Procesar los vuelos desde el responseData
             //console.log("Response data:", responseData);
             const vuelosData: Vuelo[] = [];
+
+            vuelos.current?.push(...responseData);
+            console.log("Vuelos:", vuelos.current);
+
             //const vuelosRef = { current: updatedVuelos };
-            for (const key in responseData) {
-                if (responseData.hasOwnProperty(key)) {
-                    const paquete = responseData[key];
-                    if (paquete && paquete.vuelos) {
-                        vuelosWithCapacity(paquete, vuelos);
-                    }
-                }
-            }
+            // for (const key in responseData) {
+            //     if (responseData.hasOwnProperty(key)) {
+            //         const paquete = responseData[key];
+            //         if (paquete && paquete.vuelos) {
+            //             vuelosWithCapacity(paquete, vuelos);
+            //         }
+            //     }
+            // }
 
             //updatedVuelos = vuelosRef.current || []; // Actualizar la lista de vuelos
             //console.log("Vuelos:", vuelos.current);

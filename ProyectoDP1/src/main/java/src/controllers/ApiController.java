@@ -37,8 +37,8 @@ public class ApiController {
         String fechaHora = peticionPSO.getFechahora();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
-        List<Aeropuerto> aeropuertos = peticionPSO.getAeropuertos();
-        List<Vuelo> vuelos = peticionPSO.getVuelos();
+        List<Aeropuerto> aeropuertos =null;
+        List<Vuelo> vuelos = ApiServices.getVuelosGuardados();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
         List<RutaPredefinida> rutasPredMap = rutaPredefinidaService.getRutasPredefinidas();
         JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap,fechaHoraParsed);

@@ -50,13 +50,18 @@ public class VueloServices {
 
     }
 
-    public static List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo,List<Vuelo> vuelos) {
+    public static List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo, List<Vuelo> vuelos) {
+        // Verificar si las listas de entrada son nulas y devolver listas vacías si es necesario
+        if (planesDeVuelo == null || vuelos == null) {
+            return new ArrayList<>();
+        }
+    
         List<Vuelo> vuelosActuales = new ArrayList<>();
-
+    
         // Crear un mapa para acceder a los planes de vuelo rápidamente por indexPlan
         Map<Integer, PlanDeVuelo> planDeVueloMap = planesDeVuelo.stream()
                 .collect(Collectors.toMap(PlanDeVuelo::getIndexPlan, plan -> plan));
-
+    
         // Iterar sobre la lista de vuelos y asignar el plan de vuelo correspondiente
         for (Vuelo vuelo : vuelos) {
             PlanDeVuelo planDeVuelo = planDeVueloMap.get(vuelo.getIndexPlan());
@@ -66,7 +71,7 @@ public class VueloServices {
                 vuelosActuales.add(vuelo);
             }
         }
-
+    
         return vuelosActuales;
     }
 
