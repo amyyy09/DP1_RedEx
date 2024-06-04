@@ -8,7 +8,7 @@ interface RotatedMarkerProps {
   position: L.LatLngExpression;
   icon: L.Icon;
   rotationAngle: number;
-  popupContent?: JSX.Element; // Opcional, contenido del popup
+  popupContent?: JSX.Element;
 }
 
 const RotatedMarker: React.FC<RotatedMarkerProps> = ({
