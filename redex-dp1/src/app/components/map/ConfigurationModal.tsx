@@ -61,7 +61,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
   const handleApplyClick = async () => {
     const numberOfCalls = 84; // Número de llamadas a la API
-    const intervalHours = 2; // Intervalo de horas entre cada llamada
+    const intervalHours = 3; // Intervalo de horas entre cada llamada
 
     // Formatear la fecha inicial
     const [year, month, day] = startDate.split('-').map(Number);
