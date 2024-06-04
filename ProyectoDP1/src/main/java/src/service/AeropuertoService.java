@@ -131,7 +131,12 @@ public class AeropuertoService {
         // Convertir la lista inicial de aeropuertos a un Map
         Map<String, Aeropuerto> aeropuertoMap = DatosAeropuertos.getAeropuertosInicializados().stream()
             .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, aero -> aero));
-
+    
+        if (modAeroList == null) {
+            // Si modAeroList es nulo, devolver la lista original de aeropuertos sin cambios
+            return new ArrayList<>(aeropuertoMap.values());
+        }
+    
         // Iterar sobre la lista modificada y actualizar el Map
         for (Aeropuerto modAero : modAeroList) {
             Aeropuerto aero = aeropuertoMap.get(modAero.getCodigoIATA());
@@ -140,7 +145,7 @@ public class AeropuertoService {
                 aero.getAlmacen().setCantPaquetes(modAero.getAlmacen().getCantPaquetes());
             }
         }
-
+    
         // Convertir el Map de vuelta a una lista
         return new ArrayList<>(aeropuertoMap.values());
     }

@@ -380,40 +380,54 @@ public class PlanificacionService {
         return transformedResult;
     }
 
-    public static List<VueloNuevo> transformarResultado(Map<Paquete, Resultado> json) {
-        List<VueloNuevo> acumuladoVuelos = new ArrayList<>();
+    
+    public List<VueloNuevo> transformarResultados(Map<Paquete, Resultado> resultados, List<PlanDeVuelo> planesDeVuelo) {
+        Map<String, VueloNuevo> vuelosNuevosMap = new HashMap<>();
 
-        for (Map.Entry<Paquete, Resultado> entry : json.entrySet()) {
+        // Mapear indexPlan a PlanDeVuelo para facilitar la búsqueda
+        Map<Integer, PlanDeVuelo> planesDeVueloMap = new HashMap<>();
+        for (PlanDeVuelo plan : planesDeVuelo) {
+            planesDeVueloMap.put(plan.getIndexPlan(), plan);
+        }
+
+        for (Map.Entry<Paquete, Resultado> entry : resultados.entrySet()) {
             Resultado resultado = entry.getValue();
-
-            if (resultado == null) {
-                continue; 
-            }
-
-            String aeropuertoOrigen = resultado.getAeropuertoOrigen();
-            String aeropuertoDestino = resultado.getAeropuertoDestino();
-
-            if (resultado.getVuelos() == null) {
-                continue; 
+            
+            // Verificar si resultado es nulo
+            if (resultado == null || resultado.getVuelos() == null) {
+                continue; // Saltar iteración si resultado o vuelos es nulo
             }
 
             for (Vuelo vuelo : resultado.getVuelos()) {
-                VueloNuevo vueloNuevo = new VueloNuevo();
-                vueloNuevo.setCantPaquetes(vuelo.getCantPaquetes());
-                vueloNuevo.setCapacidad(vuelo.getCapacidad());
-                vueloNuevo.setStatus(vuelo.getStatus());
-                vueloNuevo.setIndexPlan(vuelo.getIndexPlan());
-                vueloNuevo.setHoraSalida(vuelo.getHoraSalida());
-                vueloNuevo.setHoraLlegada(vuelo.getHoraLlegada());
-                vueloNuevo.setAeropuertoOrigen(aeropuertoOrigen);
-                vueloNuevo.setAeropuertoDestino(aeropuertoDestino);
-                vueloNuevo.setIdVuelo(vuelo.getIdVuelo());
+                String idVuelo = vuelo.getIdVuelo();
+                
+                if (!vuelosNuevosMap.containsKey(idVuelo)) {
+                    PlanDeVuelo planDeVuelo = planesDeVueloMap.get(vuelo.getIndexPlan());
 
-                acumuladoVuelos.add(vueloNuevo);
+                    // Verificar si planDeVuelo es nulo
+                    if (planDeVuelo == null) {
+                        continue; // Saltar iteración si planDeVuelo es nulo
+                    }
+
+                    VueloNuevo vueloNuevo = new VueloNuevo();
+                    vueloNuevo.setIdVuelo(idVuelo);
+                    vueloNuevo.setCantPaquetes(1);
+                    vueloNuevo.setCapacidad(vuelo.getCapacidad());
+                    vueloNuevo.setStatus(vuelo.getStatus());
+                    vueloNuevo.setIndexPlan(vuelo.getIndexPlan());
+                    vueloNuevo.setHoraSalida(vuelo.getHoraSalida());
+                    vueloNuevo.setHoraLlegada(vuelo.getHoraLlegada());
+                    vueloNuevo.setAeropuertoOrigen(planDeVuelo.getCodigoIATAOrigen());
+                    vueloNuevo.setAeropuertoDestino(planDeVuelo.getCodigoIATADestino());
+
+                    vuelosNuevosMap.put(idVuelo, vueloNuevo);
+                } else {
+                    VueloNuevo vueloExistente = vuelosNuevosMap.get(idVuelo);
+                    vueloExistente.setCantPaquetes(vueloExistente.getCantPaquetes() + 1);
+                }
             }
         }
 
-        return acumuladoVuelos;
+        return new ArrayList<>(vuelosNuevosMap.values());
     }
-
 }
