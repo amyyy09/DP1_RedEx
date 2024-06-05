@@ -60,7 +60,7 @@ public class EnvioService {
     }
 
     public List<Envio> getEnviosPorFechaHora(LocalDateTime fechaHora) {
-        LocalDateTime fechaHoraFin = fechaHora.plusHours(2);
+        LocalDateTime fechaHoraFin = fechaHora.plusHours(3);
         return envios.stream()
                      .filter(envio -> {
                         LocalDateTime fechaHoraGMT0 = convertirAGMT0(envio.getFechaHoraOrigen(), envio.getCodigoIATAOrigen());
@@ -71,7 +71,7 @@ public class EnvioService {
 
     public LocalDateTime convertirAGMT0(LocalDateTime fechaHora, String codigoIATAOrigen) {
         int zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(codigoIATAOrigen);
-        return fechaHora.minusHours(zonaHorariaGMT);
+        return fechaHora.plusHours(zonaHorariaGMT);
     }
 
     public void guardarEnvios (List<Envio> envios) {
