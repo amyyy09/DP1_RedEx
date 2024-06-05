@@ -3,6 +3,7 @@ import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
+import { arrayToTime } from "@/app/utils/timeHelper";
 
 const planeIcon = L.icon({
   iconUrl: "./icons/plane.svg",
@@ -20,11 +21,15 @@ const Plane: React.FC<PlaneProps> = ({
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
   const simulatedDate = React.useRef<Date>();
-  const map = useMap();
-
-  const [duration, setDuration] = useState(0);
 
   useEffect(() => {
+    console.log("Plane vuelo", vuelo);
+    // console.log("startSimulation", startSimulation);
+    // console.log("startTime", startTime);
+    // console.log("startDate", startDate);
+    // console.log("startHour", startHour);
+    // console.log("speedFactor", speedFactor);
+
     if (!startSimulation) return;
 
     //console.log("plane started");
@@ -62,9 +67,10 @@ const Plane: React.FC<PlaneProps> = ({
       const destinyGMTOffset = destiny.GMT;
 
       // Convert the departure and arrival times to the system's timezone
-      const horaSalida = new Date(vuelo.horaSalida);
-      //console.log("horaSalida vuelo", vuelo.horaSalida);
-      //console.log("horaSalida inicial", horaSalida);
+      // Subtract 1 from the month to make it 0-indexed
+      const horaSalida = arrayToTime(vuelo.horaSalida);
+      // console.log("horaSalida vuelo", vuelo.horaSalida);
+      // console.log("horaSalida inicial", horaSalida);
       // console.log("systemTimezoneOffset", systemTimezoneOffset);
       // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
 
@@ -74,8 +80,8 @@ const Plane: React.FC<PlaneProps> = ({
       //console.log("offset", originGMTOffset);
       //console.log("horaSalida after", horaSalida);
 
-      const horaLlegada = new Date(vuelo.horaLlegada);
-      //console.log("horaLlegada inicial", horaLlegada);
+      const horaLlegada = arrayToTime(vuelo.horaLlegada);
+      // console.log("horaLlegada inicial", horaLlegada);
       horaLlegada.setUTCHours(
         horaLlegada.getUTCHours() - destinyGMTOffset
       );
@@ -88,9 +94,10 @@ const Plane: React.FC<PlaneProps> = ({
           simulatedDate.current < horaSalida)
       ) {
         setIsVisible(false);
-        //console.log("Plane is not visible");
-        //console.log("simulatedDate.current", simulatedDate.current);
-        // console.log("horaLlegada aquí", horaLlegada);
+        console.log("Plane is not visible");
+        console.log("simulatedDate.current", simulatedDate.current);
+        console.log("horaSalida aquí", horaSalida);
+        console.log("horaLlegada aquí", horaLlegada);
         return;
       }
 
@@ -99,9 +106,9 @@ const Plane: React.FC<PlaneProps> = ({
         simulatedDate.current >= horaSalida &&
         simulatedDate.current <= horaLlegada
       ) {
-        //console.log("Plane is visible");
-        //console.log("simulatedDate.current", simulatedDate.current);
-        //console.log("horaSalida", horaSalida);
+        console.log("Plane is visible");
+        console.log("simulatedDate.current", simulatedDate.current);
+        console.log("horaSalida", horaSalida);
         setIsVisible(true);
       }
 
@@ -269,7 +276,7 @@ const Plane: React.FC<PlaneProps> = ({
               </p>
               <p>
                 <strong>Hora de salida:</strong>{" "}
-                {vuelo.horaSalida.toLocaleString(undefined, {
+                {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
@@ -281,7 +288,7 @@ const Plane: React.FC<PlaneProps> = ({
               </p>
               <p>
                 <strong>Hora de llegada:</strong>{" "}
-                {vuelo.horaLlegada.toLocaleString(undefined, {
+                {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",

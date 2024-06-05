@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React from "react";
+import React, {useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -45,6 +45,7 @@ const Map: React.FC<MapProps> = ({
   speedFactor,
   startSimulation
 }) => {
+  
   return (
     <MapContainer
       center={[20, 20]}
