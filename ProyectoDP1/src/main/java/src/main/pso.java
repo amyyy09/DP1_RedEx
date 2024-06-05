@@ -12,6 +12,7 @@ import src.service.EnvioService;
 import src.services.*;
 import src.utility.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -38,8 +39,15 @@ public class pso {
 			
 			
 			System.out.println("Almacenando envios en la base de datos... en el tiempo de ejecución: " + System.currentTimeMillis());
-			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
+			String archivoRutaEnvios = "ProyectoDP1/src/main/resources/combined.txt";
 			List<Envio> envios = vueloService.getEnvios(archivoRutaEnvios);
+			int zonaHorariaGMT;
+			LocalDateTime hora;
+			for (Envio envio : envios) {
+				zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(envio.getCodigoIATAOrigen());
+				hora= envio.getFechaHoraOrigen().minusHours(zonaHorariaGMT);
+				System.out.println("Hora: " + hora);
+			}
 			//envioService.guardarEnvios(envios);
 			System.out.println("Envios almacenados en la base de datos. en el tiempo de ejecución: " + System.currentTimeMillis());
             //envios = envios.subList(0, 50);
