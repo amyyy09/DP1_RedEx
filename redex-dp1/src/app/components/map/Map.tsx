@@ -53,7 +53,7 @@ const Map: React.FC<MapProps> = ({
       zoomControl={false}
     >
       <TileLayer
-        url="https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=en&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4"
+        url="https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=es&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {/* Add custom zoom control */}

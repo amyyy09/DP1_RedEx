@@ -21,7 +21,7 @@ import src.model.*;
 import src.services.PlanificacionService;
 import src.services.VueloServices;
 import src.utility.*;
-import src.service.AeropuertoService;
+
 
 @Service
 public class ApiServices {
@@ -32,16 +32,20 @@ public class ApiServices {
     @Autowired
     private static VueloServices vueloService;
 
+    @Autowired
+    private AeropuertoService aeropuertoService;
+
     private static List<Vuelo> vuelosGuardados = new ArrayList<>();
 
     private static List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
     
-    public static String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios, List<RutaPredefinida> rutasPred,LocalDateTime fechaHora) {
+    public String ejecutarPso(List <Aeropuerto> modAero, List<Vuelo> vuelos,List<Envio> envios, List<RutaPredefinida> rutasPred,LocalDateTime fechaHora) {
         Map<Paquete, Resultado> jsonprevio= null;
         Map<Paquete, RutaTiempoReal> resultado = null;   
         List<VueloNuevo> json = null;
         planificacionService = new PlanificacionService();
         vueloService = new VueloServices();
+        //aeropuertoService = new AeropuertoService();
         String jsonResult = null;
         try {
             String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
@@ -69,9 +73,13 @@ public class ApiServices {
                 json=planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plus(20, ChronoUnit.MINUTES);
-
+                int zonaHorariaGMT;
+                LocalDateTime horallegadaGMT0;
+                LocalDateTime horaSalidaGMT0;
                 for (VueloNuevo vn : json) {
-                    if (vn.getHoraLlegada().isAfter(fechaHora) && vn.getHoraLlegada().isBefore(fechaHoraLimite)) {
+                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoDestino());
+                    horallegadaGMT0=vn.getHoraLlegada().plusHours(zonaHorariaGMT);
+                    if (horallegadaGMT0.isAfter(fechaHora) && horallegadaGMT0.isBefore(fechaHoraLimite)) {
                         Aeropuerto aeropuertoDestino = aeropuertosGuardados.stream()
                             .filter(a -> a.getCodigoIATA().equals(vn.getAeropuertoDestino()))
                             .findFirst()
@@ -88,7 +96,9 @@ public class ApiServices {
                 List<VueloNuevo> jsonVuelosProximos = new ArrayList<>();
                 
                 for (VueloNuevo vn : json) {
-                    if (vn.getHoraSalida().isAfter(fechaHora) && vn.getHoraSalida().isBefore(fechaHoraLimite)) {
+                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());// la hora salida esta con la hora del origen o destino? si es destino cambiar por vn.getAeropuertoDestino() si es origen cambiarlo a vn.getAeropuertoOrigen()
+                    horaSalidaGMT0=vn.getHoraSalida().plusHours(zonaHorariaGMT);
+                    if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
                     } else {
                         jsonVuelosProximos.add(vn);
