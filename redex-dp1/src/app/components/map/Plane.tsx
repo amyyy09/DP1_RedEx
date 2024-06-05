@@ -33,7 +33,7 @@ const Plane: React.FC<PlaneProps> = ({
   const simulatedDate = React.useRef<Date>();
 
   useEffect(() => {
-    console.log("Plane vuelo", vuelo);
+    // console.log("Plane vuelo", vuelo);
     // console.log("startSimulation", startSimulation);
     // console.log("startTime", startTime);
     // console.log("startDate", startDate);
@@ -98,10 +98,10 @@ const Plane: React.FC<PlaneProps> = ({
           simulatedDate.current < horaSalida)
       ) {
         setIsVisible(false);
-        console.log("Plane is not visible");
-        console.log("simulatedDate.current", simulatedDate.current);
-        console.log("horaSalida aquí", horaSalida);
-        console.log("horaLlegada aquí", horaLlegada);
+        // console.log("Plane is not visible");
+        // console.log("simulatedDate.current", simulatedDate.current);
+        // console.log("horaSalida aquí", horaSalida);
+        // console.log("horaLlegada aquí", horaLlegada);
         return;
       }
 
@@ -110,9 +110,9 @@ const Plane: React.FC<PlaneProps> = ({
         simulatedDate.current >= horaSalida &&
         simulatedDate.current <= horaLlegada
       ) {
-        console.log("Plane is visible");
-        console.log("simulatedDate.current", simulatedDate.current);
-        console.log("horaSalida", horaSalida);
+        // console.log("Plane is visible");
+        // console.log("simulatedDate.current", simulatedDate.current);
+        // console.log("horaSalida", horaSalida);
         setIsVisible(true);
       }
 
@@ -170,7 +170,7 @@ const Plane: React.FC<PlaneProps> = ({
               citiesByCode[vuelo.aeropuertoDestino].coords.lng,
             ],
           ]}
-          pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
+          pathOptions={{ color: "white", weight: 1, dashArray: "5,10" }}
         />
       )}
       {isVisible && (
