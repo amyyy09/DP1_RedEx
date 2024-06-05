@@ -71,7 +71,7 @@ public class EnvioService {
 
     public LocalDateTime convertirAGMT0(LocalDateTime fechaHora, String codigoIATAOrigen) {
         int zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(codigoIATAOrigen);
-        return fechaHora.plusHours(zonaHorariaGMT);
+        return fechaHora.minusHours(zonaHorariaGMT);
     }
 
     public void guardarEnvios (List<Envio> envios) {
