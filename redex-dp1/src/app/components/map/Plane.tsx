@@ -88,7 +88,7 @@ const Plane: React.FC<PlaneProps> = ({
       //console.log("offset", originGMTOffset);
       //console.log("horaSalida after", horaSalida);
 
-      const horaLlegada = new Date(vuelo.horaLlegada);
+      const horaLlegada = arrayToTime(vuelo.horaLlegada);
       //console.log("horaLlegada inicial", horaLlegada);
       horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
 
