@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import src.model.Aeropuerto;
 import src.model.Envio;
 import src.model.PeticionPSO;
+import src.model.PeticionPSOD;
 import src.model.RutaPredefinida;
 import src.model.Vuelo;
 import src.service.ApiServices;
@@ -40,6 +41,26 @@ public class ApiController {
         List<Aeropuerto> aeropuertos =null;
         List<Vuelo> vuelos = ApiServices.getVuelosGuardados();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHoraParsed);
+        List<RutaPredefinida> rutasPredMap = rutaPredefinidaService.getRutasPredefinidas();
+        JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap,fechaHoraParsed);
+        
+        return JSON;
+    }
+
+    @GetMapping("/limpiar")
+    public void limpiarPSO() {
+        apiServices.reiniciarTodo();
+    }
+
+
+    @PostMapping("/diario")
+    public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
+        String JSON;
+        LocalDateTime fechaHoraParsed = LocalDateTime.now();
+        List<Aeropuerto> aeropuertos =null;
+        List<Vuelo> vuelos = ApiServices.getVuelosGuardados();
+        List<Envio> envios = peticionPSO.getEnvios();
+        //Agregar los envios a los envios existentes
         List<RutaPredefinida> rutasPredMap = rutaPredefinidaService.getRutasPredefinidas();
         JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap,fechaHoraParsed);
         
