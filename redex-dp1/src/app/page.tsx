@@ -95,7 +95,7 @@ const Home: React.FC = () => {
   );
 
   const handleApplyConfiguration = () => {
-    console.log(vuelos);
+    //console.log(vuelos);
     setShowModal(false);
     setStartSimulation(true);
     setLoading(false);

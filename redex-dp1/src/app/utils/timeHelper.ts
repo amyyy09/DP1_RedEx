@@ -11,3 +11,7 @@ export function minutesToTime(minutes: number): string {
     .toString()
     .padStart(2, "0")}`;
 }
+
+export function arrayToTime(time: number[]): Date {
+  return new Date(time[0], time[1] - 1, time[2], time[3], time[4])
+}
