@@ -8,6 +8,8 @@ export interface Airport {
 
 export interface PlaneProps {
   vuelo: Vuelo;
+  index: number;
+  listVuelos: Vuelo[];
   startTime: React.RefObject<number>;
   startDate: string;
   startHour: string;

@@ -72,7 +72,7 @@ public class ApiServices {
                 jsonprevio=planificacionService.transformResult(resultado);
                 json=planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
 
-                LocalDateTime fechaHoraLimite = fechaHora.plusHours(3);
+                LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 int zonaHorariaGMT;
                 LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
