@@ -137,4 +137,9 @@ public class ApiServices {
         vuelosGuardados.clear();
     }
 
+    public void reiniciarTodo () {
+        vuelosGuardados.clear();
+        aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
+    }
+
 }
