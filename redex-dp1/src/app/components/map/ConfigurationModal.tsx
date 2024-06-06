@@ -109,9 +109,25 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
             // Procesar los vuelos desde el responseData
             //console.log("Response data:", responseData);
-            const vuelosData: Vuelo[] = [];
+            // Create a new Set to store the idVuelo of each Vuelo in vuelos.current
+            const vuelosIds = new Set(vuelos.current?.map((vuelo: Vuelo) => vuelo.idVuelo));
 
-            vuelos.current?.push(...responseData);
+            responseData.forEach((data: Vuelo) => {
+              // Check if the idVuelo of data is already in vuelosIds
+              if (!vuelosIds.has(data.idVuelo)) {
+                // If it's not in vuelosIds, add it to vuelos.current and vuelosIds
+                vuelos.current?.push(data);
+                vuelosIds.add(data.idVuelo);
+              }
+              else{
+                // If it's in vuelosIds, update the Vuelo in vuelos.current
+                const index = vuelos.current?.findIndex((vuelo: Vuelo) => vuelo.idVuelo === data.idVuelo);
+                if (index && index !== -1) {
+                  vuelos.current?.splice(index, 1, data);
+                }
+              }
+            });
+
             console.log("Vuelos:", vuelos.current);
 
             //const vuelosRef = { current: updatedVuelos };

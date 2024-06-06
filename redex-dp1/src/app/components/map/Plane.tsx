@@ -22,6 +22,8 @@ const planeIcon = L.icon({
 
 const Plane: React.FC<PlaneProps> = ({
   vuelo,
+  index,
+  listVuelos,
   startTime,
   startDate,
   startHour,
@@ -98,10 +100,20 @@ const Plane: React.FC<PlaneProps> = ({
           simulatedDate.current < horaSalida)
       ) {
         setIsVisible(false);
+        
+        if (simulatedDate.current > horaLlegada) {
+          console.log("Plane has arrived");
+          console.log("horaLlegada aquí", horaLlegada);
+          console.log("simulatedDate.current", simulatedDate.current);
+          clearInterval(intervalId);
+          // listVuelos.splice(index, 1);
+          console.log("listVuelos", listVuelos.length);
+        }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaSalida aquí", horaSalida);
         // console.log("horaLlegada aquí", horaLlegada);
+
         return;
       }
 
@@ -119,6 +131,11 @@ const Plane: React.FC<PlaneProps> = ({
       const progress =
         ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
         (horaLlegada.getTime() - horaSalida.getTime());
+
+      // console.log("progress", progress);
+      // console.log("simulatedDate.current", simulatedDate.current);
+      // console.log("horaSalida", horaSalida);
+      // console.log("horaLlegada", horaLlegada);
 
       const newLat =
         origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
@@ -174,14 +191,8 @@ const Plane: React.FC<PlaneProps> = ({
         />
       )}
       {isVisible && (
-        <RotatedMarker
-          position={position}
-          icon={planeIcon}
-          rotationAngle={calculateRotationAngle(
-            citiesByCode[vuelo.aeropuertoOrigen].coords,
-            citiesByCode[vuelo.aeropuertoDestino].coords
-          )}
-          popupContent={
+        <Marker position={position} icon={planeIcon}>
+          <Popup>
             <div>
               <h2>Detalles de vuelo</h2>
               <p>
@@ -205,6 +216,10 @@ const Plane: React.FC<PlaneProps> = ({
                 })}
               </p>
               <p>
+                <strong>GMT origen:</strong>
+                {citiesByCode[vuelo.aeropuertoOrigen].GMT}
+              </p>
+              <p>
                 <strong>Hora de llegada:</strong>{" "}
                 {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
                   day: "2-digit",
@@ -217,14 +232,18 @@ const Plane: React.FC<PlaneProps> = ({
                 })}
               </p>
               <p>
+                <strong>GMT destino:</strong>
+                {citiesByCode[vuelo.aeropuertoDestino].GMT}
+              </p>
+              <p>
                 <strong>Capacidad:</strong> {vuelo.capacidad}
               </p>
               <p>
                 <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
               </p>
             </div>
-          }
-        />
+          </Popup>
+        </Marker>
       )}
     </>
   );

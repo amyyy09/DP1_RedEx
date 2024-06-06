@@ -75,6 +75,8 @@ const Map: React.FC<MapProps> = ({
         planes.current.map((plane, index) => (
           <Plane
             key={index}
+            listVuelos={planes.current as Vuelo[]}
+            index={index}
             vuelo={plane}
             startTime={startTime}
             startDate={startDate}
