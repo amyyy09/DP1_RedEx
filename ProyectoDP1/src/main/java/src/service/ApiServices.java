@@ -48,7 +48,7 @@ public class ApiServices {
         //aeropuertoService = new AeropuertoService();
         String jsonResult = null;
         try {
-            String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+            String archivoRutaPlanes = "src/main/resources/planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);//obtencion de planesdevuelos
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo,vuelos);
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());		
