@@ -48,7 +48,7 @@ public class ApiServices {
         //aeropuertoService = new AeropuertoService();
         String jsonResult = null;
         try {
-            String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+            String archivoRutaPlanes = "src/main/resources/planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);//obtencion de planesdevuelos
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo,vuelos);
             List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());		
@@ -72,7 +72,7 @@ public class ApiServices {
                 jsonprevio=planificacionService.transformResult(resultado);
                 json=planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
 
-                LocalDateTime fechaHoraLimite = fechaHora.plus(20, ChronoUnit.MINUTES);
+                LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 int zonaHorariaGMT;
                 LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
@@ -97,7 +97,7 @@ public class ApiServices {
                 
                 for (VueloNuevo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());// la hora salida esta con la hora del origen o destino? si es destino cambiar por vn.getAeropuertoDestino() si es origen cambiarlo a vn.getAeropuertoOrigen()
-                    horaSalidaGMT0=vn.getHoraSalida().plusHours(zonaHorariaGMT);
+                    horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
                     if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
                     } else {
@@ -135,6 +135,11 @@ public class ApiServices {
 
     public static void clearVuelosGuardados() {
         vuelosGuardados.clear();
+    }
+
+    public void reiniciarTodo () {
+        vuelosGuardados.clear();
+        aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
     }
 
 }
