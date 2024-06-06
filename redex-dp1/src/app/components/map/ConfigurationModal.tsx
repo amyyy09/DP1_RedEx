@@ -73,6 +73,18 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     // Lista para almacenar los vuelos actualizados
     let updatedVuelos: Vuelo[] = []; 
 
+    try{
+      const response = await fetch('http://localhost:8080/api/limpiar', {
+        method: 'GET', // Explicitly specifying the method
+        headers: {
+            // If needed, specify headers here, e.g., for authentication
+        },
+      });
+    }
+    catch (error) {
+      console.error('Error:', error);
+    }
+
     for (let i = 0; i < numberOfCalls; i++) {
         if (i === 0) {
             setLoading(true); // Activar estado de cargando en la primera iteración
