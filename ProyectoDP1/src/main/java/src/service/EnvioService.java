@@ -42,7 +42,7 @@ public class EnvioService {
     private AeropuertoService aeropuertoService;
 
     private List<Envio> envios;
-    private final String archivoRutaEnvios = "ProyectoDP1/src/main/resources/combined.txt" ;
+    private final String archivoRutaEnvios = "src/main/resources/combined.txt" ;
 
     public List<Envio> getEnvios() {
         return envios;
