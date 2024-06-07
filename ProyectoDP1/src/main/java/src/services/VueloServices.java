@@ -19,7 +19,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class VueloServices {
 
-    public static List<Envio>  getEnvios(String archivo) throws IOException {
+    public List<Envio>  getEnvios(String archivo) throws IOException {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         List<String> lines = FileUtils.readLines(archivo);
         List<Envio> envios = new ArrayList<>();

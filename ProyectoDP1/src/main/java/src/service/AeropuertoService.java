@@ -50,16 +50,9 @@ public class AeropuertoService {
 
     private List<Aeropuerto> aeropuertos;
 
-    @PostConstruct
-    public void init() {
-        aeropuertos = new CopyOnWriteArrayList<>();
-        try {
-            aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-            System.out.println("Se cargaron los aeropuertos");
-        } catch (Exception e) {
-            // Maneja la excepción de acuerdo a tus necesidades
-            System.err.println("Error al cargar los aeropuertos: " + e.getMessage());
-        }
+    @Autowired
+    public AeropuertoService() {
+        this.aeropuertos = DatosAeropuertos.getAeropuertosInicializados(); // Inicializa la lista de aeropuertos
     }
 
     public int getZonaHorariaGMT(String codigoIATA) {
@@ -90,7 +83,7 @@ public class AeropuertoService {
 
     public AeropuertoDTO getById(Long id) {
         try {
-            return aeropuertoRepository.findById(id).get();
+            return aeropuertoRepository.findById(id).orElse(null);
         } catch (Exception e) {
             logger.error(e.getMessage());
             return null;
@@ -123,7 +116,7 @@ public class AeropuertoService {
     }
 
     public void saveAllAeropuertos(List<Aeropuerto> aeropuertos){
-        List<AeropuertoDTO> aeropuertoDTOs= aeropuertos.stream().map(ConversionesModelDTO :: convetirAeropuetoToDTO).collect(Collectors.toList());
+        List<AeropuertoDTO> aeropuertoDTOs= aeropuertos.stream().map(ConversionesModelDTO::convetirAeropuetoToDTO).collect(Collectors.toList());
         aeropuertoRepository.saveAll(aeropuertoDTOs);
     }
     

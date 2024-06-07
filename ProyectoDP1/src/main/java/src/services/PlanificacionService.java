@@ -2,6 +2,7 @@ package src.services;
 
 import src.model.*;
 import src.service.AeropuertoService;
+import src.service.RutaPredefinidaService;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -25,6 +26,8 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+
+
 @Service
 public class PlanificacionService {
     private final double probabilidadSeleccion = 0.7;
@@ -44,6 +47,9 @@ public class PlanificacionService {
         PlanificacionService.evaluator = new FitnessEvaluatorService();
     }
 
+    @Autowired
+    private RutaPredefinidaService rutaPredefinidaService;
+
     public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
         List<RutaPredefinida> rutas = new ArrayList<>();
         Aeropuerto origen = aeropuertos.stream()//en este caso solo tenemos de origen ZBAA
@@ -51,10 +57,6 @@ public class PlanificacionService {
             .findFirst()
             .orElse(null);
             if (origen == null) return rutas;
-        // List<String> destinosEspecificos = Arrays.asList("SKBO","SEQM","SVMI","SBBR","SPIM","SLLP","SCEL","SABE","SGAS","SUAA","LATI", "EDDI","LOWW","EBCI","UMMS","LBSF","LKPR","LDZA","EKCH","EHAM","VIDP","RKSI", "VTBS","OMDB","ZBAA","RJTT","WMKK","WSSS","WIII","RPLL"); //para nuestro experimento tenemos solo un aeropuerto destino WMKK
-        // List<Aeropuerto> destinos = aeropuertos.stream()
-        //                                    .filter(a -> destinosEspecificos.contains(a.getCodigoIATA()))
-        //                                    .collect(Collectors.toList());
         for (Aeropuerto destino  : aeropuertos) {
             if (!origen.equals(destino)) {
                 List<Integer> daysm = new ArrayList<>();
@@ -148,9 +150,11 @@ public class PlanificacionService {
         visited.remove(current);
     }
 
-    public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes, List<RutaPredefinida> rutasPred,
+    public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes,
             Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActuales, LocalDateTime fechaHoraEjecucion) {
+
+        List<RutaPredefinida> rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
         List<Particula> population = new ArrayList<>();
         int numParticles = 8;
         int numIterationsMax = 30;
@@ -168,17 +172,12 @@ public class PlanificacionService {
         }
         Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
         int noImprovementCounter = 0;
-        // for (int j = 0; j < numIterationsMax; j++) {
         int j=0;
         while (noImprovementCounter < numIterationsMax && j < 350) {
-            // if(evaluator.fitness(gbest, aeropuertos, vuelosActuales) == 0){
-            //     return gbest;
-            // }
             for (Particula particle : population) {
                 for (int k = 0; k < envios.size(); k++) {
                     List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPredMap, envios.get(k));
                     for (int l = 0; l< envios.get(k).getPaquetes().size(); l++) {
-                        // Update velocity and position for each package (paquete) in the envio
                         double r1 = rand.nextDouble(), r2 = rand.nextDouble();
                         Paquete paquete = envios.get(k).getPaquetes().get(l);
                         int indexPos=0;
