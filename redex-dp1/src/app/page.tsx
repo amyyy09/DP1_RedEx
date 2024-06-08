@@ -1,142 +1,122 @@
+// pages/home/page.tsx
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Topbar from "./components/layout/Topbar";
 import Sidebar from "./components/layout/Sidebar";
-import ConfigurationModal from "./components/map/ConfigurationModal";
 import { Vuelo } from "./types/Planes";
 import "./styles/SimulatedTime.css";
 
-const Home: React.FC = () => {
-  const [showModal, setShowModal] = useState(true);
-  const [startSimulation, setStartSimulation] = useState(false);
-  const startTime = useRef(0);
-  const [simulationMode, setSimulationMode] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [startHour, setStartHour] = useState("");
-  const vuelos = useRef<Vuelo[]>([]);
-  const [loading, setLoading] = useState(false);
-  const simulatedDate = useRef(new Date());
+const Home = () => {
+    const [showModal, setShowModal] = useState(true);
+    const [startSimulation, setStartSimulation] = useState(false);
+    const startTime = useRef(0);
+    const [simulationMode, setSimulationMode] = useState("");
+    const [startDate, setStartDate] = useState("");
+    const [startHour, setStartHour] = useState("");
+    const vuelos = useRef<Vuelo[]>([]);
+    const [loading, setLoading] = useState(false);
 
-  const speedFactor = 288; // Real-time seconds per simulated second
-  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
+    const speedFactor = 288; // Real-time seconds per simulated second
+    
 
-  // State to store the display time
-  const [displayTime, setDisplayTime] = useState("");
-
-  useEffect(() => {
-    if (!startSimulation) return;
-
-    console.log("Simulation started");
-
-    // Set the start time
-    startTime.current = Date.now();
-
-    // Update the simulated time
-    const updateSimulatedTime = () => {
-      if (!startSimulation) return;
-
-      // console.log("startTime", startTime.current);
-
-      const currentTime = Date.now();
-      // console.log("currentTime", currentTime);
-      const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
-      const simulatedTime = elapsedTime * speedFactor;
-      // Create a new Date object for the start of the simulation
-      const startDateSim = new Date(startDate + "T" + startHour + ":00");
-      // console.log("startDateSim", startDateSim);
-
-      // Add the simulated time to the start date
-      simulatedDate.current = new Date(
-        startDateSim.getTime() + simulatedTime * 1000
-      );
-      // Update the display time
-      setDisplayTime(
-        simulatedDate.current.toLocaleString(undefined, {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })
-      );
-
-      // Stop the simulation after the total simulated seconds have passed
-      if (simulatedTime >= totalSimulatedSeconds) {
-        // console.log("simulatedTime", simulatedTime);
-        // console.log("totalSimulatedSeconds", totalSimulatedSeconds);
-        setStartSimulation(false);
-        const peruTime = new Date().toLocaleTimeString("en-US", {
-          timeZone: "America/Lima",
-        });
-        console.log(`Simulation stopped at ${peruTime} Peru time`);
-      }
+    const formatDateTime = (date: Date) => {
+      const year = date.getFullYear();
+      const month = String(date.getMonth() + 1).padStart(2, "0");
+      const day = String(date.getDate()).padStart(2, "0");
+      const hours = String(date.getHours()).padStart(2, "0");
+      const minutes = String(date.getMinutes()).padStart(2, "0");
+      const seconds = String(date.getSeconds()).padStart(2, "0");
+      return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
     };
 
-    // Call updateSimulatedTime every second
-    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
+    useEffect(() => {
+        const fetchApi = async () => {
+            const now = new Date();
+            const formattedDate = formatDateTime(now);
 
-    // Clean up on unmount
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [startSimulation]);
+            const data = {
+                fechahora: formattedDate,
+                aeropuertos: [],
+                vuelos: [],
+            };
+            console.log('Request de dia a dia:', data);
 
-  const Map = useMemo(
-    () =>
-      dynamic(() => import("./components/map/Map"), {
-        loading: () => <p>A map is loading</p>,
-        ssr: false,
-      }),
-    []
-  );
+            try {
+                const response = await fetch('http://localhost:8080/api/pso', {
+                    method: 'POST', // o 'GET' según sea necesario
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
 
-  const handleApplyConfiguration = () => {
-    //console.log(vuelos);
-    setShowModal(false);
-    setStartSimulation(true);
-    setLoading(false);
-    console.log("Simulation started");
-  };
+                console.log('Response de dia a dia:', response);
 
-  return (
-    <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar />
-      <div style={{ display: "flex", flex: 1 }}>
-        <Sidebar />
-        <Map
-          planes={startSimulation ? vuelos : { current: [] }}
-          startTime={startTime}
-          startDate={startDate}
-          startHour={startHour}
-          speedFactor={speedFactor}
-          startSimulation={startSimulation}
-        />
-          {/* Contenedor para el tiempo simulado */}
-        <div className="simulated-time-container">
-          Simulated time: {displayTime}
-         </div>
-        {showModal && (
-          <ConfigurationModal
-            onApply={handleApplyConfiguration}
-            startDate={startDate}
-            setStartDate={setStartDate}
-            startTime={startHour}
-            setStartTime={setStartHour}
-            simulationMode={simulationMode}
-            setSimulationMode={setSimulationMode}
-            vuelos={vuelos}
-            loading={loading}
-            setLoading={setLoading}
-          />
-        )}{" "}
-        {/* Show modal */}
-      </div>
-    </div>
-  );
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const responseData = await response.json();
+                console.log("API Response:", responseData);
+
+                const vuelosIds = new Set(vuelos.current?.map((vuelo: Vuelo) => vuelo.idVuelo));
+                responseData.forEach((data: Vuelo) => {
+                  // Check if the idVuelo of data is already in vuelosIds
+                  if (!vuelosIds.has(data.idVuelo)) {
+                    // If it's not in vuelosIds, add it to vuelos.current and vuelosIds
+                    vuelos.current?.push(data);
+                    vuelosIds.add(data.idVuelo);
+                  }
+                  else{
+                    // If it's in vuelosIds, update the Vuelo in vuelos.current
+                    const index = vuelos.current?.findIndex((vuelo: Vuelo) => vuelo.idVuelo === data.idVuelo);
+                    if (index && index !== -1) {
+                      vuelos.current?.splice(index, 1, data);
+                    }
+                  }
+                });
+    
+                console.log("Vuelos:", vuelos.current);
+                // Aquí puedes procesar los datos y actualizar el estado según sea necesario
+            } catch (error) {
+                console.error('Error fetching API:', error);
+            }
+        };
+
+        fetchApi(); // Llamada inicial al montar el componente
+
+        const intervalId = setInterval(fetchApi, 20 * 60 * 1000); // Llama a fetchApi cada 20 minutos
+
+        return () => clearInterval(intervalId); // Limpia el intervalo cuando el componente se desmonta
+    }, []);
+
+    const Map = useMemo(
+        () =>
+          dynamic(() => import("./components/map/Map"), {
+            loading: () => <p>A map is loading</p>,
+            ssr: false,
+          }),
+        []
+      );
+
+    return (
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <Topbar />
+          <div style={{ display: "flex", flex: 1 }}>
+            <Sidebar />
+            <Map
+              planes={startSimulation ? vuelos : { current: [] }}
+              startTime={startTime}
+              startDate={startDate}
+              startHour={startHour}
+              speedFactor={speedFactor}
+              startSimulation={startSimulation}
+            />
+          </div>
+        </div>
+      );
 };
 
 export default Home;

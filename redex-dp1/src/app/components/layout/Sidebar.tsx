@@ -1,14 +1,19 @@
 // components/Sidebar.tsx
-import React from "react";
+import React, { useState } from "react";
+import Link from 'next/link';
 import "../../styles/Sidebar.css";
 const Sidebar: React.FC = () => {
   return (
     <div className="sidebar">
       <div className="sidebar-item">
-        <img src="./icons/hogar.png" alt="Home" />
+        <Link href="/">
+          <img src="./icons/hogar.png" alt="Home" />
+        </Link>
       </div>
-      <div className="sidebar-item active">
-        <img src="./icons/modo-vuelo.png" alt="Plane" />
+      <div className="sidebar-item">
+        <Link href="/simulacion">
+          <img src="./icons/modo-vuelo.png" alt="Plane" />
+        </Link>
       </div>
       <div className="sidebar-item">
         <img src="./icons/radar.png" alt="Power" />
