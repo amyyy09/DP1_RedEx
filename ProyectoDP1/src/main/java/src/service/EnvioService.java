@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
@@ -49,6 +50,10 @@ public class EnvioService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         List<Envio> envios = new ArrayList<>();
     
+        // Crear un mapa para búsqueda rápida de aeropuertos
+        Map<String, Aeropuerto> aeropuertoMap = aeropuertosGuardados.stream()
+            .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, aeropuerto -> aeropuerto));
+    
         try (BufferedReader br = new BufferedReader(new FileReader(archivoRutaEnvios))) {
             String line;
             while ((line = br.readLine()) != null) {
@@ -75,16 +80,11 @@ public class EnvioService {
                     envios.add(envio);
     
                     // Actualizar el almacén del aeropuerto de origen
-                    Aeropuerto aeropuerto = aeropuertosGuardados.stream()
-                        .filter(a -> a.getCodigoIATA().equals(envio.getCodigoIATAOrigen()))
-                        .findFirst()
-                        .orElse(null);
+                    Aeropuerto aeropuerto = aeropuertoMap.get(envio.getCodigoIATAOrigen());
                     if (aeropuerto != null) {
                         Almacen almacen = aeropuerto.getAlmacen();
-                        for (Paquete paquete : envio.getPaquetes()) {
-                            almacen.getPaquetes().add(paquete);
-                            almacen.setCantPaquetes(almacen.getCantPaquetes() + 1);
-                        }
+                        almacen.getPaquetes().addAll(paquetes);
+                        almacen.setCantPaquetes(almacen.getCantPaquetes() + cantPaquetes);
                     }
                 }
             }
@@ -94,6 +94,7 @@ public class EnvioService {
     
         return envios;
     }
+    
     
 
     public LocalDateTime convertirAGMT0(LocalDateTime fechaHora, String codigoIATAOrigen) {
