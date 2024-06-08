@@ -151,15 +151,16 @@ public class PlanificacionService {
     }
 
     public Map<Paquete, RutaTiempoReal> PSO(List<Envio> envios, List<Paquete> paquetes,
-            Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
-            List<Vuelo> vuelosActuales, LocalDateTime fechaHoraEjecucion) {
+        Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
+        List<Vuelo> vuelosActuales, LocalDateTime fechaHoraEjecucion) {
 
-        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>>  rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
         List<Particula> population = new ArrayList<>();
-        int numParticles = 8;
-        int numIterationsMax = 30;
+        int numParticles = 5;
+        int numIterationsMax = 25;
         double w = 0.5, c1 = 1, c2 = 2;
-        
+
+        // Initialize particles
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
             particle.setPosicion(Particula.inicializarPosicion(envios, rutasPred, aeropuertos, vuelosActuales, fechaHoraEjecucion));
@@ -168,76 +169,56 @@ public class PlanificacionService {
             particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales, false));
             population.add(particle);
         }
+
         Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
         int noImprovementCounter = 0;
-        int j=0;
+        int j = 0;
+
         while (noImprovementCounter < numIterationsMax && j < 350) {
             for (Particula particle : population) {
                 for (int k = 0; k < envios.size(); k++) {
                     List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k));
-                    for (int l = 0; l< envios.get(k).getPaquetes().size(); l++) {
-                        // Update velocity and position for each package (paquete) in the envio
-                        double r1 = rand.nextDouble(), r2 = rand.nextDouble();
-                        Paquete paquete = envios.get(k).getPaquetes().get(l);
-                        int indexPos=0;
-                        int posIndex=0;
-                        try{
-                        if(particle.getPosicion().get(paquete)==null){
+                    for (Paquete paquete : envios.get(k).getPaquetes()) {
+                        RutaTiempoReal currentRTR = particle.getPosicion().get(paquete);
+                        if (currentRTR == null) {
                             continue;
                         }
-                        indexPos = filteredRutasPred.indexOf(particle.getPosicion().get(paquete).getRutaPredefinida());
-                        double velocity=0;
-                        try{
-                        velocity = w * particle.getVelocidad().get(k) +
-                            c1 * r1 * (indexPos
-                                - filteredRutasPred.indexOf(particle.getPbest().get(paquete).getRutaPredefinida()))
-                            +
-                            c2 * r2 * (indexPos
-                                - filteredRutasPred.indexOf(gbest.get(paquete).getRutaPredefinida()));
-                        }catch(Exception e){
-                            System.err.println(k);
-                            e.printStackTrace();
-                        }
+                        int indexPos = filteredRutasPred.indexOf(currentRTR.getRutaPredefinida());
+                        double r1 = Math.random(), r2 = Math.random();
+
+                        double velocity = w * particle.getVelocidad().get(k) +
+                                c1 * r1 * (indexPos - filteredRutasPred.indexOf(particle.getPbest().get(paquete).getRutaPredefinida())) +
+                                c2 * r2 * (indexPos - filteredRutasPred.indexOf(gbest.get(paquete).getRutaPredefinida()));
 
                         particle.getVelocidad().set(k, velocity);
-                                    
+
                         double newPosIndex = indexPos + velocity;
+                        int posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
 
-                        posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
-
-                        //RutaPredefinida newPosition = rutasPred.get(posIndex);
-
-                        //RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales, fechaHoraEjecucion);
-
-                        //particle.getPosicion().put(paquete, newRTR);
-                        } catch(Exception e){
-                            System.err.println(posIndex);
-                            e.printStackTrace();
-                        }
+                        RutaPredefinida newPosition = filteredRutasPred.get(posIndex);
+                        RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales, fechaHoraEjecucion);
+                        particle.getPosicion().put(paquete, newRTR);
                     }
                 }
-            
-                double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales, false);
 
+                double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales, false);
                 if (fit < particle.getFbest()) {
                     particle.setPbest(particle.getPosicion());
                     particle.setFbest(fit);
                 }
             }
-            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, almacenes,
-                    vuelosActuales);
+
+            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, almacenes, vuelosActuales);
             if (evaluator.fitness(currentGbest, almacenes, vuelosActuales, false) > evaluator.fitness(gbest, almacenes, vuelosActuales, false)) {
                 gbest = currentGbest;
-                noImprovementCounter = 0;  // reset the counter when there's an improvement
+                noImprovementCounter = 0;
             } else {
-                // Double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, false);
-                noImprovementCounter++;  // increment the counter when there's no improvement
+                noImprovementCounter++;
             }
             j++;
         }
-        // double fit = evaluator.fitness(gbest, almacenes, vuelosActuales, true);
+
         return gbest;
-        // return null;
     }
 
 
@@ -293,11 +274,6 @@ public class PlanificacionService {
                 }
             }
         }
-
-        // Map<RutaPredefinida, Integer> filteredRutasPredMap = new HashMap<>();
-        // for (int i = 0; i < filteredRutasPred.size(); i++) {
-        //     filteredRutasPredMap.put(filteredRutasPred.get(i), i);
-        // }
 
         return filteredRutasPred;
     }

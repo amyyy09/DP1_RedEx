@@ -34,7 +34,7 @@ public class pso {
 		
 		try {
 			List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-			aeropuertoService.saveAllAeropuertos(aeropuertos);
+			//aeropuertoService.saveAllAeropuertos(aeropuertos);
 			
 			
 			System.out.println("Almacenando envios en la base de datos... en el tiempo de ejecución: " + System.currentTimeMillis());

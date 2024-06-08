@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 
 public class Paquete {
-    private String idEnvio;
+    private String iD;
     private int status;
     @JsonBackReference
     private Envio envio;

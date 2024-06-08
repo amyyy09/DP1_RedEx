@@ -38,7 +38,7 @@ public class DataLoader {
         try {
             //carga de aeropuertos
             List<Aeropuerto> aeropuertos = DatosAeropuertos.getAeropuertosInicializados();
-            aeropuertoService.saveAllAeropuertos(aeropuertos);
+            //aeropuertoService.saveAllAeropuertos(aeropuertos);
 
             String archivoRutaEnvios = "ProyectoDP1/src/main/resources/pack_enviado_ZBAA.txt";
                 

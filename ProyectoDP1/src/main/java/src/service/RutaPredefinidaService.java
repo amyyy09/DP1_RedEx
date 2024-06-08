@@ -5,6 +5,7 @@ import src.model.*;
 import javax.annotation.PostConstruct;
 
 import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -15,8 +16,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.stream.Collectors;
 
 @Service
 public class RutaPredefinidaService {
@@ -67,28 +70,27 @@ public class RutaPredefinidaService {
     }
 
     public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> cargarRutas(List<Envio> envios, String... archivos) throws IOException {
-    List<RutaPredefinida> rutas = new ArrayList<>();
-    Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap= new HashMap<>();
+    Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = new HashMap<>();
+
+    // Create a set of valid routes for quick lookup
+    Set<String> validRoutes = envios.stream()
+            .map(envio -> envio.getCodigoIATAOrigen() + "-" + envio.getCodigoIATADestino())
+            .collect(Collectors.toSet());
 
     for (String archivo : archivos) {
-        try (BufferedReader br = new BufferedReader(new java.io.FileReader(archivo, StandardCharsets.UTF_8))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(archivo, StandardCharsets.UTF_8))) {
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.isEmpty()) continue; // Ignorar líneas vacías
+                if (line.isEmpty()) continue; // Ignore empty lines
 
                 String[] partesRuta = line.split("\\|");
                 String[] primeraParte = partesRuta[0].split(",");
-
                 String codigoIATAOrigen = primeraParte[0];
                 String codigoIATADestino = primeraParte[1];
 
-                boolean envioExiste = envios.stream().anyMatch(envio ->
-                        envio.getCodigoIATAOrigen().equals(codigoIATAOrigen) &&
-                        envio.getCodigoIATADestino().equals(codigoIATADestino)
-                );
+                // Check if the route exists in the set of valid routes
+                if (!validRoutes.contains(codigoIATAOrigen + "-" + codigoIATADestino)) continue;
 
-                if (!envioExiste) continue; 
-                
                 OffsetTime horaSalida = OffsetTime.parse(primeraParte[2], OFFSET_TIME_FORMATTER);
                 OffsetTime horaLlegada = OffsetTime.parse(primeraParte[3], OFFSET_TIME_FORMATTER);
                 long duracion = Long.parseLong(primeraParte[4]);
@@ -109,28 +111,22 @@ public class RutaPredefinidaService {
                 }
 
                 RutaPredefinida ruta = new RutaPredefinida(codigoIATAOrigen, codigoIATADestino, horaSalida, horaLlegada, escalas, duracion, sameContinent);
-                rutas.add(ruta);
+
+                // Directly add to rutasPredMap
+                int horaSalidaKey = horaSalida.getHour() * 100 + horaSalida.getMinute();
+                int horaLlegadaKey = horaLlegada.getHour() * 100 + horaLlegada.getMinute();
+
+                rutasPredMap
+                    .computeIfAbsent(codigoIATAOrigen, k -> new HashMap<>())
+                    .computeIfAbsent(codigoIATADestino, k -> new TreeMap<>())
+                    .computeIfAbsent(horaLlegadaKey, k -> new TreeMap<>())
+                    .computeIfAbsent(horaSalidaKey, k -> new ArrayList<>())
+                    .add(ruta);
             }
-        }
-
-        for (RutaPredefinida ruta : rutas) {
-            String origen = ruta.getCodigoIATAOrigen();
-            String destino = ruta.getCodigoIATADestino();
-            int horaSalida = ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute();
-            int horaLlegada = ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute();
-
-            Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPredMap.getOrDefault(origen, new HashMap<>());
-            TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(destino, new TreeMap<>());
-            TreeMap<Integer, List<RutaPredefinida>> llegadaMap = destinoMap.getOrDefault(horaLlegada, new TreeMap<>());
-            List<RutaPredefinida> rutasA = llegadaMap.getOrDefault(horaSalida, new ArrayList<>());
-            rutasA.add(ruta);
-            llegadaMap.put(horaSalida, rutasA);
-            destinoMap.put(horaLlegada, llegadaMap);
-            origenMap.put(destino, destinoMap);
-            rutasPredMap.put(origen, origenMap);
         }
     }
 
     return rutasPredMap;
-    }
+}
+
 }
