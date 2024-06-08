@@ -154,17 +154,15 @@ public class PlanificacionService {
             Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
             List<Vuelo> vuelosActuales, LocalDateTime fechaHoraEjecucion) {
 
-        List<RutaPredefinida> rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>>  rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
         List<Particula> population = new ArrayList<>();
         int numParticles = 8;
         int numIterationsMax = 30;
         double w = 0.5, c1 = 1, c2 = 2;
-
-        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = createMap(rutasPred);
         
         for (int i = 0; i < numParticles; i++) {
             Particula particle = new Particula();
-            particle.setPosicion(Particula.inicializarPosicion(envios, rutasPredMap, aeropuertos, vuelosActuales, fechaHoraEjecucion));
+            particle.setPosicion(Particula.inicializarPosicion(envios, rutasPred, aeropuertos, vuelosActuales, fechaHoraEjecucion));
             particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
             particle.setPbest(particle.getPosicion());
             particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales, false));
@@ -176,8 +174,9 @@ public class PlanificacionService {
         while (noImprovementCounter < numIterationsMax && j < 350) {
             for (Particula particle : population) {
                 for (int k = 0; k < envios.size(); k++) {
-                    List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPredMap, envios.get(k));
+                    List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k));
                     for (int l = 0; l< envios.get(k).getPaquetes().size(); l++) {
+                        // Update velocity and position for each package (paquete) in the envio
                         double r1 = rand.nextDouble(), r2 = rand.nextDouble();
                         Paquete paquete = envios.get(k).getPaquetes().get(l);
                         int indexPos=0;
@@ -206,11 +205,11 @@ public class PlanificacionService {
 
                         posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
 
-                        RutaPredefinida newPosition = rutasPred.get(posIndex);
+                        //RutaPredefinida newPosition = rutasPred.get(posIndex);
 
-                        RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales, fechaHoraEjecucion);
+                        //RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales, fechaHoraEjecucion);
 
-                        particle.getPosicion().put(paquete, newRTR);
+                        //particle.getPosicion().put(paquete, newRTR);
                         } catch(Exception e){
                             System.err.println(posIndex);
                             e.printStackTrace();

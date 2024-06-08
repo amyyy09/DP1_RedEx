@@ -12,7 +12,10 @@ import java.nio.file.Paths;
 import java.time.OffsetTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 @Service
@@ -20,9 +23,9 @@ public class RutaPredefinidaService {
     private static final DateTimeFormatter OFFSET_TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mmXXX");
     private static final DateTimeFormatter OFFSET_TIME = DateTimeFormatter.ofPattern("HH:mm");
     
-    private List<RutaPredefinida> rutasPredefinidas;
+    public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredefinidas;
 
-    public List<RutaPredefinida> getRutasPredefinidas(List<Envio> envios) {
+     public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> getRutasPredefinidas(List<Envio> envios) {
         try {
             rutasPredefinidas = cargarRutas(envios,
             "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_ZBAA.csv",
@@ -58,13 +61,14 @@ public class RutaPredefinidaService {
         ;
         } catch (IOException e) {
             System.err.println("Error al cargar las rutas predefinidas: " + e.getMessage());
-            rutasPredefinidas = new ArrayList<>();
+            rutasPredefinidas = new HashMap<>();
         }
         return rutasPredefinidas;
     }
 
-    public List<RutaPredefinida> cargarRutas(List<Envio> envios, String... archivos) throws IOException {
+    public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> cargarRutas(List<Envio> envios, String... archivos) throws IOException {
     List<RutaPredefinida> rutas = new ArrayList<>();
+    Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap= new HashMap<>();
 
     for (String archivo : archivos) {
         try (BufferedReader br = new BufferedReader(new java.io.FileReader(archivo, StandardCharsets.UTF_8))) {
@@ -108,8 +112,25 @@ public class RutaPredefinidaService {
                 rutas.add(ruta);
             }
         }
+
+        for (RutaPredefinida ruta : rutas) {
+            String origen = ruta.getCodigoIATAOrigen();
+            String destino = ruta.getCodigoIATADestino();
+            int horaSalida = ruta.getHoraSalida().getHour()*100 + ruta.getHoraSalida().getMinute();
+            int horaLlegada = ruta.getHoraLlegada().getHour()*100 + ruta.getHoraLlegada().getMinute();
+
+            Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> origenMap = rutasPredMap.getOrDefault(origen, new HashMap<>());
+            TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> destinoMap = origenMap.getOrDefault(destino, new TreeMap<>());
+            TreeMap<Integer, List<RutaPredefinida>> llegadaMap = destinoMap.getOrDefault(horaLlegada, new TreeMap<>());
+            List<RutaPredefinida> rutasA = llegadaMap.getOrDefault(horaSalida, new ArrayList<>());
+            rutasA.add(ruta);
+            llegadaMap.put(horaSalida, rutasA);
+            destinoMap.put(horaLlegada, llegadaMap);
+            origenMap.put(destino, destinoMap);
+            rutasPredMap.put(origen, origenMap);
+        }
     }
 
-    return rutas;
+    return rutasPredMap;
     }
 }
