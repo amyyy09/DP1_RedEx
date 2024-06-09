@@ -6,13 +6,10 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NavigableMap;
 import java.util.TreeMap;
 import java.util.HashMap;
 
 import org.springframework.stereotype.Component;
-
-import lombok.val;
 
 @Component
 public class FitnessEvaluatorService {
@@ -33,7 +30,6 @@ public class FitnessEvaluatorService {
         double penalizacion = 0.0;
         Map<String, Integer> usoCapacidadVuelos = new HashMap<>();
         Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes = new HashMap<>();
-        int contNoAtendidos = 0;
         Double fitnessValue = 0.0;
         int size = particula.size();
 
@@ -102,7 +98,6 @@ public class FitnessEvaluatorService {
 
     private double calcularPenalizacionAlmacenes(Map<String, TreeMap<LocalDateTime, Integer>> usoCapacidadAlmacenes, Map<String, Almacen> almacenes) {
         double penalizacion = 0.0;
-        int contNoAtendidos = 0;
 
         for (Map.Entry<String, TreeMap<LocalDateTime, Integer>> entry : usoCapacidadAlmacenes.entrySet()) {
             String codigoIATA = entry.getKey();
@@ -113,7 +108,7 @@ public class FitnessEvaluatorService {
             for (int ocupacion : capacidadAlmacen.values()) {
                 if (ocupacion > capacidad) {
                     penalizacion += (ocupacion - capacidad) * penalizacionPorExceso;
-                    contNoAtendidos += ocupacion - capacidad;
+                    // contNoAtendidos += ocupacion - capacidad;
                 }
             }
         }

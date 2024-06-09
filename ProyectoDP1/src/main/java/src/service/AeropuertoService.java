@@ -1,40 +1,26 @@
 package src.service;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
-import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-
-import io.lettuce.core.dynamic.annotation.Param;
 import src.dto.AeropuertoDTO;
-import src.dto.PlanDeVueloDTO;
+
 import src.model.Aeropuerto;
 import src.repository.AeropuertoRepository;
-import src.repository.PlanDeVueloRepository;
-import src.utility.DatosAeropuertos;
 
-import java.util.concurrent.CopyOnWriteArrayList;
+import src.utility.DatosAeropuertos;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-import com.fasterxml.jackson.core.type.TypeReference;
 
 
 @Service

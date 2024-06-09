@@ -4,7 +4,6 @@ import src.model.*;
 import src.utility.FileUtils;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetTime;
@@ -50,7 +49,7 @@ public class VueloServices {
 
     }
 
-    public static List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo, List<Vuelo> vuelos) {
+    public List<Vuelo> getVuelosActuales(List<PlanDeVuelo> planesDeVuelo, List<Vuelo> vuelos) {
         // Verificar si las listas de entrada son nulas y devolver listas vacías si es necesario
         if (planesDeVuelo == null || vuelos == null) {
             return new ArrayList<>();
@@ -75,7 +74,7 @@ public class VueloServices {
         return vuelosActuales;
     }
 
-    public static List<PlanDeVuelo> getPlanesDeVuelo(List<Aeropuerto> aeropuertos, String archivo) throws IOException {
+    public List<PlanDeVuelo> getPlanesDeVuelo(List<Aeropuerto> aeropuertos, String archivo) throws IOException {
         List<String> lines = FileUtils.readLines(archivo);
         List<PlanDeVuelo> planesDeVuelo = new ArrayList<>();
 

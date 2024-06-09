@@ -3,12 +3,6 @@ package src.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import src.dto.EnvioDTO;
-import src.dto.PaqueteDTO;
-import src.repository.EnvioRepository;
-import src.repository.PaqueteRepository;
-import src.utility.FileUtils;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -17,21 +11,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 import src.services.*;
 import src.model.*;
 
-import javax.annotation.PostConstruct;
-
 @Service
 public class EnvioService {
-    @Autowired
-    private EnvioRepository envioRepository;
-
-    @Autowired
-    private PaqueteRepository paqueteRepository;
 
     VueloServices vueloService = new VueloServices();
     

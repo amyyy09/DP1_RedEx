@@ -1,49 +1,31 @@
 package src.services;
 
 import src.model.*;
-import src.service.AeropuertoService;
 import src.service.RutaPredefinidaService;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.stream.Collectors;
-import java.util.concurrent.RecursiveTask;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 
 
 @Service
 public class PlanificacionService {
-    private final double probabilidadSeleccion = 0.7;
-    private double probabilidadMutacion = 0.1;
-    private double probabilidadCruce = 0.85;
-    private int numCromosomas = 100;
-    private int tamanoTorneo = 5;
-    private int numDescendientes = 50;
-    private int numGeneraciones = 20;
 
     private static FitnessEvaluatorService evaluator = new FitnessEvaluatorService();
-    private static Random rand = new Random();
 
     @Autowired
     public PlanificacionService() {
-        rand = new Random();
         PlanificacionService.evaluator = new FitnessEvaluatorService();
     }
 
@@ -283,7 +265,7 @@ public class PlanificacionService {
         return rutasPredMap;
     }
 
-    public static Map<Paquete, Resultado> transformResult(Map<Paquete, RutaTiempoReal> originalResult) {
+    public Map<Paquete, Resultado> transformResult(Map<Paquete, RutaTiempoReal> originalResult) {
         Map<Paquete, Resultado> transformedResult = new HashMap<>();
     
         for (Map.Entry<Paquete, RutaTiempoReal> entry : originalResult.entrySet()) {

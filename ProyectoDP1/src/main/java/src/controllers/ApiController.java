@@ -2,21 +2,11 @@ package src.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import src.model.Aeropuerto;
-import src.model.Envio;
 import src.model.PeticionPSO;
-import src.model.PeticionPSOD;
-import src.model.RutaPredefinida;
-import src.model.Vuelo;
 import src.service.ApiServices;
-import src.service.EnvioService;
-import src.service.RutaPredefinidaService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
 @RestController
 @RequestMapping("/api")
