@@ -96,6 +96,7 @@ public class ApiServices {
                 }
 
                 clearVuelosGuardados();
+                envios.clear();
                 for (VueloNuevo vn : jsonVuelosProximos) {
                     Vuelo vuelo = new Vuelo();
                     vuelo.setIdVuelo(vn.getIdVuelo());
