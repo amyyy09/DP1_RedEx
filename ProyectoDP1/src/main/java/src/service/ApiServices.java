@@ -61,13 +61,14 @@ public class ApiServices {
                 json = planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
+                LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
                 int zonaHorariaGMT;
                 LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
                 for (VueloNuevo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoDestino());
                     horallegadaGMT0=vn.getHoraLlegada().plusHours(zonaHorariaGMT);
-                    if (horallegadaGMT0.isAfter(fechaHora) && horallegadaGMT0.isBefore(fechaHoraLimite)) {
+                    if (horallegadaGMT0.isAfter(fechaHora) && horallegadaGMT0.isBefore(fechaHoraReal)) {
                         Aeropuerto aeropuertoDestino = aeropuertosGuardados.stream()
                             .filter(a -> a.getCodigoIATA().equals(vn.getAeropuertoDestino()))
                             .findFirst()
@@ -88,7 +89,8 @@ public class ApiServices {
                     horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
                     if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
-                    } else {
+                    } 
+                    if (horaSalidaGMT0.isAfter(fechaHoraReal)){
                         jsonVuelosProximos.add(vn);
                     }
                 }
