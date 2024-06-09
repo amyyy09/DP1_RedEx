@@ -26,7 +26,6 @@ import src.dto.PlanDeVueloDTO;
 import src.model.Aeropuerto;
 import src.repository.AeropuertoRepository;
 import src.repository.PlanDeVueloRepository;
-import src.utility.ConversionesModelDTO;
 import src.utility.DatosAeropuertos;
 
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -107,17 +106,6 @@ public class AeropuertoService {
             logger.error(e.getMessage());
             return false;
         }
-    }
-
-    // Model a DTO
-    public void saveAeropuerto(Aeropuerto aeropuerto){
-        AeropuertoDTO aeropuertoDTO = ConversionesModelDTO.convetirAeropuetoToDTO(aeropuerto);
-        aeropuertoRepository.save(aeropuertoDTO);
-    }
-
-    public void saveAllAeropuertos(List<Aeropuerto> aeropuertos){
-        List<AeropuertoDTO> aeropuertoDTOs= aeropuertos.stream().map(ConversionesModelDTO::convetirAeropuetoToDTO).collect(Collectors.toList());
-        aeropuertoRepository.saveAll(aeropuertoDTOs);
     }
     
     public static List<Aeropuerto> actualizarAeropuertos(List<Aeropuerto> modAeroList) {
