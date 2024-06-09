@@ -32,7 +32,7 @@ public class EnvioService {
     }
 
     public List<Envio> getEnviosPorFechaHora(LocalDateTime fechaHora, List<Aeropuerto> aeropuertosGuardados) {
-        LocalDateTime fechaHoraFin = fechaHora.plusHours(2);
+        LocalDateTime fechaHoraFin = fechaHora.plusHours(1);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         List<Envio> envios = new ArrayList<>();
     

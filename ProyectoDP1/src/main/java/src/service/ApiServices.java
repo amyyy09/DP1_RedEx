@@ -61,7 +61,7 @@ public class ApiServices {
                 json = planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
-                LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
+                LocalDateTime fechaHoraReal = fechaHora.plusHours(1);
                 int zonaHorariaGMT;
                 LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
