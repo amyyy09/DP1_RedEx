@@ -74,7 +74,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     let updatedVuelos: Vuelo[] = []; 
 
     try{
-      const response = await fetch('http://localhost:8080/api/limpiar', {
+      const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/api/limpiar', {
         method: 'GET', // Explicitly specifying the method
         headers: {
             // If needed, specify headers here, e.g., for authentication
@@ -94,14 +94,12 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         let formattedDate = formatDateTime(selectedDate, formattedTime);
         // Definir los datos JSON para la solicitud
         const data = {
-            fechahora: formattedDate,
-            aeropuertos: [],
-            vuelos: [],
+            fechahora: formattedDate
         };
         console.log('Request:', data);
 
         try {
-            const response = await fetch('http://localhost:8080/api/pso', {
+            const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/api/pso', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
