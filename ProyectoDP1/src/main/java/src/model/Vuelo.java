@@ -20,4 +20,16 @@ public class Vuelo {
     private LocalDateTime horaSalida;
     private LocalDateTime horaLlegada;
     private PlanDeVuelo planDeVuelo;
+
+    public static Vuelo fromVueloNuevo(VueloNuevo vn) {
+        Vuelo vuelo = new Vuelo();
+        vuelo.setIdVuelo(vn.getIdVuelo());
+        vuelo.setCantPaquetes(vn.getCantPaquetes());
+        vuelo.setCapacidad(vn.getCapacidad());
+        vuelo.setStatus(vn.getStatus());
+        vuelo.setIndexPlan(vn.getIndexPlan());
+        vuelo.setHoraSalida(vn.getHoraSalida());
+        vuelo.setHoraLlegada(vn.getHoraLlegada());
+        return vuelo;
+    }
 }

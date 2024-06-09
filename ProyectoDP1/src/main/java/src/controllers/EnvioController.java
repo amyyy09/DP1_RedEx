@@ -43,10 +43,9 @@ public class EnvioController {
         return resultado;
     }
 
-    @GetMapping("/filtrar")
-    public List<Envio> getEnviosByFechaHora(@RequestParam String fechaHora) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-        LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
-        return envioService.getEnviosPorFechaHora(fechaHoraParsed);
-    }
+    //@GetMapping("/filtrar")
+    //public List<Envio> getEnviosByFechaHora(@RequestParam String fechaHora) {
+        //DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+        //LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
+        //return envioService.getEnviosPorFechaHora(fechaHoraParsed);
 }

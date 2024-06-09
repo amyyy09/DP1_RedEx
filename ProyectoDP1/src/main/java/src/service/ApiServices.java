@@ -42,9 +42,9 @@ public class ApiServices {
 
     private static List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
     public String ejecutarPso(LocalDateTime fechaHora) {
-        List<Aeropuerto> aeropuertos = null;
         List<Vuelo> vuelos = getVuelosGuardados();
-        List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHora); 
+        List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHora, aeropuertosGuardados);
+        List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
         Map<Paquete, Resultado> jsonprevio = null;
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<VueloNuevo> json = null;
@@ -54,20 +54,8 @@ public class ApiServices {
             String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
-            List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
                 .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
-
-            for (Envio envio : envios) {
-                Aeropuerto aeropuerto = aeropuertosGuardados.stream().filter(a -> a.getCodigoIATA().equals(envio.getCodigoIATAOrigen())).findFirst().orElse(null);
-                if (aeropuerto != null) {
-                    Almacen almacen = aeropuerto.getAlmacen();
-                    for (Paquete paquete : envio.getPaquetes()) {
-                        almacen.getPaquetes().add(paquete);
-                        almacen.setCantPaquetes(almacen.getCantPaquetes() + 1);
-                    }
-                }
-            }
 
             System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
             if (!envios.isEmpty()) {
