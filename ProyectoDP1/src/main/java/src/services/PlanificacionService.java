@@ -156,7 +156,7 @@ public class PlanificacionService {
         int noImprovementCounter = 0;
         int j = 0;
 
-        while (noImprovementCounter < numIterationsMax && j < 100) {
+        while (noImprovementCounter < numIterationsMax && j < 50) {
             for (Particula particle : population) {
                 for (int k = 0; k < envios.size(); k++) {
                     List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k));
