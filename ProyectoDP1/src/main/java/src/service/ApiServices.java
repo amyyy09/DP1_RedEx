@@ -40,9 +40,7 @@ public class ApiServices {
     private static List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
 
     public String ejecutarPso(LocalDateTime fechaHora) {
-        List<Aeropuerto> aeropuertos = null;
         List<Vuelo> vuelos = getVuelosGuardados();
-        System.out.println("Envio: ");
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHora, aeropuertosGuardados);
         List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
         Map<Paquete, Resultado> jsonprevio = null;

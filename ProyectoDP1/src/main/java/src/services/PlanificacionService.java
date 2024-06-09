@@ -217,7 +217,6 @@ public class PlanificacionService {
             }
             j++;
         }
-        System.out.println("MAPA 2");
         return gbest;
     }
 
