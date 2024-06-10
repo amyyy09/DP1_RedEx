@@ -61,7 +61,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
   const handleApplyClick = async () => {
     const numberOfCalls = 84; // Número de llamadas a la API
-    const intervalHours = 3; // Intervalo de horas entre cada llamada
+    const intervalHours = 2; // Intervalo de horas entre cada llamada
 
     // Formatear la fecha inicial
     const [year, month, day] = startDate.split('-').map(Number);
@@ -74,7 +74,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     let updatedVuelos: Vuelo[] = []; 
 
     try{
-      const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/api/limpiar', {
+      const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/back/api/limpiar', {
         method: 'GET', // Explicitly specifying the method
         headers: {
             // If needed, specify headers here, e.g., for authentication
@@ -99,7 +99,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         console.log('Request:', data);
 
         try {
-            const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/api/pso', {
+            const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/back/api/pso', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
