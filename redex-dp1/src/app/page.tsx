@@ -56,7 +56,7 @@ const DayToDay: React.FC = () => {
             }
 
             const responseData = await response.json();
-            console.log("API Response:", responseData);
+            console.log("API Response Data:", responseData);
 
             const vuelosIds = new Set(vuelos.current.map((vuelo: Vuelo) => vuelo.idVuelo));
             responseData.forEach((data: Vuelo) => {
@@ -75,7 +75,7 @@ const DayToDay: React.FC = () => {
             localStorage.setItem("vuelos", JSON.stringify(vuelos.current));
             localStorage.setItem("lastFetchTime", Date.now().toString());
 
-            console.log("Vuelos:", vuelos.current);
+            console.log("Vuelos after update:", vuelos.current);
         } catch (error) {
             console.error('Error fetching API:', error);
         }
@@ -167,6 +167,7 @@ const DayToDay: React.FC = () => {
     }, [startPlanning]);
 
     const handleStartPlanning = () => {
+        console.log("vuelos.current", vuelos.current)
         const now = new Date();
         startTime.current = now.getTime();
         setStartDate(now.toISOString().split("T")[0]);
@@ -187,6 +188,7 @@ const DayToDay: React.FC = () => {
     };
 
     const handleStopPlanning = () => {
+        console.log("vuelos.current", vuelos.current)
         setStartPlanning(false);
 
         // Remove state from local storage
