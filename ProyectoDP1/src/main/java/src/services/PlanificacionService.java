@@ -156,10 +156,10 @@ public class PlanificacionService {
         int noImprovementCounter = 0;
         int j = 0;
 
-        while (noImprovementCounter < numIterationsMax && j < 50) {
+        while (noImprovementCounter < numIterationsMax && j < 5) {
             for (Particula particle : population) {
                 for (int k = 0; k < envios.size(); k++) {
-                    List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k));
+                    List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k)); // todas las rutas que sirvan para ese envio
                     for (Paquete paquete : envios.get(k).getPaquetes()) {
                         RutaTiempoReal currentRTR = particle.getPosicion().get(paquete);
                         if (currentRTR == null) {
