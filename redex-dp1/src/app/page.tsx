@@ -1,4 +1,3 @@
-// pages/home/page.tsx
 "use client";
 
 import React, { useMemo, useState, useEffect, useRef } from "react";
@@ -7,19 +6,38 @@ import Topbar from "./components/layout/Topbar";
 import Sidebar from "./components/layout/Sidebar";
 import { Vuelo } from "./types/Planes";
 import "./styles/SimulatedTime.css";
+import "./styles/PlanningButtons.css"; // Add this line to import the new CSS file
 
-const Home = () => {
-    const [showModal, setShowModal] = useState(true);
-    const [startSimulation, setStartSimulation] = useState(false);
-    const startTime = useRef(0);
-    const [simulationMode, setSimulationMode] = useState("");
+const DayToDay: React.FC = () => {
+    const [startPlanning, setStartPlanning] = useState(false);
+    const startTime = useRef<number>(0);
     const [startDate, setStartDate] = useState("");
     const [startHour, setStartHour] = useState("");
     const vuelos = useRef<Vuelo[]>([]);
     const [loading, setLoading] = useState(false);
 
-    const speedFactor = 288; // Real-time seconds per simulated second
-    
+    const Map = useMemo(
+        () =>
+          dynamic(() => import("./components/map/Map"), {
+            loading: () => <p>A map is loading</p>,
+            ssr: false,
+          }),
+        []
+    );
+
+    const handleStartPlanning = () => {
+        const now = new Date();
+        startTime.current = now.getTime();
+        setStartDate(now.toISOString().split("T")[0]);
+        setStartHour(now.toTimeString().split(" ")[0].substring(0, 5));
+        setStartPlanning(true);
+        console.log("Planning started at", now);
+    };
+
+    const handleStopPlanning = () => {
+        setStartPlanning(false);
+        console.log("Planning stopped");
+    };
 
     const formatDateTime = (date: Date) => {
       const year = date.getFullYear();
@@ -32,6 +50,9 @@ const Home = () => {
     };
 
     useEffect(() => {
+        console.log("startday", startDate, "starthour", startHour, "starttime", startTime, "startplanning", startPlanning)
+        if (!startPlanning) return;
+
         const fetchApi = async () => {
             const now = new Date();
             const formattedDate = formatDateTime(now);
@@ -45,7 +66,7 @@ const Home = () => {
 
             try {
                 const response = await fetch('http://localhost:8080/api/pso', {
-                    method: 'POST', // o 'GET' según sea necesario
+                    method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
@@ -61,62 +82,55 @@ const Home = () => {
                 const responseData = await response.json();
                 console.log("API Response:", responseData);
 
-                const vuelosIds = new Set(vuelos.current?.map((vuelo: Vuelo) => vuelo.idVuelo));
+                const vuelosIds = new Set(vuelos.current.map((vuelo: Vuelo) => vuelo.idVuelo));
                 responseData.forEach((data: Vuelo) => {
-                  // Check if the idVuelo of data is already in vuelosIds
                   if (!vuelosIds.has(data.idVuelo)) {
-                    // If it's not in vuelosIds, add it to vuelos.current and vuelosIds
-                    vuelos.current?.push(data);
+                    vuelos.current.push(data);
                     vuelosIds.add(data.idVuelo);
-                  }
-                  else{
-                    // If it's in vuelosIds, update the Vuelo in vuelos.current
-                    const index = vuelos.current?.findIndex((vuelo: Vuelo) => vuelo.idVuelo === data.idVuelo);
-                    if (index && index !== -1) {
-                      vuelos.current?.splice(index, 1, data);
+                  } else {
+                    const index = vuelos.current.findIndex((vuelo: Vuelo) => vuelo.idVuelo === data.idVuelo);
+                    if (index !== -1) {
+                      vuelos.current.splice(index, 1, data);
                     }
                   }
                 });
-    
+
                 console.log("Vuelos:", vuelos.current);
-                // Aquí puedes procesar los datos y actualizar el estado según sea necesario
             } catch (error) {
                 console.error('Error fetching API:', error);
             }
         };
 
-        fetchApi(); // Llamada inicial al montar el componente
+        fetchApi(); // Initial call
 
-        const intervalId = setInterval(fetchApi, 20 * 60 * 1000); // Llama a fetchApi cada 20 minutos
+        const intervalId = setInterval(fetchApi, 20 * 60 * 1000); // Call fetchApi every 20 minutes
 
-        return () => clearInterval(intervalId); // Limpia el intervalo cuando el componente se desmonta
-    }, []);
-
-    const Map = useMemo(
-        () =>
-          dynamic(() => import("./components/map/Map"), {
-            loading: () => <p>A map is loading</p>,
-            ssr: false,
-          }),
-        []
-      );
+        return () => clearInterval(intervalId); // Cleanup interval on component unmount or planning stop
+    }, [startPlanning]);
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
-          <Topbar />
-          <div style={{ display: "flex", flex: 1 }}>
-            <Sidebar />
-            <Map
-              planes={startSimulation ? vuelos : { current: [] }}
-              startTime={startTime}
-              startDate={startDate}
-              startHour={startHour}
-              speedFactor={speedFactor}
-              startSimulation={startSimulation}
-            />
-          </div>
+            <Topbar />
+            <div style={{ display: "flex", flex: 1 }}>
+                <Sidebar />
+                <Map
+                    planes={startPlanning ? vuelos : { current: [] }}
+                    startTime={startTime}
+                    startDate={startDate}
+                    startHour={startHour}
+                    speedFactor={1} // Assuming 1 as a placeholder, adjust as necessary
+                    startSimulation={startPlanning}
+                />
+                <div className="simulated-time-container">
+                    {startPlanning ? 'Planificación en curso...' : 'Planificación detenida'}
+                </div>
+                <div className="planning-buttons-container">
+                    <button className="planning-button" onClick={handleStartPlanning}>Planificar</button>
+                    <button className="planning-button" onClick={handleStopPlanning}>Parar Planificador</button>
+                </div>
+            </div>
         </div>
-      );
+    );
 };
 
-export default Home;
+export default DayToDay;
