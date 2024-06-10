@@ -164,6 +164,11 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         // Incrementar la hora para la siguiente solicitud
         startHours += intervalHours;
 
+        while (startHours >= 24) {
+          startHours -= 24;
+          selectedDate.setDate(selectedDate.getDate() + 1);
+        }
+
         if (i > 0) {
             setLoading(true); // Mantener el estado de cargando en las iteraciones siguientes
         }
