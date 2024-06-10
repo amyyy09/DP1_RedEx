@@ -102,12 +102,12 @@ const Plane: React.FC<PlaneProps> = ({
         setIsVisible(false);
         
         if (simulatedDate.current > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
-          console.log("simulatedDate.current", simulatedDate.current);
+          // console.log("Plane has arrived");
+          // console.log("horaLlegada aquí", horaLlegada);
+          // console.log("simulatedDate.current", simulatedDate.current);
           clearInterval(intervalId);
           // listVuelos.splice(index, 1);
-          console.log("listVuelos", listVuelos.length);
+          // console.log("listVuelos", listVuelos.length);
         }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
