@@ -105,7 +105,6 @@ const Home: React.FC = () => {
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Topbar />
       <div style={{ display: "flex", flex: 1 }}>
-        <Sidebar />
         <Map
           planes={startSimulation ? vuelos : { current: [] }}
           startTime={startTime}
