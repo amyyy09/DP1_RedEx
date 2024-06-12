@@ -22,18 +22,18 @@ const Sidebar: FC = () => {
         <img src="./icons/hogar.png" alt="Home" />
       </div>
       <div
-        className={`sidebar-item ${activeRoute === "/vuelos" ? "active" : ""}`}
-        onClick={() => handleClick("/vuelos")}
-      >
-        <img src="./icons/modo-vuelo.png" alt="Plane" />
-      </div>
-      <div
         className={`sidebar-item ${
           activeRoute === "/simulacion" ? "active" : ""
         }`}
         onClick={() => handleClick("/simulacion")}
       >
         <img src="./icons/radar.png" alt="Power" />
+      </div>
+      <div
+        className={`sidebar-item ${activeRoute === "/vuelos" ? "active" : ""}`}
+        onClick={() => handleClick("/vuelos")}
+      >
+        <img src="./icons/modo-vuelo.png" alt="Plane" />
       </div>
       <div
         className={`sidebar-item ${activeRoute === "/pedidos" ? "active" : ""}`}
@@ -48,12 +48,6 @@ const Sidebar: FC = () => {
         onClick={() => handleClick("/configuracion")}
       >
         <img src="./icons/actualizacion.png" alt="Loading" />
-      </div>
-      <div
-        className={`sidebar-item ${activeRoute === "/salir" ? "active" : ""}`}
-        onClick={() => handleClick("/salir")}
-      >
-        <img src="./icons/salir.png" alt="Logout" />
       </div>
     </div>
   );
