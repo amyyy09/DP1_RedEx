@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
-import { PlaneProps } from "../../types/Planes";
-import { citiesByCode } from "@/app/data/cities";
-import { arrayToTime } from "@/app/utils/timeHelper";
+import { PlaneProps } from "@/types/Planes";
+import { citiesByCode } from "@/utils/data/cities";
+import { arrayToTime } from "@/utils/timeHelper";
 import RotatedMarker from "./RotatedMarker";
 
 const calculateRotationAngle = (
@@ -100,7 +100,7 @@ const Plane: React.FC<PlaneProps> = ({
           simulatedDate.current < horaSalida)
       ) {
         setIsVisible(false);
-        
+
         if (simulatedDate.current > horaLlegada) {
           console.log("Plane has arrived");
           console.log("horaLlegada aquí", horaLlegada);

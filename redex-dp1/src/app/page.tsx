@@ -6,7 +6,7 @@ import Topbar from "@/components/layout/Topbar";
 import Sidebar from "@/components/layout/Sidebar";
 import ConfigurationModal from "@/components/map/ConfigurationModal";
 import { Vuelo } from "@/types/Planes";
-import "./styles/SimulatedTime.css";
+import "@/styles/SimulatedTime.css";
 
 const Home: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -95,7 +95,6 @@ const Home: React.FC = () => {
   );
 
   const handleApplyConfiguration = () => {
-    //console.log(vuelos);
     setShowModal(false);
     setStartSimulation(true);
     setLoading(false);

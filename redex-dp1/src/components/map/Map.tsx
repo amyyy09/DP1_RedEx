@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -12,8 +12,8 @@ import {
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
-import { Vuelo } from "@/app/types/Planes";
-import { cities } from "@/app/data/cities";
+import { Vuelo } from "@/types/Planes";
+import { cities } from "@/utils/data/cities";
 
 interface MapProps {
   planes: React.RefObject<Vuelo[]>;
@@ -45,7 +45,6 @@ const Map: React.FC<MapProps> = ({
   speedFactor,
   startSimulation,
 }) => {
-  
   return (
     <MapContainer
       center={[20, 20]}
