@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import src.services.*;
+import src.global.GlobalVariables;
 import src.model.*;
 
 @Service
@@ -25,7 +26,7 @@ public class EnvioService {
     private AeropuertoService aeropuertoService;
 
     private List<Envio> envios;
-    private final String archivoRutaEnvios = "/home/inf226.982.1a/DP1_RedEx/ProyectoDP1/src/main/resources/combined.txt" ;
+    private final String archivoRutaEnvios =  GlobalVariables.PATH + "combined.txt" ;
 
     public List<Envio> getEnvios() {
         return envios;

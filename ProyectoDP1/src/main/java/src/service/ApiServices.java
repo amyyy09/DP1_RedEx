@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
+import src.global.GlobalVariables;
 import src.model.*;
 import src.services.PlanificacionService;
 import src.services.VueloServices;
@@ -48,7 +49,7 @@ public class ApiServices {
         String jsonResult = null;
 
         try {
-            String archivoRutaPlanes = "/home/inf226.982.1a/DP1_RedEx/ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+            String archivoRutaPlanes =  GlobalVariables.PATH + "planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
