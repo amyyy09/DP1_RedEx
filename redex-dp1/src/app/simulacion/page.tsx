@@ -111,6 +111,10 @@ const Simulation: React.FC = () => {
     setShowModal(true);
   };
 
+  const handleCloseModal = () => {
+    setShowModal(false);
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Topbar />
@@ -134,7 +138,7 @@ const Simulation: React.FC = () => {
           {showModal && (
             <ConfigurationModal
               onApply={handleApplyConfiguration}
-              onClose={() => setShowModal(false)}
+              onClose={handleCloseModal}
               startDate={startDate}
               setStartDate={setStartDate}
               startTime={startHour}
@@ -155,8 +159,8 @@ const Simulation: React.FC = () => {
             />
           )}
         </div>
-        {/* Botón para reabrir el ConfigurationModal */}
-        {!showModal && (
+        {/* Botón para reabrir el ConfigurationModal, visible solo cuando no está en simulación */}
+        {!startSimulation && !showModal && (
           <button
             className="open-config-modal-button"
             onClick={() => setShowModal(true)}
