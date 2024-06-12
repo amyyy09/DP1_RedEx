@@ -6,6 +6,7 @@ import Topbar from "./components/layout/Topbar";
 import Sidebar from "./components/layout/Sidebar";
 import ConfigurationModal from "./components/map/ConfigurationModal";
 import { Vuelo } from "./types/Planes";
+import EndModal from "./components/modal/EndModal";
 import "./styles/SimulatedTime.css";
 
 const Home: React.FC = () => {
@@ -18,6 +19,7 @@ const Home: React.FC = () => {
   const vuelos = useRef<Vuelo[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
+  const [simulationEnd, setSimulationEnd] = useState(false);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -73,6 +75,7 @@ const Home: React.FC = () => {
           timeZone: "America/Lima",
         });
         console.log(`Simulation stopped at ${peruTime} Peru time`);
+        setSimulationEnd(true);
       }
     };
 
@@ -99,7 +102,13 @@ const Home: React.FC = () => {
     setShowModal(false);
     setStartSimulation(true);
     setLoading(false);
+    setDisplayTime("");
     console.log("Simulation started");
+  };
+
+  const handleEndSimulation = () => {
+    setSimulationEnd(false);
+    setShowModal(true);
   };
 
   return (
@@ -107,33 +116,44 @@ const Home: React.FC = () => {
       <Topbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <Map
-          planes={startSimulation ? vuelos : { current: [] }}
-          startTime={startTime}
-          startDate={startDate}
-          startHour={startHour}
-          speedFactor={speedFactor}
-          startSimulation={startSimulation}
-        />
-          {/* Contenedor para el tiempo simulado */}
-        <div className="simulated-time-container">
-          Simulated time: {displayTime}
-         </div>
-        {showModal && (
-          <ConfigurationModal
-            onApply={handleApplyConfiguration}
+        <div style={{ display: "flex", flex: 1, position: "relative" }}>
+          <Map
+            planes={startSimulation ? vuelos : { current: [] }}
+            startTime={startTime}
             startDate={startDate}
-            setStartDate={setStartDate}
-            startTime={startHour}
-            setStartTime={setStartHour}
-            simulationMode={simulationMode}
-            setSimulationMode={setSimulationMode}
-            vuelos={vuelos}
-            loading={loading}
-            setLoading={setLoading}
+            startHour={startHour}
+            speedFactor={speedFactor}
+            startSimulation={startSimulation}
           />
-        )}{" "}
-        {/* Show modal */}
+          {/* Contenedor para el tiempo simulado */}
+          {startSimulation && (
+            <div className="simulated-time-container">
+              Fecha de simulación: {displayTime}
+            </div>
+          )}
+          {showModal && (
+            <ConfigurationModal
+              onApply={handleApplyConfiguration}
+              startDate={startDate}
+              setStartDate={setStartDate}
+              startTime={startHour}
+              setStartTime={setStartHour}
+              simulationMode={simulationMode}
+              setSimulationMode={setSimulationMode}
+              vuelos={vuelos}
+              loading={loading}
+              setLoading={setLoading}
+            />
+          )}{" "}
+          {simulationEnd && (
+            <EndModal
+              onClose={handleEndSimulation}
+              simulatedStartDate={startDate}
+              simulatedStartHour={startHour}
+              simulatedEndDate={displayTime}
+            />
+          )}
+        </div>
       </div>
     </div>
   );
