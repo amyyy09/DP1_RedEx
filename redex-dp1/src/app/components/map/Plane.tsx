@@ -105,6 +105,7 @@ const Plane: React.FC<PlaneProps> = ({
           console.log("Plane has arrived");
           console.log("horaLlegada aquí", horaLlegada);
           console.log("simulatedDate.current", simulatedDate.current);
+          vuelo.status = 2;
           clearInterval(intervalId);
           // listVuelos.splice(index, 1);
           console.log("listVuelos", listVuelos.length);
