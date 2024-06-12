@@ -34,7 +34,6 @@ const RotatedMarker: React.FC<RotatedMarkerProps> = ({
     }).addTo(map);
 
     if (popupContent) {
-      // Convierte el contenido JSX a string HTML
       const popupHtml = ReactDOMServer.renderToString(popupContent);
       marker.bindPopup(popupHtml);
     }
