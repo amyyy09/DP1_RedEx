@@ -137,6 +137,18 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
               }
             });
 
+            // vuelos.current?.forEach((vuelo: Vuelo) => {
+            //   if (vuelo.status === 2){
+            //     const index = vuelos.current?.findIndex((vuelo: Vuelo) => vuelo.status === 2);
+            //     if (index && index !== -1) {
+            //       vuelos.current?.splice(index, 1);
+            //     }
+            //   }
+            // }
+            // );
+
+
+
             console.log("Vuelos:", vuelos.current);
 
             //const vuelosRef = { current: updatedVuelos };
