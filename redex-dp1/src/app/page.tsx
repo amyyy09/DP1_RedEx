@@ -16,8 +16,8 @@ const hardcodedVuelos: Vuelo[] = [
     capacidad: 180,
     status: 1,
     indexPlan: 0,
-    horaSalida: [2024, 6, 12, 1, 14, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 12, 2, 38, 0], // Año, mes, día, hora, minuto, segundo
+    horaSalida: [2024, 6, 12, 6, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 12, 20, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "RPLL", // Código de ciudad de ejemplo
     idVuelo: "247-2024-06-11",
@@ -28,7 +28,7 @@ const hardcodedVuelos: Vuelo[] = [
     status: 1,
     indexPlan: 1,
     horaSalida: [2024, 6, 12, 1, 10, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 12, 0, 46, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 12, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
     idVuelo: "625-2024-06-11",
@@ -61,7 +61,7 @@ const DayToDay: React.FC = () => {
           startTime={{ current: Date.now() }} // Asigna un tiempo de inicio ficticio
           startDate={new Date().toISOString().split("T")[0]} // Asigna la fecha actual
           startHour={new Date().toTimeString().split(" ")[0].substring(0, 5)} // Asigna la hora actual
-          speedFactor={280} // Supone 1 como un marcador de posición, ajustar según sea necesario
+          speedFactor={1} // Supone 1 como un marcador de posición, ajustar según sea necesario
           startSimulation={true} // Siempre inicia la simulación
         />
         <CurrentTimeDisplay /> {/* Añade el componente de visualización de la hora */}
