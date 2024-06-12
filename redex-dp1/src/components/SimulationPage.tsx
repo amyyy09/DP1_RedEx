@@ -117,6 +117,8 @@ const SimulationPage: React.FC = () => {
           setSimulationMode={setSimulationMode}
           vuelos={vuelos}
           loading={loading}
+          showModal={showModal}
+          setShowModal={setShowModal}
           setLoading={setLoading}
         />
       )}
