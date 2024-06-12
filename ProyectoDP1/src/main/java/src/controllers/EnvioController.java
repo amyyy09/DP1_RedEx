@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 import src.model.Envio;
 import src.service.EnvioService;
@@ -52,6 +53,17 @@ public class EnvioController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to save envio: " + e.getMessage());
+        }
+    }
+
+    @PostMapping("/bulk-upload")
+    public ResponseEntity<String> bulkUpload(@RequestParam("file") MultipartFile file) {
+        try {
+            envioService.processBulkUpload(file);
+            return ResponseEntity.ok("Bulk upload successful.");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload file: " + e.getMessage());
         }
     }
 }

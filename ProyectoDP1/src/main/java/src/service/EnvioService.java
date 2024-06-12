@@ -2,12 +2,14 @@ package src.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -88,6 +90,28 @@ public class EnvioService {
 
     public void saveEnvio(Envio envio) {
         envios.add(envio);
+    }
+
+    public void processBulkUpload(MultipartFile file) throws IOException {
+        List<Envio> bulkEnvios = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] data = line.split(",");
+                if (data.length == 8) {
+                    Envio envio = new Envio();
+                    envio.setCodigoIATAOrigen(data[5]);
+                    envio.setCodigoIATADestino(data[6]);
+                    envio.setCantPaquetes(Integer.parseInt(data[7]));
+                    bulkEnvios.add(envio);
+                }
+            }
+        }
+
+        for (Envio envio : bulkEnvios) {
+            saveEnvio(envio);
+        }
     }
 
     private String formatEnvioForTextFile(Envio envio) {
