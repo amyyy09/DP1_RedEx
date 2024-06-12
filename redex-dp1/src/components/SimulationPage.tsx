@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import ConfigurationModal from "@/components/map/ConfigurationModal";
 import { Vuelo } from "@/types/Planes";
 import "@/styles/SimulatedTime.css";
+import SimulatedTimeContainer from "./map/SimulatedTimeContainer";
 
 const SimulationPage: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -104,9 +105,7 @@ const SimulationPage: React.FC = () => {
         startSimulation={startSimulation}
       />
       {/* Contenedor para el tiempo simulado */}
-      <div className="simulated-time-container">
-        Simulated time: {displayTime}
-      </div>
+      <SimulatedTimeContainer displayTime={displayTime} />
       {showModal && (
         <ConfigurationModal
           onApply={handleApplyConfiguration}

@@ -14,7 +14,7 @@ const Sidebar: React.FC = () => {
       </div>
       <div
         className="sidebar-item active"
-        onClick={() => router.push("/flights")}
+        onClick={() => router.push("/vuelos")}
       >
         <img src="./icons/modo-vuelo.png" alt="Plane" />
       </div>
