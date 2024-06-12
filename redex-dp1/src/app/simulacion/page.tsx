@@ -134,6 +134,7 @@ const Simulation: React.FC = () => {
           {showModal && (
             <ConfigurationModal
               onApply={handleApplyConfiguration}
+              onClose={() => setShowModal(false)}
               startDate={startDate}
               setStartDate={setStartDate}
               startTime={startHour}
@@ -154,6 +155,15 @@ const Simulation: React.FC = () => {
             />
           )}
         </div>
+        {/* Botón para reabrir el ConfigurationModal */}
+        {!showModal && (
+          <button
+            className="open-config-modal-button"
+            onClick={() => setShowModal(true)}
+          >
+            Configuración
+          </button>
+        )}
       </div>
     </div>
   );
