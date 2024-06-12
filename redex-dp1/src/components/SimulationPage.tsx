@@ -6,6 +6,7 @@ import ConfigurationModal from "@/components/map/ConfigurationModal";
 import { Vuelo } from "@/types/Planes";
 import "@/styles/SimulatedTime.css";
 import SimulatedTimeContainer from "./map/SimulatedTimeContainer";
+import EndModal from "./EndModal";
 
 const SimulationPage: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -17,6 +18,7 @@ const SimulationPage: React.FC = () => {
   const vuelos = useRef<Vuelo[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
+  const [simulationEnd, setSimulationEnd] = useState(false);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -91,7 +93,11 @@ const SimulationPage: React.FC = () => {
     setShowModal(false);
     setStartSimulation(true);
     setLoading(false);
-    console.log("Simulation started");
+  };
+
+  const handleEndSimulation = () => {
+    setSimulationEnd(false);
+    setShowModal(true);
   };
 
   return (
@@ -104,7 +110,6 @@ const SimulationPage: React.FC = () => {
         speedFactor={speedFactor}
         startSimulation={startSimulation}
       />
-      {/* Contenedor para el tiempo simulado */}
       <SimulatedTimeContainer displayTime={displayTime} />
       {showModal && (
         <ConfigurationModal
@@ -121,9 +126,24 @@ const SimulationPage: React.FC = () => {
           setShowModal={setShowModal}
           setLoading={setLoading}
         />
+      )}{" "}
+      {simulationEnd && (
+        <EndModal
+          onClose={handleEndSimulation}
+          simulatedStartDate={startDate}
+          simulatedStartHour={startHour}
+          simulatedEndDate={displayTime}
+        />
+      )}
+      {!startSimulation && !showModal && (
+        <button
+          className="open-config-modal-button"
+          onClick={() => setShowModal(true)}
+        >
+          Configuración
+        </button>
       )}
     </div>
   );
 };
-
 export default SimulationPage;
