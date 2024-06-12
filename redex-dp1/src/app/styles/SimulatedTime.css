@@ -1,8 +1,8 @@
 /* styles/SimulatedTime.css */
 .simulated-time-container {
     position: fixed;
-    top: 10px;
-    right: 10px;
+    top: 62px;
+    right: 50px;
     background-color: rgba(0, 0, 0, 0.7);
     color: white;
     padding: 10px;
@@ -11,3 +11,19 @@
     font-size: 14px;
   }
   
+  .open-config-modal-button {
+    position: absolute;
+    top: 62px;
+    left: 55px;
+    padding: 10px 20px;
+    background-color: #C80405;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000; /* Asegura que el botón esté en el frente */
+  }
+  
+  .open-config-modal-button:hover {
+    background-color: #c74b4b;
+  }

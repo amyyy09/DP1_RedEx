@@ -73,8 +73,9 @@ const Map: React.FC<MapProps> = ({
       {planes.current &&
         planes.current.length > 0 &&
         planes.current.map((plane, index) => (
+          plane.status !== 2 &&
           <Plane
-            key={index}
+            key={plane.idVuelo}
             listVuelos={planes.current as Vuelo[]}
             index={index}
             vuelo={plane}
