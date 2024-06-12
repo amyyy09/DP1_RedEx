@@ -1,162 +1,73 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import Topbar from "./components/layout/Topbar";
 import Sidebar from "./components/layout/Sidebar";
-import ConfigurationModal from "./components/map/ConfigurationModal";
+import CurrentTimeDisplay from "./components/map/CurrentTimeDisplay";
 import { Vuelo } from "./types/Planes";
-import EndModal from "./components/modal/EndModal";
 import "./styles/SimulatedTime.css";
+import { start } from "repl";
 
-const Home: React.FC = () => {
-  const [showModal, setShowModal] = useState(true);
-  const [startSimulation, setStartSimulation] = useState(false);
-  const startTime = useRef(0);
-  const [simulationMode, setSimulationMode] = useState("");
-  const [startDate, setStartDate] = useState("");
-  const [startHour, setStartHour] = useState("");
-  const vuelos = useRef<Vuelo[]>([]);
-  const [loading, setLoading] = useState(false);
-  const simulatedDate = useRef(new Date());
-  const [simulationEnd, setSimulationEnd] = useState(false);
+// Datos hardcodeados para pruebas
+const hardcodedVuelos: Vuelo[] = [
+  {
+    cantPaquetes: 50,
+    capacidad: 180,
+    status: 1,
+    indexPlan: 0,
+    horaSalida: [2024, 6, 12, 6, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 12, 20, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
+    aeropuertoDestino: "RPLL", // Código de ciudad de ejemplo
+    idVuelo: "247-2024-06-11",
+  },
+  {
+    cantPaquetes: 75,
+    capacidad: 200,
+    status: 1,
+    indexPlan: 1,
+    horaSalida: [2024, 6, 12, 1, 10, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 12, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
+    aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
+    idVuelo: "625-2024-06-11",
+  },
+];
 
-  const speedFactor = 288; // Real-time seconds per simulated second
-  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
-
-  // State to store the display time
-  const [displayTime, setDisplayTime] = useState("");
-
+const DayToDay: React.FC = () => {
+  const [vuelos, setVuelos] = useState<Vuelo[]>(hardcodedVuelos);
+  console.log(vuelos);
   useEffect(() => {
-    if (!startSimulation) return;
-
-    console.log("Simulation started");
-
-    // Set the start time
-    startTime.current = Date.now();
-
-    // Update the simulated time
-    const updateSimulatedTime = () => {
-      if (!startSimulation) return;
-
-      // console.log("startTime", startTime.current);
-
-      const currentTime = Date.now();
-      // console.log("currentTime", currentTime);
-      const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
-      const simulatedTime = elapsedTime * speedFactor;
-      // Create a new Date object for the start of the simulation
-      const startDateSim = new Date(startDate + "T" + startHour + ":00");
-      // console.log("startDateSim", startDateSim);
-
-      // Add the simulated time to the start date
-      simulatedDate.current = new Date(
-        startDateSim.getTime() + simulatedTime * 1000
-      );
-      // Update the display time
-      setDisplayTime(
-        simulatedDate.current.toLocaleString(undefined, {
-          day: "2-digit",
-          month: "2-digit",
-          year: "numeric",
-          hour: "2-digit",
-          minute: "2-digit",
-          second: "2-digit",
-          hour12: false,
-        })
-      );
-
-      // Stop the simulation after the total simulated seconds have passed
-      if (simulatedTime >= totalSimulatedSeconds) {
-        // console.log("simulatedTime", simulatedTime);
-        // console.log("totalSimulatedSeconds", totalSimulatedSeconds);
-        setStartSimulation(false);
-        const peruTime = new Date().toLocaleTimeString("en-US", {
-          timeZone: "America/Lima",
-        });
-        console.log(`Simulation stopped at ${peruTime} Peru time`);
-        setSimulationEnd(true);
-      }
-    };
-
-    // Call updateSimulatedTime every second
-    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
-
-    // Clean up on unmount
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [startSimulation]);
+    setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
+  }, []);
 
   const Map = useMemo(
     () =>
       dynamic(() => import("./components/map/Map"), {
-        loading: () => <p>A map is loading</p>,
+        loading: () => <p>A map is loading...</p>,
         ssr: false,
       }),
     []
   );
-
-  const handleApplyConfiguration = () => {
-    //console.log(vuelos);
-    setShowModal(false);
-    setStartSimulation(true);
-    setLoading(false);
-    setDisplayTime("");
-    console.log("Simulation started");
-  };
-
-  const handleEndSimulation = () => {
-    setSimulationEnd(false);
-    setShowModal(true);
-  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Topbar />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <div style={{ display: "flex", flex: 1, position: "relative" }}>
-          <Map
-            planes={startSimulation ? vuelos : { current: [] }}
-            startTime={startTime}
-            startDate={startDate}
-            startHour={startHour}
-            speedFactor={speedFactor}
-            startSimulation={startSimulation}
-          />
-          {/* Contenedor para el tiempo simulado */}
-          {startSimulation && (
-            <div className="simulated-time-container">
-              Fecha de simulación: {displayTime}
-            </div>
-          )}
-          {showModal && (
-            <ConfigurationModal
-              onApply={handleApplyConfiguration}
-              startDate={startDate}
-              setStartDate={setStartDate}
-              startTime={startHour}
-              setStartTime={setStartHour}
-              simulationMode={simulationMode}
-              setSimulationMode={setSimulationMode}
-              vuelos={vuelos}
-              loading={loading}
-              setLoading={setLoading}
-            />
-          )}{" "}
-          {simulationEnd && (
-            <EndModal
-              onClose={handleEndSimulation}
-              simulatedStartDate={startDate}
-              simulatedStartHour={startHour}
-              simulatedEndDate={displayTime}
-            />
-          )}
-        </div>
+        <Map
+          planes={{ current: vuelos }} // Pasa los vuelos hardcodeados directamente
+          startTime={{ current: Date.now() }} // Asigna un tiempo de inicio ficticio
+          startDate={new Date().toISOString().split("T")[0]} // Asigna la fecha actual
+          startHour={new Date().toTimeString().split(" ")[0].substring(0, 5)} // Asigna la hora actual
+          speedFactor={1} // Supone 1 como un marcador de posición, ajustar según sea necesario
+          startSimulation={true} // Siempre inicia la simulación
+        />
+        <CurrentTimeDisplay /> {/* Añade el componente de visualización de la hora */}
       </div>
     </div>
   );
 };
 
-export default Home;
+export default DayToDay;
