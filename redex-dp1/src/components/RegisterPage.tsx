@@ -1,6 +1,7 @@
 // components/RegisterShipment.tsx
 import React, { useState, ChangeEvent, FormEvent } from "react";
 import "@/styles/RegisterPage.css";
+import TitleWithIcon from "./TitleWithIcon";
 
 interface FormData {
   firstName: string;
@@ -54,10 +55,8 @@ const RegisterPage: React.FC = () => {
       setErrors(formErrors);
       return;
     }
-    // Clear errors if all validations pass
     setErrors([]);
     console.log("Form Data:", formData);
-    // Here, you can add your logic to handle the form submission, e.g., API call
     saveShipmentData(formData);
   };
 
@@ -81,7 +80,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="register-shipment-container">
-      <h1>Registrar Pedido</h1>
+      <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
       <form onSubmit={handleSubmit}>
         <input
           type="text"

@@ -1,18 +1,26 @@
+import Image from "next/image";
 import React, { FC, ReactElement } from "react";
 
-// Define la estructura de las props con TypeScript
 interface TitleWithIconProps {
-  name: string; // 'name' debe ser un string
-  Icon?: () => ReactElement; // 'Icon' es opcional y debe ser un componente que retorna un elemento React
+  name: string;
+  icon?: string; // Accepts string for image path
 }
 
-const TitleWithIcon: FC<TitleWithIconProps> = ({ name, Icon }) => {
+const TitleWithIcon: FC<TitleWithIconProps> = ({ name, icon }) => {
   return (
     <div className="flex items-center justify-between w-fit py-4">
-      {Icon && <Icon />}
+      {icon && (
+        <Image
+          src={icon}
+          alt={`Icon for ${name}`}
+          className="mr-6"
+          width={50}
+          height={50}
+        />
+      )}
       <h1
-        style={{ color: "#28539E" }}
-        className={`font-bold ml-${Icon ? "6" : "0"} text-6xl my-4`}
+        style={{ color: "#C80405" }}
+        className={`bold ml-${icon ? "6" : "0"} text-4xl my-4`}
       >
         {name}
       </h1>
