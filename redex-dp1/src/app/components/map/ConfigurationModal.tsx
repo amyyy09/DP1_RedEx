@@ -2,9 +2,11 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import "../../styles/ConfigurationModal.css";
 import { Vuelo } from "../../types/Planes";
+import { vuelosWithCapacity } from "@/app/utils/Apihelper";
 
 interface ConfigurationModalProps {
   onApply: () => void;
+  onClose: () => void;
   startDate: string;
   setStartDate: Dispatch<SetStateAction<string>>;
   startTime: string;
@@ -18,6 +20,7 @@ interface ConfigurationModalProps {
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   onApply,
+  onClose,
   startDate,
   setStartDate,
   startTime,
@@ -60,7 +63,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
   const handleApplyClick = async () => {
     const numberOfCalls = 84; // Número de llamadas a la API
-    const intervalHours = 2; // Intervalo de horas entre cada llamada
+    const intervalHours = 3; // Intervalo de horas entre cada llamada
 
     // Formatear la fecha inicial
     const [year, month, day] = startDate.split('-').map(Number);
@@ -73,7 +76,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     let updatedVuelos: Vuelo[] = []; 
 
     try{
-      const response = await fetch(`${process.env.BACKEND_URL}limpiar`, {
+      const response = await fetch('http://localhost:8080/api/limpiar', {
         method: 'GET', // Explicitly specifying the method
         headers: {
             // If needed, specify headers here, e.g., for authentication
@@ -93,12 +96,14 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         let formattedDate = formatDateTime(selectedDate, formattedTime);
         // Definir los datos JSON para la solicitud
         const data = {
-            fechahora: formattedDate
+            fechahora: formattedDate,
+            aeropuertos: [],
+            vuelos: [],
         };
         console.log('Request:', data);
 
         try {
-            const response = await fetch(`${process.env.BACKEND_URL}pso`, {
+            const response = await fetch('http://localhost:8080/api/pso', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -163,11 +168,6 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         // Incrementar la hora para la siguiente solicitud
         startHours += intervalHours;
 
-        while (startHours >= 24) {
-          startHours -= 24;
-          selectedDate.setDate(selectedDate.getDate() + 1);
-        }
-
         if (i > 0) {
             setLoading(true); // Mantener el estado de cargando en las iteraciones siguientes
         }
@@ -191,7 +191,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h2>Configuración de Simulación</h2>
-          <button className="close-button">&times;</button>
+          <button className="close-button" onClick={onClose}>&times;</button>
         </div>
         <div className="modal-body">
           <label htmlFor="simulation-mode">Modo de Simulación</label>
