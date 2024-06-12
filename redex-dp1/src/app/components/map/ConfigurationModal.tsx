@@ -2,7 +2,6 @@
 import React, { Dispatch, SetStateAction, useState } from "react";
 import "../../styles/ConfigurationModal.css";
 import { Vuelo } from "../../types/Planes";
-import { vuelosWithCapacity } from "@/app/utils/Apihelper";
 
 interface ConfigurationModalProps {
   onApply: () => void;
@@ -74,7 +73,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     let updatedVuelos: Vuelo[] = []; 
 
     try{
-      const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/back/api/limpiar', {
+      const response = await fetch(`${process.env.BACKEND_URL}limpiar`, {
         method: 'GET', // Explicitly specifying the method
         headers: {
             // If needed, specify headers here, e.g., for authentication
@@ -99,7 +98,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         console.log('Request:', data);
 
         try {
-            const response = await fetch('http://inf226-982-1a.inf.pucp.edu.pe/back/api/pso', {
+            const response = await fetch(`${process.env.BACKEND_URL}pso`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
