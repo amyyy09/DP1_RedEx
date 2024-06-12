@@ -5,7 +5,6 @@ import { Vuelo } from "../../types/Planes";
 
 interface ConfigurationModalProps {
   onApply: () => void;
-  onClose: () => void;
   startDate: string;
   setStartDate: Dispatch<SetStateAction<string>>;
   startTime: string;
@@ -19,7 +18,6 @@ interface ConfigurationModalProps {
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   onApply,
-  onClose,
   startDate,
   setStartDate,
   startTime,
@@ -139,6 +137,18 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
               }
             });
 
+            // vuelos.current?.forEach((vuelo: Vuelo) => {
+            //   if (vuelo.status === 2){
+            //     const index = vuelos.current?.findIndex((vuelo: Vuelo) => vuelo.status === 2);
+            //     if (index && index !== -1) {
+            //       vuelos.current?.splice(index, 1);
+            //     }
+            //   }
+            // }
+            // );
+
+
+
             console.log("Vuelos:", vuelos.current);
 
             //const vuelosRef = { current: updatedVuelos };
@@ -193,7 +203,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h2>Configuración de Simulación</h2>
-          <button className="close-button" onClick={onClose}>&times;</button>
+          <button className="close-button" >&times;</button>
         </div>
         <div className="modal-body">
           <label htmlFor="simulation-mode">Modo de Simulación</label>
