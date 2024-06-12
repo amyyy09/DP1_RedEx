@@ -79,75 +79,77 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="register-shipment-container">
+    <div>
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
-      <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          name="firstName"
-          placeholder="Nombres de cliente"
-          value={formData.firstName}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="lastName"
-          placeholder="Apellidos de cliente"
-          value={formData.lastName}
-          onChange={handleChange}
-        />
-        <input
-          type="email"
-          name="email"
-          placeholder="Correo Electrónico"
-          value={formData.email}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="phoneNumber"
-          placeholder="Número Telefónico"
-          value={formData.phoneNumber}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="dniPassport"
-          placeholder="DNI/Pasaporte"
-          value={formData.dniPassport}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="originCity"
-          placeholder="Ciudad Origen"
-          value={formData.originCity}
-          onChange={handleChange}
-        />
-        <input
-          type="text"
-          name="destinationCity"
-          placeholder="Ciudad Destino"
-          value={formData.destinationCity}
-          onChange={handleChange}
-        />
-        <input
-          type="number"
-          name="packageCount"
-          placeholder="Cantidad de paquetes"
-          value={formData.packageCount}
-          onChange={handleChange}
-        />
-        <textarea
-          name="contentDescription"
-          placeholder="Descripción de contenido"
-          value={formData.contentDescription}
-          onChange={handleChange}
-        ></textarea>
-        <button className="register-shipment-button" type="submit">
-          Registrar Pedido
-        </button>
-      </form>
+      <div className="register-shipment-container">
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            name="firstName"
+            placeholder="Nombres de cliente"
+            value={formData.firstName}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="lastName"
+            placeholder="Apellidos de cliente"
+            value={formData.lastName}
+            onChange={handleChange}
+          />
+          <input
+            type="email"
+            name="email"
+            placeholder="Correo Electrónico"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="phoneNumber"
+            placeholder="Número Telefónico"
+            value={formData.phoneNumber}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="dniPassport"
+            placeholder="DNI/Pasaporte"
+            value={formData.dniPassport}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="originCity"
+            placeholder="Ciudad Origen"
+            value={formData.originCity}
+            onChange={handleChange}
+          />
+          <input
+            type="text"
+            name="destinationCity"
+            placeholder="Ciudad Destino"
+            value={formData.destinationCity}
+            onChange={handleChange}
+          />
+          <input
+            type="number"
+            name="packageCount"
+            placeholder="Cantidad de paquetes"
+            value={formData.packageCount}
+            onChange={handleChange}
+          />
+          <textarea
+            name="contentDescription"
+            placeholder="Descripción de contenido"
+            value={formData.contentDescription}
+            onChange={handleChange}
+          ></textarea>
+          <button className="register-shipment-button" type="submit">
+            Registrar Pedido
+          </button>
+        </form>
+      </div>
     </div>
   );
 };
