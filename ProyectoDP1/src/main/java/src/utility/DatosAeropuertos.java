@@ -51,7 +51,7 @@ public class DatosAeropuertos {
 
         // public static List<Aeropuerto> leerAeropuertos() {
         //         List<Aeropuerto> aeropuertos = new ArrayList<>();
-        //         String filePath = "src/main/resources/Aeropuerto.husos.v2.txt";
+        //         String filePath = "/home/inf226.982.1a/DP1_RedEx/src/main/resources/Aeropuerto.husos.v2.txt";
         //         String continent = "";
         //         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
         //             String line;

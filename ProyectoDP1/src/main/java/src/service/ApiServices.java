@@ -48,7 +48,7 @@ public class ApiServices {
         String jsonResult = null;
 
         try {
-            String archivoRutaPlanes = "src/main/resources/planes_vuelo.v3.txt";
+            String archivoRutaPlanes = "/home/inf226.982.1a/DP1_RedEx/src/main/resources/planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
