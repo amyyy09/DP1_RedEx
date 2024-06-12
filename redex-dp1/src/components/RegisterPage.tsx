@@ -1,5 +1,6 @@
 // components/RegisterShipment.tsx
 import React, { useState, ChangeEvent, FormEvent } from "react";
+import "@/styles/RegisterPage.css";
 
 interface FormData {
   firstName: string;
