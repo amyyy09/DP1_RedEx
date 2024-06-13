@@ -1,7 +1,6 @@
-// components/PlaneMap.tsx
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -11,6 +10,7 @@ import {
 } from "react-leaflet";
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "@/styles/Map.css";
 import Plane from "./Plane";
 import { Vuelo } from "@/types/Planes";
 import { cities } from "@/utils/data/cities";
@@ -45,46 +45,58 @@ const Map: React.FC<MapProps> = ({
   speedFactor,
   startSimulation,
 }) => {
+  const [isDay, setIsDay] = useState(true);
+
+  const toggleMapMode = () => {
+    setIsDay(!isDay);
+  };
+
   return (
-    <MapContainer
-      center={[20, 20]}
-      zoom={3}
-      style={{ height: "calc(100vh - 50px)", width: "calc(100vw - 50px)" }}
-      zoomControl={false}
-    >
-      <TileLayer
-        url="https://tile.jawg.io/jawg-light/{z}/{x}/{y}.png?lang=es&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
-      {/* Add custom zoom control */}
-      <ZoomControl position="topright" />
+    <div className="map-container">
+      <button onClick={toggleMapMode} className="toggle-button">
+        {isDay ? "Cambiar a Noche" : "Cambiar a Dia"}
+      </button>
+      <MapContainer
+        center={[20, 20]}
+        zoom={3}
+        style={{ height: "calc(100vh - 50px)", width: "calc(100vw - 50px)" }}
+        zoomControl={false}
+      >
+        <TileLayer
+          url={`https://tile.jawg.io/jawg-${
+            isDay ? "light" : "dark"
+          }/{z}/{x}/{y}.png?lang=es&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4`}
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
+        <ZoomControl position="topright" />
 
-      {cities.map((city, idx) => (
-        <Marker
-          key={idx}
-          position={[city.coords.lat, city.coords.lng] as LatLngTuple}
-          icon={customIcon}
-        >
-          <Popup>{city.name}</Popup>
-        </Marker>
-      ))}
-
-      {planes.current &&
-        planes.current.length > 0 &&
-        planes.current.map((plane, index) => (
-          <Plane
-            key={index}
-            listVuelos={planes.current as Vuelo[]}
-            index={index}
-            vuelo={plane}
-            startTime={startTime}
-            startDate={startDate}
-            startHour={startHour}
-            speedFactor={speedFactor}
-            startSimulation={startSimulation}
-          />
+        {cities.map((city, idx) => (
+          <Marker
+            key={idx}
+            position={[city.coords.lat, city.coords.lng] as LatLngTuple}
+            icon={customIcon}
+          >
+            <Popup>{city.name}</Popup>
+          </Marker>
         ))}
-    </MapContainer>
+
+        {planes.current &&
+          planes.current.length > 0 &&
+          planes.current.map((plane, index) => (
+            <Plane
+              key={index}
+              listVuelos={planes.current as Vuelo[]}
+              index={index}
+              vuelo={plane}
+              startTime={startTime}
+              startDate={startDate}
+              startHour={startHour}
+              speedFactor={speedFactor}
+              startSimulation={startSimulation}
+            />
+          ))}
+      </MapContainer>
+    </div>
   );
 };
 
