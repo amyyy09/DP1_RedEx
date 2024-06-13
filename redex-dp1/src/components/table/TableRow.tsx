@@ -1,8 +1,13 @@
-import { Fragment } from "react";
+import React, { Fragment } from "react";
 import TableCell from "./TableCell";
 import TableOptions from "./TableOptions";
 
-const getEstadoFromRow = (row) => {
+interface TableRowProps {
+  row: any[];
+  options: any[];
+}
+
+const getEstadoFromRow = (row: any[]) => {
   for (let item of row) {
     if (
       typeof item.data === "object" &&
@@ -18,7 +23,7 @@ const getEstadoFromRow = (row) => {
   return null;
 };
 
-const TableRow = ({ row, options }) => {
+const TableRow: React.FC<TableRowProps> = ({ row, options }) => {
   const estado = getEstadoFromRow(row);
   return (
     <tr className="bg-white border-b-l-r hover:bg-gray-100">
@@ -32,11 +37,7 @@ const TableRow = ({ row, options }) => {
                 className={cell.className ? cell.className : ""}
               />
               {options.length > 0 ? (
-                <TableOptions
-                  id={parseInt(row[0].data)}
-                  estado={estado}
-                  options={options}
-                />
+                <TableOptions id={parseInt(row[0].data)} options={options} />
               ) : null}
             </Fragment>
           );

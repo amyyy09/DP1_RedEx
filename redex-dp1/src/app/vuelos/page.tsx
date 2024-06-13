@@ -2,6 +2,7 @@
 import React from "react";
 import VuelosPage from "@/components/VuelosPage";
 import Image from "next/image";
+import FlightPlansPage from "@/components/FightPlanPage";
 
 const pedidos: React.FC = () => {
   return (
@@ -15,7 +16,7 @@ const pedidos: React.FC = () => {
       }}
     >
       <div style={{ flex: 1 }}>
-        <VuelosPage />
+        <FlightPlansPage />
       </div>
       <Image
         src="/image.png"

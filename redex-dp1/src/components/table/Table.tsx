@@ -6,10 +6,24 @@ import {
   getSortedRowModel,
   getPaginationRowModel,
   useReactTable,
+  Table,
+  ColumnDef,
 } from "@tanstack/react-table";
 import TablePagination from "./TablePagination";
 
-const AdvancedTable = ({ data, id, columns, loadingTable }) => {
+interface AdvancedTableProps {
+  data: any[];
+  id: string;
+  columns: ColumnDef<any, any>[];
+  loadingTable: boolean;
+}
+
+const AdvancedTable: React.FC<AdvancedTableProps> = ({
+  data,
+  id,
+  columns,
+  loadingTable,
+}) => {
   const table = useReactTable({
     data,
     columns,
