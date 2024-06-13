@@ -54,7 +54,7 @@ const Map: React.FC<MapProps> = ({
   return (
     <div className="map-container">
       <button onClick={toggleMapMode} className="toggle-button">
-        {isDay ? "Cambiar a Noche" : "Cambiar a Dia"}
+        {isDay ? "Cambiar a Noche" : "Cambiar a Día"}
       </button>
       <MapContainer
         center={[20, 20]}
