@@ -10,7 +10,10 @@ const FlightPlansPage: React.FC = () => {
 
   return (
     <div className="flightplans-container">
-      <TitleWithIcon name="Planes de Vuelo" icon="/icons/rastro.png" />
+      <TitleWithIcon
+        name="Planes de Vuelo"
+        icon="/icons/torre-de-control.png"
+      />
       <AdvancedTable
         data={flightPlans}
         id="code"
