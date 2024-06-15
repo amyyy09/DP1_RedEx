@@ -55,7 +55,7 @@ public class ApiServicesDiario {
             if (!envios.isEmpty()) {
                 resultado = planificacionService.PSODiario(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados, vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
-                json = planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
+                json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(1);
