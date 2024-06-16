@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef  } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
+import '../../styles/popupPlane.css';
 import RotatedMarker from "./RotatedMarker";
 
 const calculateRotationAngle = (
@@ -20,7 +21,7 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
-const Plane: React.FC<PlaneProps> = ({
+const Plane: React.FC<PlaneProps & {isOpen: boolean }> = ({
   vuelo,
   index,
   listVuelos,
@@ -29,10 +30,19 @@ const Plane: React.FC<PlaneProps> = ({
   startHour,
   speedFactor,
   startSimulation,
+  isOpen,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
+  const [showPackages, setShowPackages] = useState(false);
+  const markerRef = useRef<L.Marker>(null);
   const simulatedDate = React.useRef<Date>();
+
+  useEffect(() => {
+    if (markerRef.current && isOpen) {
+      markerRef.current.openPopup();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -192,7 +202,7 @@ const Plane: React.FC<PlaneProps> = ({
         />
       )}
       {isVisible && (
-        <Marker position={position} icon={planeIcon}>
+        <Marker position={position} icon={planeIcon} ref={markerRef}>
           <Popup>
             <div>
               <h2>Detalles de vuelo</h2>
@@ -242,6 +252,21 @@ const Plane: React.FC<PlaneProps> = ({
               <p>
                 <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
               </p>
+              <button
+                onClick={() => setShowPackages(!showPackages)}
+                className="button"
+              >
+                {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
+              </button>
+              {showPackages && (
+                <ul>
+                  {vuelo.paquetes.map((paquete, index) => (
+                    <li key={index}>
+                      <strong>ID:</strong> {paquete.id}, <strong>Status:</strong> {paquete.status}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
           </Popup>
         </Marker>

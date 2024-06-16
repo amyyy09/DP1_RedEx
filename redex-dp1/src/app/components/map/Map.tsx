@@ -8,6 +8,7 @@ import {
   Marker,
   Popup,
   ZoomControl,
+  useMap,
 } from "react-leaflet";
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -22,6 +23,8 @@ interface MapProps {
   startHour: string;
   speedFactor: number;
   startSimulation: boolean;
+  mapCenter: LatLngTuple | null;
+  highlightedPlaneId: string | null;
 }
 
 const customIcon = new L.Icon({
@@ -37,6 +40,18 @@ const customIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
+
+const CenterMap: React.FC<{ mapCenter: LatLngTuple | null }> = ({ mapCenter }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (mapCenter) {
+      map.panTo(mapCenter); // Use panTo to keep the same zoom level
+    }
+  }, [mapCenter, map]);
+
+  return null;
+};
 const Map: React.FC<MapProps> = ({
   planes,
   startTime,
@@ -44,6 +59,8 @@ const Map: React.FC<MapProps> = ({
   startHour,
   speedFactor,
   startSimulation,
+  mapCenter,
+  highlightedPlaneId,
 }) => {
   
   return (
@@ -59,6 +76,8 @@ const Map: React.FC<MapProps> = ({
       />
       {/* Add custom zoom control */}
       <ZoomControl position="topright" />
+
+      <CenterMap mapCenter={mapCenter} />
 
       {cities.map((city, idx) => (
         <Marker
@@ -84,6 +103,7 @@ const Map: React.FC<MapProps> = ({
             startHour={startHour}
             speedFactor={speedFactor}
             startSimulation={startSimulation}
+            isOpen={highlightedPlaneId === plane.idVuelo}
           />
         ))}
     </MapContainer>

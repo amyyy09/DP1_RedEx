@@ -8,36 +8,74 @@ import CurrentTimeDisplay from "./components/map/CurrentTimeDisplay";
 import { Vuelo } from "./types/Planes";
 import "./styles/SimulatedTime.css";
 import { start } from "repl";
-
+import { citiesByCode } from "@/app/data/cities";
 // Datos hardcodeados para pruebas
 const hardcodedVuelos: Vuelo[] = [
   {
     cantPaquetes: 50,
     capacidad: 180,
     status: 1,
-    indexPlan: 0,
-    horaSalida: [2024, 6, 12, 6, 14, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 12, 20, 38, 0], // Año, mes, día, hora, minuto, segundo
-    aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
-    aeropuertoDestino: "RPLL", // Código de ciudad de ejemplo
-    idVuelo: "247-2024-06-11",
+    indexPlan: 2,
+    horaSalida: [2024, 6, 16, 1, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 16, 15, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "SBBR", // Código de ciudad de ejemplo
+    aeropuertoDestino: "SGAS", // Código de ciudad de ejemplo
+    paquetes: [
+      {
+        status: 0,
+        id: "000000004",
+      },
+      {
+        status: 0,
+        id: "000000005",
+      },
+    ],
+    idVuelo: "247-2024-06-12",
+
   },
   {
-    cantPaquetes: 75,
-    capacidad: 200,
+    cantPaquetes: 50,
+    capacidad: 180,
     status: 1,
-    indexPlan: 1,
-    horaSalida: [2024, 6, 12, 1, 10, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 12, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
+    indexPlan: 2,
+    horaSalida: [2024, 6, 16, 1, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 16, 15, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
-    idVuelo: "625-2024-06-11",
+    paquetes: [
+      {
+        status: 0,
+        id: "000000001",
+      },
+      {
+        status: 0,
+        id: "000000002",
+      },
+    ],
+    idVuelo: "247-2024-06-11",
   },
 ];
 
 const DayToDay: React.FC = () => {
   const [vuelos, setVuelos] = useState<Vuelo[]>(hardcodedVuelos);
-  console.log(vuelos);
+  const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
+  const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(null);
+
+  const handleSearch = (id: string) => {
+    // Buscar el paquete por ID
+    const foundVuelo = vuelos.find((vuelo) =>
+      vuelo.paquetes.some((paquete) => paquete.id === id)
+    );
+    if (foundVuelo) {
+      const { aeropuertoOrigen } = foundVuelo;
+      const city = citiesByCode[aeropuertoOrigen];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(foundVuelo.idVuelo);
+      }
+    }
+  };
+
   useEffect(() => {
     setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
   }, []);
@@ -53,7 +91,7 @@ const DayToDay: React.FC = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar />
+      <Topbar onSearch={handleSearch} />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <Map
@@ -63,6 +101,8 @@ const DayToDay: React.FC = () => {
           startHour={new Date().toTimeString().split(" ")[0].substring(0, 5)} // Asigna la hora actual
           speedFactor={1} // Supone 1 como un marcador de posición, ajustar según sea necesario
           startSimulation={true} // Siempre inicia la simulación
+          mapCenter={mapCenter} // Pasa el centro del mapa actualizado
+          highlightedPlaneId={highlightedPlaneId} // Pasa el ID del avión resaltado
         />
         <CurrentTimeDisplay /> {/* Añade el componente de visualización de la hora */}
       </div>
