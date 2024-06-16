@@ -1,7 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import "../../styles/Topbar.css";
 
-const Topbar: React.FC<{ onSearch: (id: string) => void }> = ({ onSearch }) => {
+interface TopbarProps {
+  onSearch: (id: string) => void;
+  errorMessage?: string;  // Añadir 'errorMessage' a las props
+}
+
+const Topbar: React.FC<TopbarProps> = ({ onSearch, errorMessage }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const searchButtonRef = useRef<HTMLDivElement>(null);

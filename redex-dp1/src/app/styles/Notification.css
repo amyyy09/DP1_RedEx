@@ -1,0 +1,31 @@
+.notification {
+    position: absolute;
+    top: 60px;
+    right: 550px;
+    background-color: #f1f3f4;
+    color: #050505;
+    padding: 10px;
+    border: 1px ;
+    border-radius: 4px;
+    z-index: 1000;
+  }
+  
+  .notification p {
+    margin: 0;
+    padding: 0;
+  }
+  
+  .notification button {
+    margin-top: 5px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #dc3545;
+    color: white;
+    cursor: pointer;
+    border-radius: 4px;
+  }
+  
+  .notification button:hover {
+    background-color: #f1b0b7;
+  }
+  

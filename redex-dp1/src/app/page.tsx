@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import Topbar from "./components/layout/Topbar";
 import Sidebar from "./components/layout/Sidebar";
 import CurrentTimeDisplay from "./components/map/CurrentTimeDisplay";
+import Notification from "./components/notificacion/Notification";
 import { Vuelo } from "./types/Planes";
 import "./styles/SimulatedTime.css";
 import { start } from "repl";
@@ -60,6 +61,7 @@ const DayToDay: React.FC = () => {
   const [vuelos, setVuelos] = useState<Vuelo[]>(hardcodedVuelos);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSearch = (id: string) => {
     // Buscar el paquete por ID
@@ -72,7 +74,10 @@ const DayToDay: React.FC = () => {
       if (city) {
         setMapCenter([city.coords.lat, city.coords.lng]);
         setHighlightedPlaneId(foundVuelo.idVuelo);
+        setErrorMessage("");
       }
+    } else {
+      setErrorMessage("ID de paquete no existente");
     }
   };
 
@@ -91,7 +96,7 @@ const DayToDay: React.FC = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar onSearch={handleSearch} />
+      <Topbar onSearch={handleSearch} errorMessage={errorMessage} />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <Map
@@ -106,6 +111,9 @@ const DayToDay: React.FC = () => {
         />
         <CurrentTimeDisplay /> {/* Añade el componente de visualización de la hora */}
       </div>
+      {errorMessage && (
+        <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
+      )}
     </div>
   );
 };
