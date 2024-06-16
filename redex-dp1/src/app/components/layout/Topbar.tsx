@@ -3,7 +3,7 @@ import "../../styles/Topbar.css";
 
 interface TopbarProps {
   onSearch: (id: string) => void;
-  errorMessage?: string;  // Añadir 'errorMessage' a las props
+  errorMessage?: string;
 }
 
 const Topbar: React.FC<TopbarProps> = ({ onSearch, errorMessage }) => {
@@ -13,8 +13,16 @@ const Topbar: React.FC<TopbarProps> = ({ onSearch, errorMessage }) => {
   const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({});
 
   const handleSearch = () => {
-    onSearch(searchTerm);
-    setIsPopupOpen(false); // Close the popup after search
+    if (searchTerm.trim() !== "") {
+      onSearch(searchTerm);
+      setIsPopupOpen(false); // Close the popup after search
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === "Enter") {
+      handleSearch();
+    }
   };
 
   const openPopup = () => {
@@ -70,6 +78,7 @@ const Topbar: React.FC<TopbarProps> = ({ onSearch, errorMessage }) => {
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="ID del paquete"
               className="search-input"
               style={{ color: 'black' }}
