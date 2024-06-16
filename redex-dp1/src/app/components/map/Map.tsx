@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React from "react";
+import React, {useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
