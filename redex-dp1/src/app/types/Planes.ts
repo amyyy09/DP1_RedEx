@@ -16,6 +16,7 @@ export interface PlaneProps {
   // simulatedDate: React.RefObject<Date>;
   speedFactor: number;
   startSimulation: boolean;
+  dayToDay: boolean;
 }
 
 export class Vuelo {

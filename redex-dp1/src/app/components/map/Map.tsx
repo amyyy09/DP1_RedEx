@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -22,6 +22,7 @@ interface MapProps {
   startHour: string;
   speedFactor: number;
   startSimulation: boolean;
+  dayToDay: boolean;
 }
 
 const customIcon = new L.Icon({
@@ -44,8 +45,15 @@ const Map: React.FC<MapProps> = ({
   startHour,
   speedFactor,
   startSimulation,
+  dayToDay,
 }) => {
-  
+  // console.log("startDate", startDate);
+  // console.log("startHour", startHour);
+  console.log("vuelos", planes.current);
+  // console.log("startSimulation", startSimulation);
+  // console.log("speedFactor", speedFactor);
+  // console.log("startTime", startTime.current);
+
   return (
     <MapContainer
       center={[20, 20]}
@@ -72,20 +80,23 @@ const Map: React.FC<MapProps> = ({
 
       {planes.current &&
         planes.current.length > 0 &&
-        planes.current.map((plane, index) => (
-          plane.status !== 2 &&
-          <Plane
-            key={plane.idVuelo}
-            listVuelos={planes.current as Vuelo[]}
-            index={index}
-            vuelo={plane}
-            startTime={startTime}
-            startDate={startDate}
-            startHour={startHour}
-            speedFactor={speedFactor}
-            startSimulation={startSimulation}
-          />
-        ))}
+        planes.current.map(
+          (plane, index) =>
+            plane.status !== 2 && (
+              <Plane
+                key={plane.idVuelo}
+                listVuelos={planes.current as Vuelo[]}
+                index={index}
+                vuelo={plane}
+                startTime={startTime}
+                startDate={startDate}
+                startHour={startHour}
+                speedFactor={speedFactor}
+                startSimulation={startSimulation}
+                dayToDay={dayToDay}
+              />
+            )
+        )}
     </MapContainer>
   );
 };
