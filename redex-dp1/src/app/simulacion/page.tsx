@@ -31,8 +31,8 @@ const Simulation: React.FC = () => {
   // States for map center and highlighted plane ID
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(null);
-  const [forceOpenPopup, setForceOpenPopup] = useState<boolean>(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [forceOpenPopup, setForceOpenPopup] = useState(false);
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!startSimulation) return;
@@ -134,16 +134,14 @@ const Simulation: React.FC = () => {
         setMapCenter([city.coords.lat, city.coords.lng]);
         setHighlightedPlaneId(foundVuelo.idVuelo);
         setForceOpenPopup(true);
-        setErrorMessage("");
+        setSelectedPackageId(id);
       }
-    } else {
-      setErrorMessage("ID de paquete no existente");
     }
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar onSearch={handleSearch} errorMessage={errorMessage} />
+      <Topbar onSearch={handleSearch} />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <div style={{ display: "flex", flex: 1, position: "relative", overflow: "hidden" }}>
@@ -157,6 +155,7 @@ const Simulation: React.FC = () => {
             mapCenter={mapCenter}
             highlightedPlaneId={highlightedPlaneId}
             forceOpenPopup={forceOpenPopup}
+            selectedPackageId={selectedPackageId}
             setForceOpenPopup={setForceOpenPopup}
           />
           {/* Contenedor para el tiempo simulado */}

@@ -23,8 +23,9 @@ interface MapProps {
   startHour: string;
   speedFactor: number;
   startSimulation: boolean;
-  mapCenter: [number, number] | null;
+  mapCenter: LatLngTuple | null;
   highlightedPlaneId: string | null;
+  selectedPackageId: string | null;
   forceOpenPopup: boolean;
   setForceOpenPopup: (value: boolean) => void;
 }
@@ -51,6 +52,7 @@ const Map: React.FC<MapProps> = ({
   startSimulation,
   mapCenter,
   highlightedPlaneId,
+  selectedPackageId,
   forceOpenPopup,
   setForceOpenPopup,
 }) => {
@@ -96,6 +98,7 @@ const Map: React.FC<MapProps> = ({
             startSimulation={startSimulation}
             isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado
             setForceOpenPopup={setForceOpenPopup}
+            selectedPackageId={selectedPackageId} // Pass the selected package ID
           />
         ))}
     </MapContainer>

@@ -21,7 +21,7 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
-const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void }> = ({
+const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void; selectedPackageId: string | null }> = ({
   vuelo,
   index,
   listVuelos,
@@ -32,12 +32,15 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   startSimulation,
   isOpen,
   setForceOpenPopup,
+  selectedPackageId,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
   const [showPackages, setShowPackages] = useState(false);
   const markerRef = useRef<L.Marker>(null);
   const simulatedDate = React.useRef<Date>();
+  const selectedPackageRef = useRef<HTMLLIElement>(null);
+  const packagesListRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -175,9 +178,23 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   useEffect(() => {
     if (markerRef.current && isOpen) {
       markerRef.current.openPopup();
+      setShowPackages(true); // Automatically show packages
       setForceOpenPopup(false); // Reset the forceOpenPopup state after opening
     }
   }, [isOpen, setForceOpenPopup]);
+
+  useEffect(() => {
+    if (showPackages && selectedPackageRef.current && packagesListRef.current) {
+      packagesListRef.current.scrollTo({
+        top: selectedPackageRef.current.offsetTop - packagesListRef.current.offsetTop,
+        behavior: "smooth"
+      });
+    }
+  }, [showPackages]);
+
+  const handlePopupClose = () => {
+    setShowPackages(false);
+  };
 
   if (!isVisible) {
     return null;
@@ -202,9 +219,13 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
       )}
       {isVisible && (
         <Marker position={position} icon={planeIcon} ref={markerRef}>
-          <Popup>
+          <Popup
+            eventHandlers={{
+              remove: handlePopupClose,
+            }}
+          >
             <div>
-              <h2>Detalles de vuelo</h2>
+              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo</h2>
               <p>
                 <strong>Origen:</strong>{" "}
                 {citiesByCode[vuelo.aeropuertoOrigen].name}
@@ -254,17 +275,28 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
               <button
                 onClick={() => setShowPackages(!showPackages)}
                 className="button"
+                style={{ fontSize: "0.8em", padding: "5px 10px" }}
               >
                 {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
               </button>
               {showPackages && vuelo.paquetes && (
-                <ul>
-                  {vuelo.paquetes.map((paquete, index) => (
-                    <li key={index}>
-                      <strong>ID:</strong> {paquete.id}, <strong>Status:</strong> {paquete.status}
-                    </li>
-                  ))}
-                </ul>
+                <div ref={packagesListRef} style={{ maxHeight: "100px", overflowY: "auto" }}>
+                  <ul>
+                    {vuelo.paquetes.map((paquete, index) => (
+                      <li
+                        key={index}
+                        ref={paquete.id === selectedPackageId ? selectedPackageRef : null}
+                        style={{
+                          fontWeight: paquete.id === selectedPackageId ? "bold" : "normal",
+                          fontSize: paquete.id === selectedPackageId ? "1.2em" : "1em", // Change font size for selected package
+                          color: paquete.id === selectedPackageId ? "red" : "black", // Change color for selected package
+                        }}
+                      >
+                        <strong>ID:</strong> {paquete.id}, <strong>Status:</strong> {paquete.status}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               )}
             </div>
           </Popup>
