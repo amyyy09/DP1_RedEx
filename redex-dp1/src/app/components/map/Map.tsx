@@ -1,20 +1,20 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, {useEffect } from "react";
+import React from "react";
 import {
   MapContainer,
   TileLayer,
   Marker,
   Popup,
   ZoomControl,
-  useMap,
 } from "react-leaflet";
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
 import { Vuelo } from "@/app/types/Planes";
 import { cities } from "@/app/data/cities";
+import MapCenter from "./MapCenter";
 
 interface MapProps {
   planes: React.RefObject<Vuelo[]>;
@@ -23,8 +23,10 @@ interface MapProps {
   startHour: string;
   speedFactor: number;
   startSimulation: boolean;
-  mapCenter: LatLngTuple | null;
+  mapCenter: [number, number] | null;
   highlightedPlaneId: string | null;
+  forceOpenPopup: boolean;
+  setForceOpenPopup: (value: boolean) => void;
 }
 
 const customIcon = new L.Icon({
@@ -40,18 +42,6 @@ const customIcon = new L.Icon({
   shadowSize: [41, 41],
 });
 
-
-const CenterMap: React.FC<{ mapCenter: LatLngTuple | null }> = ({ mapCenter }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (mapCenter) {
-      map.panTo(mapCenter); // Use panTo to keep the same zoom level
-    }
-  }, [mapCenter, map]);
-
-  return null;
-};
 const Map: React.FC<MapProps> = ({
   planes,
   startTime,
@@ -61,8 +51,9 @@ const Map: React.FC<MapProps> = ({
   startSimulation,
   mapCenter,
   highlightedPlaneId,
+  forceOpenPopup,
+  setForceOpenPopup,
 }) => {
-  
   return (
     <MapContainer
       center={[20, 20]}
@@ -77,7 +68,7 @@ const Map: React.FC<MapProps> = ({
       {/* Add custom zoom control */}
       <ZoomControl position="topright" />
 
-      <CenterMap mapCenter={mapCenter} />
+      {mapCenter && <MapCenter center={mapCenter} />}
 
       {cities.map((city, idx) => (
         <Marker
@@ -103,7 +94,8 @@ const Map: React.FC<MapProps> = ({
             startHour={startHour}
             speedFactor={speedFactor}
             startSimulation={startSimulation}
-            isOpen={highlightedPlaneId === plane.idVuelo}
+            isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado
+            setForceOpenPopup={setForceOpenPopup}
           />
         ))}
     </MapContainer>

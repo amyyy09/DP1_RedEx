@@ -1,5 +1,5 @@
 import React, { useState, useEffect,useRef  } from "react";
-import { Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { Marker, Popup, Polyline } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
@@ -21,7 +21,7 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
-const Plane: React.FC<PlaneProps & {isOpen: boolean }> = ({
+const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void }> = ({
   vuelo,
   index,
   listVuelos,
@@ -31,6 +31,7 @@ const Plane: React.FC<PlaneProps & {isOpen: boolean }> = ({
   speedFactor,
   startSimulation,
   isOpen,
+  setForceOpenPopup,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
@@ -39,19 +40,12 @@ const Plane: React.FC<PlaneProps & {isOpen: boolean }> = ({
   const simulatedDate = React.useRef<Date>();
 
   useEffect(() => {
-    if (markerRef.current && isOpen) {
-      markerRef.current.openPopup();
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
     // console.log("Plane vuelo", vuelo);
     // console.log("startSimulation", startSimulation);
     // console.log("startTime", startTime);
     // console.log("startDate", startDate);
     // console.log("startHour", startHour);
     // console.log("speedFactor", speedFactor);
-
     if (!startSimulation) return;
 
     //console.log("plane started");
@@ -160,7 +154,6 @@ const Plane: React.FC<PlaneProps & {isOpen: boolean }> = ({
     // Call updateSimulatedTime every second
     const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
 
-    // Clean up on unmount
     return () => {
       clearInterval(intervalId);
     };
@@ -179,6 +172,12 @@ const Plane: React.FC<PlaneProps & {isOpen: boolean }> = ({
     // const intervalId = setInterval(updatePlanePosition, 1000 / speedFactor);
     // return () => clearInterval(intervalId);
   }, [simulatedDate.current, speedFactor]);
+  useEffect(() => {
+    if (markerRef.current && isOpen) {
+      markerRef.current.openPopup();
+      setForceOpenPopup(false); // Reset the forceOpenPopup state after opening
+    }
+  }, [isOpen, setForceOpenPopup]);
 
   if (!isVisible) {
     return null;

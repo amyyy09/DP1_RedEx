@@ -61,6 +61,7 @@ const DayToDay: React.FC = () => {
   const [vuelos, setVuelos] = useState<Vuelo[]>(hardcodedVuelos);
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
   const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(null);
+  const [forceOpenPopup, setForceOpenPopup] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleSearch = (id: string) => {
@@ -74,6 +75,7 @@ const DayToDay: React.FC = () => {
       if (city) {
         setMapCenter([city.coords.lat, city.coords.lng]);
         setHighlightedPlaneId(foundVuelo.idVuelo);
+        setForceOpenPopup(true);
         setErrorMessage("");
       }
     } else {
@@ -108,6 +110,8 @@ const DayToDay: React.FC = () => {
           startSimulation={true} // Siempre inicia la simulación
           mapCenter={mapCenter} // Pasa el centro del mapa actualizado
           highlightedPlaneId={highlightedPlaneId} // Pasa el ID del avión resaltado
+          forceOpenPopup={forceOpenPopup} // Fuerza la apertura del popup
+          setForceOpenPopup={setForceOpenPopup} // Resetea el estado de fuerza del popup
         />
         <CurrentTimeDisplay /> {/* Añade el componente de visualización de la hora */}
       </div>
