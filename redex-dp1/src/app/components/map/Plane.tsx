@@ -258,7 +258,7 @@ const Plane: React.FC<PlaneProps & {isOpen: boolean }> = ({
               >
                 {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
               </button>
-              {showPackages && (
+              {showPackages && vuelo.paquetes && (
                 <ul>
                   {vuelo.paquetes.map((paquete, index) => (
                     <li key={index}>
