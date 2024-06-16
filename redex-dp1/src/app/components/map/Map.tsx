@@ -49,7 +49,7 @@ const Map: React.FC<MapProps> = ({
 }) => {
   // console.log("startDate", startDate);
   // console.log("startHour", startHour);
-  console.log("vuelos", planes.current);
+  // console.log("vuelos", planes.current);
   // console.log("startSimulation", startSimulation);
   // console.log("speedFactor", speedFactor);
   // console.log("startTime", startTime.current);

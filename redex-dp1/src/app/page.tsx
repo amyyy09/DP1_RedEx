@@ -17,7 +17,7 @@ const hardcodedVuelos: Vuelo[] = [
     status: 1,
     indexPlan: 0,
     horaSalida: [2024, 6, 16, 9, 30, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 17, 20, 38, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 17, 17, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "RPLL", // Código de ciudad de ejemplo
     idVuelo: "247-2024-06-11",
@@ -28,7 +28,7 @@ const hardcodedVuelos: Vuelo[] = [
     status: 1,
     indexPlan: 1,
     horaSalida: [2024, 6, 16, 9, 29, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 17, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 16, 17, 52, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "LKPR", // Código de ciudad de ejemplo
     idVuelo: "625-2024-06-11",
