@@ -30,6 +30,7 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   startHour,
   speedFactor,
   startSimulation,
+  dayToDay,
   isOpen,
   setForceOpenPopup,
   selectedPackageId,
@@ -42,6 +43,92 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   const selectedPackageRef = useRef<HTMLLIElement>(null);
   const packagesListRef = useRef<HTMLDivElement>(null);
 
+  // console.log("vuelo", vuelo);
+
+  
+
+  if(dayToDay){
+    const updateTime = () => {
+      if (!dayToDay) return;
+      const currentTime = new Date();
+      const origin = citiesByCode[vuelo.aeropuertoOrigen];
+      const destiny = citiesByCode[vuelo.aeropuertoDestino];
+  
+      // Get the origin and destiny city's GMT offsets in minutes
+      const originGMTOffset = origin.GMT;
+      const destinyGMTOffset = destiny.GMT;
+  
+      // Convert the departure and arrival times to the system's timezone
+      // Subtract 1 from the month to make it 0-indexed
+      const horaSalida = arrayToTime(vuelo.horaSalida);
+      // console.log("horaSalida vuelo", vuelo.horaSalida);
+      // console.log("horaSalida inicial", horaSalida);
+      // console.log("systemTimezoneOffset", systemTimezoneOffset);
+      // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
+  
+      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
+      //console.log("offset", originGMTOffset);
+      // console.log("horaSalida after", horaSalida);
+  
+      const horaLlegada = arrayToTime(vuelo.horaLlegada);
+      //console.log("horaLlegada inicial", horaLlegada);
+      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
+  
+      if (
+        currentTime &&
+        (currentTime > horaLlegada || currentTime < horaSalida)
+      ) {
+        setIsVisible(false);
+  
+        if (currentTime > horaLlegada) {
+          console.log("Plane has arrived");
+          console.log("horaLlegada aquí", horaLlegada);
+          vuelo.status = 2;
+          clearInterval(intervalId);
+          listVuelos.splice(index, 1);
+          console.log("listVuelos", listVuelos.length);
+        }
+        // console.log("Plane is not visible");
+        // console.log("simulatedDate.current", simulatedDate.current);
+        // console.log("horaSalida aquí", horaSalida);
+        // console.log("horaLlegada aquí", horaLlegada);
+  
+        return;
+      }
+  
+      if (
+        currentTime &&
+        currentTime >= horaSalida &&
+        currentTime <= horaLlegada
+      ) {
+        // console.log("Plane is visible");
+        // console.log("simulatedDate.current", simulatedDate.current);
+        // console.log("horaSalida", horaSalida);
+        setIsVisible(true);
+      }
+  
+      const progress =
+        ((currentTime?.getTime() ?? 0) - horaSalida.getTime()) /
+        (horaLlegada.getTime() - horaSalida.getTime());
+  
+      // console.log("progress", progress);
+      // console.log("simulatedDate.current", simulatedDate.current);
+      // console.log("horaSalida", horaSalida);
+      // console.log("horaLlegada", horaLlegada);
+  
+      const newLat =
+        origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
+  
+      const newLng =
+        origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
+  
+      setPosition([newLat, newLng] as LatLngExpression);
+    };
+    // console.log("dayToDay", dayToDay);
+    const intervalId = setInterval(updateTime, 1000);
+  }
+
+
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
     // console.log("startSimulation", startSimulation);
@@ -49,9 +136,10 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
     // console.log("startDate", startDate);
     // console.log("startHour", startHour);
     // console.log("speedFactor", speedFactor);
-    if (!startSimulation) return;
+    if (!startSimulation || dayToDay) return;
 
-    //console.log("plane started");
+
+    // console.log("plane started");
 
     // Update the simulated time
     const updateSimulatedTime = () => {
@@ -95,7 +183,7 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
 
       horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
       //console.log("offset", originGMTOffset);
-      //console.log("horaSalida after", horaSalida);
+      // console.log("horaSalida after", horaSalida);
 
       const horaLlegada = arrayToTime(vuelo.horaLlegada);
       //console.log("horaLlegada inicial", horaLlegada);
@@ -107,7 +195,7 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
           simulatedDate.current < horaSalida)
       ) {
         setIsVisible(false);
-        
+
         if (simulatedDate.current > horaLlegada) {
           console.log("Plane has arrived");
           console.log("horaLlegada aquí", horaLlegada);

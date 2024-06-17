@@ -24,6 +24,7 @@ const Simulation: React.FC = () => {
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
+  const dayToDay = false;
 
   // State to store the display time
   const [displayTime, setDisplayTime] = useState("");
@@ -152,6 +153,7 @@ const Simulation: React.FC = () => {
             startHour={startHour}
             speedFactor={speedFactor}
             startSimulation={startSimulation}
+            dayToDay={dayToDay}
             mapCenter={mapCenter}
             highlightedPlaneId={highlightedPlaneId}
             forceOpenPopup={forceOpenPopup}
@@ -159,11 +161,11 @@ const Simulation: React.FC = () => {
             setForceOpenPopup={setForceOpenPopup}
           />
           {/* Contenedor para el tiempo simulado */}
-          {startSimulation && (
+          {/* {startSimulation && (
             <div className="simulated-time-container">
               Fecha de simulación: {displayTime}
             </div>
-          )}
+          )} */}
           {showModal && (
             <ConfigurationModal
               onApply={handleApplyConfiguration}

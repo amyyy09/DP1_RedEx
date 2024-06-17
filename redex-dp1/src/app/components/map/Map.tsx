@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -23,6 +23,7 @@ interface MapProps {
   startHour: string;
   speedFactor: number;
   startSimulation: boolean;
+  dayToDay: boolean;
   mapCenter: LatLngTuple | null;
   highlightedPlaneId: string | null;
   selectedPackageId: string | null;
@@ -50,6 +51,7 @@ const Map: React.FC<MapProps> = ({
   startHour,
   speedFactor,
   startSimulation,
+  dayToDay,
   mapCenter,
   highlightedPlaneId,
   selectedPackageId,
@@ -96,7 +98,8 @@ const Map: React.FC<MapProps> = ({
             startHour={startHour}
             speedFactor={speedFactor}
             startSimulation={startSimulation}
-            isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado
+             dayToDay={dayToDay}
+            isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado           
             setForceOpenPopup={setForceOpenPopup}
             selectedPackageId={selectedPackageId} // Pass the selected package ID
           />
