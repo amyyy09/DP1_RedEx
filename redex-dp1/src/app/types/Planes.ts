@@ -28,6 +28,7 @@ export class Vuelo {
   horaLlegada: Array<number>;
   aeropuertoOrigen: string;
   aeropuertoDestino: string;
+  paquetes: Array<{ status: number; id: string }>;
   idVuelo: string;
 
   constructor(data: any) {
@@ -41,6 +42,7 @@ export class Vuelo {
     // this.horaLlegada = new Date(data.horaLlegada[0], data.horaLlegada[1] - 1, data.horaLlegada[2], data.horaLlegada[3], data.horaLlegada[4]);
     this.aeropuertoOrigen = data.aeropuertoOrigen;
     this.aeropuertoDestino = data.aeropuertoDestino;
+    this.paquetes = data.paquetes || [];
     this.idVuelo = data.idVuelo;
   }
 }

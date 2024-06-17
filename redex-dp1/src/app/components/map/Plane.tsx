@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef  } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
+import '../../styles/popupPlane.css';
 import RotatedMarker from "./RotatedMarker";
 
 const calculateRotationAngle = (
@@ -20,7 +21,7 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
-const Plane: React.FC<PlaneProps> = ({
+const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void; selectedPackageId: string | null }> = ({
   vuelo,
   index,
   listVuelos,
@@ -30,10 +31,17 @@ const Plane: React.FC<PlaneProps> = ({
   speedFactor,
   startSimulation,
   dayToDay,
+  isOpen,
+  setForceOpenPopup,
+  selectedPackageId,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
+  const [showPackages, setShowPackages] = useState(false);
+  const markerRef = useRef<L.Marker>(null);
   const simulatedDate = React.useRef<Date>();
+  const selectedPackageRef = useRef<HTMLLIElement>(null);
+  const packagesListRef = useRef<HTMLDivElement>(null);
 
   // console.log("vuelo", vuelo);
 
@@ -128,8 +136,8 @@ const Plane: React.FC<PlaneProps> = ({
     // console.log("startDate", startDate);
     // console.log("startHour", startHour);
     // console.log("speedFactor", speedFactor);
-
     if (!startSimulation || dayToDay) return;
+
 
     // console.log("plane started");
 
@@ -237,7 +245,6 @@ const Plane: React.FC<PlaneProps> = ({
     // Call updateSimulatedTime every second
     const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
 
-    // Clean up on unmount
     return () => {
       clearInterval(intervalId);
     };
@@ -256,6 +263,26 @@ const Plane: React.FC<PlaneProps> = ({
     // const intervalId = setInterval(updatePlanePosition, 1000 / speedFactor);
     // return () => clearInterval(intervalId);
   }, [simulatedDate.current, speedFactor]);
+  useEffect(() => {
+    if (markerRef.current && isOpen) {
+      markerRef.current.openPopup();
+      setShowPackages(true); // Automatically show packages
+      setForceOpenPopup(false); // Reset the forceOpenPopup state after opening
+    }
+  }, [isOpen, setForceOpenPopup]);
+
+  useEffect(() => {
+    if (showPackages && selectedPackageRef.current && packagesListRef.current) {
+      packagesListRef.current.scrollTo({
+        top: selectedPackageRef.current.offsetTop - packagesListRef.current.offsetTop,
+        behavior: "smooth"
+      });
+    }
+  }, [showPackages]);
+
+  const handlePopupClose = () => {
+    setShowPackages(false);
+  };
 
   if (!isVisible) {
     return null;
@@ -279,10 +306,14 @@ const Plane: React.FC<PlaneProps> = ({
         />
       )}
       {isVisible && (
-        <Marker position={position} icon={planeIcon}>
-          <Popup>
+        <Marker position={position} icon={planeIcon} ref={markerRef}>
+          <Popup
+            eventHandlers={{
+              remove: handlePopupClose,
+            }}
+          >
             <div>
-              <h2>Detalles de vuelo</h2>
+              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo</h2>
               <p>
                 <strong>Origen:</strong>{" "}
                 {citiesByCode[vuelo.aeropuertoOrigen].name}
@@ -329,6 +360,32 @@ const Plane: React.FC<PlaneProps> = ({
               <p>
                 <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
               </p>
+              <button
+                onClick={() => setShowPackages(!showPackages)}
+                className="button"
+                style={{ fontSize: "0.8em", padding: "5px 10px" }}
+              >
+                {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
+              </button>
+              {showPackages && vuelo.paquetes && (
+                <div ref={packagesListRef} style={{ maxHeight: "100px", overflowY: "auto" }}>
+                  <ul>
+                    {vuelo.paquetes.map((paquete, index) => (
+                      <li
+                        key={index}
+                        ref={paquete.id === selectedPackageId ? selectedPackageRef : null}
+                        style={{
+                          fontWeight: paquete.id === selectedPackageId ? "bold" : "normal",
+                          fontSize: paquete.id === selectedPackageId ? "1.2em" : "1em", // Change font size for selected package
+                          color: paquete.id === selectedPackageId ? "red" : "black", // Change color for selected package
+                        }}
+                      >
+                        <strong>ID:</strong> {paquete.id}, <strong>Status:</strong> {paquete.status}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           </Popup>
         </Marker>

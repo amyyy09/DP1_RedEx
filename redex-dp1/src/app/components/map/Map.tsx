@@ -14,6 +14,7 @@ import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
 import { Vuelo } from "@/app/types/Planes";
 import { cities } from "@/app/data/cities";
+import MapCenter from "./MapCenter";
 
 interface MapProps {
   planes: React.RefObject<Vuelo[]>;
@@ -23,6 +24,11 @@ interface MapProps {
   speedFactor: number;
   startSimulation: boolean;
   dayToDay: boolean;
+  mapCenter: LatLngTuple | null;
+  highlightedPlaneId: string | null;
+  selectedPackageId: string | null;
+  forceOpenPopup: boolean;
+  setForceOpenPopup: (value: boolean) => void;
 }
 
 const customIcon = new L.Icon({
@@ -46,14 +52,12 @@ const Map: React.FC<MapProps> = ({
   speedFactor,
   startSimulation,
   dayToDay,
+  mapCenter,
+  highlightedPlaneId,
+  selectedPackageId,
+  forceOpenPopup,
+  setForceOpenPopup,
 }) => {
-  // console.log("startDate", startDate);
-  // console.log("startHour", startHour);
-  // console.log("vuelos", planes.current);
-  // console.log("startSimulation", startSimulation);
-  // console.log("speedFactor", speedFactor);
-  // console.log("startTime", startTime.current);
-
   return (
     <MapContainer
       center={[20, 20]}
@@ -68,6 +72,8 @@ const Map: React.FC<MapProps> = ({
       {/* Add custom zoom control */}
       <ZoomControl position="topright" />
 
+      {mapCenter && <MapCenter center={mapCenter} />}
+
       {cities.map((city, idx) => (
         <Marker
           key={idx}
@@ -80,23 +86,24 @@ const Map: React.FC<MapProps> = ({
 
       {planes.current &&
         planes.current.length > 0 &&
-        planes.current.map(
-          (plane, index) =>
-            plane.status !== 2 && (
-              <Plane
-                key={plane.idVuelo}
-                listVuelos={planes.current as Vuelo[]}
-                index={index}
-                vuelo={plane}
-                startTime={startTime}
-                startDate={startDate}
-                startHour={startHour}
-                speedFactor={speedFactor}
-                startSimulation={startSimulation}
-                dayToDay={dayToDay}
-              />
-            )
-        )}
+        planes.current.map((plane, index) => (
+          plane.status !== 2 &&
+          <Plane
+            key={plane.idVuelo}
+            listVuelos={planes.current as Vuelo[]}
+            index={index}
+            vuelo={plane}
+            startTime={startTime}
+            startDate={startDate}
+            startHour={startHour}
+            speedFactor={speedFactor}
+            startSimulation={startSimulation}
+             dayToDay={dayToDay}
+            isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado           
+            setForceOpenPopup={setForceOpenPopup}
+            selectedPackageId={selectedPackageId} // Pass the selected package ID
+          />
+        ))}
     </MapContainer>
   );
 };
