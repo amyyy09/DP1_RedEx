@@ -97,7 +97,7 @@ const DayToDay: React.FC = () => {
   
   const handleSearch = (id: string) => {
     // Buscar el paquete por ID
-    const foundVuelo = flights.current.find((vuelo) =>
+    const foundVuelo = flights.current.find((vuelo: { paquetes: any[]; }) =>
       vuelo.paquetes.some((paquete) => paquete.id === id)
     );
     if (foundVuelo) {
@@ -141,10 +141,20 @@ const DayToDay: React.FC = () => {
         capacidad: 200,
         status: 1,
         indexPlan: 1,
-        horaSalida: [2024, 6, 16, 9, 29, 0], // Año, mes, día, hora, minuto, segundo
-        horaLlegada: [2024, 6, 16, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
+        horaSalida: [2024, 6, 16, 16, 29, 0], // Año, mes, día, hora, minuto, segundo
+        horaLlegada: [2024, 6, 17, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
         aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
         aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
+        paquetes: [
+          {
+            status: 0,
+            id: "000000001",
+          },
+          {
+            status: 0,
+            id: "000000002",
+          },
+        ],
         idVuelo: "626-2024-06-11",
       },
     ];
