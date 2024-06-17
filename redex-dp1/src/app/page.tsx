@@ -17,8 +17,8 @@ const hardcodedVuelos: Vuelo[] = [
     capacidad: 180,
     status: 1,
     indexPlan: 2,
-    horaSalida: [2024, 6, 16, 1, 14, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 16, 15, 38, 0], // Año, mes, día, hora, minuto, segundo
+    horaSalida: [2024, 6, 16, 20, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 17, 22, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SBBR", // Código de ciudad de ejemplo
     aeropuertoDestino: "SGAS", // Código de ciudad de ejemplo
     paquetes: [
@@ -59,8 +59,8 @@ const hardcodedVuelos: Vuelo[] = [
     capacidad: 180,
     status: 1,
     indexPlan: 2,
-    horaSalida: [2024, 6, 16, 1, 14, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 16, 15, 38, 0], // Año, mes, día, hora, minuto, segundo
+    horaSalida: [2024, 6, 17, 0, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 17, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
     paquetes: [
@@ -107,6 +107,7 @@ const DayToDay: React.FC = () => {
 
   useEffect(() => {
     setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
+    console.log("Vuelos hardcodeados:", vuelos);
   }, []);
 
   const Map = useMemo(
