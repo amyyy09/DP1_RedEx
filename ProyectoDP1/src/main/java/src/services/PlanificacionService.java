@@ -455,8 +455,8 @@ public class PlanificacionService {
         return new ArrayList<>(vuelosNuevosMap.values());
     }
 
-    public List<VueloNuevo> transformarResultadosDiario(Map<Paquete, Resultado> resultados, List<PlanDeVuelo> planesDeVuelo) {
-        Map<String, VueloNuevo> vuelosNuevosMap = new HashMap<>();
+    public List<Vuelo> transformarResultadosDiario(Map<Paquete, Resultado> resultados, List<PlanDeVuelo> planesDeVuelo) {
+        Map<String, Vuelo> vuelosNuevosMap = new HashMap<>();
 
         // Mapear indexPlan a PlanDeVuelo para facilitar la búsqueda
         Map<Integer, PlanDeVuelo> planesDeVueloMap = new HashMap<>();
@@ -484,7 +484,7 @@ public class PlanificacionService {
                         continue; // Saltar iteración si planDeVuelo es nulo
                     }
 
-                    VueloNuevo vueloNuevo = new VueloNuevo();
+                    Vuelo vueloNuevo = new Vuelo();
                     vueloNuevo.setIdVuelo(idVuelo);
                     vueloNuevo.setCantPaquetes(1);
                     vueloNuevo.setCapacidad(vuelo.getCapacidad());
@@ -499,7 +499,7 @@ public class PlanificacionService {
 
                     vuelosNuevosMap.put(idVuelo, vueloNuevo);
                 } else {
-                    VueloNuevo vueloExistente = vuelosNuevosMap.get(idVuelo);
+                    Vuelo vueloExistente = vuelosNuevosMap.get(idVuelo);
                     vueloExistente.setCantPaquetes(vueloExistente.getCantPaquetes() + 1);
                     vueloExistente.getPaquetes().add(paquete);
                 }
