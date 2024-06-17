@@ -58,6 +58,9 @@ const Map: React.FC<MapProps> = ({
   forceOpenPopup,
   setForceOpenPopup,
 }) => {
+
+  // console.log("planes",planes.current);
+
   return (
     <MapContainer
       center={[20, 20]}

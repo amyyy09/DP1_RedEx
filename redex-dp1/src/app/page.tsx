@@ -9,9 +9,6 @@ import Notification from "./components/notificacion/Notification";
 import { Vuelo } from "./types/Planes";
 import "./styles/SimulatedTime.css";
 import { OperationContext } from "./context/operation-provider";
-
-
-import { start } from "repl";
 import { citiesByCode } from "@/app/data/cities";
 // Datos hardcodeados para pruebas
 const hardcodedVuelos: Vuelo[] = [
@@ -21,9 +18,9 @@ const hardcodedVuelos: Vuelo[] = [
     status: 1,
 
     indexPlan: 2,
-    horaSalida: [2024, 6, 16, 20, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaSalida: [2024, 6, 16, 16, 14, 0], // Año, mes, día, hora, minuto, segundo
     horaLlegada: [2024, 6, 17, 22, 38, 0], // Año, mes, día, hora, minuto, segundo
-    aeropuertoOrigen: "SBBR", // Código de ciudad de ejemplo
+    aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "SGAS", // Código de ciudad de ejemplo
     paquetes: [
       {
@@ -63,7 +60,7 @@ const hardcodedVuelos: Vuelo[] = [
     capacidad: 180,
     status: 1,
     indexPlan: 2,
-    horaSalida: [2024, 6, 17, 0, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaSalida: [2024, 6, 16, 16, 14, 0], // Año, mes, día, hora, minuto, segundo
     horaLlegada: [2024, 6, 17, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
@@ -97,6 +94,7 @@ const DayToDay: React.FC = () => {
   
   const handleSearch = (id: string) => {
     // Buscar el paquete por ID
+    console.log("vuelos búsqueda",flights.current);
     const foundVuelo = flights.current.find((vuelo: { paquetes: any[]; }) =>
       vuelo.paquetes.some((paquete) => paquete.id === id)
     );
@@ -144,15 +142,15 @@ const DayToDay: React.FC = () => {
         horaSalida: [2024, 6, 16, 16, 29, 0], // Año, mes, día, hora, minuto, segundo
         horaLlegada: [2024, 6, 17, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
         aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
-        aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
+        aeropuertoDestino: "ZBAA", // Código de ciudad de ejemplo
         paquetes: [
           {
             status: 0,
-            id: "000000001",
+            id: "000000003",
           },
           {
             status: 0,
-            id: "000000002",
+            id: "000000011",
           },
         ],
         idVuelo: "626-2024-06-11",
@@ -185,7 +183,7 @@ const DayToDay: React.FC = () => {
         />
         <CurrentTimeDisplay />{" "}
         {/* Añade el componente de visualización de la hora */}
-        {/* <button onClick={addFlights}>Add Flights</button> */}
+        <button onClick={addFlights}>Add Flights</button>
       </div>
       {errorMessage && (
         <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
