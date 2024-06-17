@@ -42,8 +42,7 @@ public class ApiServicesDiario {
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
         String jsonResult = null;
-        LocalDateTime fechaHora = LocalDateTime.now();
-
+        LocalDateTime fechaHora= LocalDateTime.now();
         try {
             String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
