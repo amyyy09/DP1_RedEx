@@ -1,6 +1,7 @@
+"use client";
 import React, { FC, useState } from "react";
 import { useRouter } from "next/navigation";
-import "../../styles/Sidebar.css";
+import "@/styles/Sidebar.css";
 
 const Sidebar: FC = () => {
   const router = useRouter();

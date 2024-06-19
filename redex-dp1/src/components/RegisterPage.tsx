@@ -112,7 +112,7 @@ const RegisterPage: React.FC = () => {
       cantPaquetes: parseInt(formData.packageCount),
       paquetes: [], // Puedes dejarlo vacío si no tienes la información de los paquetes
     };
-
+    console.log(envio);
     saveShipmentData(envio);
   };
 
