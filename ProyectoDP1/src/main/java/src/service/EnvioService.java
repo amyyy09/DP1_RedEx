@@ -110,9 +110,8 @@ public class EnvioService {
         Envio envio = new Envio(idEnvio, fechaHoraOrigen, zonaHorariaGMT, codigoIATAOrigen, codigoIATADestino,
                 cantPaquetes, new ArrayList<>());
 
-        // Crear los paquetes
         for (int i = 0; i < cantPaquetes; i++) {
-            Paquete paquete = new Paquete(idEnvio, i + 1, envio); // Los IDs de paquete empiezan en 1
+            Paquete paquete = new Paquete(idEnvio, i + 1, envio);
             envio.getPaquetes().add(paquete);
         }
 
