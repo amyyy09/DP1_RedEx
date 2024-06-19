@@ -18,8 +18,8 @@ const hardcodedVuelos: Vuelo[] = [
     status: 1,
 
     indexPlan: 2,
-    horaSalida: [2024, 6, 16, 16, 14, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 17, 22, 38, 0], // Año, mes, día, hora, minuto, segundo
+    horaSalida: [2024, 6, 19, 10, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 19, 22, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "SGAS", // Código de ciudad de ejemplo
     paquetes: [
@@ -60,8 +60,8 @@ const hardcodedVuelos: Vuelo[] = [
     capacidad: 180,
     status: 1,
     indexPlan: 2,
-    horaSalida: [2024, 6, 16, 16, 14, 0], // Año, mes, día, hora, minuto, segundo
-    horaLlegada: [2024, 6, 17, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
+    horaSalida: [2024, 6, 19, 10, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 19, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
     aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
     aeropuertoDestino: "SLLP", // Código de ciudad de ejemplo
     paquetes: [
@@ -75,6 +75,132 @@ const hardcodedVuelos: Vuelo[] = [
       },
     ],
     idVuelo: "247-2024-06-11",
+  },
+  {
+    cantPaquetes: 50,
+    capacidad: 180,
+    status: 1,
+    indexPlan: 2,
+    horaSalida: [2024, 6, 19, 5, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 19, 15, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "SKBO", // Código de ciudad de ejemplo
+    aeropuertoDestino: "SBBR", // Código de ciudad de ejemplo
+    paquetes: [
+      {
+        status: 0,
+        id: "000000020",
+      },
+      {
+        status: 0,
+        id: "000000021",
+      },
+    ],
+    idVuelo: "248-2024-06-11",
+  },
+  {
+    cantPaquetes: 50,
+    capacidad: 180,
+    status: 1,
+    indexPlan: 2,
+    horaSalida: [2024, 6, 19, 5, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 19, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "SBBR", // Código de ciudad de ejemplo
+    aeropuertoDestino: "EDDI", // Código de ciudad de ejemplo
+    paquetes: [
+      {
+        status: 0,
+        id: "000000022",
+      },
+      {
+        status: 0,
+        id: "000000023",
+      },
+    ],
+    idVuelo: "249-2024-06-11",
+  },
+  {
+    cantPaquetes: 50,
+    capacidad: 180,
+    status: 1,
+    indexPlan: 2,
+    horaSalida: [2024, 6, 19, 5, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 19, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "LBSF", // Código de ciudad de ejemplo
+    aeropuertoDestino: "LDZA", // Código de ciudad de ejemplo
+    paquetes: [
+      {
+        status: 0,
+        id: "000000024",
+      },
+      {
+        status: 0,
+        id: "000000025",
+      },
+    ],
+    idVuelo: "249-2024-06-12",
+  },
+  {
+    cantPaquetes: 50,
+    capacidad: 180,
+    status: 1,
+    indexPlan: 2,
+    horaSalida: [2024, 6, 19, 5, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 19, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "LBSF", // Código de ciudad de ejemplo
+    aeropuertoDestino: "LDZA", // Código de ciudad de ejemplo
+    paquetes: [
+      {
+        status: 0,
+        id: "000000026",
+      },
+      {
+        status: 0,
+        id: "000000027",
+      },
+    ],
+    idVuelo: "249-2024-06-13",
+  },
+  {
+    cantPaquetes: 50,
+    capacidad: 180,
+    status: 1,
+    indexPlan: 2,
+    horaSalida: [2024, 6, 18, 5, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 20, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "RJTT", // Código de ciudad de ejemplo
+    aeropuertoDestino: "WMKK", // Código de ciudad de ejemplo
+    paquetes: [
+      {
+        status: 0,
+        id: "000000028",
+      },
+      {
+        status: 0,
+        id: "000000029",
+      },
+    ],
+    idVuelo: "250-2024-06-13",
+  },
+  {
+    cantPaquetes: 50,
+    capacidad: 180,
+    status: 1,
+    indexPlan: 2,
+    horaSalida: [2024, 6, 18, 5, 14, 0], // Año, mes, día, hora, minuto, segundo
+    horaLlegada: [2024, 6, 20, 23, 38, 0], // Año, mes, día, hora, minuto, segundo
+    aeropuertoOrigen: "WIII", // Código de ciudad de ejemplo
+    aeropuertoDestino: "WSSS", // Código de ciudad de ejemplo
+    paquetes: [
+      {
+        status: 0,
+        id: "000000030",
+      },
+      {
+        status: 0,
+        id: "00000031",
+      },
+    ],
+    idVuelo: "251-2024-06-13",
   },
 ];
 
@@ -138,18 +264,18 @@ const DayToDay: React.FC = () => {
         capacidad: 200,
         status: 1,
         indexPlan: 1,
-        horaSalida: [2024, 6, 16, 16, 29, 0], // Año, mes, día, hora, minuto, segundo
-        horaLlegada: [2024, 6, 17, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
+        horaSalida: [2024, 6, 19, 13, 29, 0], // Año, mes, día, hora, minuto, segundo
+        horaLlegada: [2024, 6, 20, 15, 46, 0], // Año, mes, día, hora, minuto, segundo
         aeropuertoOrigen: "SPIM", // Código de ciudad de ejemplo
         aeropuertoDestino: "ZBAA", // Código de ciudad de ejemplo
         paquetes: [
           {
             status: 0,
-            id: "000000003",
+            id: "000000100",
           },
           {
             status: 0,
-            id: "000000011",
+            id: "000000101",
           },
         ],
         idVuelo: "626-2024-06-11",

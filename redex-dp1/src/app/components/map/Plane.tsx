@@ -302,7 +302,7 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
               citiesByCode[vuelo.aeropuertoDestino].coords.lng,
             ],
           ]}
-          pathOptions={{ color: "white", weight: 1, dashArray: "5,10" }}
+          pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
         />
       )}
       {isVisible && (
