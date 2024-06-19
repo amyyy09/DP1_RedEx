@@ -2,11 +2,13 @@ package src.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import src.model.PeticionPSO;
+import src.model.*;
 import src.service.ApiServices;
+import src.service.ApiServicesDiario;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api")
@@ -15,6 +17,9 @@ public class ApiController {
 
     @Autowired
     private ApiServices apiServices;
+
+    @Autowired
+    private ApiServicesDiario apiServicesDiario;
 
     @PostMapping("/pso")
     public String ejecutarPSO(@RequestBody PeticionPSO peticionPSO) {
@@ -33,18 +38,13 @@ public class ApiController {
     }
 
 
-    //@PostMapping("/diario")
-    //public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
-       // String JSON;
-       // LocalDateTime fechaHoraParsed = LocalDateTime.now();
-       // List<Aeropuerto> aeropuertos =null;
-       // List<Vuelo> vuelos = ApiServices.getVuelosGuardados();
-       // List<Envio> envios = peticionPSO.getEnvios();
-        //Agregar los envios a los envios existentes
-        //List<RutaPredefinida> rutasPredMap = rutaPredefinidaService.getRutasPredefinidas();
-        //JSON = apiServices.ejecutarPso(aeropuertos, vuelos, envios, rutasPredMap,fechaHoraParsed);
+    @PostMapping("/diario")
+    public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
+        String JSON;
+        List<Envio> envios = peticionPSO.getEnvios();
+        JSON = apiServicesDiario.ejecutarPsoDiario(envios);
         
-       // return JSON;
-   // }
+        return JSON;
+    }
 }
 
