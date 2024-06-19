@@ -182,7 +182,7 @@ const DayToDay: React.FC = () => {
         />
         <CurrentTimeDisplay />{" "}
         {/* Añade el componente de visualización de la hora */}
-        <button onClick={addFlights}>Add Flights</button>
+        {/* <button onClick={addFlights}>Add Flights</button> */}
       </div>
       {errorMessage && (
         <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
