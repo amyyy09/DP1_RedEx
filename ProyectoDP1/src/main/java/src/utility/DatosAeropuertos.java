@@ -51,7 +51,7 @@ public class DatosAeropuertos {
 
         // public static List<Aeropuerto> leerAeropuertos() {
         //         List<Aeropuerto> aeropuertos = new ArrayList<>();
-        //         String filePath = "src/main/resources/Aeropuerto.husos.v2.txt";
+        //         String filePath =  GlobalVariables.PATH + "Aeropuerto.husos.v2.txt";
         //         String continent = "";
         //         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
         //             String line;

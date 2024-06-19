@@ -1,5 +1,7 @@
 package src.service;
 import org.springframework.stereotype.Service;
+
+import src.global.GlobalVariables;
 import src.model.*;
 
 
@@ -26,35 +28,35 @@ public class RutaPredefinidaService {
      public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> getRutasPredefinidas(List<Envio> envios) {
         try {
             rutasPredefinidas = cargarRutas(envios,
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_ZBAA.csv",
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_EBCI.csv", 
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_EDDI.csv", 
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_LATI.csv",
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_LBSF.csv", 
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_LKPR.csv", 
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_LOWW.csv", 
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SABE.csv",
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SBBR.csv", 
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SCEL.csv",
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SEQM.csv",
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SGAS.csv",
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SKBO.csv",
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SLLP.csv", 
-            "ProyectoDP1/src//main/resources/rutasPred/rutas_predefinidas_SPIM.csv", 
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SUAA.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_EHAM.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_EKCH.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_LDZA.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_OMDB.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_RJTT.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_RKSI.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_RPLL.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_UMMS.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_VTBS.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_WIII.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_WMKK.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_WSSS.csv",
-            "ProyectoDP1/src/main/resources/rutasPred/rutas_predefinidas_SVMI.csv" );
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_ZBAA.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EBCI.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EDDI.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LATI.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LBSF.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LKPR.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LOWW.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SABE.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SBBR.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SCEL.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SEQM.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SGAS.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SKBO.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SLLP.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SPIM.csv", 
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SUAA.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EHAM.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EKCH.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LDZA.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OMDB.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_RJTT.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_RKSI.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_RPLL.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_UMMS.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_VTBS.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_WIII.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_WMKK.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_WSSS.csv",
+             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SVMI.csv" );
         } catch (IOException e) {
             System.err.println("Error al cargar las rutas predefinidas: " + e.getMessage());
             rutasPredefinidas = new HashMap<>();
