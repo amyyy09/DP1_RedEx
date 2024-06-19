@@ -44,6 +44,7 @@ public class ApiServices {
         List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
         Map<Paquete, Resultado> jsonprevio = null;
         Map<Paquete, RutaTiempoReal> resultado = null;
+        List<PaqueteDTO> paqRutas = null;
         List<VueloNuevo> json = null;
         String jsonResult = null;
 
@@ -58,6 +59,7 @@ public class ApiServices {
             if (!envios.isEmpty()) {
                 resultado = planificacionService.PSO(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados, vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
+                paqRutas = PaqueteDTO.fromMap(jsonprevio);
                 json = planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);

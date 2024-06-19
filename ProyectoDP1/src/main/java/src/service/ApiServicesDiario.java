@@ -41,6 +41,7 @@ public class ApiServicesDiario {
         Map<Paquete, Resultado> jsonprevio = null;
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
+        List<PaqueteDTO> paqRutas = null;
         String jsonResult = null;
         LocalDateTime fechaHora= LocalDateTime.now();
         try {
@@ -49,7 +50,7 @@ public class ApiServicesDiario {
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
                 .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
-
+            
             System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
             if (!envios.isEmpty()) {
                 resultado = planificacionService.PSODiario(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados, vuelosActuales, fechaHora);
