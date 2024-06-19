@@ -99,4 +99,27 @@ public class EnvioService {
         return fechaHora.minusHours(zonaHorariaGMT);
     }
 
+    public static Envio parseDataToFrontend(Envio data) {
+        String idEnvio = generateId();
+        LocalDateTime fechaHoraOrigen = data.getFechaHoraOrigen();
+        int zonaHorariaGMT = data.getZonaHorariaGMT();
+        String codigoIATAOrigen = data.getCodigoIATAOrigen();
+        String codigoIATADestino = data.getCodigoIATADestino();
+        int cantPaquetes = data.getCantPaquetes();
+
+        Envio envio = new Envio(idEnvio, fechaHoraOrigen, zonaHorariaGMT, codigoIATAOrigen, codigoIATADestino,
+                cantPaquetes, new ArrayList<>());
+
+        // Crear los paquetes
+        for (int i = 0; i < cantPaquetes; i++) {
+            Paquete paquete = new Paquete(idEnvio, i + 1, envio); // Los IDs de paquete empiezan en 1
+            envio.getPaquetes().add(paquete);
+        }
+
+        return envio;
+    }
+
+    private static String generateId() {
+        return "ID-GENERADO";
+    }
 }
