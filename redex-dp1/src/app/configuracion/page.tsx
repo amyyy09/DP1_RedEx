@@ -10,9 +10,9 @@ const pedidos: React.FC = () => {
       style={{
         display: "flex",
         flexDirection: "row",
-        height: "100vh", // Asegura que ocupa toda la altura de la ventana
-        width: "100vw", // Asegura que ocupa todo el ancho de la ventana
-        justifyContent: "space-between", // Alinea el primer elemento a la izquierda y el segundo a la derecha
+        height: "100vh",
+        width: "100vw",
+        justifyContent: "space-between",
       }}
     >
       <div style={{ flex: 1 }}>
