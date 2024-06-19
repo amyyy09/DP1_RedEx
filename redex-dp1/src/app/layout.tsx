@@ -22,7 +22,10 @@ export default function RootLayout({
         <title>REDEX</title>
       </head>
 
-      <body className={inter.className}>
+      <body
+        className={inter.className}
+        style={{ display: "flex", flexDirection: "row", height: "100vh" }}
+      >
         <OperationProvider>
           <Sidebar />
           {children}
