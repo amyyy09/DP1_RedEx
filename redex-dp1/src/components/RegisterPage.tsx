@@ -1,5 +1,5 @@
 import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
-import "@/app/styles/RegisterPage.css";
+import "@/styles/RegisterPage.css";
 import TitleWithIcon from "./TitleWithIcon";
 import { cities } from "@/utils/data/cities";
 import { OperationContext } from "@/context/operation-provider";
