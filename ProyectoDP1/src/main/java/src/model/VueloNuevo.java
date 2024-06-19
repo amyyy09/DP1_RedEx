@@ -1,6 +1,7 @@
 package src.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,4 +22,5 @@ public class VueloNuevo {
     private String aeropuertoOrigen;
     private String aeropuertoDestino;
     private String IdVuelo;
+    private List<Paquete> paquetes;
 }
