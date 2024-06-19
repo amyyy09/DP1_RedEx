@@ -1,11 +1,12 @@
 "use client";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import "../../styles/ConfigurationModal.css";
 import { Vuelo } from "../../types/Planes";
-import { vuelosWithCapacity } from "@/app/utils/Apihelper";
+import { OperationContext } from "@/app/context/operation-provider";
 
 interface ConfigurationModalProps {
   onApply: () => void;
+  onClose: () => void;
   startDate: string;
   setStartDate: Dispatch<SetStateAction<string>>;
   startTime: string;
@@ -15,10 +16,12 @@ interface ConfigurationModalProps {
   vuelos: React.RefObject<Vuelo[]>;
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
+  isMounted: boolean;
 }
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   onApply,
+  onClose,
   startDate,
   setStartDate,
   startTime,
@@ -28,6 +31,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   vuelos,
   loading,
   setLoading,
+  isMounted,
 }) => {
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSimulationMode(e.target.value);
@@ -58,10 +62,12 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     const seconds = "00";
     return `${year}-${month}-${day}T${formattedHours}:${formattedMinutes}:${seconds}`;
   };
+  
+  const { clearInterval } = useContext(OperationContext);
 
   const handleApplyClick = async () => {
     const numberOfCalls = 84; // Número de llamadas a la API
-    const intervalHours = 3; // Intervalo de horas entre cada llamada
+    const intervalHours = 2; // Intervalo de horas entre cada llamada
 
     // Formatear la fecha inicial
     const [year, month, day] = startDate.split('-').map(Number);
@@ -74,7 +80,9 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     let updatedVuelos: Vuelo[] = []; 
 
     try{
-      const response = await fetch('http://localhost:8080/api/limpiar', {
+      clearInterval(); // Detener el intervalo de actualización
+
+      const response = await fetch(`${process.env.BACKEND_URL}limpiar`, {
         method: 'GET', // Explicitly specifying the method
         headers: {
             // If needed, specify headers here, e.g., for authentication
@@ -94,14 +102,12 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         let formattedDate = formatDateTime(selectedDate, formattedTime);
         // Definir los datos JSON para la solicitud
         const data = {
-            fechahora: formattedDate,
-            aeropuertos: [],
-            vuelos: [],
+            fechahora: formattedDate
         };
         console.log('Request:', data);
 
         try {
-            const response = await fetch('http://localhost:8080/api/pso', {
+            const response = await fetch(`${process.env.BACKEND_URL}pso`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -140,6 +146,18 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
               }
             });
 
+            // vuelos.current?.forEach((vuelo: Vuelo) => {
+            //   if (vuelo.status === 2){
+            //     const index = vuelos.current?.findIndex((vuelo: Vuelo) => vuelo.status === 2);
+            //     if (index && index !== -1) {
+            //       vuelos.current?.splice(index, 1);
+            //     }
+            //   }
+            // }
+            // );
+
+
+
             console.log("Vuelos:", vuelos.current);
 
             //const vuelosRef = { current: updatedVuelos };
@@ -166,6 +184,11 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
         // Incrementar la hora para la siguiente solicitud
         startHours += intervalHours;
 
+        while (startHours >= 24) {
+          startHours -= 24;
+          selectedDate.setDate(selectedDate.getDate() + 1);
+        }
+
         if (i > 0) {
             setLoading(true); // Mantener el estado de cargando en las iteraciones siguientes
         }
@@ -189,7 +212,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
       <div className="modal-content">
         <div className="modal-header">
           <h2>Configuración de Simulación</h2>
-          <button className="close-button">&times;</button>
+          <button className="close-button" onClick={onClose}>&times;</button>
         </div>
         <div className="modal-body">
           <label htmlFor="simulation-mode">Modo de Simulación</label>
