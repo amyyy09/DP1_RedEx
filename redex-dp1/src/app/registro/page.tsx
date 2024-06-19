@@ -12,7 +12,6 @@ const Registro: React.FC = () => {
 
     return (
         <div style={{ display: "flex", flexDirection: "column" }}>
-            <Topbar />
             <div style={{ display: "flex", flex: 1 }}>
                 <Sidebar />
                 <div>
