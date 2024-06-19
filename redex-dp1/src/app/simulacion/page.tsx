@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef, use } from "react";
 import dynamic from "next/dynamic";
 import Topbar from "../components/layout/Topbar";
 import Sidebar from "../components/layout/Sidebar";
@@ -34,6 +34,14 @@ const Simulation: React.FC = () => {
   const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(null);
   const [forceOpenPopup, setForceOpenPopup] = useState(false);
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+
+  let isMounted = true;
+
+  useEffect(() => {
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!startSimulation) return;
@@ -161,11 +169,11 @@ const Simulation: React.FC = () => {
             setForceOpenPopup={setForceOpenPopup}
           />
           {/* Contenedor para el tiempo simulado */}
-          {/* {startSimulation && (
+          {startSimulation && (
             <div className="simulated-time-container">
               Fecha de simulación: {displayTime}
             </div>
-          )} */}
+          )}
           {showModal && (
             <ConfigurationModal
               onApply={handleApplyConfiguration}
@@ -179,6 +187,7 @@ const Simulation: React.FC = () => {
               vuelos={vuelos}
               loading={loading}
               setLoading={setLoading}
+              isMounted={isMounted}
             />
           )}{" "}
           {simulationEnd && (

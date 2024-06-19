@@ -82,7 +82,7 @@ const DayToDay: React.FC = () => {
   // const vuelos = useContext(OperationContext); // Obtiene los vuelos del contexto
 
   const [startSimulation, setStartSimulation] = useState(false); // Inicia la simulación
-  const { flights, updateFlights } = useContext(OperationContext);
+  const { flights, updateFlights, startInterval } = useContext(OperationContext);
   const speedFactor = 1; // Factor de velocidad de la simulación
   const dayToDay = true; // Indica que se trata de una simulación de día a día
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
@@ -117,9 +117,8 @@ const DayToDay: React.FC = () => {
     // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
     flights.current = hardcodedVuelos;
     console.log("flights inicio",flights);
+    startInterval(); // Inicia el intervalo de actualización
     setStartSimulation(true); // Inicia la simulación al montar el componente
-
-
   }, []);
 
   const Map = useMemo(
