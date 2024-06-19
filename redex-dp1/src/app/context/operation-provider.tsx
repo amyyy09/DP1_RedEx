@@ -29,9 +29,11 @@ export default function OperationProvider({
     if (intervalId.current === null) {
       // aquí debería limpiarse también
       console.log("API called at ", new Date());
+
       intervalId.current = setInterval(() => {
         // Call your API here
         console.log("API called at ", new Date());
+        
       }, 2 * 60 * 1000); // 20 minutes
     }
 
