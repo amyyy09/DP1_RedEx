@@ -1,6 +1,4 @@
-// use client; // Not strictly necessary in modern Next.js projects
 import React, { FC, useState } from "react";
-import next from "next";
 import { useRouter } from "next/navigation";
 import "../../styles/Sidebar.css";
 

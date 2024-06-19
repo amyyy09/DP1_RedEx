@@ -1,7 +1,9 @@
-import React, { useState, ChangeEvent, FormEvent } from "react";
-import "@/styles/RegisterPage.css";
+import React, { useState, ChangeEvent, FormEvent, useContext } from "react";
+import "@/app/styles/RegisterPage.css";
 import TitleWithIcon from "./TitleWithIcon";
 import { cities } from "@/utils/data/cities";
+import { OperationContext } from "@/context/operation-provider";
+import { Envio } from "@/types/envios";
 
 interface FormData {
   firstName: string;
@@ -16,6 +18,8 @@ interface FormData {
 }
 
 const RegisterPage: React.FC = () => {
+  const { saveShipmentData } = useContext(OperationContext);
+
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -98,26 +102,18 @@ const RegisterPage: React.FC = () => {
       return;
     }
     setErrors([]);
-    console.log("Form Data:", formData);
-    saveShipmentData(formData);
-  };
 
-  const saveShipmentData = async (data: FormData) => {
-    try {
-      const response = await fetch("http://localhost:8080/envio/save", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-      const responseData = await response.json();
-      console.log(responseData);
-      alert("Shipment registered successfully!");
-    } catch (error) {
-      console.error("Failed to save shipment:", error);
-      alert("Failed to register shipment.");
-    }
+    const envio: Envio = {
+      idEnvio: "",
+      fechaHoraOrigen: new Date().toISOString(),
+      zonaHorariaGMT: 0, // Ejemplo: zona horaria GMT
+      codigoIATAOrigen: formData.originCity,
+      codigoIATADestino: formData.destinationCity,
+      cantPaquetes: parseInt(formData.packageCount),
+      paquetes: [], // Puedes dejarlo vacío si no tienes la información de los paquetes
+    };
+
+    saveShipmentData(envio);
   };
 
   return (

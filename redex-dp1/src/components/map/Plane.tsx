@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Marker, Popup, Polyline, useMap } from "react-leaflet";
+import { Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "@/types/Planes";
 import { citiesByCode } from "@/utils/data/cities";
@@ -9,12 +9,14 @@ import RotatedMarker from "./RotatedMarker";
 const calculateRotationAngle = (
   origin: { lat: number; lng: number },
   destination: { lat: number; lng: number }
-) => {
+): number => {
   return (
     Math.atan2(destination.lat - origin.lat, destination.lng - origin.lng) *
-    (180 / Math.PI)
+      (180 / Math.PI) +
+    87
   );
 };
+
 const planeIcon = L.icon({
   iconUrl: "./icons/plane.svg",
   iconSize: [20, 20], // size of the icon
@@ -44,16 +46,20 @@ const Plane: React.FC<PlaneProps> = ({
       const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
       const simulatedTime = elapsedTime * speedFactor;
       const startDateSim = new Date(startDate + "T" + startHour + ":00");
+
       simulatedDate.current = new Date(
         startDateSim.getTime() + simulatedTime * 1000
       );
-      const systemTimezoneOffset = new Date().getTimezoneOffset();
+
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
+
       const originGMTOffset = origin.GMT;
       const destinyGMTOffset = destiny.GMT;
+
       const horaSalida = arrayToTime(vuelo.horaSalida);
       horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
+
       const horaLlegada = arrayToTime(vuelo.horaLlegada);
       horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
 
@@ -65,11 +71,7 @@ const Plane: React.FC<PlaneProps> = ({
         setIsVisible(false);
 
         if (simulatedDate.current > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
-          console.log("simulatedDate.current", simulatedDate.current);
           clearInterval(intervalId);
-          console.log("listVuelos", listVuelos.length);
         }
         return;
       }
@@ -102,12 +104,10 @@ const Plane: React.FC<PlaneProps> = ({
     };
   }, [startSimulation]);
 
-  useEffect(() => {
-    if (vuelo === undefined) return;
-    if (startTime === undefined) return;
-    if (startDate === undefined) return;
-    if (!startSimulation) return;
-  }, [vuelo, startTime, startDate, startSimulation]);
+  const rotationAngle = calculateRotationAngle(
+    citiesByCode[vuelo.aeropuertoOrigen].coords,
+    citiesByCode[vuelo.aeropuertoDestino].coords
+  );
 
   if (!isVisible) {
     return null;
@@ -131,8 +131,11 @@ const Plane: React.FC<PlaneProps> = ({
         />
       )}
       {isVisible && (
-        <Marker position={position} icon={planeIcon}>
-          <Popup>
+        <RotatedMarker
+          position={position}
+          icon={planeIcon}
+          rotationAngle={rotationAngle}
+          popupContent={
             <div>
               <h2>Detalles de vuelo</h2>
               <p>
@@ -182,8 +185,8 @@ const Plane: React.FC<PlaneProps> = ({
                 <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
               </p>
             </div>
-          </Popup>
-        </Marker>
+          }
+        />
       )}
     </>
   );

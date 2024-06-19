@@ -201,7 +201,6 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     <div className="modal-overlay">
       <div className="modal-content">
         <div className="modal-header">
-          <h2>Configuración de Simulación</h2>
           <button className="close-button" onClick={handleCloseModal}>
             &times;
           </button>
