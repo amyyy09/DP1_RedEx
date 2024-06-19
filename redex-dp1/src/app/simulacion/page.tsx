@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useRef } from "react";
+import React, { useMemo, useState, useEffect, useRef, use } from "react";
 import dynamic from "next/dynamic";
 import Topbar from "../components/layout/Topbar";
 import Sidebar from "../components/layout/Sidebar";
 import ConfigurationModal from "../components/map/ConfigurationModal";
 import { Vuelo } from "../types/Planes";
 import EndModal from "../components/modal/EndModal";
+import { citiesByCode } from "../data/cities";
 import "../styles/SimulatedTime.css";
 
 const Simulation: React.FC = () => {
@@ -23,9 +24,24 @@ const Simulation: React.FC = () => {
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
+  const dayToDay = false;
 
   // State to store the display time
   const [displayTime, setDisplayTime] = useState("");
+
+  // States for map center and highlighted plane ID
+  const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
+  const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(null);
+  const [forceOpenPopup, setForceOpenPopup] = useState(false);
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+
+  let isMounted = true;
+
+  useEffect(() => {
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     if (!startSimulation) return;
@@ -115,9 +131,26 @@ const Simulation: React.FC = () => {
     setShowModal(false);
   };
 
+  const handleSearch = (id: string) => {
+    // Buscar el paquete por ID
+    const foundVuelo = vuelos.current.find((vuelo) =>
+      vuelo.paquetes.some((paquete) => paquete.id === id)
+    );
+    if (foundVuelo) {
+      const { aeropuertoOrigen } = foundVuelo;
+      const city = citiesByCode[aeropuertoOrigen];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(foundVuelo.idVuelo);
+        setForceOpenPopup(true);
+        setSelectedPackageId(id);
+      }
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar />
+      <Topbar onSearch={handleSearch} />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <div style={{ display: "flex", flex: 1, position: "relative", overflow: "hidden" }}>
@@ -128,6 +161,12 @@ const Simulation: React.FC = () => {
             startHour={startHour}
             speedFactor={speedFactor}
             startSimulation={startSimulation}
+            dayToDay={dayToDay}
+            mapCenter={mapCenter}
+            highlightedPlaneId={highlightedPlaneId}
+            forceOpenPopup={forceOpenPopup}
+            selectedPackageId={selectedPackageId}
+            setForceOpenPopup={setForceOpenPopup}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
@@ -148,6 +187,7 @@ const Simulation: React.FC = () => {
               vuelos={vuelos}
               loading={loading}
               setLoading={setLoading}
+              isMounted={isMounted}
             />
           )}{" "}
           {simulationEnd && (

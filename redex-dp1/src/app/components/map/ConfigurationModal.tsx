@@ -1,7 +1,8 @@
 "use client";
-import React, { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import "../../styles/ConfigurationModal.css";
 import { Vuelo } from "../../types/Planes";
+import { OperationContext } from "@/app/context/operation-provider";
 
 interface ConfigurationModalProps {
   onApply: () => void;
@@ -15,6 +16,7 @@ interface ConfigurationModalProps {
   vuelos: React.RefObject<Vuelo[]>;
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
+  isMounted: boolean;
 }
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
@@ -29,6 +31,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   vuelos,
   loading,
   setLoading,
+  isMounted,
 }) => {
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSimulationMode(e.target.value);
@@ -59,6 +62,8 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     const seconds = "00";
     return `${year}-${month}-${day}T${formattedHours}:${formattedMinutes}:${seconds}`;
   };
+  
+  const { clearInterval } = useContext(OperationContext);
 
   const handleApplyClick = async () => {
     const numberOfCalls = 84; // Número de llamadas a la API
@@ -75,6 +80,8 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
     let updatedVuelos: Vuelo[] = []; 
 
     try{
+      clearInterval(); // Detener el intervalo de actualización
+
       const response = await fetch(`${process.env.BACKEND_URL}limpiar`, {
         method: 'GET', // Explicitly specifying the method
         headers: {

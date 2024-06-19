@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, {useEffect } from "react";
+import React, { useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -14,6 +14,7 @@ import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
 import { Vuelo } from "@/app/types/Planes";
 import { cities } from "@/app/data/cities";
+import MapCenter from "./MapCenter";
 
 interface MapProps {
   planes: React.RefObject<Vuelo[]>;
@@ -22,6 +23,12 @@ interface MapProps {
   startHour: string;
   speedFactor: number;
   startSimulation: boolean;
+  dayToDay: boolean;
+  mapCenter: LatLngTuple | null;
+  highlightedPlaneId: string | null;
+  selectedPackageId: string | null;
+  forceOpenPopup: boolean;
+  setForceOpenPopup: (value: boolean) => void;
 }
 
 const customIcon = new L.Icon({
@@ -44,8 +51,16 @@ const Map: React.FC<MapProps> = ({
   startHour,
   speedFactor,
   startSimulation,
+  dayToDay,
+  mapCenter,
+  highlightedPlaneId,
+  selectedPackageId,
+  forceOpenPopup,
+  setForceOpenPopup,
 }) => {
-  
+
+  // console.log("planes",planes.current);
+
   return (
     <MapContainer
       center={[20, 20]}
@@ -54,11 +69,13 @@ const Map: React.FC<MapProps> = ({
       zoomControl={false}
     >
       <TileLayer
-        url="https://tile.jawg.io/jawg-dark/{z}/{x}/{y}.png?lang=es&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4"
+        url="https://tile.jawg.io/jawg-light/{z}/{x}/{y}.png?lang=es&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
       {/* Add custom zoom control */}
       <ZoomControl position="topright" />
+
+      {mapCenter && <MapCenter center={mapCenter} />}
 
       {cities.map((city, idx) => (
         <Marker
@@ -84,6 +101,10 @@ const Map: React.FC<MapProps> = ({
             startHour={startHour}
             speedFactor={speedFactor}
             startSimulation={startSimulation}
+             dayToDay={dayToDay}
+            isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado           
+            setForceOpenPopup={setForceOpenPopup}
+            selectedPackageId={selectedPackageId} // Pass the selected package ID
           />
         ))}
     </MapContainer>

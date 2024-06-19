@@ -202,7 +202,75 @@ public class PlanificacionService {
         return gbest;
     }
 
+    public Map<Paquete, RutaTiempoReal> PSODiario(List<Envio> envios, List<Paquete> paquetes,
+        Map<String, Almacen> almacenes, List<PlanDeVuelo> planesDeVuelo, List<Aeropuerto> aeropuertos,
+        List<Vuelo> vuelosActuales, LocalDateTime fechaHoraEjecucion) {
 
+        Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
+        List<Particula> population = new ArrayList<>();
+        int numParticles = 10;
+        int numIterationsMax = 100;
+        double w = 0.5, c1 = 1, c2 = 2;
+
+        // Initialize particles
+        for (int i = 0; i < numParticles; i++) {
+            Particula particle = new Particula();
+            particle.setPosicion(Particula.inicializarPosicion(envios, rutasPred, aeropuertos, vuelosActuales, fechaHoraEjecucion));
+            particle.setVelocidad(Particula.inicializarVelocidad(paquetes.size()));
+            particle.setPbest(particle.getPosicion());
+            particle.setFbest(evaluator.fitness(particle.getPbest(), almacenes, vuelosActuales, false));
+            population.add(particle);
+        }
+
+        Map<Paquete, RutaTiempoReal> gbest = Particula.determineGbest(population, almacenes, vuelosActuales);
+        int noImprovementCounter = 0;
+        int j = 0;
+
+        while (noImprovementCounter < numIterationsMax && j < 250) {
+            for (Particula particle : population) {
+                for (int k = 0; k < envios.size(); k++) {
+                    List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k)); // todas las rutas que sirvan para ese envio
+                    for (Paquete paquete : envios.get(k).getPaquetes()) {
+                        RutaTiempoReal currentRTR = particle.getPosicion().get(paquete);
+                        if (currentRTR == null) {
+                            continue;
+                        }
+                        int indexPos = filteredRutasPred.indexOf(currentRTR.getRutaPredefinida());
+                        double r1 = Math.random(), r2 = Math.random();
+
+                        double velocity = w * particle.getVelocidad().get(k) +
+                                c1 * r1 * (indexPos - filteredRutasPred.indexOf(particle.getPbest().get(paquete).getRutaPredefinida())) +
+                                c2 * r2 * (indexPos - filteredRutasPred.indexOf(gbest.get(paquete).getRutaPredefinida()));
+
+                        particle.getVelocidad().set(k, velocity);
+
+                        double newPosIndex = indexPos + velocity;
+                        int posIndex = Particula.verifyLimits(newPosIndex, filteredRutasPred);
+
+                        RutaPredefinida newPosition = filteredRutasPred.get(posIndex);
+                        RutaTiempoReal newRTR = newPosition.convertirAPredefinidaEnTiempoReal(aeropuertos, vuelosActuales, fechaHoraEjecucion);
+                        particle.getPosicion().put(paquete, newRTR);
+                    }
+                }
+
+                double fit = evaluator.fitness(particle.getPosicion(), almacenes, vuelosActuales, false);
+                if (fit < particle.getFbest()) {
+                    particle.setPbest(particle.getPosicion());
+                    particle.setFbest(fit);
+                }
+            }
+
+            Map<Paquete, RutaTiempoReal> currentGbest = Particula.determineGbest(population, almacenes, vuelosActuales);
+            if (evaluator.fitness(currentGbest, almacenes, vuelosActuales, false) > evaluator.fitness(gbest, almacenes, vuelosActuales, false)) {
+                gbest = currentGbest;
+                noImprovementCounter = 0;
+            } else {
+                noImprovementCounter++;
+            }
+            j++;
+        }
+        return gbest;
+    }
 
 
 
@@ -380,6 +448,60 @@ public class PlanificacionService {
                 } else {
                     VueloNuevo vueloExistente = vuelosNuevosMap.get(idVuelo);
                     vueloExistente.setCantPaquetes(vueloExistente.getCantPaquetes() + 1);
+                }
+            }
+        }
+
+        return new ArrayList<>(vuelosNuevosMap.values());
+    }
+
+    public List<Vuelo> transformarResultadosDiario(Map<Paquete, Resultado> resultados, List<PlanDeVuelo> planesDeVuelo) {
+        Map<String, Vuelo> vuelosNuevosMap = new HashMap<>();
+
+        // Mapear indexPlan a PlanDeVuelo para facilitar la búsqueda
+        Map<Integer, PlanDeVuelo> planesDeVueloMap = new HashMap<>();
+        for (PlanDeVuelo plan : planesDeVuelo) {
+            planesDeVueloMap.put(plan.getIndexPlan(), plan);
+        }
+
+        for (Map.Entry<Paquete, Resultado> entry : resultados.entrySet()) {
+            Paquete paquete = entry.getKey();
+            Resultado resultado = entry.getValue();
+            
+            // Verificar si resultado es nulo
+            if (resultado == null || resultado.getVuelos() == null) {
+                continue; // Saltar iteración si resultado o vuelos es nulo
+            }
+
+            for (Vuelo vuelo : resultado.getVuelos()) {
+                String idVuelo = vuelo.getIdVuelo();
+                
+                if (!vuelosNuevosMap.containsKey(idVuelo)) {
+                    PlanDeVuelo planDeVuelo = planesDeVueloMap.get(vuelo.getIndexPlan());
+
+                    // Verificar si planDeVuelo es nulo
+                    if (planDeVuelo == null) {
+                        continue; // Saltar iteración si planDeVuelo es nulo
+                    }
+
+                    Vuelo vueloNuevo = new Vuelo();
+                    vueloNuevo.setIdVuelo(idVuelo);
+                    vueloNuevo.setCantPaquetes(1);
+                    vueloNuevo.setCapacidad(vuelo.getCapacidad());
+                    vueloNuevo.setStatus(vuelo.getStatus());
+                    vueloNuevo.setIndexPlan(vuelo.getIndexPlan());
+                    vueloNuevo.setHoraSalida(vuelo.getHoraSalida());
+                    vueloNuevo.setHoraLlegada(vuelo.getHoraLlegada());
+                    vueloNuevo.setAeropuertoOrigen(planDeVuelo.getCodigoIATAOrigen());
+                    vueloNuevo.setAeropuertoDestino(planDeVuelo.getCodigoIATADestino());
+                    vueloNuevo.setPaquetes(new ArrayList<>()); // Inicializar la lista de paquetes
+                    vueloNuevo.getPaquetes().add(paquete);
+
+                    vuelosNuevosMap.put(idVuelo, vueloNuevo);
+                } else {
+                    Vuelo vueloExistente = vuelosNuevosMap.get(idVuelo);
+                    vueloExistente.setCantPaquetes(vueloExistente.getCantPaquetes() + 1);
+                    vueloExistente.getPaquetes().add(paquete);
                 }
             }
         }
