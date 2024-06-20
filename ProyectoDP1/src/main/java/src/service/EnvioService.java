@@ -119,6 +119,14 @@ public class EnvioService {
     }
 
     private static String generateId() {
-        return "ID-GENERADO";
+        String[] adjectives = { "Happy", "Sunny", "Brave", "Lucky", "Fierce", "Wise", "Swift", "Glorious", "Mighty",
+                "Daring" };
+        String[] nouns = { "Eagle", "Lion", "Dragon", "Phoenix", "Tiger", "Bear", "Wolf", "Sword", "Shield", "Star" };
+
+        String adjective = adjectives[(int) (Math.random() * adjectives.length)];
+        String noun = nouns[(int) (Math.random() * nouns.length)];
+        int number = (int) (Math.random() * 1000);
+
+        return String.format("%s%s%d", adjective, noun, number);
     }
 }
