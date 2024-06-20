@@ -15,6 +15,7 @@ export const OperationContext = createContext({
   startInterval: () => {},
   clearInterval: () => {},
   saveShipmentData: (data: Envio) => {},
+  shipments: [] as Envio[],
 });
 
 export default function OperationProvider({
@@ -77,6 +78,7 @@ export default function OperationProvider({
         startInterval,
         clearInterval,
         saveShipmentData,
+        shipments,
       }}
     >
       {children}

@@ -26,10 +26,8 @@ export default function RootLayout({
         className={inter.className}
         style={{ display: "flex", flexDirection: "row", height: "100vh" }}
       >
-        <OperationProvider>
-          <Sidebar />
-          {children}
-        </OperationProvider>
+        <Sidebar />
+        <OperationProvider>{children}</OperationProvider>
       </body>
     </html>
   );

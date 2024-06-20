@@ -18,7 +18,7 @@ interface FormData {
 }
 
 const RegisterPage: React.FC = () => {
-  const { saveShipmentData } = useContext(OperationContext);
+  const { saveShipmentData, shipments } = useContext(OperationContext);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -114,6 +114,27 @@ const RegisterPage: React.FC = () => {
     };
     console.log(envio);
     saveShipmentData(envio);
+  };
+
+  const handleEnviarPedidos = async () => {
+    const peticion = { envios: shipments }; // Envía los envíos almacenados en el contexto
+    try {
+      const response = await fetch("http://localhost:8080//diario", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(peticion),
+      });
+      const data = await response.json();
+      console.log("Respuesta del servidor:", data);
+    } catch (error) {
+      console.error("Error al enviar los pedidos:", error);
+    }
+  };
+
+  const handleMostrarPedidos = () => {
+    console.log("Lista de pedidos:", formData);
   };
 
   return (
@@ -267,6 +288,9 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
       </form>
+      <button className="enviar-pedidos-button" onClick={handleEnviarPedidos}>
+        Enviar Pedidos
+      </button>
     </div>
   );
 };
