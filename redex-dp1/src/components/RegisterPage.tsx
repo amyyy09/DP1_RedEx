@@ -119,7 +119,7 @@ const RegisterPage: React.FC = () => {
   const handleEnviarPedidos = async () => {
     const peticion = { envios: shipments }; // Envía los envíos almacenados en el contexto
     try {
-      const response = await fetch("http://localhost:8080//diario", {
+      const response = await fetch("http://localhost:8080/api/diario", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -288,9 +288,14 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
       </form>
-      <button className="enviar-pedidos-button" onClick={handleEnviarPedidos}>
-        Enviar Pedidos
-      </button>
+      <div className="error-messages">
+        <button
+          className="register-shipment-button"
+          onClick={handleEnviarPedidos}
+        >
+          Enviar Pedidos
+        </button>
+      </div>
     </div>
   );
 };
