@@ -41,6 +41,8 @@ public class ApiController {
 
     @PostMapping("/diario")
     public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
+        System.out.println("Entrada de PeticionPSOD:");
+        System.out.println(peticionPSO); // Esto imprimirá la representación de cadena de peticionPSO
         String JSON;
         List<Envio> envios = peticionPSO.getEnvios();
         List<Envio> enviosProcesados = envios.stream()
@@ -51,4 +53,5 @@ public class ApiController {
 
         return JSON;
     }
+
 }
