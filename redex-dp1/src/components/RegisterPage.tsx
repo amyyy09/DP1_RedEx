@@ -139,7 +139,18 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="register-shipment-container">
-      <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
+        <div className="error-messages">
+          <button
+            className="register-shipment-button"
+            onClick={handleEnviarPedidos}
+          >
+            Enviar Pedidos
+          </button>
+        </div>
+      </div>
+
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="firstName">
@@ -288,14 +299,6 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
       </form>
-      <div className="error-messages">
-        <button
-          className="register-shipment-button"
-          onClick={handleEnviarPedidos}
-        >
-          Enviar Pedidos
-        </button>
-      </div>
     </div>
   );
 };
