@@ -19,7 +19,7 @@ const calculateRotationAngle = (
 
 const planeIcon = L.icon({
   iconUrl: "./icons/plane.svg",
-  iconSize: [20, 20], // size of the icon
+  iconSize: [20, 20],
 });
 
 const Plane: React.FC<PlaneProps> = ({
