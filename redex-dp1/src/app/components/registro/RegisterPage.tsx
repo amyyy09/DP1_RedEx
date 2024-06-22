@@ -33,6 +33,8 @@ const RegisterPage: React.FC = () => {
   });
 
   const [errors, setErrors] = useState<string[]>([]);
+  const [popupMessage, setPopupMessage] = useState<string>("");
+  const [showPopup, setShowPopup] = useState<boolean>(false);
   const [filteredOriginCities, setFilteredOriginCities] =
     useState<typeof cities>(cities);
   const [filteredDestinationCities, setFilteredDestinationCities] =
@@ -114,6 +116,23 @@ const RegisterPage: React.FC = () => {
     };
     console.log(envio);
     saveShipmentData(envio);
+
+    // Clear form
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      dniPassport: "",
+      originCity: "",
+      destinationCity: "",
+      packageCount: "",
+      contentDescription: "",
+    });
+
+    // Show popup
+    setPopupMessage("Pedido registrado con éxito.");
+    setShowPopup(true);
   };
 
   const handleEnviarPedidos = async () => {
@@ -135,6 +154,10 @@ const RegisterPage: React.FC = () => {
 
   const handleMostrarPedidos = () => {
     console.log("Lista de pedidos:", formData);
+  };
+
+  const closePopup = () => {
+    setShowPopup(false);
   };
 
   return (
@@ -299,6 +322,15 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
       </form>
+
+      {showPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <p>{popupMessage}</p>
+            <button onClick={closePopup}>Cerrar</button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
