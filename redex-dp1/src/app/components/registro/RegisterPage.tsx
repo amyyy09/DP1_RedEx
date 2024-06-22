@@ -13,8 +13,18 @@ interface FormData {
   dniPassport: string;
   originCity: string;
   destinationCity: string;
+  originCityName: string;
+  destinationCityName: string;
   packageCount: string;
   contentDescription: string;
+}
+
+interface City {
+  name: string;
+  code: string;
+  coords: { lat: number; lng: number };
+  GMT: number;
+  capacidad: number;
 }
 
 const RegisterPage: React.FC = () => {
@@ -28,6 +38,8 @@ const RegisterPage: React.FC = () => {
     dniPassport: "",
     originCity: "",
     destinationCity: "",
+    originCityName: "",
+    destinationCityName: "",
     packageCount: "",
     contentDescription: "",
   });
@@ -51,20 +63,30 @@ const RegisterPage: React.FC = () => {
     type: "origin" | "destination"
   ) => {
     const value = e.target.value;
+    const filteredCities = cities.filter((city) =>
+      city.name.toLowerCase().includes(value.toLowerCase())
+    );
+
     if (type === "origin") {
-      setFormData({ ...formData, originCity: value });
-      setFilteredOriginCities(
-        cities.filter((city) =>
-          city.name.toLowerCase().includes(value.toLowerCase())
-        )
+      setFilteredOriginCities(filteredCities);
+      const selectedCity = cities.find(
+        (city) => city.name.toLowerCase() === value.toLowerCase()
       );
+      setFormData((formData) => ({
+        ...formData,
+        originCityName: value,
+        originCity: selectedCity ? selectedCity.code : "",
+      }));
     } else {
-      setFormData({ ...formData, destinationCity: value });
-      setFilteredDestinationCities(
-        cities.filter((city) =>
-          city.name.toLowerCase().includes(value.toLowerCase())
-        )
+      setFilteredDestinationCities(filteredCities);
+      const selectedCity = cities.find(
+        (city) => city.name.toLowerCase() === value.toLowerCase()
       );
+      setFormData((formData) => ({
+        ...formData,
+        destinationCityName: value,
+        destinationCity: selectedCity ? selectedCity.code : "",
+      }));
     }
   };
 
@@ -75,9 +97,17 @@ const RegisterPage: React.FC = () => {
     const selectedCity = cities.find((city) => city.name === cityName);
     if (selectedCity) {
       if (type === "origin") {
-        setFormData({ ...formData, originCity: selectedCity.code });
+        setFormData({
+          ...formData,
+          originCity: selectedCity.code,
+          originCityName: selectedCity.name,
+        });
       } else {
-        setFormData({ ...formData, destinationCity: selectedCity.code });
+        setFormData({
+          ...formData,
+          destinationCity: selectedCity.code,
+          destinationCityName: selectedCity.name,
+        });
       }
     }
   };
@@ -108,16 +138,15 @@ const RegisterPage: React.FC = () => {
     const envio: Envio = {
       idEnvio: "",
       fechaHoraOrigen: new Date().toISOString(),
-      zonaHorariaGMT: 0, // Ejemplo: zona horaria GMT
+      zonaHorariaGMT: 0,
       codigoIATAOrigen: formData.originCity,
       codigoIATADestino: formData.destinationCity,
       cantPaquetes: parseInt(formData.packageCount),
-      paquetes: [], // Puedes dejarlo vacío si no tienes la información de los paquetes
+      paquetes: [],
     };
     console.log(envio);
     saveShipmentData(envio);
 
-    // Clear form
     setFormData({
       firstName: "",
       lastName: "",
@@ -126,6 +155,8 @@ const RegisterPage: React.FC = () => {
       dniPassport: "",
       originCity: "",
       destinationCity: "",
+      originCityName: "",
+      destinationCityName: "",
       packageCount: "",
       contentDescription: "",
     });
@@ -150,10 +181,6 @@ const RegisterPage: React.FC = () => {
     } catch (error) {
       console.error("Error al enviar los pedidos:", error);
     }
-  };
-
-  const handleMostrarPedidos = () => {
-    console.log("Lista de pedidos:", formData);
   };
 
   const closePopup = () => {
@@ -249,7 +276,7 @@ const RegisterPage: React.FC = () => {
             id="originCity"
             name="originCity"
             placeholder="Ciudad Origen"
-            value={formData.originCity}
+            value={formData.originCityName}
             onChange={(e) => handleCityChange(e, "origin")}
             list="origin-city-options"
           />
@@ -272,7 +299,7 @@ const RegisterPage: React.FC = () => {
             id="destinationCity"
             name="destinationCity"
             placeholder="Ciudad Destino"
-            value={formData.destinationCity}
+            value={formData.destinationCityName}
             onChange={(e) => handleCityChange(e, "destination")}
             list="destination-city-options"
           />
