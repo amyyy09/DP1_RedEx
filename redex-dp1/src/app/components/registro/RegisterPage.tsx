@@ -15,6 +15,7 @@ interface FormData {
   destinationCity: string;
   originCityName: string;
   destinationCityName: string;
+  originGMT: number;
   packageCount: string;
   contentDescription: string;
 }
@@ -40,6 +41,7 @@ const RegisterPage: React.FC = () => {
     destinationCity: "",
     originCityName: "",
     destinationCityName: "",
+    originGMT: 0,
     packageCount: "",
     contentDescription: "",
   });
@@ -76,6 +78,7 @@ const RegisterPage: React.FC = () => {
         ...formData,
         originCityName: value,
         originCity: selectedCity ? selectedCity.code : "",
+        originGMT: selectedCity ? selectedCity.GMT : 0,
       }));
     } else {
       setFilteredDestinationCities(filteredCities);
@@ -101,6 +104,7 @@ const RegisterPage: React.FC = () => {
           ...formData,
           originCity: selectedCity.code,
           originCityName: selectedCity.name,
+          originGMT: selectedCity.GMT,
         });
       } else {
         setFormData({
@@ -138,7 +142,7 @@ const RegisterPage: React.FC = () => {
     const envio: Envio = {
       idEnvio: "",
       fechaHoraOrigen: new Date().toISOString(),
-      zonaHorariaGMT: 0,
+      zonaHorariaGMT: formData.originGMT,
       codigoIATAOrigen: formData.originCity,
       codigoIATADestino: formData.destinationCity,
       cantPaquetes: parseInt(formData.packageCount),
@@ -157,6 +161,7 @@ const RegisterPage: React.FC = () => {
       destinationCity: "",
       originCityName: "",
       destinationCityName: "",
+      originGMT: 0,
       packageCount: "",
       contentDescription: "",
     });
