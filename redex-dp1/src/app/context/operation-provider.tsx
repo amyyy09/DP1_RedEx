@@ -38,7 +38,7 @@ export default function OperationProvider({
     if (intervalId.current === null) {
       intervalId.current = setInterval(() => {
         console.log("Sending shipments at ", new Date());
-        fetch("http://localhost:8080/api/diario", {
+        fetch("http://localhost:8080/back/api/diario", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
