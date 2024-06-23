@@ -188,7 +188,7 @@ const RegisterPage: React.FC = () => {
   const handleEnviarPedidos = async () => {
     const peticion = { envios: shipments }; // Envía los envíos almacenados en el contexto
     try {
-      const response = await fetch("http://localhost:8080/api/diario", {
+      const response = await fetch("http://localhost:8080/back/api/diario", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -213,8 +213,7 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="register-shipment-container">
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
-      <Toaster position="top-right" reverseOrder={false} />
-
+      <Toaster position="top-right" reverseOrder={false} />x
       <div
         style={{
           display: "flex",
@@ -247,8 +246,13 @@ const RegisterPage: React.FC = () => {
         >
           Registro Masivo
         </button>
+        <button
+          onClick={handleEnviarPedidos}
+          className="register-shipment-button"
+        >
+          Enviar Pedidos
+        </button>
       </div>
-
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label htmlFor="firstName">
