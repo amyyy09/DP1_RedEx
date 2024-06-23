@@ -53,6 +53,22 @@ const RegisterPage: React.FC = () => {
     useState<typeof cities>(cities);
   const [filteredDestinationCities, setFilteredDestinationCities] =
     useState<typeof cities>(cities);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files ? event.target.files[0] : null;
+    setSelectedFile(file);
+  };
+
+  const handleUploadAndSend = async () => {
+    if (!selectedFile) {
+      alert("Por favor, seleccione un archivo antes de enviar.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+  };
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -354,6 +370,15 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
       </form>
+      <div style={{ marginTop: "20px" }}>
+        <input type="file" onChange={handleFileChange} accept=".txt" />
+        <button
+          onClick={handleUploadAndSend}
+          className="register-shipment-button"
+        >
+          Cargar y Enviar Pedidos Masivos
+        </button>
+      </div>
 
       {showPopup && (
         <div className="popup">
