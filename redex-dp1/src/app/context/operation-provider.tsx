@@ -27,7 +27,7 @@ export default function OperationProvider({
   const flights = useRef<Vuelo[]>([]);
   const [, setFlightsUpdated] = useState(false);
   const intervalId = useRef<NodeJS.Timeout | null>(null);
-  const [shipments, setShipments] = useState<Envio[]>([]);
+  const shipments = useRef<Envio[]>([]); // Using useRef for shipments
 
   const updateFlights = useCallback(() => {
     setFlightsUpdated((prev) => !prev);
@@ -35,24 +35,32 @@ export default function OperationProvider({
 
   const startInterval = () => {
     if (intervalId.current === null) {
-      intervalId.current = setInterval(() => {
+      intervalId.current = setInterval(async () => {
         console.log("Sending shipments at ", new Date());
-        fetch("http://localhost:8080/back/api/diario", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(shipments),
-        })
-          .then((response) => response.json())
-          .then((responseData) => {
+        try {
+          const response = await fetch(
+            "http://localhost:8080/back/api/diario",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(shipments),
+            }
+          );
+
+          if (response.ok) {
+            const responseData = await response.json();
             console.log("Response:", responseData);
-            setShipments([]);
-          })
-          .catch((error) => {
-            console.error("Failed to send shipme nts:", error);
-          });
-      }, 2 * 60 * 1000); // 20 minutes
+            shipments.current = [];
+          } else {
+            const errorResponse = await response.text();
+            throw new Error(errorResponse);
+          }
+        } catch (error) {
+          console.error("Failed to send shipments:", error);
+        }
+      }, 2 * 60 * 1000);
     }
 
     return intervalId;
@@ -67,12 +75,11 @@ export default function OperationProvider({
   };
 
   const saveShipmentData = (data: Envio) => {
-    setShipments([...shipments, data]);
-    console.log(shipments);
+    shipments.current.push(data);
   };
 
   const saveShipmentBatch = (data: Envio[]) => {
-    setShipments((prevShipments) => [...prevShipments, ...data]);
+    shipments.current = shipments.current.concat(data);
   };
 
   return (
@@ -84,7 +91,7 @@ export default function OperationProvider({
         clearInterval,
         saveShipmentData,
         saveShipmentBatch,
-        shipments,
+        shipments: shipments.current,
       }}
     >
       {children}
