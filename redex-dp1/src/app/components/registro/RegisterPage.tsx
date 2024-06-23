@@ -142,17 +142,22 @@ const RegisterPage: React.FC = () => {
     return newErrors;
   };
 
+  const formatDateForBackend = (dateIsoString: string): string => {
+    const date = new Date(dateIsoString);
+    return date.toISOString().replace("Z", "").split(".")[0];
+  };
+
   const handleFinalSubmit = () => {
     const envio: Envio = {
       idEnvio: "",
-      fechaHoraOrigen: new Date().toISOString(),
+      fechaHoraOrigen: formatDateForBackend(new Date().toISOString()),
       zonaHorariaGMT: formData.originGMT,
       codigoIATAOrigen: formData.originCity,
       codigoIATADestino: formData.destinationCity,
       cantPaquetes: parseInt(formData.packageCount),
       paquetes: [],
     };
-    console.log(envio);
+    console.log(envio.fechaHoraOrigen);
     saveShipmentData(envio);
 
     setFormData({
