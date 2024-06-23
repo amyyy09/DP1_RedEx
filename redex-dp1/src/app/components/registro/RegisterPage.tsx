@@ -393,6 +393,7 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           ></textarea>
         </div>
+        <div></div>
         <div className="form-group">
           <button className="register-shipment-button" type="submit">
             Registrar Pedido
