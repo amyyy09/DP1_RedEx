@@ -46,6 +46,8 @@ const RegisterPage: React.FC = () => {
   const [filteredDestinationCities, setFilteredDestinationCities] =
     useState<typeof cities>(cities);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [showConfirmationPopup, setShowConfirmationPopup] =
+    useState<boolean>(false);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
@@ -138,15 +140,7 @@ const RegisterPage: React.FC = () => {
     return newErrors;
   };
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const formErrors = validateForm();
-    if (formErrors.length > 0) {
-      setErrors(formErrors);
-      return;
-    }
-    setErrors([]);
-
+  const handleFinalSubmit = () => {
     const envio: Envio = {
       idEnvio: "",
       fechaHoraOrigen: new Date().toISOString(),
@@ -175,6 +169,18 @@ const RegisterPage: React.FC = () => {
     });
     setPopupMessage("Pedido registrado con éxito.");
     setShowPopup(true);
+    setShowConfirmationPopup(false); // Close confirmation popup
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    const formErrors = validateForm();
+    if (formErrors.length > 0) {
+      setErrors(formErrors);
+      return;
+    }
+    setErrors([]);
+    setShowConfirmationPopup(true); // Show confirmation popup instead of submitting directly
   };
 
   const handleEnviarPedidos = async () => {
@@ -385,6 +391,17 @@ const RegisterPage: React.FC = () => {
           <div className="popup-content">
             <p>{popupMessage}</p>
             <button onClick={closePopup}>Cerrar</button>
+          </div>
+        </div>
+      )}
+      {showConfirmationPopup && (
+        <div className="popup">
+          <div className="popup-content">
+            <p>¿Está seguro que desea registrar el pedido?</p>
+            <button onClick={handleFinalSubmit}>Confirmar</button>
+            <button onClick={() => setShowConfirmationPopup(false)}>
+              Cancelar
+            </button>
           </div>
         </div>
       )}
