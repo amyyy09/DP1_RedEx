@@ -221,32 +221,33 @@ const RegisterPage: React.FC = () => {
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
 
       <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <input
+          type="file"
+          id="fileInput"
+          style={{ display: "none" }}
+          onChange={handleFileChange}
+          accept=".txt"
+        />
         <div>
-          <input
-            type="file"
-            id="fileInput"
-            style={{ display: "none" }}
-            onChange={handleFileChange}
-            accept=".txt"
-          />
-          <label htmlFor="fileInput" className="register-shipment-label">
+          <label htmlFor="fileInput" className="register-shipment-button">
             Carga Masiva
           </label>
           <button
             onClick={handleDeselectFile}
             className="register-shipment-button"
             style={{ marginLeft: "10px" }}
+            disabled={selectedFile == null}
           >
-            Deseleccionar Archivo
-          </button>
-          <button
-            onClick={() => selectedFile && handleUploadConfirmed()}
-            className="register-shipment-button"
-            disabled={!selectedFile}
-          >
-            Registro Masivo
+            X
           </button>
         </div>
+        <button
+          onClick={() => selectedFile && handleUploadConfirmed()}
+          className="register-shipment-button"
+          disabled={!selectedFile}
+        >
+          Registro Masivo
+        </button>
       </div>
 
       <form onSubmit={handleSubmit}>
