@@ -52,6 +52,7 @@ const RegisterPage: React.FC = () => {
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     setSelectedFile(file);
+    event.target.value = "";
   };
 
   const handleUploadConfirmed = async (): Promise<void> => {
@@ -242,7 +243,7 @@ const RegisterPage: React.FC = () => {
   };
 
   const handleEnviarPedidos = async () => {
-    const peticion = { envios: shipments }; // Envía los envíos almacenados en el contexto
+    const peticion = { envios: shipments };
     try {
       const response = await fetch("http://localhost:8080/back/api/diario", {
         method: "POST",
@@ -300,7 +301,7 @@ const RegisterPage: React.FC = () => {
           accept=".txt"
         />
         <button onClick={triggerFileInput} className="select-archive-button">
-          Carga Masiva
+          Cargar por Archivo
         </button>
         <button
           onClick={handleDeselectFile}

@@ -59,6 +59,7 @@ input[type="submit"],
   transition: background-color 0.3s, transform 0.2s;
 }
 
+input[type="submit"],
 .select-archive-button {
   padding: 10px 20px;
   background-color: #007bff; /* Consistent theme */
