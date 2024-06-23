@@ -16,7 +16,6 @@ export const OperationContext = createContext({
   clearInterval: () => {},
   saveShipmentData: (data: Envio) => {},
   saveShipmentBatch: (data: Envio[]) => {}, // Nueva función para guardar lotes de envíos
-
   shipments: [] as Envio[],
 });
 

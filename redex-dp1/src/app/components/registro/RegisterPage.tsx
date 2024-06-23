@@ -5,6 +5,7 @@ import { cities } from "@/app/data/cities";
 import { OperationContext } from "@/app/context/operation-provider";
 import { Envio } from "@/app/types/envios";
 import toast, { Toaster } from "react-hot-toast";
+import { randomBytes } from "crypto";
 
 interface FormData {
   firstName: string;
@@ -206,7 +207,8 @@ const RegisterPage: React.FC = () => {
       cantPaquetes: parseInt(formData.packageCount),
       paquetes: [],
     };
-    console.log(envio.fechaHoraOrigen);
+
+    envio.idEnvio = generateUniqueId(envio);
     saveShipmentData(envio);
 
     setFormData({
@@ -262,6 +264,20 @@ const RegisterPage: React.FC = () => {
 
   const triggerFileInput = () => {
     document.getElementById("fileInput")?.click();
+  };
+
+  const generateUniqueId = (envio: Envio): string => {
+    const { codigoIATAOrigen, codigoIATADestino, fechaHoraOrigen } = envio;
+    const hashString = `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}`;
+    let hash = 0;
+
+    for (let i = 0; i < hashString.length; i++) {
+      const chr = hashString.charCodeAt(i);
+      hash = (hash << 5) - hash + chr;
+      hash |= 0;
+    }
+
+    return `ID${Math.abs(hash)}`;
   };
 
   return (
