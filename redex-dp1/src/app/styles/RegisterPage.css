@@ -9,7 +9,7 @@
     align-items: center;
     justify-content: top;
   }
-  
+
   .register-shipment-container h1 {
     color: #d32f2f;
     text-align: left;
@@ -58,6 +58,12 @@
     cursor: pointer;
     transition: background-color 0.3s, transform 0.2s; /* Added transform for interactive feedback */
   }
+  
+  .register-shipment-button:disabled {
+    background-color: #ccc; /* Gray background for disabled state */
+    cursor: not-allowed; /* Change cursor to indicate non-interactive element */
+    transform: none; /* No transform effect when disabled */
+  }  
   
   input[type="submit"]:hover,
   .register-shipment-button:hover {

@@ -48,10 +48,30 @@ const RegisterPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showConfirmationPopup, setShowConfirmationPopup] =
     useState<boolean>(false);
+  const [showUploadConfirmationPopup, setShowUploadConfirmationPopup] =
+    useState<boolean>(false);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     setSelectedFile(file);
+    if (file) {
+      setShowUploadConfirmationPopup(true); // Show confirmation when file is selected
+    }
+  };
+
+  const handleUploadConfirmed = async () => {
+    if (!selectedFile) {
+      alert("No file selected. Please select a file and try again.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    // Implement file upload logic here
+
+    setSelectedFile(null); // Reset file selection after upload
+    setShowUploadConfirmationPopup(false); // Close the confirmation popup
   };
 
   const handleUploadAndSend = async () => {
@@ -206,35 +226,27 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="register-shipment-container">
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
-        <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
-        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-          <div>
-            <input
-              type="file"
-              id="fileInput"
-              style={{ display: "none" }}
-              onChange={handleFileChange}
-              accept=".txt"
-            />
-            <label htmlFor="fileInput" className="register-shipment-button">
-              Carga Masiva
-            </label>
-            {"    "}
-            <label
-              onClick={handleUploadAndSend}
-              className="register-shipment-button"
-              disabled={!selectedFile} // Deshabilitar hasta que se seleccione un archivo
-            >
-              Registro Masivo
-            </label>
-          </div>
+      <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
+
+      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+        <div>
+          <input
+            type="file"
+            id="fileInput"
+            style={{ display: "none" }}
+            onChange={handleFileChange}
+            accept=".txt"
+          />
+          <label htmlFor="fileInput" className="register-shipment-button">
+            Carga Masiva
+          </label>
+          <button
+            onClick={() => selectedFile && handleUploadConfirmed()}
+            className="register-shipment-button"
+            disabled={!selectedFile} // Disable button unless a file is selected
+          >
+            Registro Masivo
+          </button>
         </div>
       </div>
 
