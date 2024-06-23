@@ -1,143 +1,152 @@
 /* General Layout and Styling */
 .register-shipment-container {
-    font-family: Arial, sans-serif;
-    background-color: #f9f9f9;
-    padding: 40px;
-    width: 100%;
-    height: 100%;
-    flex-direction: column;
-    align-items: center;
-    justify-content: top;
-  }
-
-  .register-shipment-container h1 {
-    color: #d32f2f;
-    text-align: left;
-    margin-bottom: 20px;
-  }
-  
-  form {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 10px 20px;
-    width: 100%;  /* Ensure the form uses the full container width */
-  }
-  
-  input[type="text"],
-  input[type="email"],
-  input[type="number"],
-  textarea {
-    padding: 8px;
-    border: 2px solid #ccc; /* Slightly thicker border for better visibility */
-    border-radius: 5px; /* Rounded corners for inputs */
-    resize: none;
-    transition: border-color 0.3s; /* Smooth transition for focus */
-    width: 100%;
-  }
-  
-  input[type="text"]:focus,
-  input[type="email"]:focus,
-  input[type="number"]:focus,
-  textarea:focus {
-    border-color: #007bff; /* Highlight focus with a blue border */
-  }
-  
-  textarea {
-    height: 100px;
-    resize: vertical;
-  }
-  
-  input[type="submit"],
-  .register-shipment-button {
-    grid-column: span 2;
-    padding: 10px 20px;
-    background-color: #007bff; /* Consistent color theme for buttons */
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s, transform 0.2s; /* Added transform for interactive feedback */
-  }
-  
-  .register-shipment-button:disabled {
-    background-color: #ccc; /* Gray background for disabled state */
-    cursor: not-allowed; /* Change cursor to indicate non-interactive element */
-    transform: none; /* No transform effect when disabled */
-  }  
-  .register-shipment-button:not(:disabled):hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
+  font-family: Arial, sans-serif;
+  background-color: #f9f9f9;
+  padding: 40px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: start;
 }
-  @media (max-width: 768px) {
-    .register-shipment-container {
-      width: 90%;
-      padding: 10px;
-    }
-  
-    form {
-      grid-template-columns: 1fr; /* Stack fields vertically on smaller screens */
-    }
-  
-    input[type="submit"],
-    .register-shipment-button {
-      grid-column: span 1;
-    }
-  }
-  
-  .form-group {
-    margin-bottom: 15px;
-  }
-  
-  .form-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-  }
-  
-  .form-group .required {
-    color: red;
-  }
-  
-  .error-messages {
-    margin-top: 20px;
-    color: red;
-    }
 
-  .error-text {   
-    margin: 0;
-    } 
-  
-    .popup {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .popup-content {
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
-      text-align: center;
-    }
-    
-    .popup-content button {
-      margin-top: 20px;
-      padding: 10px 20px;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-    
-    .popup-content button:hover {
-      background: #0056b3;
-    }
-    
+.register-shipment-container h1 {
+  color: #d32f2f;
+  text-align: left;
+  margin-bottom: 20px;
+}
+
+form {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 20px;
+  width: 100%; /* Full container width */
+}
+
+input[type="text"],
+input[type="email"],
+input[type="number"],
+textarea {
+  padding: 8px;
+  border: 2px solid #ccc; /* Slightly thicker border for better visibility */
+  border-radius: 5px; /* Rounded corners */
+  resize: none;
+  transition: border-color 0.3s; /* Smooth transition */
+  width: 100%;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="number"]:focus,
+textarea:focus {
+  border-color: #007bff; /* Highlight focus with blue */
+}
+
+textarea {
+  height: 100px;
+  resize: vertical;
+}
+
+input[type="submit"],
+.register-shipment-button,
+.select-archive-button,
+.deselect-archive-button {
+  padding: 10px 20px;
+  background-color: #007bff; /* Consistent theme */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+.register-shipment-button:disabled,
+.select-archive-button:disabled,
+.deselect-archive-button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.register-shipment-button:not(:disabled):hover,
+.select-archive-button:not(:disabled):hover,
+.deselect-archive-button:not(:disabled):hover {
+  background-color: #0056b3;
+  transform: scale(1.05);
+}
+
+@media (max-width: 768px) {
+  .register-shipment-container {
+    width: 90%;
+    padding: 20px;
+  }
+
+  form {
+    grid-template-columns: 1fr; /* Single column on small screens */
+  }
+
+  input[type="submit"],
+  .register-shipment-button,
+  .select-archive-button,
+  .deselect-archive-button {
+    grid-column: span 1;
+  }
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+.form-group .required {
+  color: red;
+}
+
+.error-messages {
+  margin-top: 20px;
+  color: red;
+}
+
+.error-text {
+  margin: 0;
+}
+
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.popup-content {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.25);
+  text-align: center;
+}
+
+.popup-content button {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.popup-content button:hover {
+  background: #0056b3;
+}

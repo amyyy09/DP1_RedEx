@@ -220,7 +220,7 @@ const RegisterPage: React.FC = () => {
     <div className="register-shipment-container">
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
 
-      <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+      <div>
         <input
           type="file"
           id="fileInput"
@@ -228,19 +228,17 @@ const RegisterPage: React.FC = () => {
           onChange={handleFileChange}
           accept=".txt"
         />
-        <div>
-          <label htmlFor="fileInput" className="register-shipment-button">
-            Carga Masiva
-          </label>
-          <button
-            onClick={handleDeselectFile}
-            className="register-shipment-button"
-            style={{ marginLeft: "10px" }}
-            disabled={selectedFile == null}
-          >
-            X
-          </button>
-        </div>
+        <label htmlFor="fileInput" className="select-archive-button">
+          Carga Masiva
+        </label>
+        <button
+          onClick={handleDeselectFile}
+          className="deselect-archive-button"
+          style={{ marginLeft: "10px" }}
+          disabled={selectedFile == null}
+        >
+          X
+        </button>
         <button
           onClick={() => selectedFile && handleUploadConfirmed()}
           className="register-shipment-button"
