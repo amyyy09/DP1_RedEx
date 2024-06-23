@@ -20,14 +20,6 @@ interface FormData {
   contentDescription: string;
 }
 
-interface City {
-  name: string;
-  code: string;
-  coords: { lat: number; lng: number };
-  GMT: number;
-  capacidad: number;
-}
-
 const RegisterPage: React.FC = () => {
   const { saveShipmentData, shipments } = useContext(OperationContext);
 
@@ -181,8 +173,6 @@ const RegisterPage: React.FC = () => {
       packageCount: "",
       contentDescription: "",
     });
-
-    // Show popup
     setPopupMessage("Pedido registrado con éxito.");
     setShowPopup(true);
   };
