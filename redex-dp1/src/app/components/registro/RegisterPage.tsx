@@ -106,6 +106,7 @@ const RegisterPage: React.FC = () => {
         .filter((envio): envio is Envio => envio !== null);
 
       saveShipmentBatch([...shipments, ...newShipments]);
+      toast.success("Registro Masivo Exitoso!");
     };
 
     reader.readAsText(selectedFile);
@@ -223,7 +224,7 @@ const RegisterPage: React.FC = () => {
       contentDescription: "",
     });
     toast.success("Pedido registrado con éxito");
-    setShowConfirmationPopup(false); // Close confirmation popup
+    setShowConfirmationPopup(false);
   };
 
   const handleSubmit = (e: FormEvent) => {
