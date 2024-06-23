@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class VueloNuevo {
+    private String IdVuelo;
     private int cantPaquetes;
     private int capacidad;
     private int status;
@@ -21,6 +22,5 @@ public class VueloNuevo {
     private LocalDateTime horaLlegada;
     private String aeropuertoOrigen;
     private String aeropuertoDestino;
-    private String IdVuelo;
     private List<Paquete> paquetes;
 }

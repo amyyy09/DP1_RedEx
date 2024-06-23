@@ -3,6 +3,7 @@ package src.services;
 import src.model.*;
 import src.service.RutaPredefinidaService;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -139,7 +141,7 @@ public class PlanificacionService {
         Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
         List<Particula> population = new ArrayList<>();
         int numParticles = 3;
-        int numIterationsMax = 15;
+        int numIterationsMax = 10;
         double w = 0.5, c1 = 1, c2 = 2;
 
         // Initialize particles
@@ -156,7 +158,7 @@ public class PlanificacionService {
         int noImprovementCounter = 0;
         int j = 0;
 
-        while (noImprovementCounter < numIterationsMax && j < 5) {
+        while (noImprovementCounter < numIterationsMax && j < 10) {
             for (Particula particle : population) {
                 for (int k = 0; k < envios.size(); k++) {
                     List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k)); // todas las rutas que sirvan para ese envio
@@ -508,4 +510,54 @@ public class PlanificacionService {
 
         return new ArrayList<>(vuelosNuevosMap.values());
     }
+
+    public static Resumen generarResumen(Map<Paquete, Resultado> resultado, List<PlanDeVuelo> planesDeVuelo) {
+        List<Vuelo> todosVuelos = resultado.values().stream()
+                .flatMap(res -> res.getVuelos().stream())
+                .collect(Collectors.toList());
+
+        int totalPaquetes = resultado.size(); // Cantidad de entradas en el mapa
+
+        Map<Integer, PlanDeVuelo> planesMap = planesDeVuelo.stream()
+                .collect(Collectors.toMap(PlanDeVuelo::getIndexPlan, Function.identity()));
+
+        Map<String, Long> frecuenciaDestino = todosVuelos.stream()
+                .map(vuelo -> planesMap.get(vuelo.getIndexPlan()).getCodigoIATADestino())
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+
+        String aeropuertoDestinoMasFrecuente = frecuenciaDestino.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("N/A");
+
+        Map<Integer, Long> vuelosPorHora = todosVuelos.stream()
+                .collect(Collectors.groupingBy(
+                        vuelo -> vuelo.getHoraSalida().getHour(),
+                        Collectors.counting()
+                ));
+
+        // Encontrar la hora con más vuelos
+        int horaConMasVuelos = vuelosPorHora.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(-1);
+
+        double promedioPaquetesPorVuelo = (double) totalPaquetes / todosVuelos.size();
+
+        double tiempoPromedioVuelo = todosVuelos.stream()
+                .mapToLong(vuelo -> Duration.between(vuelo.getHoraSalida(), vuelo.getHoraLlegada()).toMinutes())
+                .average()
+                .orElse(0);
+                
+        Resumen resumen = new Resumen();
+        resumen.setNumeroVuelos(todosVuelos.size());
+        resumen.setTotalPaquetes(totalPaquetes);
+        resumen.setAeropuertoMasFrecuente(aeropuertoDestinoMasFrecuente);
+        resumen.setHoraConMasVuelos(horaConMasVuelos);
+        resumen.setPromedioPaquetesPorVuelo(promedioPaquetesPorVuelo);
+        resumen.setTiempoPromedioVuelo(tiempoPromedioVuelo);
+        
+        return resumen;
+    }
+
 }
