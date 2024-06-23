@@ -86,8 +86,9 @@ const RegisterPage: React.FC = () => {
             const day = fechaStr.substring(6, 8);
             const codigoIATADestino = codigoIATADestinoPackage.split(":")[0];
             const packageCount = codigoIATADestinoPackage.split(":")[1];
-            const date = new Date(`${year}-${month}-${day}T${horaStr}:00`);
-            const fechaHoraOrigen = date.toISOString().replace("Z", "");
+            const fechaHoraOrigen = formatDateForBackend(
+              new Date(`${year}-${month}-${day}T${horaStr}:00`).toISOString()
+            );
 
             return {
               idEnvio,
