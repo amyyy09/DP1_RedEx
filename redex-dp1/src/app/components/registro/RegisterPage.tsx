@@ -54,6 +54,9 @@ const RegisterPage: React.FC = () => {
   };
 
   const handleUploadConfirmed = async (): Promise<void> => {
+    if (typeof window === "undefined") {
+      return;
+    }
     if (!selectedFile) {
       alert("No file selected. Please select a file and try again.");
       return;
@@ -73,28 +76,18 @@ const RegisterPage: React.FC = () => {
             const [
               codigoIATAOrigen,
               idEnvio,
-              fechaHoraOrigenStr,
-              codigoIATADestino,
-              packageCount,
+              fechaStr,
+              horaStr,
+              codigoIATADestinoPackage,
             ] = parts as [string, string, string, string, string];
 
-            const fechaHoraOrigen = formatDateForBackend(
-              new Date(
-                `${fechaHoraOrigenStr.substring(
-                  0,
-                  4
-                )}-${fechaHoraOrigenStr.substring(
-                  4,
-                  6
-                )}-${fechaHoraOrigenStr.substring(
-                  6,
-                  8
-                )}T${fechaHoraOrigenStr.substring(
-                  9,
-                  11
-                )}:${fechaHoraOrigenStr.substring(12, 14)}`
-              ).toISOString()
-            );
+            const year = fechaStr.substring(0, 4);
+            const month = fechaStr.substring(4, 6);
+            const day = fechaStr.substring(6, 8);
+            const codigoIATADestino = codigoIATADestinoPackage.split(":")[0];
+            const packageCount = codigoIATADestinoPackage.split(":")[1];
+            const date = new Date(`${year}-${month}-${day}T${horaStr}:00`);
+            const fechaHoraOrigen = date.toISOString().replace("Z", "");
 
             return {
               idEnvio,
