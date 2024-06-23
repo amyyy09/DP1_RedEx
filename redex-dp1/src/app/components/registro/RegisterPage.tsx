@@ -136,15 +136,19 @@ const RegisterPage: React.FC = () => {
 
   const validateForm = () => {
     const newErrors = [];
-    if (!formData.firstName.trim()) newErrors.push("First name is required.");
-    if (!formData.email.trim()) newErrors.push("Email is required.");
-    if (!formData.originCity.trim()) newErrors.push("Origin city is required.");
+    if (!formData.firstName.trim()) newErrors.push("El nombre es obligatorio.");
+    if (!formData.email.trim())
+      newErrors.push("El correo electrónico es obligatorio.");
+    if (!formData.originCity.trim())
+      newErrors.push("La ciudad de origen es obligatoria.");
     if (!formData.destinationCity.trim())
-      newErrors.push("Destination city is required.");
+      newErrors.push("La ciudad de destino es obligatoria.");
     if (formData.originCity === formData.destinationCity)
-      newErrors.push("Origin and destination cities cannot be the same.");
+      newErrors.push(
+        "Las ciudades de origen y destino no pueden ser las mismas."
+      );
     if (!formData.packageCount.trim())
-      newErrors.push("Package count is required.");
+      newErrors.push("La cantidad de paquetes es obligatoria.");
     return newErrors;
   };
 
@@ -208,10 +212,6 @@ const RegisterPage: React.FC = () => {
     } catch (error) {
       console.error("Error al enviar los pedidos:", error);
     }
-  };
-
-  const closePopup = () => {
-    setShowPopup(false);
   };
 
   const handleDeselectFile = () => {
