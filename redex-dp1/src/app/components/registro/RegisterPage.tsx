@@ -176,9 +176,6 @@ const RegisterPage: React.FC = () => {
 
   const validateForm = () => {
     const newErrors = [];
-    if (!formData.firstName.trim()) newErrors.push("El nombre es obligatorio.");
-    if (!formData.email.trim())
-      newErrors.push("El correo electrónico es obligatorio.");
     if (!formData.originCity.trim())
       newErrors.push("La ciudad de origen es obligatoria.");
     if (!formData.destinationCity.trim())
@@ -325,9 +322,7 @@ const RegisterPage: React.FC = () => {
       </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
-          <label htmlFor="firstName">
-            Nombres de cliente <span className="required">*</span>
-          </label>
+          <label htmlFor="firstName">Nombres de cliente</label>
           <input
             type="text"
             id="firstName"
@@ -338,9 +333,7 @@ const RegisterPage: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="lastName">
-            Apellidos de cliente <span className="required">*</span>
-          </label>
+          <label htmlFor="lastName">Apellidos de cliente</label>
           <input
             type="text"
             id="lastName"
@@ -351,9 +344,7 @@ const RegisterPage: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="email">
-            Correo Electrónico <span className="required">*</span>
-          </label>
+          <label htmlFor="email">Correo Electrónico</label>
           <input
             type="email"
             id="email"
@@ -364,9 +355,7 @@ const RegisterPage: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="phoneNumber">
-            Número Telefónico <span className="required">*</span>
-          </label>
+          <label htmlFor="phoneNumber">Número Telefónico</label>
           <input
             type="text"
             id="phoneNumber"
