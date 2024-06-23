@@ -468,11 +468,31 @@ const RegisterPage: React.FC = () => {
       {showConfirmationPopup && (
         <div className="popup">
           <div className="popup-content">
-            <p>¿Está seguro que desea registrar el pedido?</p>
-            <button onClick={handleFinalSubmit}>Confirmar</button>
-            <button onClick={() => setShowConfirmationPopup(false)}>
-              Cancelar
-            </button>
+            <label>¿Está seguro que desea registrar el pedido?</label>
+            <div
+              style={{
+                display: "flex",
+                width: "100%",
+                gap: "10px",
+                paddingBottom: "6px",
+                paddingTop: "12px",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <button
+                onClick={handleFinalSubmit}
+                className="select-archive-button"
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={() => setShowConfirmationPopup(false)}
+                className="deselect-archive-button"
+              >
+                Cancelar
+              </button>
+            </div>
           </div>
         </div>
       )}
