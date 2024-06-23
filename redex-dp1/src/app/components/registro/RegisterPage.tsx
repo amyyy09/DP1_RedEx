@@ -4,7 +4,7 @@ import TitleWithIcon from "./TitleWithIcon";
 import { cities } from "@/app/data/cities";
 import { OperationContext } from "@/app/context/operation-provider";
 import { Envio } from "@/app/types/envios";
-import { ToastContainer, toast } from "react-toastify";
+import toast, { Toaster } from "react-hot-toast";
 
 interface FormData {
   firstName: string;
@@ -175,8 +175,7 @@ const RegisterPage: React.FC = () => {
       packageCount: "",
       contentDescription: "",
     });
-    setPopupMessage("Pedido registrado con éxito.");
-    setShowPopup(true);
+    toast.success("Pedido registrado con éxito");
     setShowConfirmationPopup(false); // Close confirmation popup
   };
 
@@ -185,6 +184,9 @@ const RegisterPage: React.FC = () => {
     const formErrors = validateForm();
     if (formErrors.length > 0) {
       setErrors(formErrors);
+      formErrors.forEach((error) => {
+        toast.error(error);
+      });
       return;
     }
     setErrors([]);
@@ -224,17 +226,7 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="register-shipment-container">
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-      />
+      <Toaster position="top-right" reverseOrder={false} />
 
       <div
         style={{
@@ -410,26 +402,8 @@ const RegisterPage: React.FC = () => {
           <button className="register-shipment-button" type="submit">
             Registrar Pedido
           </button>
-
-          {errors.length > 0 && (
-            <div className="error-messages">
-              {errors.map((error, index) => (
-                <p key={index} className="error-text">
-                  {error}
-                </p>
-              ))}
-            </div>
-          )}
         </div>
       </form>
-      {showPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <p>{popupMessage}</p>
-            <button onClick={closePopup}>Cerrar</button>
-          </div>
-        </div>
-      )}
       {showConfirmationPopup && (
         <div className="popup">
           <div className="popup-content">
