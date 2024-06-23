@@ -64,13 +64,10 @@
     cursor: not-allowed; /* Change cursor to indicate non-interactive element */
     transform: none; /* No transform effect when disabled */
   }  
-  
-  input[type="submit"]:hover,
-  .register-shipment-button:hover {
-    background-color: #0056b3; /* Darker shade on hover */
-    transform: scale(1.05); /* Slightly enlarge on hover */
-  }
-  
+  .register-shipment-button:not(:disabled):hover {
+    background-color: #0056b3;
+    transform: scale(1.05);
+}
   @media (max-width: 768px) {
     .register-shipment-container {
       width: 90%;
