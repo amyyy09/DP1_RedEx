@@ -37,6 +37,7 @@ public class ApiServices {
     private AeropuertoService aeropuertoService;
 
     private static List<Vuelo> vuelosGuardados = new ArrayList<>();
+    private static Resumen reportResumen = null;
 
     private static List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
     public String ejecutarPso(LocalDateTime fechaHora) {
@@ -45,8 +46,7 @@ public class ApiServices {
         List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
         Map<Paquete, Resultado> jsonprevio = null;
         Map<Paquete, RutaTiempoReal> resultado = null;
-        List<PaqueteDTO> paqRutas = null;
-        List<VueloNuevo> json = null;
+        List<Vuelo> json = null;
         String jsonResult = null;
 
         try {
@@ -60,15 +60,15 @@ public class ApiServices {
             if (!envios.isEmpty()) {
                 resultado = planificacionService.PSO(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados, vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
-                paqRutas = PaqueteDTO.fromMap(jsonprevio);
-                json = planificacionService.transformarResultados(jsonprevio, planesDeVuelo);
-
+                json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
+                reportResumen = planificacionService.generarResumen(jsonprevio,planesDeVuelo);
+                
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(1);
                 int zonaHorariaGMT;
                 LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
-                for (VueloNuevo vn : json) {
+                for (Vuelo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoDestino());
                     horallegadaGMT0=vn.getHoraLlegada().plusHours(zonaHorariaGMT);
                     if (horallegadaGMT0.isAfter(fechaHora) && horallegadaGMT0.isBefore(fechaHoraReal)) {
@@ -84,10 +84,10 @@ public class ApiServices {
                     }
                 }
 
-                List<VueloNuevo> jsonVuelosActuales = new ArrayList<>();
-                List<VueloNuevo> jsonVuelosProximos = new ArrayList<>();
+                List<Vuelo> jsonVuelosActuales = new ArrayList<>();
+                List<Vuelo> jsonVuelosProximos = new ArrayList<>();
 
-                for (VueloNuevo vn : json) {
+                for (Vuelo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());// la hora salida esta con la hora del origen o destino? si es destino cambiar por vn.getAeropuertoDestino() si es origen cambiarlo a vn.getAeropuertoOrigen()
                     horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
                     if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
@@ -100,16 +100,8 @@ public class ApiServices {
 
                 clearVuelosGuardados();
                 envios.clear();
-                for (VueloNuevo vn : jsonVuelosProximos) {
-                    Vuelo vuelo = new Vuelo();
-                    vuelo.setIdVuelo(vn.getIdVuelo());
-                    vuelo.setCantPaquetes(vn.getCantPaquetes());
-                    vuelo.setCapacidad(vn.getCapacidad());
-                    vuelo.setStatus(vn.getStatus());
-                    vuelo.setIndexPlan(vn.getIndexPlan());
-                    vuelo.setHoraSalida(vn.getHoraSalida());
-                    vuelo.setHoraLlegada(vn.getHoraLlegada());
-                    vuelosGuardados.add(vuelo);
+                for (Vuelo vn : jsonVuelosProximos) {
+                    vuelosGuardados.add(vn);
                 }
 
                 // Convertir el resultado a JSON
@@ -125,6 +117,10 @@ public class ApiServices {
 
     public static List<Vuelo> getVuelosGuardados() {
         return vuelosGuardados;
+    }
+
+    public static Resumen getReportesResumen() {
+        return reportResumen;
     }
 
     public static void clearVuelosGuardados() {

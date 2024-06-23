@@ -41,7 +41,6 @@ public class ApiServicesDiario {
         Map<Paquete, Resultado> jsonprevio = null;
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
-        List<PaqueteDTO> paqRutas = null;
         String jsonResult = null;
         LocalDateTime fechaHora= LocalDateTime.now();
         try {
@@ -56,7 +55,7 @@ public class ApiServicesDiario {
                 resultado = planificacionService.PSODiario(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados, vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
-
+                
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(1);
                 int zonaHorariaGMT;
@@ -82,7 +81,7 @@ public class ApiServicesDiario {
                 List<Vuelo> jsonVuelosProximos = new ArrayList<>();
 
                 for (Vuelo vn : json) {
-                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());// la hora salida esta con la hora del origen o destino? si es destino cambiar por vn.getAeropuertoDestino() si es origen cambiarlo a vn.getAeropuertoOrigen()
+                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
                     horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
                     if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
@@ -98,7 +97,6 @@ public class ApiServicesDiario {
                     vuelosGuardados.add(vn);
                 }
 
-                // Convertir el resultado a JSON
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
                 jsonResult = mapper.writeValueAsString(jsonVuelosActuales);
