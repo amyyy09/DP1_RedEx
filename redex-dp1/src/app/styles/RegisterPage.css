@@ -80,6 +80,10 @@ input[type="submit"],
   transition: background-color 0.3s, transform 0.2s;
 }
 
+.deselect-archive-button:not(:disabled):hover {
+  background-color: #a11901;
+  transform: scale(1.05);
+}
 
 .register-shipment-button:disabled,
 .select-archive-button:disabled,
@@ -90,8 +94,7 @@ input[type="submit"],
 }
 
 .register-shipment-button:not(:disabled):hover,
-.select-archive-button:not(:disabled):hover,
-.deselect-archive-button:not(:disabled):hover {
+.select-archive-button:not(:disabled):hover {
   background-color: #0056b3;
   transform: scale(1.05);
 }
