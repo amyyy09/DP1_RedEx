@@ -216,11 +216,22 @@ const RegisterPage: React.FC = () => {
     setShowUploadConfirmationPopup(false); // Show confirmation when file is selected
   };
 
+  const triggerFileInput = () => {
+    document.getElementById("fileInput")?.click();
+  };
+
   return (
     <div className="register-shipment-container">
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
 
-      <div>
+      <div
+        style={{
+          display: "flex",
+          width: "100%",
+          gap: "10px",
+          paddingBottom: "12px",
+        }}
+      >
         <input
           type="file"
           id="fileInput"
@@ -228,16 +239,15 @@ const RegisterPage: React.FC = () => {
           onChange={handleFileChange}
           accept=".txt"
         />
-        <label htmlFor="fileInput" className="select-archive-button">
+        <button onClick={triggerFileInput} className="select-archive-button">
           Carga Masiva
-        </label>
+        </button>
         <button
           onClick={handleDeselectFile}
           className="deselect-archive-button"
-          style={{ marginLeft: "10px" }}
           disabled={selectedFile == null}
         >
-          X
+          Cancelar
         </button>
         <button
           onClick={() => selectedFile && handleUploadConfirmed()}
@@ -383,18 +393,21 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           ></textarea>
         </div>
-        <button className="register-shipment-button" type="submit">
-          Registrar Pedido
-        </button>
-        {errors.length > 0 && (
-          <div className="error-messages">
-            {errors.map((error, index) => (
-              <p key={index} className="error-text">
-                {error}
-              </p>
-            ))}
-          </div>
-        )}
+        <div className="form-group">
+          <button className="register-shipment-button" type="submit">
+            Registrar Pedido
+          </button>
+
+          {errors.length > 0 && (
+            <div className="error-messages">
+              {errors.map((error, index) => (
+                <p key={index} className="error-text">
+                  {error}
+                </p>
+              ))}
+            </div>
+          )}
+        </div>
       </form>
       {showPopup && (
         <div className="popup">

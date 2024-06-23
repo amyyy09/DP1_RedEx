@@ -49,9 +49,7 @@ textarea {
 }
 
 input[type="submit"],
-.register-shipment-button,
-.select-archive-button,
-.deselect-archive-button {
+.register-shipment-button {
   padding: 10px 20px;
   background-color: #007bff; /* Consistent theme */
   color: white;
@@ -60,6 +58,28 @@ input[type="submit"],
   cursor: pointer;
   transition: background-color 0.3s, transform 0.2s;
 }
+
+.select-archive-button {
+  padding: 10px 20px;
+  background-color: #007bff; /* Consistent theme */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
+input[type="submit"],
+.deselect-archive-button {
+  padding: 10px 20px;
+  background-color: #d92727; /* Consistent theme */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s, transform 0.2s;
+}
+
 
 .register-shipment-button:disabled,
 .select-archive-button:disabled,
