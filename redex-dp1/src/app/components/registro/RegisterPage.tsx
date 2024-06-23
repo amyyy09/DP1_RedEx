@@ -39,9 +39,6 @@ const RegisterPage: React.FC = () => {
     contentDescription: "",
   });
 
-  const [errors, setErrors] = useState<string[]>([]);
-  const [popupMessage, setPopupMessage] = useState<string>("");
-  const [showPopup, setShowPopup] = useState<boolean>(false);
   const [filteredOriginCities, setFilteredOriginCities] =
     useState<typeof cities>(cities);
   const [filteredDestinationCities, setFilteredDestinationCities] =
@@ -49,15 +46,10 @@ const RegisterPage: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [showConfirmationPopup, setShowConfirmationPopup] =
     useState<boolean>(false);
-  const [showUploadConfirmationPopup, setShowUploadConfirmationPopup] =
-    useState<boolean>(false);
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
     setSelectedFile(file);
-    if (file) {
-      setShowUploadConfirmationPopup(true); // Show confirmation when file is selected
-    }
   };
 
   const handleUploadConfirmed = async () => {
@@ -65,11 +57,9 @@ const RegisterPage: React.FC = () => {
       alert("No file selected. Please select a file and try again.");
       return;
     }
-
     const formData = new FormData();
     formData.append("file", selectedFile);
-    setSelectedFile(null); // Reset file selection after upload
-    setShowUploadConfirmationPopup(false); // Close the confirmation popup
+    setSelectedFile(null);
   };
 
   const handleChange = (
@@ -187,13 +177,11 @@ const RegisterPage: React.FC = () => {
     e.preventDefault();
     const formErrors = validateForm();
     if (formErrors.length > 0) {
-      setErrors(formErrors);
       formErrors.forEach((error) => {
         toast.error(error);
       });
       return;
     }
-    setErrors([]);
     setShowConfirmationPopup(true);
   };
 
@@ -216,7 +204,6 @@ const RegisterPage: React.FC = () => {
 
   const handleDeselectFile = () => {
     setSelectedFile(null);
-    setShowUploadConfirmationPopup(false); // Show confirmation when file is selected
   };
 
   const triggerFileInput = () => {
