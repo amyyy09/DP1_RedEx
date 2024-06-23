@@ -210,15 +210,35 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="register-shipment-container">
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
-        <div className="error-messages">
-          <button
-            className="register-shipment-button"
-            onClick={handleEnviarPedidos}
-          >
-            Enviar Pedidos
-          </button>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <div>
+            <input
+              type="file"
+              id="fileInput"
+              style={{ display: "none" }}
+              onChange={handleFileChange}
+              accept=".txt"
+            />
+            <label htmlFor="fileInput" className="register-shipment-button">
+              Carga Masiva
+            </label>
+            {"    "}
+            <label
+              onClick={handleUploadAndSend}
+              className="register-shipment-button"
+              disabled={!selectedFile} // Deshabilitar hasta que se seleccione un archivo
+            >
+              Registro Masivo
+            </label>
+          </div>
         </div>
       </div>
 
@@ -370,16 +390,6 @@ const RegisterPage: React.FC = () => {
           </div>
         )}
       </form>
-      <div style={{ marginTop: "20px" }}>
-        <input type="file" onChange={handleFileChange} accept=".txt" />
-        <button
-          onClick={handleUploadAndSend}
-          className="register-shipment-button"
-        >
-          Cargar y Enviar Pedidos Masivos
-        </button>
-      </div>
-
       {showPopup && (
         <div className="popup">
           <div className="popup-content">
