@@ -4,6 +4,7 @@ import TitleWithIcon from "./TitleWithIcon";
 import { cities } from "@/app/data/cities";
 import { OperationContext } from "@/app/context/operation-provider";
 import { Envio } from "@/app/types/envios";
+import { ToastContainer, toast } from "react-toastify";
 
 interface FormData {
   firstName: string;
@@ -187,7 +188,7 @@ const RegisterPage: React.FC = () => {
       return;
     }
     setErrors([]);
-    setShowConfirmationPopup(true); // Show confirmation popup instead of submitting directly
+    setShowConfirmationPopup(true);
   };
 
   const handleEnviarPedidos = async () => {
@@ -223,6 +224,17 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="register-shipment-container">
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
+      <ToastContainer
+        position="top-right"
+        autoClose={5000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+      />
 
       <div
         style={{
