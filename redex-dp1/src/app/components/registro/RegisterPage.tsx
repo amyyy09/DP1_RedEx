@@ -22,7 +22,8 @@ interface FormData {
 }
 
 const RegisterPage: React.FC = () => {
-  const { saveShipmentData, shipments } = useContext(OperationContext);
+  const { saveShipmentData, shipments, saveShipmentBatch } =
+    useContext(OperationContext);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -52,13 +53,67 @@ const RegisterPage: React.FC = () => {
     setSelectedFile(file);
   };
 
-  const handleUploadConfirmed = async () => {
+  const handleUploadConfirmed = async (): Promise<void> => {
     if (!selectedFile) {
       alert("No file selected. Please select a file and try again.");
       return;
     }
-    const formData = new FormData();
-    formData.append("file", selectedFile);
+
+    const reader = new FileReader();
+
+    reader.onload = (e: ProgressEvent<FileReader>) => {
+      const text = e.target?.result as string;
+      const lines = text.split(/\r?\n/);
+
+      const newShipments = lines
+        .map((line) => {
+          const parts = line.split("-");
+
+          if (parts.length === 5) {
+            const [
+              codigoIATAOrigen,
+              idEnvio,
+              fechaHoraOrigenStr,
+              codigoIATADestino,
+              packageCount,
+            ] = parts as [string, string, string, string, string];
+
+            const fechaHoraOrigen = formatDateForBackend(
+              new Date(
+                `${fechaHoraOrigenStr.substring(
+                  0,
+                  4
+                )}-${fechaHoraOrigenStr.substring(
+                  4,
+                  6
+                )}-${fechaHoraOrigenStr.substring(
+                  6,
+                  8
+                )}T${fechaHoraOrigenStr.substring(
+                  9,
+                  11
+                )}:${fechaHoraOrigenStr.substring(12, 14)}`
+              ).toISOString()
+            );
+
+            return {
+              idEnvio,
+              fechaHoraOrigen,
+              zonaHorariaGMT: formData.originGMT, // Asumiendo que el GMT no varía por envío
+              codigoIATAOrigen,
+              codigoIATADestino,
+              cantPaquetes: parseInt(packageCount, 10),
+              paquetes: [],
+            } as Envio;
+          }
+          return null;
+        })
+        .filter((envio): envio is Envio => envio !== null);
+
+      saveShipmentBatch([...shipments, ...newShipments]);
+    };
+
+    reader.readAsText(selectedFile);
     setSelectedFile(null);
   };
 
@@ -218,7 +273,7 @@ const RegisterPage: React.FC = () => {
   return (
     <div className="register-shipment-container">
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
-      <Toaster position="top-right" reverseOrder={false} />x
+      <Toaster position="top-right" reverseOrder={false} />
       <div
         style={{
           display: "flex",

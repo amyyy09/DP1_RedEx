@@ -15,6 +15,8 @@ export const OperationContext = createContext({
   startInterval: () => {},
   clearInterval: () => {},
   saveShipmentData: (data: Envio) => {},
+  saveShipmentBatch: (data: Envio[]) => {}, // Nueva función para guardar lotes de envíos
+
   shipments: [] as Envio[],
 });
 
@@ -70,6 +72,10 @@ export default function OperationProvider({
     console.log(shipments);
   };
 
+  const saveShipmentBatch = (data: Envio[]) => {
+    setShipments((prevShipments) => [...prevShipments, ...data]);
+  };
+
   return (
     <OperationContext.Provider
       value={{
@@ -78,6 +84,7 @@ export default function OperationProvider({
         startInterval,
         clearInterval,
         saveShipmentData,
+        saveShipmentBatch,
         shipments,
       }}
     >
