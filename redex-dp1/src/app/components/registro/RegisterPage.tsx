@@ -67,21 +67,8 @@ const RegisterPage: React.FC = () => {
 
     const formData = new FormData();
     formData.append("file", selectedFile);
-
-    // Implement file upload logic here
-
     setSelectedFile(null); // Reset file selection after upload
     setShowUploadConfirmationPopup(false); // Close the confirmation popup
-  };
-
-  const handleUploadAndSend = async () => {
-    if (!selectedFile) {
-      alert("Por favor, seleccione un archivo antes de enviar.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("file", selectedFile);
   };
 
   const handleChange = (
@@ -224,6 +211,11 @@ const RegisterPage: React.FC = () => {
     setShowPopup(false);
   };
 
+  const handleDeselectFile = () => {
+    setSelectedFile(null);
+    setShowUploadConfirmationPopup(false); // Show confirmation when file is selected
+  };
+
   return (
     <div className="register-shipment-container">
       <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
@@ -237,13 +229,20 @@ const RegisterPage: React.FC = () => {
             onChange={handleFileChange}
             accept=".txt"
           />
-          <label htmlFor="fileInput" className="register-shipment-button">
+          <label htmlFor="fileInput" className="register-shipment-label">
             Carga Masiva
           </label>
           <button
+            onClick={handleDeselectFile}
+            className="register-shipment-button"
+            style={{ marginLeft: "10px" }}
+          >
+            Deseleccionar Archivo
+          </button>
+          <button
             onClick={() => selectedFile && handleUploadConfirmed()}
             className="register-shipment-button"
-            disabled={!selectedFile} // Disable button unless a file is selected
+            disabled={!selectedFile}
           >
             Registro Masivo
           </button>
