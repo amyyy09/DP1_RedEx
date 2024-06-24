@@ -21,6 +21,8 @@ const Simulation: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [simulationEnd, setSimulationEnd] = useState(false);
+  const [simulationTerminated, setSimulationTerminated] = useState(false);
+  const [simulationSummary, setSimulationSummary] = useState(null);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -53,7 +55,7 @@ const Simulation: React.FC = () => {
 
     // Update the simulated time
     const updateSimulatedTime = () => {
-      if (!startSimulation) return;
+      if (!startSimulation || simulationTerminated) return;
 
       // console.log("startTime", startTime.current);
 
@@ -87,10 +89,12 @@ const Simulation: React.FC = () => {
         // console.log("simulatedTime", simulatedTime);
         // console.log("totalSimulatedSeconds", totalSimulatedSeconds);
         setStartSimulation(false);
+        setSimulationTerminated(true);
         const peruTime = new Date().toLocaleTimeString("en-US", {
           timeZone: "America/Lima",
         });
         console.log(`Simulation stopped at ${peruTime} Peru time`);
+        console.log('display time: ',displayTime);
         setSimulationEnd(true);
       }
     };
@@ -102,7 +106,21 @@ const Simulation: React.FC = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [startSimulation]);
+  }, [startSimulation, simulationTerminated]);
+
+  const fetchSimulationSummary = async () => {
+    try {
+      const response = await fetch("http://localhost:8080/api/reporte");
+      if (response.ok) {
+        const summary = await response.json();
+        setSimulationSummary(summary);
+      } else {
+        console.error("Error fetching simulation summary");
+      }
+    } catch (error) {
+      console.error("Error fetching simulation summary:", error);
+    }
+  };
 
   const Map = useMemo(
     () =>
@@ -119,6 +137,7 @@ const Simulation: React.FC = () => {
     setStartSimulation(true);
     setLoading(false);
     setDisplayTime("");
+    setSimulationTerminated(false);
     console.log("Simulation started");
   };
 
@@ -133,6 +152,8 @@ const Simulation: React.FC = () => {
 
   const handleSearch = (id: string) => {
     // Buscar el paquete por ID
+    if (simulationTerminated) return;
+
     const foundVuelo = vuelos.current.find((vuelo) =>
       vuelo.paquetes.some((paquete) => paquete.id === id)
     );
@@ -190,12 +211,13 @@ const Simulation: React.FC = () => {
               isMounted={isMounted}
             />
           )}{" "}
-          {simulationEnd && (
+          {simulationEnd && simulationSummary && (
             <EndModal
               onClose={handleEndSimulation}
               simulatedStartDate={startDate}
               simulatedStartHour={startHour}
               simulatedEndDate={displayTime}
+              summary={simulationSummary}
             />
           )}
         </div>
