@@ -512,43 +512,74 @@ public class PlanificacionService {
     }
 
     public static Resumen generarResumen(Map<Paquete, Resultado> resultado, List<PlanDeVuelo> planesDeVuelo) {
+        // Verificar si resultado es null
+        if (resultado == null) {
+            throw new IllegalArgumentException("El mapa resultado no puede ser null");
+        }
+        
         List<Vuelo> todosVuelos = resultado.values().stream()
-                .flatMap(res -> res.getVuelos().stream())
+                .flatMap(res -> {
+                    if (res == null || res.getVuelos() == null) {
+                        throw new IllegalArgumentException("El resultado o la lista de vuelos no puede ser null");
+                    }
+                    return res.getVuelos().stream();
+                })
                 .collect(Collectors.toList());
-
+    
         int totalPaquetes = resultado.size(); // Cantidad de entradas en el mapa
-
+    
+        // Verificar si planesDeVuelo es null
+        if (planesDeVuelo == null) {
+            throw new IllegalArgumentException("La lista de planes de vuelo no puede ser null");
+        }
+    
         Map<Integer, PlanDeVuelo> planesMap = planesDeVuelo.stream()
                 .collect(Collectors.toMap(PlanDeVuelo::getIndexPlan, Function.identity()));
-
+    
         Map<String, Long> frecuenciaDestino = todosVuelos.stream()
-                .map(vuelo -> planesMap.get(vuelo.getIndexPlan()).getCodigoIATADestino())
+                .map(vuelo -> {
+                    PlanDeVuelo plan = planesMap.get(vuelo.getIndexPlan());
+                    if (plan == null) {
+                        throw new IllegalArgumentException("No se encontró el plan de vuelo para el índice " + vuelo.getIndexPlan());
+                    }
+                    return plan.getCodigoIATADestino();
+                })
                 .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
-
+    
         String aeropuertoDestinoMasFrecuente = frecuenciaDestino.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse("N/A");
-
+    
         Map<Integer, Long> vuelosPorHora = todosVuelos.stream()
                 .collect(Collectors.groupingBy(
-                        vuelo -> vuelo.getHoraSalida().getHour(),
+                        vuelo -> {
+                            if (vuelo.getHoraSalida() == null) {
+                                throw new IllegalArgumentException("La hora de salida del vuelo no puede ser null");
+                            }
+                            return vuelo.getHoraSalida().getHour();
+                        },
                         Collectors.counting()
                 ));
-
+    
         // Encontrar la hora con más vuelos
         int horaConMasVuelos = vuelosPorHora.entrySet().stream()
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(-1);
-
+    
         double promedioPaquetesPorVuelo = (double) totalPaquetes / todosVuelos.size();
-
+    
         double tiempoPromedioVuelo = todosVuelos.stream()
-                .mapToLong(vuelo -> Duration.between(vuelo.getHoraSalida(), vuelo.getHoraLlegada()).toMinutes())
+                .mapToLong(vuelo -> {
+                    if (vuelo.getHoraSalida() == null || vuelo.getHoraLlegada() == null) {
+                        throw new IllegalArgumentException("La hora de salida o llegada del vuelo no puede ser null");
+                    }
+                    return Duration.between(vuelo.getHoraSalida(), vuelo.getHoraLlegada()).toMinutes();
+                })
                 .average()
                 .orElse(0);
-                
+    
         Resumen resumen = new Resumen();
         resumen.setNumeroVuelos(todosVuelos.size());
         resumen.setTotalPaquetes(totalPaquetes);
@@ -556,7 +587,7 @@ public class PlanificacionService {
         resumen.setHoraConMasVuelos(horaConMasVuelos);
         resumen.setPromedioPaquetesPorVuelo(promedioPaquetesPorVuelo);
         resumen.setTiempoPromedioVuelo(tiempoPromedioVuelo);
-        
+    
         return resumen;
     }
 

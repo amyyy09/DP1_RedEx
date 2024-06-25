@@ -14,6 +14,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
+import src.DAO.PaqueteDAO;
 import src.global.GlobalVariables;
 import src.model.*;
 import src.services.PlanificacionService;
@@ -48,7 +49,7 @@ public class ApiServices {
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
         String jsonResult = null;
-
+        
         try {
             String archivoRutaPlanes =  GlobalVariables.PATH + "planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
@@ -63,6 +64,7 @@ public class ApiServices {
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
                 reportResumen = planificacionService.generarResumen(jsonprevio,planesDeVuelo);
                 
+
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(1);
                 int zonaHorariaGMT;
