@@ -20,7 +20,7 @@ const pedidos: React.FC = () => {
         <RegisterPage />
       </div>
       <Image
-        src="/image.png"
+        src="/cajitas.png"
         alt="Side Visual"
         width={500} // Puedes ajustar esto según necesites
         height={500} // Puedes ajustar esto según necesites

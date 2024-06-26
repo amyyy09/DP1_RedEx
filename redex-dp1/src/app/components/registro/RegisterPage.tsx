@@ -246,7 +246,7 @@ const RegisterPage: React.FC = () => {
       packageCount: "",
       contentDescription: "",
     });
-    toast.success("Pedido registrado con éxito");
+    toast.success("Envío registrado con éxito");
     setShowConfirmationPopup(false);
   };
 
@@ -303,7 +303,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="register-shipment-container">
-      <TitleWithIcon name="Registrar Pedido" icon="/icons/caja.png" />
+      <TitleWithIcon name="Registrar Envío" icon="/icons/caja.png" />
       <Toaster position="top-right" reverseOrder={false} />
       <div
         style={{
@@ -341,7 +341,7 @@ const RegisterPage: React.FC = () => {
           onClick={handleEnviarPedidos}
           className="register-shipment-button"
         >
-          Enviar Pedidos
+          Enviar Envíos
         </button>
       </div>
       <form onSubmit={handleSubmit}>
@@ -475,7 +475,7 @@ const RegisterPage: React.FC = () => {
         <div></div>
         <div className="form-group">
           <button className="register-shipment-button" type="submit">
-            Registrar Pedido
+            Registrar Envío
           </button>
         </div>
       </form>
@@ -487,7 +487,7 @@ const RegisterPage: React.FC = () => {
         overlayClassName="Overlay"
         ariaHideApp={false}
       >
-        <label>¿Está seguro que desea registrar el pedido?</label>
+        <label>¿Está seguro que desea registrar el envío?</label>
         <div
           style={{
             display: "flex",
