@@ -56,10 +56,10 @@ const EndModal: React.FC<EndModalProps> = ({
             </strong>{" "}
             a las <strong>{simulatedStartHour}</strong>.
           </p>
-          <p>
+          {/* <p>
             La simulación finalizó el <strong>{endDate}</strong> a las{" "}
             <strong>{timeString}</strong>.
-          </p>
+          </p> */}
           <br />
           <h3 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
             Resumen de la simulación:

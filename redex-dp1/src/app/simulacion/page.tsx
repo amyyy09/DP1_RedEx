@@ -96,6 +96,7 @@ const Simulation: React.FC = () => {
         console.log(`Simulation stopped at ${peruTime} Peru time`);
         console.log('display time: ',displayTime);
         setSimulationEnd(true);
+        fetchSimulationSummary();
       }
     };
 
@@ -109,6 +110,7 @@ const Simulation: React.FC = () => {
   }, [startSimulation, simulationTerminated]);
 
   const fetchSimulationSummary = async () => {
+    console.log("Fetching simulation summary");
     try {
       const response = await fetch("http://localhost:8080/api/reporte");
       if (response.ok) {
