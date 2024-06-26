@@ -48,6 +48,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  max-height: 25vh; /* Limit the maximum height */
+  overflow-y: auto; /* Enable scrolling if content overflows */
 }
 
 .popup-header {

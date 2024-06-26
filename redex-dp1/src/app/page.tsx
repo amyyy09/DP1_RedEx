@@ -221,6 +221,7 @@ const DayToDay: React.FC = () => {
   const handleSearch = (id: string) => {
     // Buscar el paquete por ID
     console.log("vuelos búsqueda",flights.current);
+
     const foundVuelo = flights.current.find((vuelo: { paquetes: any[]; }) =>
       vuelo.paquetes.some((paquete) => paquete.id === id)
     );
@@ -235,13 +236,13 @@ const DayToDay: React.FC = () => {
         setErrorMessage("");
       }
     } else {
-      setErrorMessage("ID de paquete no existente");
+      setErrorMessage("ID de paquete no encontrado");
     }
   };
 
   useEffect(() => {
     // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
-    flights.current = hardcodedVuelos;
+    //flights.current = hardcodedVuelos;
     console.log("flights inicio",flights);
     startInterval(); // Inicia el intervalo de actualización
     setStartSimulation(true); // Inicia la simulación al montar el componente

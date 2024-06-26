@@ -68,7 +68,7 @@ public class RutaPredefinida {
         for (PlanDeVuelo element : this.escalas) {
             Vuelo vuelo1 = null;
 
-            if(fechaInicioVuelo.toLocalTime().isBefore(element.getHoraSalida().toLocalTime())) {
+            if(fechaInicioVuelo.toLocalTime().isAfter(element.getHoraSalida().toLocalTime())) {
                 fechaInicioVuelo = LocalDateTime.of(fechaInicioVuelo.toLocalDate().plusDays(1), element.getHoraSalida().toLocalTime());
             }
             else{

@@ -1,27 +1,33 @@
 "use client";
-
-import React, { useMemo, useState, useEffect, useRef } from "react";
-import dynamic from "next/dynamic";
-import Topbar from "../components/layout/Topbar";
+import React from "react";
+import RegisterPage from "../components/registro/RegisterPage";
+import Image from "next/image";
 import Sidebar from "../components/layout/Sidebar";
-import CurrentTimeDisplay from "../components/map/CurrentTimeDisplay"; // Import the new component
-import { Vuelo } from "../types/Planes";
-import "../styles/SimulatedTime.css";
 
-const Registro: React.FC = () => {
-
-    return (
-        <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ display: "flex", flex: 1 }}>
-                <Sidebar />
-                <div>
-                <h1>Registro de Envíos</h1>
-                
-                </div>
-                
-            </div>
-        </div>
-    );
+const pedidos: React.FC = () => {
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        height: "100vh",
+        width: "100vw",
+        justifyContent: "space-between",
+      }}
+    >
+      <Sidebar />
+      <div style={{ flex: 1 }}>
+        <RegisterPage />
+      </div>
+      <Image
+        src="/cajitas.png"
+        alt="Side Visual"
+        width={500} // Puedes ajustar esto según necesites
+        height={500} // Puedes ajustar esto según necesites
+        layout="intrinsic"
+      />
+    </div>
+  );
 };
 
-export default Registro;
+export default pedidos;

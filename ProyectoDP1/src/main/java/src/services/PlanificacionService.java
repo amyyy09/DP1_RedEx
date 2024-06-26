@@ -3,6 +3,7 @@ package src.services;
 import src.model.*;
 import src.service.RutaPredefinidaService;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -139,7 +141,7 @@ public class PlanificacionService {
         Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred = rutaPredefinidaService.getRutasPredefinidas(envios);
         List<Particula> population = new ArrayList<>();
         int numParticles = 3;
-        int numIterationsMax = 15;
+        int numIterationsMax = 10;
         double w = 0.5, c1 = 1, c2 = 2;
 
         // Initialize particles
@@ -156,7 +158,7 @@ public class PlanificacionService {
         int noImprovementCounter = 0;
         int j = 0;
 
-        while (noImprovementCounter < numIterationsMax && j < 5) {
+        while (noImprovementCounter < numIterationsMax && j < 10) {
             for (Particula particle : population) {
                 for (int k = 0; k < envios.size(); k++) {
                     List<RutaPredefinida> filteredRutasPred = filterRutasForEnvio(rutasPred, envios.get(k)); // todas las rutas que sirvan para ese envio
@@ -508,4 +510,85 @@ public class PlanificacionService {
 
         return new ArrayList<>(vuelosNuevosMap.values());
     }
+
+    public static Resumen generarResumen(Map<Paquete, Resultado> resultado, List<PlanDeVuelo> planesDeVuelo) {
+        // Verificar si resultado es null
+        if (resultado == null) {
+            return null;
+        }
+        
+        List<Vuelo> todosVuelos = resultado.values().stream()
+                .flatMap(res -> {
+                    if (res == null || res.getVuelos() == null) {
+                        return null;
+                    }
+                    return res.getVuelos().stream();
+                })
+                .collect(Collectors.toList());
+    
+        int totalPaquetes = resultado.size(); // Cantidad de entradas en el mapa
+    
+        // Verificar si planesDeVuelo es null
+        if (planesDeVuelo == null) {
+            throw new IllegalArgumentException("La lista de planes de vuelo no puede ser null");
+        }
+    
+        Map<Integer, PlanDeVuelo> planesMap = planesDeVuelo.stream()
+                .collect(Collectors.toMap(PlanDeVuelo::getIndexPlan, Function.identity()));
+    
+        Map<String, Long> frecuenciaDestino = todosVuelos.stream()
+                .map(vuelo -> {
+                    PlanDeVuelo plan = planesMap.get(vuelo.getIndexPlan());
+                    if (plan == null) {
+                        throw new IllegalArgumentException("No se encontró el plan de vuelo para el índice " + vuelo.getIndexPlan());
+                    }
+                    return plan.getCodigoIATADestino();
+                })
+                .collect(Collectors.groupingBy(Function.identity(), Collectors.counting()));
+    
+        String aeropuertoDestinoMasFrecuente = frecuenciaDestino.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("N/A");
+    
+        Map<Integer, Long> vuelosPorHora = todosVuelos.stream()
+                .collect(Collectors.groupingBy(
+                        vuelo -> {
+                            if (vuelo.getHoraSalida() == null) {
+                                throw new IllegalArgumentException("La hora de salida del vuelo no puede ser null");
+                            }
+                            return vuelo.getHoraSalida().getHour();
+                        },
+                        Collectors.counting()
+                ));
+    
+        // Encontrar la hora con más vuelos
+        int horaConMasVuelos = vuelosPorHora.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse(-1);
+    
+        double promedioPaquetesPorVuelo = (double) totalPaquetes / todosVuelos.size();
+    
+        double tiempoPromedioVuelo = todosVuelos.stream()
+                .mapToLong(vuelo -> {
+                    if (vuelo.getHoraSalida() == null || vuelo.getHoraLlegada() == null) {
+                        throw new IllegalArgumentException("La hora de salida o llegada del vuelo no puede ser null");
+                    }
+                    return Duration.between(vuelo.getHoraSalida(), vuelo.getHoraLlegada()).toMinutes();
+                })
+                .average()
+                .orElse(0);
+    
+        Resumen resumen = new Resumen();
+        resumen.setNumeroVuelos(todosVuelos.size());
+        resumen.setTotalPaquetes(totalPaquetes);
+        resumen.setAeropuertoMasFrecuente(aeropuertoDestinoMasFrecuente);
+        resumen.setHoraConMasVuelos(horaConMasVuelos);
+        resumen.setPromedioPaquetesPorVuelo(promedioPaquetesPorVuelo);
+        resumen.setTiempoPromedioVuelo(tiempoPromedioVuelo);
+    
+        return resumen;
+    }
+
 }
