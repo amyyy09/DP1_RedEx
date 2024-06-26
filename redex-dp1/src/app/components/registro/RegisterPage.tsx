@@ -107,7 +107,7 @@ const RegisterPage: React.FC = () => {
         .filter((envio): envio is Envio => envio !== null);
 
       saveShipmentBatch([...shipments, ...newShipments]);
-      toast.success("Registro Masivo Exitoso!");
+      toast.success("Registro por Archivo Exitoso!");
     };
 
     reader.readAsText(selectedFile);
@@ -313,7 +313,7 @@ const RegisterPage: React.FC = () => {
           className="register-shipment-button"
           disabled={!selectedFile}
         >
-          Registro Masivo
+          Registro por Archivo
         </button>
         <button
           onClick={handleEnviarPedidos}
@@ -463,6 +463,7 @@ const RegisterPage: React.FC = () => {
         contentLabel="Confirmación de Registro"
         className="Modal"
         overlayClassName="Overlay"
+        ariaHideApp={false}
       >
         <label>¿Está seguro que desea registrar el pedido?</label>
         <div

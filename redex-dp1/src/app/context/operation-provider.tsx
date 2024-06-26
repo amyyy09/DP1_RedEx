@@ -86,7 +86,7 @@ export default function OperationProvider({
         } catch (error) {
           console.error("Failed to send shipments:", error);
         }
-      }, 20 * 60 * 1000);
+      }, 5 * 60 * 1000);
     }
 
     return intervalId;
@@ -107,6 +107,7 @@ export default function OperationProvider({
 
   const saveShipmentBatch = (data: Envio[]) => {
     shipments.current = shipments.current.concat(data);
+    updateFlights();
   };
 
   return (

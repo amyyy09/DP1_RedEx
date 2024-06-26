@@ -34,6 +34,7 @@ textarea {
   resize: none;
   transition: border-color 0.3s; /* Smooth transition */
   width: 100%;
+  color: #000;
 }
 
 input[type="text"]:focus,
@@ -126,6 +127,7 @@ input[type="submit"],
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
+  color: #000;
 }
 
 .form-group .required {
@@ -196,4 +198,5 @@ input[type="submit"],
   right: 0;
   bottom: 0;
   background-color: rgba(0, 0, 0, 0.75);
+  color: black;
 }
