@@ -514,13 +514,13 @@ public class PlanificacionService {
     public static Resumen generarResumen(Map<Paquete, Resultado> resultado, List<PlanDeVuelo> planesDeVuelo) {
         // Verificar si resultado es null
         if (resultado == null) {
-            throw new IllegalArgumentException("El mapa resultado no puede ser null");
+            return null;
         }
         
         List<Vuelo> todosVuelos = resultado.values().stream()
                 .flatMap(res -> {
                     if (res == null || res.getVuelos() == null) {
-                        throw new IllegalArgumentException("El resultado o la lista de vuelos no puede ser null");
+                        return null;
                     }
                     return res.getVuelos().stream();
                 })
