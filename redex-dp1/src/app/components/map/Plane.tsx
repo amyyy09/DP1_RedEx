@@ -5,7 +5,7 @@ import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import "../../styles/popupPlane.css";
-import RotatedMarker from "./RotatedMarker";
+import { routesAngles } from "@/app/data/routesAngles";
 
 interface Route {
   origin: string;
@@ -13,19 +13,13 @@ interface Route {
   angle: number;
 }
 
-const calculateRotationAngle = (
-  origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number }
-) => {
-  return (
-    Math.atan2(destination.lat - origin.lat, destination.lng - origin.lng) *
-    (180 / Math.PI)
-  );
+const createRotatedIcon = (angle: any) => {
+  return L.divIcon({
+    html: `<img style="transform: rotate(${angle}deg);" src="./icons/plane.svg">`,
+    iconSize: [20, 20],
+    className: "", // Asegúrate de no tener padding o bordes en la clase CSS que afecten el posicionamiento
+  });
 };
-const planeIcon = L.icon({
-  iconUrl: "./icons/plane.svg",
-  iconSize: [20, 20], // size of the icon
-});
 
 const Plane: React.FC<
   PlaneProps & {
@@ -125,6 +119,15 @@ const Plane: React.FC<
     // console.log("dayToDay", dayToDay);
     const intervalId = setInterval(updateTime, 1000);
   }
+
+  const getAngle = () => {
+    const route = routesAngles.find(
+      (route) =>
+        route.origin === vuelo.aeropuertoOrigen &&
+        route.destination === vuelo.aeropuertoDestino
+    );
+    return route ? route.angle : 0; // Default angle is 0 if no route is found
+  };
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -278,6 +281,14 @@ const Plane: React.FC<
     }
   }, [showPackages]);
 
+  useEffect(() => {
+    const angle = getAngle();
+    const icon = createRotatedIcon(angle);
+    if (isVisible && position) {
+      markerRef.current?.setIcon(icon);
+    }
+  }, [vuelo, isVisible, position]);
+
   const handlePopupClose = () => {
     setShowPackages(false);
   };
@@ -304,7 +315,11 @@ const Plane: React.FC<
         />
       )}
       {isVisible && (
-        <Marker position={position} icon={planeIcon} ref={markerRef}>
+        <Marker
+          position={position}
+          icon={createRotatedIcon(getAngle())} // Set the rotated icon here
+          ref={markerRef}
+        >
           <Popup
             eventHandlers={{
               remove: handlePopupClose,
