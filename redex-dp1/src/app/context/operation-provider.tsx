@@ -10,7 +10,7 @@ import { Vuelo } from "../types/Planes";
 import { Envio } from "../types/envios";
 
 export const OperationContext = createContext({
-  flights: [] as Vuelo[],
+  flights: null as any,
   updateFlights: () => {},
   startInterval: () => {},
   clearInterval: () => {},
@@ -113,7 +113,7 @@ export default function OperationProvider({
   return (
     <OperationContext.Provider
       value={{
-        flights: flights.current,
+        flights: flights,
         updateFlights,
         startInterval,
         clearInterval,

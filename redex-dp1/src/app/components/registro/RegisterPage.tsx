@@ -246,7 +246,7 @@ const RegisterPage: React.FC = () => {
       packageCount: "",
       contentDescription: "",
     });
-    toast.success("Envío registrado con éxito");
+    toast.success("Envío registrado con éxito. El identificador es: " + envio.idEnvio);
     setShowConfirmationPopup(false);
   };
 
@@ -265,7 +265,7 @@ const RegisterPage: React.FC = () => {
   const handleEnviarPedidos = async () => {
     const peticion = { envios: shipments };
     try {
-      const response = await fetch("http://localhost:8080/api/diario", {
+      const response = await fetch(`${process.env.BACKEND_URL}diario`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
