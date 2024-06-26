@@ -51,7 +51,13 @@ const RegisterPage: React.FC = () => {
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
-    setSelectedFile(file);
+    if (file && file.type === "text/plain") {
+      setSelectedFile(file);
+    } else {
+      toast.error(
+        "Formato de archivo no válido. Seleccione un archivo de texto."
+      );
+    }
     event.target.value = "";
   };
 
@@ -67,51 +73,67 @@ const RegisterPage: React.FC = () => {
     const reader = new FileReader();
 
     reader.onload = (e: ProgressEvent<FileReader>) => {
-      const text = e.target?.result as string;
-      const lines = text.split(/\r?\n/);
+      try {
+        const text = e.target?.result as string;
+        const lines = text.split(/\r?\n/);
 
-      const newShipments = lines
-        .map((line) => {
-          const parts = line.split("-");
+        const newShipments = lines
+          .map((line) => {
+            try {
+              const parts = line.split("-");
+              if (parts.length === 5) {
+                const [
+                  codigoIATAOrigen,
+                  idEnvio,
+                  fechaStr,
+                  horaStr,
+                  codigoIATADestinoPackage,
+                ] = parts as [string, string, string, string, string];
 
-          if (parts.length === 5) {
-            const [
-              codigoIATAOrigen,
-              idEnvio,
-              fechaStr,
-              horaStr,
-              codigoIATADestinoPackage,
-            ] = parts as [string, string, string, string, string];
+                const year = fechaStr.substring(0, 4);
+                const month = fechaStr.substring(4, 6);
+                const day = fechaStr.substring(6, 8);
+                const codigoIATADestino =
+                  codigoIATADestinoPackage.split(":")[0];
+                const packageCount = codigoIATADestinoPackage.split(":")[1];
+                const fechaHoraOrigen = formatDateForBackend(
+                  new Date(
+                    `${year}-${month}-${day}T${horaStr}:00`
+                  ).toISOString()
+                );
 
-            const year = fechaStr.substring(0, 4);
-            const month = fechaStr.substring(4, 6);
-            const day = fechaStr.substring(6, 8);
-            const codigoIATADestino = codigoIATADestinoPackage.split(":")[0];
-            const packageCount = codigoIATADestinoPackage.split(":")[1];
-            const fechaHoraOrigen = formatDateForBackend(
-              new Date(`${year}-${month}-${day}T${horaStr}:00`).toISOString()
-            );
+                return {
+                  idEnvio,
+                  fechaHoraOrigen,
+                  zonaHorariaGMT: formData.originGMT,
+                  codigoIATAOrigen,
+                  codigoIATADestino,
+                  cantPaquetes: parseInt(packageCount, 10),
+                  paquetes: [],
+                } as Envio;
+              } else {
+                throw new Error("Formato incorrecto");
+              }
+            } catch (error) {
+              toast.error("Error en el formato del archivo");
+              return null;
+            }
+          })
+          .filter((envio): envio is Envio => envio !== null);
 
-            return {
-              idEnvio,
-              fechaHoraOrigen,
-              zonaHorariaGMT: formData.originGMT, // Asumiendo que el GMT no varía por envío
-              codigoIATAOrigen,
-              codigoIATADestino,
-              cantPaquetes: parseInt(packageCount, 10),
-              paquetes: [],
-            } as Envio;
-          }
-          return null;
-        })
-        .filter((envio): envio is Envio => envio !== null);
-
-      saveShipmentBatch([...shipments, ...newShipments]);
-      toast.success("Registro por Archivo Exitoso!");
+        saveShipmentBatch([...shipments, ...newShipments]);
+        toast.success("Registro por Archivo Exitoso!");
+      } catch (error) {
+        toast.error("Error al procesar el archivo");
+      }
     };
 
-    reader.readAsText(selectedFile);
-    setSelectedFile(null);
+    try {
+      reader.readAsText(selectedFile);
+      setSelectedFile(null);
+    } catch (error) {
+      toast.error("Error al leer el archivo");
+    }
   };
 
   const handleChange = (
