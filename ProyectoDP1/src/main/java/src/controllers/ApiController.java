@@ -2,6 +2,11 @@ package src.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 import src.model.*;
 import src.service.ApiServices;
 import src.service.ApiServicesDiario;
@@ -35,6 +40,20 @@ public class ApiController {
     @GetMapping("/limpiar")
     public void limpiarPSO() {
         apiServices.reiniciarTodo();
+    }
+
+    @GetMapping("/reporte")
+    public String reporteSemanal() {
+        try {
+            Resumen reporte = apiServices.getReportesResumen();
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            String jsonResult = mapper.writeValueAsString(reporte);
+            return jsonResult;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return "{\"error\": \"Error processing JSON\"}";
+        }
     }
 
 
