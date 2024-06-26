@@ -60,12 +60,15 @@ public class ApiController {
 
     @PostMapping("/diario")
     public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
-        String JSON;
-        List<Envio> envios = peticionPSO.getEnvios();
-        List<Envio> enviosProcesados = envios.stream()
-                .map(EnvioService::parseDataToFrontend)
-                .collect(Collectors.toList());
-        JSON = apiServicesDiario.ejecutarPsoDiario(enviosProcesados);
-        return JSON;
+        try {
+            List<Envio> enviosProcesados = peticionPSO.getEnvios().stream()
+                    .map(EnvioService::parseDataToFrontend)
+                    .collect(Collectors.toList());
+
+            String JSON = apiServicesDiario.ejecutarPsoDiario(enviosProcesados);
+            return JSON;
+        } catch (Exception e) {
+            return "{\"error\": \"An error occurred while processing the request.\"}";
+        }
     }
 }
