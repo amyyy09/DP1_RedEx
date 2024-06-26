@@ -86,7 +86,7 @@ export default function OperationProvider({
         } catch (error) {
           console.error("Failed to send shipments:", error);
         }
-      }, 2 * 60 * 1000);
+      }, 20 * 60 * 1000);
     }
 
     return intervalId;
