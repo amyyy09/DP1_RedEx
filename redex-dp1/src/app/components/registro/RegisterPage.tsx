@@ -51,7 +51,13 @@ const RegisterPage: React.FC = () => {
 
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files ? event.target.files[0] : null;
-    setSelectedFile(file);
+    if (file && file.type === "text/plain") {
+      setSelectedFile(file);
+    } else {
+      toast.error(
+        "Formato de archivo no válido. Seleccione un archivo de texto."
+      );
+    }
     event.target.value = "";
   };
 
