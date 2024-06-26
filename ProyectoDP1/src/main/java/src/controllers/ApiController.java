@@ -35,7 +35,7 @@ public class ApiController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
         JSON = apiServices.ejecutarPso(fechaHoraParsed);
-        
+
         return JSON;
     }
 
@@ -47,7 +47,7 @@ public class ApiController {
     @GetMapping("/reporte")
     public String reporteSemanal() {
         try {
-            Resumen reporte = apiServices.getReportesResumen();
+            Resumen reporte = ApiServices.getReportesResumen();
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
             String jsonResult = mapper.writeValueAsString(reporte);
@@ -58,7 +58,6 @@ public class ApiController {
         }
     }
 
-
     @PostMapping("/diario")
     public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
         String JSON;
@@ -67,8 +66,6 @@ public class ApiController {
                 .map(EnvioService::parseDataToFrontend)
                 .collect(Collectors.toList());
         JSON = apiServicesDiario.ejecutarPsoDiario(enviosProcesados);
-        
         return JSON;
     }
 }
-
