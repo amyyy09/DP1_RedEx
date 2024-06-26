@@ -58,9 +58,6 @@ const Map: React.FC<MapProps> = ({
   forceOpenPopup,
   setForceOpenPopup,
 }) => {
-
-  // console.log("planes",planes.current);
-
   return (
     <MapContainer
       center={[20, 20]}
@@ -89,24 +86,26 @@ const Map: React.FC<MapProps> = ({
 
       {planes.current &&
         planes.current.length > 0 &&
-        planes.current.map((plane, index) => (
-          plane.status !== 2 &&
-          <Plane
-            key={plane.idVuelo}
-            listVuelos={planes.current as Vuelo[]}
-            index={index}
-            vuelo={plane}
-            startTime={startTime}
-            startDate={startDate}
-            startHour={startHour}
-            speedFactor={speedFactor}
-            startSimulation={startSimulation}
-             dayToDay={dayToDay}
-            isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado           
-            setForceOpenPopup={setForceOpenPopup}
-            selectedPackageId={selectedPackageId} // Pass the selected package ID
-          />
-        ))}
+        planes.current.map(
+          (plane, index) =>
+            plane.status !== 2 && (
+              <Plane
+                key={plane.idVuelo}
+                listVuelos={planes.current as Vuelo[]}
+                index={index}
+                vuelo={plane}
+                startTime={startTime}
+                startDate={startDate}
+                startHour={startHour}
+                speedFactor={speedFactor}
+                startSimulation={startSimulation}
+                dayToDay={dayToDay}
+                isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado
+                setForceOpenPopup={setForceOpenPopup}
+                selectedPackageId={selectedPackageId} // Pass the selected package ID
+              />
+            )
+        )}
     </MapContainer>
   );
 };

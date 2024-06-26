@@ -1,11 +1,17 @@
-import React, { useState, useEffect,useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
-import '../../styles/popupPlane.css';
+import "../../styles/popupPlane.css";
 import RotatedMarker from "./RotatedMarker";
+
+interface Route {
+  origin: string;
+  destination: string;
+  angle: number;
+}
 
 const calculateRotationAngle = (
   origin: { lat: number; lng: number },
@@ -21,7 +27,13 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
-const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void; selectedPackageId: string | null }> = ({
+const Plane: React.FC<
+  PlaneProps & {
+    isOpen: boolean;
+    setForceOpenPopup: (value: boolean) => void;
+    selectedPackageId: string | null;
+  }
+> = ({
   vuelo,
   index,
   listVuelos,
@@ -43,43 +55,29 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   const selectedPackageRef = useRef<HTMLLIElement>(null);
   const packagesListRef = useRef<HTMLDivElement>(null);
 
-  // console.log("vuelo", vuelo);
-
-  
-
-  if(dayToDay){
+  if (dayToDay) {
     const updateTime = () => {
       if (!dayToDay) return;
       const currentTime = new Date();
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
-  
-      // Get the origin and destiny city's GMT offsets in minutes
+
       const originGMTOffset = origin.GMT;
       const destinyGMTOffset = destiny.GMT;
-  
-      // Convert the departure and arrival times to the system's timezone
-      // Subtract 1 from the month to make it 0-indexed
+
       const horaSalida = arrayToTime(vuelo.horaSalida);
-      // console.log("horaSalida vuelo", vuelo.horaSalida);
-      // console.log("horaSalida inicial", horaSalida);
-      // console.log("systemTimezoneOffset", systemTimezoneOffset);
-      // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
-  
+
       horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
-      //console.log("offset", originGMTOffset);
-      // console.log("horaSalida after", horaSalida);
-  
+
       const horaLlegada = arrayToTime(vuelo.horaLlegada);
-      //console.log("horaLlegada inicial", horaLlegada);
       horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
-  
+
       if (
         currentTime &&
         (currentTime > horaLlegada || currentTime < horaSalida)
       ) {
         setIsVisible(false);
-  
+
         if (currentTime > horaLlegada) {
           console.log("Plane has arrived");
           console.log("horaLlegada aquí", horaLlegada);
@@ -92,10 +90,10 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
         // console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaSalida aquí", horaSalida);
         // console.log("horaLlegada aquí", horaLlegada);
-  
+
         return;
       }
-  
+
       if (
         currentTime &&
         currentTime >= horaSalida &&
@@ -106,28 +104,27 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
         // console.log("horaSalida", horaSalida);
         setIsVisible(true);
       }
-  
+
       const progress =
         ((currentTime?.getTime() ?? 0) - horaSalida.getTime()) /
         (horaLlegada.getTime() - horaSalida.getTime());
-  
+
       // console.log("progress", progress);
       // console.log("simulatedDate.current", simulatedDate.current);
       // console.log("horaSalida", horaSalida);
       // console.log("horaLlegada", horaLlegada);
-  
+
       const newLat =
         origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-  
+
       const newLng =
         origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-  
+
       setPosition([newLat, newLng] as LatLngExpression);
     };
     // console.log("dayToDay", dayToDay);
     const intervalId = setInterval(updateTime, 1000);
   }
-
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -137,7 +134,6 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
     // console.log("startHour", startHour);
     // console.log("speedFactor", speedFactor);
     if (!startSimulation || dayToDay) return;
-
 
     // console.log("plane started");
 
@@ -274,8 +270,10 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   useEffect(() => {
     if (showPackages && selectedPackageRef.current && packagesListRef.current) {
       packagesListRef.current.scrollTo({
-        top: selectedPackageRef.current.offsetTop - packagesListRef.current.offsetTop,
-        behavior: "smooth"
+        top:
+          selectedPackageRef.current.offsetTop -
+          packagesListRef.current.offsetTop,
+        behavior: "smooth",
       });
     }
   }, [showPackages]);
@@ -313,7 +311,9 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
             }}
           >
             <div>
-              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo</h2>
+              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+                Detalles de vuelo
+              </h2>
               <p>
                 <strong>Origen:</strong>{" "}
                 {citiesByCode[vuelo.aeropuertoOrigen].name}
@@ -368,19 +368,32 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
                 {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
               </button>
               {showPackages && vuelo.paquetes && (
-                <div ref={packagesListRef} style={{ maxHeight: "100px", overflowY: "auto" }}>
+                <div
+                  ref={packagesListRef}
+                  style={{ maxHeight: "100px", overflowY: "auto" }}
+                >
                   <ul>
                     {vuelo.paquetes.map((paquete, index) => (
                       <li
                         key={index}
-                        ref={paquete.id === selectedPackageId ? selectedPackageRef : null}
+                        ref={
+                          paquete.id === selectedPackageId
+                            ? selectedPackageRef
+                            : null
+                        }
                         style={{
-                          fontWeight: paquete.id === selectedPackageId ? "bold" : "normal",
-                          fontSize: paquete.id === selectedPackageId ? "1.2em" : "1em", // Change font size for selected package
-                          color: paquete.id === selectedPackageId ? "red" : "black", // Change color for selected package
+                          fontWeight:
+                            paquete.id === selectedPackageId
+                              ? "bold"
+                              : "normal",
+                          fontSize:
+                            paquete.id === selectedPackageId ? "1.2em" : "1em", // Change font size for selected package
+                          color:
+                            paquete.id === selectedPackageId ? "red" : "black", // Change color for selected package
                         }}
                       >
-                        <strong>ID:</strong> {paquete.id}, <strong>Status:</strong> {paquete.status}
+                        <strong>ID:</strong> {paquete.id},{" "}
+                        <strong>Status:</strong> {paquete.status}
                       </li>
                     ))}
                   </ul>
