@@ -40,16 +40,18 @@ public class ApiServices {
     private static List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(
             DatosAeropuertos.getAeropuertosInicializados());
 
+    private static Map<Paquete, Resultado> jsonprevio = null;
+
     public String ejecutarPso(LocalDateTime fechaHora) {
+        jsonprevio = null;
         List<Vuelo> vuelos = getVuelosGuardados();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHora, aeropuertosGuardados);
         List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream)
                 .collect(Collectors.toList());
-        Map<Paquete, Resultado> jsonprevio = null;
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
         String jsonResult = null;
-
+        Resumen reportResumenAux = null;
         try {
             String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v3.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
@@ -63,9 +65,10 @@ public class ApiServices {
                         vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
-                // reportResumen =
-                // planificacionService.generarResumen(jsonprevio,planesDeVuelo);
-
+                reportResumenAux =planificacionService.generarResumen(jsonprevio,planesDeVuelo);
+                if(reportResumenAux!=null){
+                    reportResumen=reportResumenAux;
+                }
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(1);
                 int zonaHorariaGMT;
