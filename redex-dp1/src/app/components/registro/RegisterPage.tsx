@@ -5,6 +5,7 @@ import { cities } from "@/app/data/cities";
 import { OperationContext } from "@/app/context/operation-provider";
 import { Envio } from "@/app/types/envios";
 import toast, { Toaster } from "react-hot-toast";
+import Modal from "react-modal";
 
 interface FormData {
   firstName: string;
@@ -456,37 +457,36 @@ const RegisterPage: React.FC = () => {
           </button>
         </div>
       </form>
-      {showConfirmationPopup && (
-        <div className="popup">
-          <div className="popup-content">
-            <label>¿Está seguro que desea registrar el pedido?</label>
-            <div
-              style={{
-                display: "flex",
-                width: "100%",
-                gap: "10px",
-                paddingBottom: "6px",
-                paddingTop: "12px",
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <button
-                onClick={handleFinalSubmit}
-                className="select-archive-button"
-              >
-                Confirmar
-              </button>
-              <button
-                onClick={() => setShowConfirmationPopup(false)}
-                className="deselect-archive-button"
-              >
-                Cancelar
-              </button>
-            </div>
-          </div>
+      <Modal
+        isOpen={showConfirmationPopup}
+        onRequestClose={() => setShowConfirmationPopup(false)}
+        contentLabel="Confirmación de Registro"
+        className="Modal"
+        overlayClassName="Overlay"
+      >
+        <label>¿Está seguro que desea registrar el pedido?</label>
+        <div
+          style={{
+            display: "flex",
+            width: "100%",
+            gap: "10px",
+            paddingBottom: "6px",
+            paddingTop: "12px",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <button onClick={handleFinalSubmit} className="select-archive-button">
+            Confirmar
+          </button>
+          <button
+            onClick={() => setShowConfirmationPopup(false)}
+            className="deselect-archive-button"
+          >
+            Cancelar
+          </button>
         </div>
-      )}
+      </Modal>
     </div>
   );
 };
