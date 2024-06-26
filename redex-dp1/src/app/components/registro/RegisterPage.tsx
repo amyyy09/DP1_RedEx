@@ -242,7 +242,7 @@ const RegisterPage: React.FC = () => {
   const handleEnviarPedidos = async () => {
     const peticion = { envios: shipments };
     try {
-      const response = await fetch("http://localhost:8080/back/api/diario", {
+      const response = await fetch("http://localhost:8080/api/diario", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -37,15 +37,17 @@ export default function OperationProvider({
     if (intervalId.current === null) {
       intervalId.current = setInterval(async () => {
         console.log("Sending shipments at ", new Date());
+        const peticion = { envios: shipments.current };
+        console.log("Peticion:", peticion);
         try {
           const response = await fetch(
-            "http://localhost:8080/back/api/diario",
+            `${process.env.BACKEND_URL}diario`,
             {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
               },
-              body: JSON.stringify(shipments),
+              body: JSON.stringify(peticion),
             }
           );
 
@@ -53,6 +55,30 @@ export default function OperationProvider({
             const responseData = await response.json();
             console.log("Response:", responseData);
             shipments.current = [];
+          
+
+            // Procesar los vuelos desde el responseData
+            //console.log("Response data:", responseData);
+            // Create a new Set to store the idVuelo of each Vuelo in vuelos.current
+            const vuelosIds = new Set(flights.current?.map((vuelo: Vuelo) => vuelo.idVuelo));
+
+            responseData.forEach((data: Vuelo) => {
+              // Check if the idVuelo of data is already in vuelosIds
+              if (!vuelosIds.has(data.idVuelo)) {
+                // If it's not in vuelosIds, add it to vuelos.current and vuelosIds
+                flights.current?.push(data);
+                vuelosIds.add(data.idVuelo);
+              }
+              else{
+                // If it's in vuelosIds, update the Vuelo in vuelos.current
+                const index = flights.current?.findIndex((vuelo: Vuelo) => vuelo.idVuelo === data.idVuelo);
+                if (index && index !== -1) {
+                  flights.current?.splice(index, 1, data);
+                }
+              }
+            });
+            updateFlights();
+            //console.log("Flights updated at ", new Date());
           } else {
             const errorResponse = await response.text();
             throw new Error(errorResponse);
@@ -76,6 +102,7 @@ export default function OperationProvider({
 
   const saveShipmentData = (data: Envio) => {
     shipments.current.push(data);
+    console.log("Shipment :", shipments.current);
   };
 
   const saveShipmentBatch = (data: Envio[]) => {

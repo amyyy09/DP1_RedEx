@@ -10,10 +10,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import src.model.*;
 import src.service.ApiServices;
 import src.service.ApiServicesDiario;
+import src.service.EnvioService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -61,7 +63,10 @@ public class ApiController {
     public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
         String JSON;
         List<Envio> envios = peticionPSO.getEnvios();
-        JSON = apiServicesDiario.ejecutarPsoDiario(envios);
+        List<Envio> enviosProcesados = envios.stream()
+                .map(EnvioService::parseDataToFrontend)
+                .collect(Collectors.toList());
+        JSON = apiServicesDiario.ejecutarPsoDiario(enviosProcesados);
         
         return JSON;
     }

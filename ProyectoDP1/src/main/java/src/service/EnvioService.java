@@ -89,4 +89,13 @@ public class EnvioService {
         return fechaHora.minusHours(zonaHorariaGMT);
     }
     
+    public static Envio parseDataToFrontend(Envio envio) {
+        for (int i = 0; i < envio.getCantPaquetes(); i++) {
+            String nombrePaquete = envio.getIdEnvio() + (i + 1);
+            Paquete paquete = new Paquete(nombrePaquete , i + 1, envio);
+            envio.getPaquetes().add(paquete);
+        }
+
+        return envio;
+    }
 }
