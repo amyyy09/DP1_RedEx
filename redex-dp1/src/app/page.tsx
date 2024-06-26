@@ -241,7 +241,7 @@ const DayToDay: React.FC = () => {
 
   useEffect(() => {
     // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
-    flights.current = hardcodedVuelos;
+    //flights.current = hardcodedVuelos;
     console.log("flights inicio",flights);
     startInterval(); // Inicia el intervalo de actualización
     setStartSimulation(true); // Inicia la simulación al montar el componente

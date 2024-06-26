@@ -10,10 +10,12 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import src.model.*;
 import src.service.ApiServices;
 import src.service.ApiServicesDiario;
+import src.service.EnvioService;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -33,7 +35,7 @@ public class ApiController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
         LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
         JSON = apiServices.ejecutarPso(fechaHoraParsed);
-        
+
         return JSON;
     }
 
@@ -45,7 +47,7 @@ public class ApiController {
     @GetMapping("/reporte")
     public String reporteSemanal() {
         try {
-            Resumen reporte = apiServices.getReportesResumen();
+            Resumen reporte = ApiServices.getReportesResumen();
             ObjectMapper mapper = new ObjectMapper();
             mapper.registerModule(new JavaTimeModule());
             String jsonResult = mapper.writeValueAsString(reporte);
@@ -56,14 +58,17 @@ public class ApiController {
         }
     }
 
-
     @PostMapping("/diario")
     public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
-        String JSON;
-        List<Envio> envios = peticionPSO.getEnvios();
-        JSON = apiServicesDiario.ejecutarPsoDiario(envios);
-        
-        return JSON;
+        try {
+            List<Envio> enviosProcesados = peticionPSO.getEnvios().stream()
+                    .map(EnvioService::parseDataToFrontend)
+                    .collect(Collectors.toList());
+
+            String JSON = apiServicesDiario.ejecutarPsoDiario(enviosProcesados);
+            return JSON;
+        } catch (Exception e) {
+            return "{\"error\": \"An error occurred while processing the request.\"}";
+        }
     }
 }
-
