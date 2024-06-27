@@ -42,6 +42,7 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   const simulatedDate = React.useRef<Date>();
   const selectedPackageRef = useRef<HTMLLIElement>(null);
   const packagesListRef = useRef<HTMLDivElement>(null);
+  const prevIsVisibleRef = useRef<boolean>(false);
 
   // console.log("vuelo", vuelo);
 
@@ -81,12 +82,12 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
         setIsVisible(false);
   
         if (currentTime > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
+          // console.log("Plane has arrived día");
+          // console.log("horaLlegada aquí", horaLlegada);
           vuelo.status = 2;
           clearInterval(intervalId);
           listVuelos.splice(index, 1);
-          console.log("listVuelos", listVuelos.length);
+          // console.log("listVuelos", listVuelos.length);
         }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
@@ -197,13 +198,13 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
         setIsVisible(false);
 
         if (simulatedDate.current > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
-          console.log("simulatedDate.current", simulatedDate.current);
+          // console.log("Plane has arrived correct");
+          // console.log("horaLlegada aquí", horaLlegada);
+          // console.log("simulatedDate.current", simulatedDate.current);
           vuelo.status = 2;
           clearInterval(intervalId);
           listVuelos.splice(index, 1);
-          console.log("listVuelos", listVuelos.length);
+          // console.log("listVuelos", listVuelos.length);
         }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
@@ -283,6 +284,18 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   const handlePopupClose = () => {
     setShowPackages(false);
   };
+
+  useEffect(() => {
+    if(!isVisible && prevIsVisibleRef.current){
+      // console.log("Plane has arrived correct");
+          console.log("horaLlegada aquí", vuelo.horaLlegada);
+          // console.log("ciudad destino", citiesByCode[vuelo.aeropuertoDestino].name);
+          console.log("gmt destino", citiesByCode[vuelo.aeropuertoDestino].GMT);
+          console.log("simulatedDate.current", simulatedDate.current);
+          console.log("listVuelos", listVuelos.length);
+    }
+    prevIsVisibleRef.current = isVisible;
+  }, [isVisible]);
 
   if (!isVisible) {
     return null;
