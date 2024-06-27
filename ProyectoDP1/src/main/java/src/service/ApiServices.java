@@ -72,16 +72,18 @@ public class ApiServices {
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
                 int zonaHorariaGMT;
+                int zonaHorariaGMT2;
                 LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
-
+                Almacen almacen;
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
                 List<Vuelo> jsonVuelosProximos = new ArrayList<>();
-                Almacen almacen;
+                
                 for (Vuelo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoDestino());
+                    zonaHorariaGMT2 = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
                     horallegadaGMT0 = vn.getHoraLlegada().plusHours(zonaHorariaGMT);
-                    horaSalidaGMT0 = vn.getHoraSalida().minusHours(zonaHorariaGMT);
+                    horaSalidaGMT0 = vn.getHoraSalida().minusHours(zonaHorariaGMT2);
                     if (horallegadaGMT0.isAfter(fechaHora) && horallegadaGMT0.isBefore(fechaHoraReal)) {
                         Aeropuerto aeropuertoDestino = aeropuertosGuardados.stream()
                                 .filter(a -> a.getCodigoIATA().equals(vn.getAeropuertoDestino()))

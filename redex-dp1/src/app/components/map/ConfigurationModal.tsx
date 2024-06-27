@@ -122,6 +122,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             }
 
             const responseData = await response.json();
+            const responseVuelos = responseData.vuelos;
             allResponses.push(responseData); // Guardar la respuesta en la lista
             console.log('allResponses:', allResponses);
 
@@ -130,7 +131,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             // Create a new Set to store the idVuelo of each Vuelo in vuelos.current
             const vuelosIds = new Set(vuelos.current?.map((vuelo: Vuelo) => vuelo.idVuelo));
 
-            responseData.forEach((data: Vuelo) => {
+            responseVuelos.forEach((data: Vuelo) => {
               // Check if the idVuelo of data is already in vuelosIds
               if (!vuelosIds.has(data.idVuelo)) {
                 // If it's not in vuelosIds, add it to vuelos.current and vuelosIds
