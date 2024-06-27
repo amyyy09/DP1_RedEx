@@ -17,7 +17,7 @@ const createRotatedIcon = (angle: any) => {
   return L.divIcon({
     html: `<img style="transform: rotate(${angle}deg); width: 20px; height: 20px;" src="./icons/plane.svg">`,
     iconSize: [20, 20],
-    className: "", // Asegúrate de no tener padding o bordes en la clase CSS que afecten el posicionamiento
+    className: "",
   });
 };
 
@@ -116,7 +116,6 @@ const Plane: React.FC<
 
       setPosition([newLat, newLng] as LatLngExpression);
     };
-    // console.log("dayToDay", dayToDay);
     const intervalId = setInterval(updateTime, 1000);
   }
 
@@ -311,7 +310,7 @@ const Plane: React.FC<
               citiesByCode[vuelo.aeropuertoDestino].coords.lng,
             ],
           ]}
-          pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
+          pathOptions={{ color: "grey", weight: 0.5, dashArray: "5,10" }}
         />
       )}
       {isVisible && (
