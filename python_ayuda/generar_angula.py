@@ -35,16 +35,26 @@ cities = [
 
 cities_by_code = {city["code"]: city for city in cities}
 
-def calculate_rotation_angle(origin, destination):
-    return math.atan2(destination["coords"]["lat"] - origin["coords"]["lat"],
-                      destination["coords"]["lng"] - origin["coords"]["lng"]) * (180 / math.pi)
+def calculate_bearing(begin, end):
+    lat = abs(begin["coords"]["lat"] - end["coords"]["lat"])
+    lng = abs(begin["coords"]["lng"] - end["coords"]["lng"])
+
+    if begin["coords"]["lat"] < end["coords"]["lat"] and begin["coords"]["lng"] < end["coords"]["lng"]:
+        return math.atan(lng / lat) * 180 / math.pi
+    elif begin["coords"]["lat"] >= end["coords"]["lat"] and begin["coords"]["lng"] < end["coords"]["lng"]:
+        return (90 - math.atan(lng / lat) * 180 / math.pi) + 90
+    elif begin["coords"]["lat"] >= end["coords"]["lat"] and begin["coords"]["lng"] >= end["coords"]["lng"]:
+        return math.atan(lng / lat) * 180 / math.pi + 180
+    elif begin["coords"]["lat"] < end["coords"]["lat"] and begin["coords"]["lng"] >= end["coords"]["lng"]:
+        return (90 - math.atan(lng / lat) * 180 / math.pi) + 270
+    return -1
 
 routes_angles = []
 
 for origin_code, origin_city in cities_by_code.items():
     for destination_code, destination_city in cities_by_code.items():
         if origin_code != destination_code:
-            angle = calculate_rotation_angle(origin_city, destination_city)
+            angle = calculate_bearing(origin_city, destination_city)
             routes_angles.append({
                 "origin": origin_code,
                 "destination": destination_code,
