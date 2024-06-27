@@ -15,7 +15,7 @@ interface Route {
 
 const createRotatedIcon = (angle: any) => {
   return L.divIcon({
-    html: `<img style="transform: rotate(${angle}deg);" src="./icons/plane.svg">`,
+    html: `<img style="transform: rotate(${angle}deg); width: 20px; height: 20px;" src="./icons/plane.svg">`,
     iconSize: [20, 20],
     className: "", // Asegúrate de no tener padding o bordes en la clase CSS que afecten el posicionamiento
   });
