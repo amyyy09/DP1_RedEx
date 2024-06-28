@@ -33,9 +33,13 @@ const Simulation: React.FC = () => {
 
   // States for map center and highlighted plane ID
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
-  const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(null);
+  const [highlightedPlaneId, setHighlightedPlaneId] = useState<string | null>(
+    null
+  );
   const [forceOpenPopup, setForceOpenPopup] = useState(false);
-  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
+  const [selectedPackageId, setSelectedPackageId] = useState<string | null>(
+    null
+  );
 
   let isMounted = true;
 
@@ -94,7 +98,7 @@ const Simulation: React.FC = () => {
           timeZone: "America/Lima",
         });
         console.log(`Simulation stopped at ${peruTime} Peru time`);
-        console.log('display time: ',displayTime);
+        console.log("display time: ", displayTime);
         setSimulationEnd(true);
         fetchSimulationSummary();
       }
@@ -112,7 +116,7 @@ const Simulation: React.FC = () => {
   const fetchSimulationSummary = async () => {
     console.log("Fetching simulation summary");
     try {
-      const response = await fetch("http://localhost:8080/api/reporte");
+      const response = await fetch(`${process.env.BACKEND_URL}reporte`,);
       if (response.ok) {
         const summary = await response.json();
         setSimulationSummary(summary);
@@ -121,6 +125,17 @@ const Simulation: React.FC = () => {
       }
     } catch (error) {
       console.error("Error fetching simulation summary:", error);
+    } finally {
+      try {
+        const response = await fetch(`${process.env.BACKEND_URL}limpiar`,);
+        if (response.ok) {
+          console.log("Simulation data cleared");
+        } else {
+          console.error("Error clearing simulation data");
+        }
+      } catch (error) {
+        console.error("Error clearing simulation data:", error);
+      }
     }
   };
 
@@ -176,7 +191,14 @@ const Simulation: React.FC = () => {
       <Topbar onSearch={handleSearch} />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
-        <div style={{ display: "flex", flex: 1, position: "relative", overflow: "hidden" }}>
+        <div
+          style={{
+            display: "flex",
+            flex: 1,
+            position: "relative",
+            overflow: "hidden",
+          }}
+        >
           <Map
             planes={startSimulation ? vuelos : { current: [] }}
             startTime={startTime}
