@@ -1,7 +1,7 @@
 "use client";
 import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import "../../styles/ConfigurationModal.css";
-import { Vuelo } from "../../types/Planes";
+import { Airport, Vuelo } from "../../types/Planes";
 import { OperationContext } from "@/app/context/operation-provider";
 
 interface ConfigurationModalProps {
@@ -17,6 +17,8 @@ interface ConfigurationModalProps {
   loading: boolean;
   setLoading: Dispatch<SetStateAction<boolean>>;
   isMounted: boolean;
+  airports: React.MutableRefObject<Airport[]>;
+  airportsHistory: React.MutableRefObject<Airport[][]>;
 }
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
@@ -31,7 +33,8 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   vuelos,
   loading,
   setLoading,
-  isMounted,
+  airports,
+  airportsHistory,
 }) => {
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSimulationMode(e.target.value);
@@ -122,9 +125,24 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             }
 
             const responseData = await response.json();
-            const responseVuelos = responseData.vuelos;
+
             allResponses.push(responseData); // Guardar la respuesta en la lista
             console.log('allResponses:', allResponses);
+
+            const responseVuelos = responseData.vuelos;
+
+            const responseAeropuertos = responseData.aeropuertos;
+
+            if(i === 0){
+              airports.current = responseAeropuertos.map((aeropuerto: any) => new Airport(aeropuerto));
+            }
+            else{
+              airportsHistory.current.push(responseAeropuertos.map((aeropuerto: any) => new Airport(aeropuerto)));
+            }
+
+
+            // console.log('Response Vuelos:', responseVuelos);
+            // console.log('aeropuertos:', airports.current);
 
             // Procesar los vuelos desde el responseData
             //console.log("Response data:", responseData);
@@ -159,7 +177,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
 
 
-            console.log("Vuelos:", vuelos.current);
+            // console.log("Vuelos:", vuelos.current);
 
             //const vuelosRef = { current: updatedVuelos };
             // for (const key in responseData) {

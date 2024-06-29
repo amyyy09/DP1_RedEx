@@ -1,10 +1,10 @@
-import React, { useState, useEffect,useRef  } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
-import '../../styles/popupPlane.css';
+import "../../styles/popupPlane.css";
 import RotatedMarker from "./RotatedMarker";
 
 const calculateRotationAngle = (
@@ -21,6 +21,7 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
+
 const Plane: React.FC<PlaneProps & {
   isOpen: boolean;
   setForceOpenPopup: (value: boolean) => void;
@@ -31,6 +32,7 @@ const Plane: React.FC<PlaneProps & {
 }> = ({
   vuelo,
   index,
+  airports,
   listVuelos,
   startTime,
   startDate,
@@ -48,25 +50,24 @@ const Plane: React.FC<PlaneProps & {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
   const markerRef = useRef<L.Marker>(null);
-  const simulatedDate = React.useRef<Date>();
+  const simulatedDate = useRef<Date>();
   const selectedPackageRef = useRef<HTMLLIElement>(null);
   const packagesListRef = useRef<HTMLDivElement>(null);
+  const prevIsVisibleRef = useRef<boolean>(false);
 
   // console.log("vuelo", vuelo);
 
-  
-
-  if(dayToDay){
+  if (dayToDay) {
     const updateTime = () => {
       if (!dayToDay) return;
       const currentTime = new Date();
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
-  
+
       // Get the origin and destiny city's GMT offsets in minutes
       const originGMTOffset = origin.GMT;
       const destinyGMTOffset = destiny.GMT;
-  
+
       // Convert the departure and arrival times to the system's timezone
       // Subtract 1 from the month to make it 0-indexed
       const horaSalida = arrayToTime(vuelo.horaSalida);
@@ -74,37 +75,37 @@ const Plane: React.FC<PlaneProps & {
       // console.log("horaSalida inicial", horaSalida);
       // console.log("systemTimezoneOffset", systemTimezoneOffset);
       // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
-  
+
       horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
       //console.log("offset", originGMTOffset);
       // console.log("horaSalida after", horaSalida);
-  
+
       const horaLlegada = arrayToTime(vuelo.horaLlegada);
       //console.log("horaLlegada inicial", horaLlegada);
       horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
-  
+
       if (
         currentTime &&
         (currentTime > horaLlegada || currentTime < horaSalida)
       ) {
         setIsVisible(false);
-  
+
         if (currentTime > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
+          // console.log("Plane has arrived día");
+          // console.log("horaLlegada aquí", horaLlegada);
           vuelo.status = 2;
           clearInterval(intervalId);
           listVuelos.splice(index, 1);
-          console.log("listVuelos", listVuelos.length);
+          // console.log("listVuelos", listVuelos.length);
         }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaSalida aquí", horaSalida);
         // console.log("horaLlegada aquí", horaLlegada);
-  
+
         return;
       }
-  
+
       if (
         currentTime &&
         currentTime >= horaSalida &&
@@ -115,28 +116,27 @@ const Plane: React.FC<PlaneProps & {
         // console.log("horaSalida", horaSalida);
         setIsVisible(true);
       }
-  
+
       const progress =
         ((currentTime?.getTime() ?? 0) - horaSalida.getTime()) /
         (horaLlegada.getTime() - horaSalida.getTime());
-  
+
       // console.log("progress", progress);
       // console.log("simulatedDate.current", simulatedDate.current);
       // console.log("horaSalida", horaSalida);
       // console.log("horaLlegada", horaLlegada);
-  
+
       const newLat =
         origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-  
+
       const newLng =
         origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-  
+
       setPosition([newLat, newLng] as LatLngExpression);
     };
     // console.log("dayToDay", dayToDay);
     const intervalId = setInterval(updateTime, 1000);
   }
-
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -146,7 +146,6 @@ const Plane: React.FC<PlaneProps & {
     // console.log("startHour", startHour);
     // console.log("speedFactor", speedFactor);
     if (!startSimulation || dayToDay) return;
-
 
     // console.log("plane started");
 
@@ -206,13 +205,31 @@ const Plane: React.FC<PlaneProps & {
         setIsVisible(false);
 
         if (simulatedDate.current > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
-          console.log("simulatedDate.current", simulatedDate.current);
+          if (vuelo.aeropuertoDestino === "WIII" || vuelo.aeropuertoOrigen === "WIII") {
+            console.log("Plane has arrived correct");
+            console.log("horaLlegada vuelo", vuelo.horaLlegada);
+            console.log("ciudad destino", citiesByCode[vuelo.aeropuertoDestino].name);
+            console.log("gmt destino", citiesByCode[vuelo.aeropuertoDestino].GMT);
+            console.log("horaLlegada aquí", horaLlegada);
+            console.log("simulatedDate.current", simulatedDate.current);
+          }
           vuelo.status = 2;
           clearInterval(intervalId);
           listVuelos.splice(index, 1);
-          console.log("listVuelos", listVuelos.length);
+          const foundAirport = airports.find(
+            (airport) => airport.codigoIATA === vuelo.aeropuertoDestino
+          );
+          if (foundAirport) {
+            // console.log("Aeropuerto destino", foundAirport.almacen);
+            foundAirport.almacen.cantPaquetes =
+              foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
+            foundAirport.almacen.paquetes =
+              foundAirport.almacen.paquetes.concat(vuelo.paquetes);
+            // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
+          } else {
+            console.log("No se encontró el aeropuerto");
+          }
+          // console.log("listVuelos", listVuelos.length);
         }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
@@ -282,8 +299,10 @@ const Plane: React.FC<PlaneProps & {
   useEffect(() => {
     if (showPackages && selectedPackageRef.current && packagesListRef.current) {
       packagesListRef.current.scrollTo({
-        top: selectedPackageRef.current.offsetTop - packagesListRef.current.offsetTop,
-        behavior: "smooth"
+        top:
+          selectedPackageRef.current.offsetTop -
+          packagesListRef.current.offsetTop,
+        behavior: "smooth",
       });
     }
   }, [showPackages]);
@@ -292,6 +311,50 @@ const Plane: React.FC<PlaneProps & {
     setShowPackages(false);
   };
 
+  useEffect(() => {
+    // if (!isVisible && prevIsVisibleRef.current) {
+    //   // console.log("Plane has arrived correct");
+    //   console.log("horaLlegada aquí", vuelo.horaLlegada);
+    //   // console.log("ciudad destino", citiesByCode[vuelo.aeropuertoDestino].name);
+    //   console.log("gmt destino", citiesByCode[vuelo.aeropuertoDestino].GMT);
+    //   console.log("simulatedDate.current", simulatedDate.current);
+    //   console.log("listVuelos", listVuelos.length);
+    //   const foundAirport = airports.find(
+    //     (airport) => airport.codigoIATA === vuelo.aeropuertoDestino
+    //   );
+    //   if (foundAirport) {
+    //     console.log("Aeropuerto destino", foundAirport.almacen);
+    //     foundAirport.almacen.cantPaquetes = foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
+    //     foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.concat(vuelo.paquetes);
+    //     console.log("Paquetes en el aeropuerto", foundAirport.almacen);
+    //   } else {
+    //     console.log("No se encontró el aeropuerto");
+    //   }
+    // }
+    if (isVisible && !prevIsVisibleRef.current) {
+      const foundAirport = airports.find(
+        (airport) => airport.codigoIATA === vuelo.aeropuertoOrigen
+      );
+      if (foundAirport) {
+        // console.log("Aeropuerto origen", foundAirport.almacen);
+        foundAirport.almacen.cantPaquetes =
+          foundAirport.almacen.cantPaquetes - vuelo.cantPaquetes;
+        // filter all the packages that are in the vuelo
+        foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.filter(
+          (paquete) =>
+            !vuelo.paquetes.some(
+              (vueloPaquete) => vueloPaquete.id === paquete.id
+            )
+        );
+        // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
+      } else {
+        console.log("No se encontró el aeropuerto");
+      }
+    }
+
+    prevIsVisibleRef.current = isVisible;
+    // console.log("isVisible", isVisible);
+  }, [isVisible]);
   const togglePackages = () => {
     if (showPackages) {
       handlePopupClose();

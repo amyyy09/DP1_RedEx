@@ -1,14 +1,50 @@
-export interface Airport {
-  name: string;
-  coords: { lat: number; lng: number };
-  code: string;
-  GMT: number;
-  capacidad: number;
+export class Airport {
+  codigoIATA: string;
+  ciudad: string;
+  pais: string;
+  continente: string;
+  alias: string;
+  zonaHorariaGMT: number;
+  almacen: {
+    capacidad: number;
+    cantPaquetes: number;
+    paquetes: Array<{
+      status: number;
+      horaInicio: Array<number>;
+      aeropuertoOrigen: string;
+      aeropuertoDestino: string;
+      id: string;
+    }>;
+  };
+  latitud: string;
+  longitud: string;
+
+  constructor(data: any) {
+    this.codigoIATA = data.codigoIATA;
+    this.ciudad = data.ciudad;
+    this.pais = data.pais;
+    this.continente = data.continente;
+    this.alias = data.alias;
+    this.zonaHorariaGMT = data.zonaHorariaGMT;
+    this.almacen = {
+      capacidad: data.almacen.capacidad,
+      cantPaquetes: data.almacen.cantPaquetes,
+      paquetes: data.almacen.paquetes.map(
+        (p: { status: number; id: string }) => ({
+          status: p.status,
+          id: p.id,
+        })
+      ),
+    };
+    this.latitud = data.latitud;
+    this.longitud = data.longitud;
+  }
 }
 
 export interface PlaneProps {
   vuelo: Vuelo;
   index: number;
+  airports: Airport[];
   listVuelos: Vuelo[];
   startTime: React.RefObject<number>;
   startDate: string;

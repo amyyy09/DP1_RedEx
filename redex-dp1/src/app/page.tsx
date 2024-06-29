@@ -319,6 +319,7 @@ const DayToDay: React.FC = () => {
         <Sidebar />
         <Map
           planes={flights} // Pasa los vuelos hardcodeados directamente
+          airports={{ current: [] }}
           startTime={{ current: Date.now() }} // Asigna un tiempo de inicio ficticio
           startDate={""} // Asigna la fecha actual
           startHour={""} // Asigna la hora actual
