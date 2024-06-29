@@ -1,26 +1,33 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Marker, Popup, Polyline, useMap } from "react-leaflet";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
+import { Marker, Popup, Polyline } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import "../../styles/popupPlane.css";
-import RotatedMarker from "./RotatedMarker";
+import { routesAngles } from "@/app/data/routesAngles";
 
-const calculateRotationAngle = (
-  origin: { lat: number; lng: number },
-  destination: { lat: number; lng: number }
-) => {
-  return (
-    Math.atan2(destination.lat - origin.lat, destination.lng - origin.lng) *
-    (180 / Math.PI)
-  );
+const createRotatedIcon = (angle: number, color: string) => {
+  return L.divIcon({
+    html: `<svg width="20" height="20" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${angle}deg);">
+      <path d="M26.602,24.568l15.401,6.072l-0.389-4.902c-10.271-7.182-9.066-6.481-14.984-10.615V2.681 c0-1.809-1.604-2.701-3.191-2.681c-1.587-0.021-3.19,0.872-3.19,2.681v12.44c-5.918,4.134-4.714,3.434-14.985,10.615l-0.39,4.903 l15.401-6.072c0,0-0.042,15.343-0.006,15.581l-5.511,3.771v2.957l7.044-2.427h3.271l7.046,2.427V43.92l-5.513-3.771 C26.644,39.909,26.602,24.568,26.602,24.568z" fill="black" />
+    </svg>`,
+    iconSize: [20, 20],
+    className: "",
+  });
 };
-const planeIcon = L.icon({
-  iconUrl: "./icons/plane.svg",
-  iconSize: [20, 20], // size of the icon
-});
 
+const getColorByLoadPercentage = (percentage: number) => {
+  if (percentage < 20) return "green";
+  if (percentage < 80) return "yellow";
+  return "red";
+};
 
 const Plane: React.FC<PlaneProps & {
   isOpen: boolean;
@@ -55,7 +62,14 @@ const Plane: React.FC<PlaneProps & {
   const packagesListRef = useRef<HTMLDivElement>(null);
   const prevIsVisibleRef = useRef<boolean>(false);
 
-  // console.log("vuelo", vuelo);
+  const origin = useMemo(
+    () => citiesByCode[vuelo.aeropuertoOrigen],
+    [vuelo.aeropuertoOrigen]
+  );
+  const destiny = useMemo(
+    () => citiesByCode[vuelo.aeropuertoDestino],
+    [vuelo.aeropuertoDestino]
+  );
 
   if (dayToDay) {
     const updateTime = () => {
@@ -138,72 +152,45 @@ const Plane: React.FC<PlaneProps & {
     const intervalId = setInterval(updateTime, 1000);
   }
 
+  const horaSalida = useMemo(() => {
+    const time = arrayToTime(vuelo.horaSalida);
+    time.setUTCHours(time.getUTCHours() - origin.GMT);
+    return time;
+  }, [vuelo.horaSalida, origin.GMT]);
+
+  const horaLlegada = useMemo(() => {
+    const time = arrayToTime(vuelo.horaLlegada);
+    time.setUTCHours(time.getUTCHours() - destiny.GMT);
+    return time;
+  }, [vuelo.horaLlegada, destiny.GMT]);
+
+  const getAngle = useCallback(() => {
+    const route = routesAngles.find(
+      (route) =>
+        route.origin === vuelo.aeropuertoOrigen &&
+        route.destination === vuelo.aeropuertoDestino
+    );
+    return route ? route.angle : 0;
+  }, [vuelo.aeropuertoOrigen, vuelo.aeropuertoDestino]);
+
   useEffect(() => {
-    // console.log("Plane vuelo", vuelo);
-    // console.log("startSimulation", startSimulation);
-    // console.log("startTime", startTime);
-    // console.log("startDate", startDate);
-    // console.log("startHour", startHour);
-    // console.log("speedFactor", speedFactor);
     if (!startSimulation || dayToDay) return;
 
-    // console.log("plane started");
-
-    // Update the simulated time
     const updateSimulatedTime = () => {
       if (!startSimulation || !startTime.current) return;
-
-      // console.log("startTime", startTime.current);
-
       const currentTime = Date.now();
-      // console.log("currentTime", currentTime);
       const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
-      // console.log("elapsedTime", elapsedTime);
       const simulatedTime = elapsedTime * speedFactor;
-      // console.log("simulatedTime", simulatedTime);
-      // Create a new Date object for the start of the simulation
-      const startDateSim = new Date(startDate + "T" + startHour + ":00");
-      // console.log("startDateSim", startDateSim);
-
-      // Add the simulated time to the start date
+      const startDateSim = new Date(`${startDate}T${startHour}:00`);
       simulatedDate.current = new Date(
         startDateSim.getTime() + simulatedTime * 1000
       );
 
-      // console.log("simulatedDate.current", simulatedDate.current);
-
-      const systemTimezoneOffset = new Date().getTimezoneOffset();
-
-      const origin = citiesByCode[vuelo.aeropuertoOrigen];
-      const destiny = citiesByCode[vuelo.aeropuertoDestino];
-
-      // Get the origin and destiny city's GMT offsets in minutes
-      const originGMTOffset = origin.GMT;
-      const destinyGMTOffset = destiny.GMT;
-
-      // Convert the departure and arrival times to the system's timezone
-      // Subtract 1 from the month to make it 0-indexed
-      const horaSalida = arrayToTime(vuelo.horaSalida);
-      // console.log("horaSalida vuelo", vuelo.horaSalida);
-      // console.log("horaSalida inicial", horaSalida);
-      // console.log("systemTimezoneOffset", systemTimezoneOffset);
-      // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
-
-      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
-      //console.log("offset", originGMTOffset);
-      // console.log("horaSalida after", horaSalida);
-
-      const horaLlegada = arrayToTime(vuelo.horaLlegada);
-      //console.log("horaLlegada inicial", horaLlegada);
-      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
-
       if (
-        simulatedDate.current &&
-        (simulatedDate.current > horaLlegada ||
-          simulatedDate.current < horaSalida)
+        simulatedDate.current > horaLlegada ||
+        simulatedDate.current < horaSalida
       ) {
         setIsVisible(false);
-
         if (simulatedDate.current > horaLlegada) {
           if (vuelo.aeropuertoDestino === "WIII" || vuelo.aeropuertoOrigen === "WIII") {
             console.log("Plane has arrived correct");
@@ -214,7 +201,6 @@ const Plane: React.FC<PlaneProps & {
             console.log("simulatedDate.current", simulatedDate.current);
           }
           vuelo.status = 2;
-          clearInterval(intervalId);
           listVuelos.splice(index, 1);
           const foundAirport = airports.find(
             (airport) => airport.codigoIATA === vuelo.aeropuertoDestino
@@ -231,64 +217,40 @@ const Plane: React.FC<PlaneProps & {
           }
           // console.log("listVuelos", listVuelos.length);
         }
-        // console.log("Plane is not visible");
-        // console.log("simulatedDate.current", simulatedDate.current);
-        // console.log("horaSalida aquí", horaSalida);
-        // console.log("horaLlegada aquí", horaLlegada);
-
         return;
       }
 
-      if (
-        simulatedDate.current &&
-        simulatedDate.current >= horaSalida &&
-        simulatedDate.current <= horaLlegada
-      ) {
-        // console.log("Plane is visible");
-        // console.log("simulatedDate.current", simulatedDate.current);
-        // console.log("horaSalida", horaSalida);
-        setIsVisible(true);
-      }
-
+      setIsVisible(true);
       const progress =
-        ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
+        (simulatedDate.current.getTime() - horaSalida.getTime()) /
         (horaLlegada.getTime() - horaSalida.getTime());
-
-      // console.log("progress", progress);
-      // console.log("simulatedDate.current", simulatedDate.current);
-      // console.log("horaSalida", horaSalida);
-      // console.log("horaLlegada", horaLlegada);
 
       const newLat =
         origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-
       const newLng =
         origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-
       setPosition([newLat, newLng] as LatLngExpression);
     };
 
-    // Call updateSimulatedTime every second
-    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
+    const intervalId = setInterval(updateSimulatedTime, 1000 / speedFactor);
 
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [startSimulation]);
+    return () => clearInterval(intervalId);
+  }, [
+    startSimulation,
+    dayToDay,
+    startTime,
+    startDate,
+    startHour,
+    speedFactor,
+    vuelo,
+    index,
+    listVuelos,
+    horaLlegada,
+    horaSalida,
+    origin,
+    destiny,
+  ]);
 
-  useEffect(() => {
-    if (vuelo === undefined) return;
-    if (startTime === undefined) return;
-    if (startDate === undefined) return;
-    if (!startSimulation) return;
-    // updatePlanePosition();
-  }, [vuelo, startTime, startDate, startSimulation]);
-
-  // Periodically update the plane's position
-  useEffect(() => {
-    // const intervalId = setInterval(updatePlanePosition, 1000 / speedFactor);
-    // return () => clearInterval(intervalId);
-  }, [simulatedDate.current, speedFactor]);
   useEffect(() => {
     if (markerRef.current && isOpen) {
       markerRef.current.openPopup();
@@ -306,6 +268,17 @@ const Plane: React.FC<PlaneProps & {
       });
     }
   }, [showPackages]);
+
+  const loadPercentage = (vuelo.cantPaquetes / vuelo.capacidad) * 100;
+  const color = getColorByLoadPercentage(loadPercentage);
+
+  useEffect(() => {
+    const angle = getAngle();
+    const icon = createRotatedIcon(angle, color);
+    if (isVisible && position) {
+      markerRef.current?.setIcon(icon);
+    }
+  }, [isVisible, position, getAngle, color]);
 
   const handlePopupClose = () => {
     setShowPackages(false);
@@ -373,21 +346,19 @@ const Plane: React.FC<PlaneProps & {
       {isVisible && (
         <Polyline
           positions={[
-            [
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lat,
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lng,
-            ],
-            [
-              citiesByCode[vuelo.aeropuertoDestino].coords.lat,
-              citiesByCode[vuelo.aeropuertoDestino].coords.lng,
-            ],
+            [origin.coords.lat, origin.coords.lng],
+            [destiny.coords.lat, destiny.coords.lng],
           ]}
-          pathOptions={{ color: "black", weight: 1, dashArray: "5,10" }}
+          pathOptions={{ color: "grey", weight: 0.5, dashArray: "5,10" }}
         />
       )}
       {isVisible && (
         <>
-          <Marker position={position} icon={planeIcon} ref={markerRef}>
+          <Marker
+          position={position}
+          icon={createRotatedIcon(getAngle(), color)}
+          ref={markerRef}
+        >
             <Popup
               eventHandlers={{
                 remove: handlePopupClose,
