@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { Marker, Popup, Polyline, useMap } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
-import { citiesByCode } from "@/app/data/cities";
+import { cities } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import "../../styles/popupPlane.css";
 import { routesAngles } from "@/app/data/routesAngles";
@@ -53,8 +53,8 @@ const Plane: React.FC<
     const updateTime = () => {
       if (!dayToDay) return;
       const currentTime = new Date();
-      const origin = citiesByCode[vuelo.aeropuertoOrigen];
-      const destiny = citiesByCode[vuelo.aeropuertoDestino];
+      const origin = cities[vuelo.aeropuertoOrigen];
+      const destiny = cities[vuelo.aeropuertoDestino];
 
       const originGMTOffset = origin.GMT;
       const destinyGMTOffset = destiny.GMT;
@@ -164,8 +164,8 @@ const Plane: React.FC<
 
       const systemTimezoneOffset = new Date().getTimezoneOffset();
 
-      const origin = citiesByCode[vuelo.aeropuertoOrigen];
-      const destiny = citiesByCode[vuelo.aeropuertoDestino];
+      const origin = cities[vuelo.aeropuertoOrigen];
+      const destiny = cities[vuelo.aeropuertoDestino];
 
       // Get the origin and destiny city's GMT offsets in minutes
       const originGMTOffset = origin.GMT;
@@ -302,12 +302,12 @@ const Plane: React.FC<
         <Polyline
           positions={[
             [
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lat,
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lng,
+              cities[vuelo.aeropuertoOrigen].coords.lat,
+              cities[vuelo.aeropuertoOrigen].coords.lng,
             ],
             [
-              citiesByCode[vuelo.aeropuertoDestino].coords.lat,
-              citiesByCode[vuelo.aeropuertoDestino].coords.lng,
+              cities[vuelo.aeropuertoDestino].coords.lat,
+              cities[vuelo.aeropuertoDestino].coords.lng,
             ],
           ]}
           pathOptions={{ color: "grey", weight: 0.5, dashArray: "5,10" }}
@@ -330,11 +330,11 @@ const Plane: React.FC<
               </h2>
               <p>
                 <strong>Origen:</strong>{" "}
-                {citiesByCode[vuelo.aeropuertoOrigen].name}
+                {cities[vuelo.aeropuertoOrigen].name}
               </p>
               <p>
                 <strong>Destino:</strong>{" "}
-                {citiesByCode[vuelo.aeropuertoDestino].name}
+                {cities[vuelo.aeropuertoDestino].name}
               </p>
               <p>
                 <strong>Hora de salida:</strong>{" "}
@@ -350,7 +350,7 @@ const Plane: React.FC<
               </p>
               <p>
                 <strong>GMT origen:</strong>
-                {citiesByCode[vuelo.aeropuertoOrigen].GMT}
+                {cities[vuelo.aeropuertoOrigen].GMT}
               </p>
               <p>
                 <strong>Hora de llegada:</strong>{" "}
@@ -366,7 +366,7 @@ const Plane: React.FC<
               </p>
               <p>
                 <strong>GMT destino:</strong>
-                {citiesByCode[vuelo.aeropuertoDestino].GMT}
+                {cities[vuelo.aeropuertoDestino].GMT}
               </p>
               <p>
                 <strong>Capacidad:</strong> {vuelo.capacidad}
