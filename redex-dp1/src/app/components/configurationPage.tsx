@@ -17,12 +17,8 @@ const ConfigPage: React.FC = () => {
           <p>Carga de Planes de Vuelo</p>
         </div>
         <div className="config-button">
-          <img src="config.png" alt="Carga de Almacenes" />
-          <p>Carga de Almacenes</p>
-        </div>
-        <div className="config-button">
           <img src="config.png" alt="Carga de Data Historica" />
-          <p>Carga de Data Historica</p>
+          <p>Agregar Aeropuerto</p>
         </div>
         <div className="config-button">
           <img src="config.png" alt="Configuración de Parámetros" />
