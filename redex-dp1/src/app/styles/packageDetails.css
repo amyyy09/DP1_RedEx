@@ -1,72 +1,100 @@
-.package-details {
+.package-details-fixed {
   position: fixed;
-  top: 18%;
+  top: 20%;
   right: 50px;
-  width: 305px; /* Aumentar un poco el ancho para mejor visualización */
-  height: 30%;
-  background-color: #ffffff;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  width: 450px;
+  height: 60%;
+  background: rgba(255, 255, 255, 0.95);
   padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   overflow-y: auto;
-  z-index: 1002; /* Asegurar que el z-index sea alto pero no mayor que el del mapa */
-  border-radius: 8px;
-  pointer-events: auto; /* Asegura que el popup maneje los eventos de puntero */
+  z-index: 1000; /* Ensure it's above other elements */
 }
 
-.package-details .header {
+.package-details {
+  padding: 10px;
+}
+
+.package-details-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #eee;
+  margin-bottom: 10px;
 }
 
-.package-details h2 {
-  background: none;
-  cursor: default;
-  margin: 0;
-  font-size: 1.5em; /* Ajusta el tamaño del título */
-  color: #000000; /* Ajusta el color del título */
-  z-index: 1002; /* Asegura que el título sea visible */
-  border:#000000;
+.package-details-header h2 {
+  color: black; /* Ensure the title is black */
 }
 
-.package-details .close-button-detalles {
+.close-button-detalles {
   background: none;
   border: none;
   font-size: 1.5em;
   cursor: pointer;
-  position: absolute;
-  top: 13px;
-  right: 20px; /* Mueve el botón a la derecha */
-  color: #333; /* Asegura que el botón de cierre sea visible */
+  color: #333;
 }
 
-.package-details .divider {
-  border-bottom: 1px solid #000000;
+.divider {
   margin: 10px 0;
+  border-bottom: 1px solid #ddd;
 }
 
-.package-list {
-  list-style-type: disc; /* Cambia el estilo de la lista a puntos */
-  padding-left: 20px;
-  color: #000000;
+.table-container {
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
 }
 
-.package-item {
-  padding: 10px 0;
-  border-bottom: 1px solid #000000;
+.package-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.package-table th, .package-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  color: black; /* Ensure column headers are black */
+}
+
+.package-table th {
+  background-color: #f7f7f7;
+}
+
+.selected {
+  background-color: #ffdddd;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.pagination-controls button {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
   transition: background-color 0.3s;
-  user-select: text; /* Permite la selección de texto */
 }
 
-.package-item.selected {
-  background-color: transparent;
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
-.package-item strong {
-  margin-right: 5px;
+.pagination-controls button:hover:not(:disabled) {
+  background-color: #0056b3;
 }
 
-.package-item:last-child {
-  border-bottom: none;
+.pagination-controls span {
+  margin: 0 10px;
+  font-size: 0.9em;
 }

@@ -374,10 +374,9 @@ const Map: React.FC<MapProps> = ({
             )
         )}
       </MapContainer>
-
       {showPackages && selectedVuelo && (
         <PackageDetails
-          vuelo={selectedVuelo}
+          paquetes={selectedVuelo.paquetes || []}
           selectedPackageId={selectedPackageId}
           onClose={handlePopupClose}
         />
