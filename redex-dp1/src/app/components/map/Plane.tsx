@@ -21,6 +21,12 @@ const createRotatedIcon = (angle: any) => {
   });
 };
 
+const getColorByLoadPercentage = (percentage: number) => {
+  if (percentage < 50) return "green";
+  if (percentage < 80) return "yellow";
+  return "red";
+};
+
 const Plane: React.FC<
   PlaneProps & {
     isOpen: boolean;
