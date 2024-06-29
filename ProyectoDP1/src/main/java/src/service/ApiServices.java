@@ -91,9 +91,11 @@ public class ApiServices {
                 for (Vuelo vn : jsonVuelosProximos) {
                     vuelosGuardados.add(vn);
                 }
+                for (Aeropuerto aeropuerto : aeropuertosGuardados) {
+                    aeropuerto.getAlmacen().actualizarCantPaquetes();
+                }
                 finalD.setAeropuertos(aeropuertosGuardados);
                 finalD.setVuelos(jsonVuelosActuales);
-                // Convertir el resultado a JSON
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
                 jsonResult = mapper.writeValueAsString(finalD);

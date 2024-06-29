@@ -567,8 +567,8 @@ public class PlanificacionService {
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(-1);
-    
-        double promedioPaquetesPorVuelo = (double) totalPaquetes / todosVuelos.size();
+        
+        double promedioPaquetesPorVuelo = Math.ceil((double) totalPaquetes / ((double) todosVuelos.size() / 2));
     
         double tiempoPromedioVuelo = todosVuelos.stream()
                 .mapToLong(vuelo -> {
