@@ -69,7 +69,6 @@ const Map: React.FC<MapProps> = ({
         url="https://tile.jawg.io/jawg-light/{z}/{x}/{y}.png?lang=es&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
-      {/* Add custom zoom control */}
       <ZoomControl position="topright" />
 
       {mapCenter && <MapCenter center={mapCenter} />}
@@ -80,7 +79,25 @@ const Map: React.FC<MapProps> = ({
           position={[city.coords.lat, city.coords.lng] as LatLngTuple}
           icon={customIcon}
         >
-          <Popup>{city.name}</Popup>
+          <Popup>
+            <div>
+              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+                Información del Aeropuerto
+              </h2>
+              <p>
+                <strong>Nombre:</strong> {city.name}
+              </p>
+              <p>
+                <strong>Código:</strong> {city.code}
+              </p>
+              <p>
+                <strong>GMT:</strong> {city.GMT}
+              </p>
+              <p>
+                <strong>Capacidad:</strong> {city.capacidad}
+              </p>
+            </div>
+          </Popup>
         </Marker>
       ))}
 

@@ -2,42 +2,42 @@ import { ColumnDef } from "@tanstack/react-table";
 
 export const columns: ColumnDef<any, any>[] = [
   {
-    header: "Origin",
+    header: "Origen",
     accessorKey: "origin.name",
     cell: (info) => info.getValue(),
   },
   {
-    header: "Origin Code",
+    header: "Código de Origen",
     accessorKey: "origin.code",
     cell: (info) => info.getValue(),
   },
   {
-    header: "Destination",
+    header: "Destino",
     accessorKey: "destiny.name",
     cell: (info) => info.getValue(),
   },
   {
-    header: "Destination Code",
+    header: "Código de Destino",
     accessorKey: "destiny.code",
     cell: (info) => info.getValue(),
   },
   {
-    header: "Departure Time",
+    header: "Hora de Salida",
     accessorKey: "departureTime",
     cell: (info) => info.getValue(),
   },
   {
-    header: "Arrival Time",
+    header: "Hora de Llegada",
     accessorKey: "arrivalTime",
     cell: (info) => info.getValue(),
   },
   {
-    header: "Capacity",
+    header: "Capacidad",
     accessorKey: "capacidad",
     cell: (info) => info.getValue(),
   },
   {
-    header: "Code",
+    header: "Código",
     accessorKey: "code",
     cell: (info) => info.getValue(),
   },
