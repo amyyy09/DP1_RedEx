@@ -1,6 +1,6 @@
 package src.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
+import java.time.LocalDateTime;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,6 +15,7 @@ import lombok.NoArgsConstructor;
 public class Paquete {
     private String iD;
     private int status;
-    @JsonBackReference
-    private Envio envio;
+    private LocalDateTime horaInicio;
+    private String aeropuertoOrigen;
+    private String aeropuertoDestino;
 }

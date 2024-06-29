@@ -64,7 +64,7 @@ public class EnvioService {
                     List<Paquete> paquetes = new ArrayList<>(cantPaquetes);
                     for (int i = 0; i < cantPaquetes; i++) {
                         String paqueteId = idEnvio + "-" + i; 
-                        paquetes.add(new Paquete(paqueteId, 0, envio));
+                        paquetes.add(new Paquete(paqueteId, 0, fechaHoraI,codigoIATAOrigen,codigoIATADestino));
                     }
                     envio.setPaquetes(paquetes);
                     envios.add(envio);
@@ -93,7 +93,7 @@ public class EnvioService {
     public static Envio parseDataToFrontend(Envio envio) {
         for (int i = 0; i < envio.getCantPaquetes(); i++) {
             String nombrePaquete = envio.getIdEnvio() + (i + 1);
-            Paquete paquete = new Paquete(nombrePaquete, 0, envio);
+            Paquete paquete = new Paquete(nombrePaquete, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino());
             envio.getPaquetes().add(paquete);
         }
 
