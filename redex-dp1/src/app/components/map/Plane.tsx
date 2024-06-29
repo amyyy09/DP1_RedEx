@@ -46,7 +46,7 @@ const Plane: React.FC<
   const [isVisible, setIsVisible] = useState(false);
   const [showPackages, setShowPackages] = useState(false);
   const markerRef = useRef<L.Marker>(null);
-  const simulatedDate = React.useRef<Date>();
+  const simulatedDate = useRef<Date>();
   const selectedPackageRef = useRef<HTMLLIElement>(null);
   const packagesListRef = useRef<HTMLDivElement>(null);
   const prevIsVisibleRef = useRef<boolean>(false);

@@ -18,6 +18,7 @@ interface ConfigurationModalProps {
   setLoading: Dispatch<SetStateAction<boolean>>;
   isMounted: boolean;
   airports: React.MutableRefObject<Airport[]>;
+  airportsHistory: React.MutableRefObject<Airport[][]>;
 }
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
@@ -33,6 +34,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   loading,
   setLoading,
   airports,
+  airportsHistory,
 }) => {
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSimulationMode(e.target.value);
@@ -135,24 +137,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
               airports.current = responseAeropuertos.map((aeropuerto: any) => new Airport(aeropuerto));
             }
             else{
-              // Procesar los aeropuertos desde el responseAeropuertos
-              responseAeropuertos.forEach((data: Airport) => {
-                const index = airports.current.findIndex((aeropuerto: Airport) => aeropuerto.codigoIATA === data.codigoIATA);
-                if (index !== -1) {
-                  // console.log('Aeropuerto encontrado:', data.codigoIATA);
-                  // console.log('cantidad de paquetes:', data.almacen.cantPaquetes);
-                  // console.log('cantidad de paquetes almacen:', airports.current[index].almacen.cantPaquetes);
-                  airports.current[index].almacen.cantPaquetes += data.almacen.cantPaquetes;
-                  // console.log('cantidad de paquetes suma:', airports.current);
-                  
-                  data.almacen.paquetes.forEach((paquete: any) => {
-                      airports.current[index].almacen.paquetes.push(paquete);
-                  });
-                }
-                else{
-                  console.log('Aeropuerto no encontrado:', data.codigoIATA);
-                }
-              });
+              airportsHistory.current.push(responseAeropuertos.map((aeropuerto: any) => new Airport(aeropuerto)));
             }
 
 

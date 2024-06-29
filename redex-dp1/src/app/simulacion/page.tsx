@@ -19,6 +19,7 @@ const Simulation: React.FC = () => {
   const [startHour, setStartHour] = useState("");
   const vuelos = useRef<Vuelo[]>([]);
   const airports = useRef<Airport[]>([]);
+  const airportsHistory = useRef<Airport[][]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [simulationEnd, setSimulationEnd] = useState(false);
@@ -214,6 +215,7 @@ const Simulation: React.FC = () => {
             forceOpenPopup={forceOpenPopup}
             selectedPackageId={selectedPackageId}
             setForceOpenPopup={setForceOpenPopup}
+            airportsHistory={airportsHistory}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
@@ -236,6 +238,7 @@ const Simulation: React.FC = () => {
               loading={loading}
               setLoading={setLoading}
               isMounted={isMounted}
+              airportsHistory={airportsHistory}
             />
           )}{" "}
           {simulationEnd && simulationSummary && (

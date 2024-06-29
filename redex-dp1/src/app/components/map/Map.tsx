@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -30,6 +30,7 @@ interface MapProps {
   selectedPackageId: string | null;
   forceOpenPopup: boolean;
   setForceOpenPopup: (value: boolean) => void;
+  airportsHistory?: React.MutableRefObject<Airport[][]>;
 }
 
 const customIcon = new L.Icon({
@@ -59,8 +60,93 @@ const Map: React.FC<MapProps> = ({
   selectedPackageId,
   forceOpenPopup,
   setForceOpenPopup,
+  airportsHistory,
 }) => {
+  const simulatedDate = useRef<Date>();
+  const prevUpdate = useRef<number>(0);
   // console.log("planes",planes.current);
+  useEffect(() => {
+    // console.log("Plane vuelo", vuelo);
+    // console.log("startSimulation", startSimulation);
+    // console.log("startTime", startTime);
+    // console.log("startDate", startDate);
+    // console.log("startHour", startHour);
+    // console.log("speedFactor", speedFactor);
+    if (!startSimulation || dayToDay) return;
+
+    // console.log("plane started");
+
+    // Update the simulated time
+    const updateSimulatedTime = () => {
+      if (!startSimulation || !startTime.current) return;
+
+      // console.log("startTime", startTime.current);
+
+      const currentTime = Date.now();
+      // console.log("currentTime", currentTime);
+      const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
+      // console.log("elapsedTime", elapsedTime);
+      const simulatedTime = elapsedTime * speedFactor;
+      // console.log("simulatedTime", simulatedTime);
+      // Create a new Date object for the start of the simulation
+      const startDateSim = new Date(startDate + "T" + startHour + ":00");
+      // console.log("startDateSim", startDateSim);
+
+      // Add the simulated time to the start date
+      simulatedDate.current = new Date(
+        startDateSim.getTime() + simulatedTime * 1000
+      );
+
+      const hoursElapsed =
+        (simulatedDate.current.getTime() - startDateSim.getTime()) /
+        (1000 * 60 * 60); // Convert milliseconds to hours
+      const hoursSinceLastUpdate = hoursElapsed - prevUpdate.current;
+      if (hoursSinceLastUpdate >= 2) {
+        console.log("Updating airports");
+        // Perform the desired action here
+        // Procesar los aeropuertos desde el responseAeropuertos
+        const responseAeropuertos = airportsHistory?.current[0];
+        if (!responseAeropuertos) return;
+        responseAeropuertos.forEach((data: Airport) => {
+          const index = airports.current.findIndex(
+            (aeropuerto: Airport) => aeropuerto.codigoIATA === data.codigoIATA
+          );
+          if (index !== -1) {
+            // console.log('Aeropuerto encontrado:', data.codigoIATA);
+            // console.log('cantidad de paquetes:', data.almacen.cantPaquetes);
+            // console.log('cantidad de paquetes almacen:', airports.current[index].almacen.cantPaquetes);
+            airports.current[index].almacen.cantPaquetes +=
+              data.almacen.cantPaquetes;
+            // console.log('cantidad de paquetes suma:', airports.current);
+
+            data.almacen.paquetes.forEach((paquete: any) => {
+              airports.current[index].almacen.paquetes.push(paquete);
+            });
+          } else {
+            console.log("Aeropuerto no encontrado:", data.codigoIATA);
+          }
+        });
+        // drop the first element of the history
+        airportsHistory.current.shift();
+
+        // Update prevUpdate to the current hoursElapsed rounded down to the nearest even number
+        prevUpdate.current = Math.floor(hoursElapsed / 2) * 2;
+        console.log("airports", airports.current);
+        console.log("history", airportsHistory.current);
+      }
+
+      if (prevUpdate.current === 168) {
+        clearInterval(intervalId);
+      }
+    };
+
+    // Call updateSimulatedTime every second
+    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
+
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, [startSimulation]);
 
   return (
     <MapContainer
@@ -81,23 +167,43 @@ const Map: React.FC<MapProps> = ({
       {cities.map((city, idx) => {
         // Find the corresponding city data in the JSON
         const cityData = airports.current ? airports.current[idx] : null;
+        const iconColor =
+          cityData && cityData.almacen.cantPaquetes > 0
+            ? city.capacidad / cityData.almacen.cantPaquetes > 2 // Check if the capacity is at least double the number of packages
+              ? "green"
+              : city.capacidad / cityData.almacen.cantPaquetes > 4 / 3 // Check if the capacity is at least 1.33 times the number of packages
+              ? "yellow"
+              : "red"
+            : "green";
+
+        const dynamicIcon = new L.Icon({
+          iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${iconColor}.png`,
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          shadowUrl:
+            "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+          shadowSize: [41, 41],
+        });
 
         return (
           <Marker
             key={idx}
             position={[city.coords.lat, city.coords.lng] as LatLngTuple}
-            icon={customIcon}
+            icon={dynamicIcon}
           >
             <Popup>
               <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
                 {city.name}
               </h2>
               <br />
-              <strong>Capacidad de Almacenamiento: </strong>{city.capacidad}
+              <strong>Capacidad de Almacenamiento: </strong>
+              {city.capacidad}
               {cityData && (
                 <>
                   <br />
-                  <strong>Cantidad de paquetes: </strong>{cityData.almacen.cantPaquetes}
+                  <strong>Cantidad de paquetes: </strong>
+                  {cityData.almacen.cantPaquetes}
                   <br />
                   Paquetes:
                   <ul>
