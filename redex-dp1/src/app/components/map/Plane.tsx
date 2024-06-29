@@ -23,9 +23,9 @@ const createRotatedIcon = (angle: number, color: string) => {
   });
 };
 
-const getColorByCantidadPaquetes = (cantidadPaquetes: number) => {
-  if (cantidadPaquetes == 1) return "green";
-  if (cantidadPaquetes > 1 && cantidadPaquetes < 3) return "yellow";
+const getColorByLoadPercentage = (percentage: number) => {
+  if (percentage < 20) return "green";
+  if (percentage < 80) return "yellow";
   return "red";
 };
 
@@ -162,7 +162,8 @@ const Plane: React.FC<
     }
   }, [showPackages]);
 
-  const color = getColorByCantidadPaquetes(vuelo.cantPaquetes);
+  const loadPercentage = (vuelo.cantPaquetes / vuelo.capacidad) * 100;
+  const color = getColorByLoadPercentage(loadPercentage);
 
   useEffect(() => {
     const angle = getAngle();
