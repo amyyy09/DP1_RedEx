@@ -1,6 +1,6 @@
 // components/Sidebar.tsx
 import React, { useState } from "react";
-import Link from 'next/link';
+import Link from "next/link";
 import "../../styles/Sidebar.css";
 const Sidebar: React.FC = () => {
   return (
@@ -19,15 +19,19 @@ const Sidebar: React.FC = () => {
         <img src="./icons/radar.png" alt="Power" />
       </div>
       <div className="sidebar-item">
-      <Link href="/registro">
-        <img src="./icons/paquete.png" alt="Package" />
+        <Link href="/registro">
+          <img src="./icons/paquete.png" alt="Package" />
         </Link>
       </div>
       <div className="sidebar-item">
-        <img src="./icons/actualizacion.png" alt="Loading" />
+        <Link href="/configuracion">
+          <img src="./icons/actualizacion.png" alt="Loading" />
+        </Link>
       </div>
       <div className="sidebar-item">
-        <img src="./icons/salir.png" alt="Logout" />
+        <Link href="/verVuelos">
+          <img src="./icons/salir.png" alt="Logout" />
+        </Link>
       </div>
     </div>
   );
