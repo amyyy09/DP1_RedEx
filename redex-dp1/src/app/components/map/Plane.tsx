@@ -21,7 +21,7 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
-const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void; selectedPackageId: string | null }> = ({
+const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void; selectedPackageId: string | null, handleShowPackages: (vuelo: any) => void, showPackages: boolean, setShowPackages: (value: boolean) => void }> = ({
   vuelo,
   index,
   listVuelos,
@@ -34,10 +34,12 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   isOpen,
   setForceOpenPopup,
   selectedPackageId,
+  handleShowPackages,
+  showPackages,
+  setShowPackages,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
-  const [showPackages, setShowPackages] = useState(false);
   const markerRef = useRef<L.Marker>(null);
   const simulatedDate = React.useRef<Date>();
   const selectedPackageRef = useRef<HTMLLIElement>(null);
@@ -266,8 +268,7 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
   useEffect(() => {
     if (markerRef.current && isOpen) {
       markerRef.current.openPopup();
-      setShowPackages(true); // Automatically show packages
-      setForceOpenPopup(false); // Reset the forceOpenPopup state after opening
+      setForceOpenPopup(false);
     }
   }, [isOpen, setForceOpenPopup]);
 
@@ -282,6 +283,15 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
 
   const handlePopupClose = () => {
     setShowPackages(false);
+  };
+
+  const togglePackages = () => {
+    if (showPackages) {
+      handlePopupClose();
+    } else {
+      handleShowPackages(vuelo);
+    }
+    setShowPackages(!showPackages);
   };
 
   if (!isVisible) {
@@ -306,89 +316,74 @@ const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value:
         />
       )}
       {isVisible && (
-        <Marker position={position} icon={planeIcon} ref={markerRef}>
-          <Popup
-            eventHandlers={{
-              remove: handlePopupClose,
-            }}
-          >
-            <div>
-              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo</h2>
-              <p>
-                <strong>Origen:</strong>{" "}
-                {citiesByCode[vuelo.aeropuertoOrigen].name}
-              </p>
-              <p>
-                <strong>Destino:</strong>{" "}
-                {citiesByCode[vuelo.aeropuertoDestino].name}
-              </p>
-              <p>
-                <strong>Hora de salida:</strong>{" "}
-                {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: false,
-                })}
-              </p>
-              <p>
-                <strong>GMT origen:</strong>
-                {citiesByCode[vuelo.aeropuertoOrigen].GMT}
-              </p>
-              <p>
-                <strong>Hora de llegada:</strong>{" "}
-                {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: false,
-                })}
-              </p>
-              <p>
-                <strong>GMT destino:</strong>
-                {citiesByCode[vuelo.aeropuertoDestino].GMT}
-              </p>
-              <p>
-                <strong>Capacidad:</strong> {vuelo.capacidad}
-              </p>
-              <p>
-                <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
-              </p>
-              <button
-                onClick={() => setShowPackages(!showPackages)}
-                className="button"
-                style={{ fontSize: "0.8em", padding: "5px 10px" }}
-              >
-                {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
-              </button>
-              {showPackages && vuelo.paquetes && (
-                <div ref={packagesListRef} style={{ maxHeight: "100px", overflowY: "auto" }}>
-                  <ul>
-                    {vuelo.paquetes.map((paquete, index) => (
-                      <li
-                        key={index}
-                        ref={paquete.id === selectedPackageId ? selectedPackageRef : null}
-                        style={{
-                          fontWeight: paquete.id === selectedPackageId ? "bold" : "normal",
-                          fontSize: paquete.id === selectedPackageId ? "1.2em" : "1em", // Change font size for selected package
-                          color: paquete.id === selectedPackageId ? "red" : "black", // Change color for selected package
-                        }}
-                      >
-                        <strong>ID:</strong> {paquete.id}, <strong>Status:</strong> {paquete.status}
-                      </li>
-                    ))}
-                  </ul>
+        <>
+          <Marker position={position} icon={planeIcon} ref={markerRef}>
+            <Popup
+              eventHandlers={{
+                remove: handlePopupClose,
+              }}
+            >
+              <div className="flight-plan-popup">
+                <div className="flight-plan-popup-content">
+                  <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo</h2>
+                  <p>
+                    <strong>Origen:</strong>{" "}
+                    {citiesByCode[vuelo.aeropuertoOrigen].name}
+                  </p>
+                  <p>
+                    <strong>Destino:</strong>{" "}
+                    {citiesByCode[vuelo.aeropuertoDestino].name}
+                  </p>
+                  <p>
+                    <strong>Hora de salida:</strong>{" "}
+                    {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: false,
+                    })}
+                  </p>
+                  <p>
+                    <strong>GMT origen:</strong>
+                    {citiesByCode[vuelo.aeropuertoOrigen].GMT}
+                  </p>
+                  <p>
+                    <strong>Hora de llegada:</strong>{" "}
+                    {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                      second: "2-digit",
+                      hour12: false,
+                    })}
+                  </p>
+                  <p>
+                    <strong>GMT destino:</strong>
+                    {citiesByCode[vuelo.aeropuertoDestino].GMT}
+                  </p>
+                  <p>
+                    <strong>Capacidad:</strong> {vuelo.capacidad}
+                  </p>
+                  <p>
+                    <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
+                  </p>
+                  <button
+                    onClick={togglePackages}
+                    className="button"
+                    style={{ fontSize: "0.8em", padding: "5px 10px" }}
+                  >
+                    {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
+                  </button>
                 </div>
-              )}
-            </div>
-          </Popup>
-        </Marker>
+              </div>
+            </Popup>
+          </Marker>
+        </>
       )}
     </>
   );

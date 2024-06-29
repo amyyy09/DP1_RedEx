@@ -28,7 +28,13 @@ export class Vuelo {
   horaLlegada: Array<number>;
   aeropuertoOrigen: string;
   aeropuertoDestino: string;
-  paquetes: Array<{ status: number; id: string }>;
+  paquetes: Array<{
+    status: number;
+    horaInicio: Array<number>;
+    aeropuertoOrigen: string;
+    aeropuertoDestino: string;
+    id: string;
+  }>;
   idVuelo: string;
 
   constructor(data: any) {
