@@ -9,6 +9,7 @@ import { Airport, Vuelo } from "../types/Planes";
 import EndModal from "../components/modal/EndModal";
 import { citiesByCode } from "../data/cities";
 import "../styles/SimulatedTime.css";
+import Notification from "../components/notificacion/Notification";
 
 const Simulation: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -25,6 +26,7 @@ const Simulation: React.FC = () => {
   const [simulationEnd, setSimulationEnd] = useState(false);
   const [simulationTerminated, setSimulationTerminated] = useState(false);
   const [simulationSummary, setSimulationSummary] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -184,13 +186,16 @@ const Simulation: React.FC = () => {
         setHighlightedPlaneId(foundVuelo.idVuelo);
         setForceOpenPopup(true);
         setSelectedPackageId(id);
+        setErrorMessage("");
       }
+    } else {
+      setErrorMessage("ID de paquete no encontrado");
     }
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar onSearch={handleSearch} />
+      <Topbar onSearch={handleSearch} errorMessage={errorMessage} />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <div
@@ -222,6 +227,9 @@ const Simulation: React.FC = () => {
             <div className="simulated-time-container">
               Fecha de simulación: {displayTime}
             </div>
+          )}
+          {errorMessage && (
+            <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
           )}
           {showModal && (
             <ConfigurationModal

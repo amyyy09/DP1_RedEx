@@ -1,0 +1,72 @@
+.package-details {
+  position: fixed;
+  top: 18%;
+  right: 50px;
+  width: 305px; /* Aumentar un poco el ancho para mejor visualización */
+  height: 30%;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 1002; /* Asegurar que el z-index sea alto pero no mayor que el del mapa */
+  border-radius: 8px;
+  pointer-events: auto; /* Asegura que el popup maneje los eventos de puntero */
+}
+
+.package-details .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+}
+
+.package-details h2 {
+  background: none;
+  cursor: default;
+  margin: 0;
+  font-size: 1.5em; /* Ajusta el tamaño del título */
+  color: #000000; /* Ajusta el color del título */
+  z-index: 1002; /* Asegura que el título sea visible */
+  border:#000000;
+}
+
+.package-details .close-button-detalles {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  position: absolute;
+  top: 13px;
+  right: 20px; /* Mueve el botón a la derecha */
+  color: #333; /* Asegura que el botón de cierre sea visible */
+}
+
+.package-details .divider {
+  border-bottom: 1px solid #000000;
+  margin: 10px 0;
+}
+
+.package-list {
+  list-style-type: disc; /* Cambia el estilo de la lista a puntos */
+  padding-left: 20px;
+  color: #000000;
+}
+
+.package-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #000000;
+  transition: background-color 0.3s;
+  user-select: text; /* Permite la selección de texto */
+}
+
+.package-item.selected {
+  background-color: transparent;
+}
+
+.package-item strong {
+  margin-right: 5px;
+}
+
+.package-item:last-child {
+  border-bottom: none;
+}

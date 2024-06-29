@@ -68,22 +68,22 @@ const Topbar: React.FC<TopbarProps> = ({ onSearch, errorMessage }) => {
         <span>Almacenes</span>
       </div>
       {isPopupOpen && (
-        <div className="popup" style={popupStyle}>
-          <div className="popup-header">
+        <div className="popup-topbar" style={popupStyle}>
+          <div className="popup-header-topbar">
             <h2 style={{ color: 'black' }}>Buscar Paquete</h2>
-            <button onClick={closePopup} className="close-button" style={{ color: 'black' }}>&times;</button>
+            <button onClick={closePopup} className="close-button-topbar" style={{ color: 'black' }}>&times;</button>
           </div>
-          <div className="popup-content">
+          <div className="popup-content-topbar">
             <input
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="ID del paquete"
-              className="search-input"
+              className="search-input-topbar"
               style={{ color: 'black' }}
             />
-            <button onClick={handleSearch} className="search-button">APLICAR</button>
+            <button onClick={handleSearch} className="search-button-topbar">APLICAR</button>
           </div>
         </div>
       )}

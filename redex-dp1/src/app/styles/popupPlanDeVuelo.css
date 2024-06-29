@@ -1,0 +1,61 @@
+.flight-plan-popup {
+  position: fixed;
+  top: 150px;
+  right: 33px;
+  background: rgba(255, 255, 255, 0.9); /* Cambiado a un fondo más claro */
+  color: #333; /* Texto oscuro para un mejor contraste */
+  width: 300px; /* Ajusta el ancho del popup */
+  max-height: 400px; /* Ajusta la altura máxima del popup */
+  overflow-y: auto; /* Añade scroll vertical */
+  padding: 20px;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 1001;
+  border-radius: 8px; /* Bordes redondeados */
+}
+
+.flight-plan-popup-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+  font-weight: bold; /* Título en negrita */
+  font-size: 1.2rem; /* Tamaño de fuente aumentado */
+}
+
+.flight-plan-popup-content {
+  padding-top: 10px;
+}
+
+.close-button {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333; /* Asegurar que el botón de cierre sea visible */
+}
+
+.flight-plan-item {
+  margin-bottom: 15px; /* Espacio entre los elementos del plan de vuelo */
+  list-style-type: none; /* Quitar el estilo de lista predeterminado */
+  padding-left: 0; /* Quitar el padding de lista */
+}
+
+.flight-plan-item::before {
+  content: "•"; /* Agregar un punto personalizado */
+  color: #333; /* Color del punto */
+  display: inline-block; 
+  width: 1em; /* Ancho del punto */
+  margin-right: 0.5em; /* Espacio entre el punto y el texto */
+}
+
+.flight-plan-item p {
+  margin: 0;
+  padding-left: 1em; /* Añadir padding para alinear con el punto */
+  line-height: 1.5; /* Aumentar el espacio entre líneas */
+}
+
+.flight-plan-item p strong {
+  font-weight: bold;
+}

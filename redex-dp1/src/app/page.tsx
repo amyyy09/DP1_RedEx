@@ -10,6 +10,8 @@ import { Vuelo } from "./types/Planes";
 import "./styles/SimulatedTime.css";
 import { OperationContext } from "./context/operation-provider";
 import { citiesByCode } from "@/app/data/cities";
+import { FlightPlan } from "@/app/types/FlightPlan ";
+import "./styles/popupPlanDeVuelo.css";
 // Datos hardcodeados para pruebas
 const hardcodedVuelos: Vuelo[] = [
   {
@@ -216,9 +218,12 @@ const DayToDay: React.FC = () => {
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(null);
   const [forceOpenPopup, setForceOpenPopup] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [flightPlan, setFlightPlan] = useState<FlightPlan[]>([]);
+  const [showFlightPlanPopup, setShowFlightPlanPopup] = useState(false);
  
-  
-  const handleSearch = (id: string) => {
+  //quiero tener los vuelos hardcodeados de arriba
+  //flights.current = hardcodedVuelos;
+  const handleSearch = async (id: string) => {
     // Buscar el paquete por ID
     console.log("vuelos búsqueda",flights.current);
 
@@ -234,6 +239,25 @@ const DayToDay: React.FC = () => {
         setSelectedPackageId(id);
         setForceOpenPopup(true);
         setErrorMessage("");
+
+        // Fetch the flight plan
+        try {
+          const responseplanvuelo = await fetch(`http://localhost:8080/api/paquete/${id}`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            }
+          );
+          const dataplanvuelo = await responseplanvuelo.json();
+          console.log("data plan de vuelo ",dataplanvuelo);
+          setFlightPlan(dataplanvuelo);
+          setShowFlightPlanPopup(true);
+        } catch (error) {
+          console.error("Error fetching flight plan:", error);
+          setErrorMessage("Error fetching flight plan");
+        }
       }
     } else {
       setErrorMessage("ID de paquete no encontrado");
@@ -314,6 +338,29 @@ const DayToDay: React.FC = () => {
       </div>
       {errorMessage && (
         <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
+      )}
+      {showFlightPlanPopup && (
+        <div className="flight-plan-popup">
+          <div className="flight-plan-popup-header">
+            <h2>Plan de Vuelo</h2>
+            <button onClick={() => setShowFlightPlanPopup(false)} className="close-button">&times;</button>
+          </div>
+          <div className="flight-plan-popup-content">
+            {flightPlan.length > 0 ? (
+              <ul>
+                {flightPlan.map((plan, index) => (
+                  <li key={index} className="flight-plan-item">
+                    <p><strong>Plan ID:</strong> {plan.indexPlan}</p>
+                    <p>Origen: {plan.aeropuertoSalida} con hora de Salida: {plan.fechaSalida.join("-")}</p>
+                    <p>El destino es: {plan.aeropuertoDestino} con hora de llega: {plan.fechaLLegada.join("-")}</p>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>No hay datos de plan de vuelo disponibles.</p>
+            )}
+          </div>
+        </div>
       )}
     </div>
   );
