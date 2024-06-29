@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  useCallback,
+} from "react";
 import { Marker, Popup, Polyline } from "react-leaflet";
 import L, { LatLngExpression } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
@@ -6,12 +12,6 @@ import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import "../../styles/popupPlane.css";
 import { routesAngles } from "@/app/data/routesAngles";
-
-interface Route {
-  origin: string;
-  destination: string;
-  angle: number;
-}
 
 const createRotatedIcon = (angle: number, color: string) => {
   return L.divIcon({
@@ -23,9 +23,9 @@ const createRotatedIcon = (angle: number, color: string) => {
   });
 };
 
-const getColorByLoadPercentage = (percentage: number) => {
-  if (percentage == 1) return "green";
-  if (percentage == 2) return "yellow";
+const getColorByCantidadPaquetes = (cantidadPaquetes: number) => {
+  if (cantidadPaquetes == 1) return "green";
+  if (cantidadPaquetes > 1 && cantidadPaquetes < 3) return "yellow";
   return "red";
 };
 
@@ -53,168 +53,101 @@ const Plane: React.FC<
   const [isVisible, setIsVisible] = useState(false);
   const [showPackages, setShowPackages] = useState(false);
   const markerRef = useRef<L.Marker>(null);
-  const simulatedDate = React.useRef<Date>();
+  const simulatedDate = useRef<Date>();
   const selectedPackageRef = useRef<HTMLLIElement>(null);
   const packagesListRef = useRef<HTMLDivElement>(null);
 
-  if (dayToDay) {
-    const updateTime = () => {
-      if (!dayToDay) return;
-      const currentTime = new Date();
-      const origin = citiesByCode[vuelo.aeropuertoOrigen];
-      const destiny = citiesByCode[vuelo.aeropuertoDestino];
+  const origin = useMemo(
+    () => citiesByCode[vuelo.aeropuertoOrigen],
+    [vuelo.aeropuertoOrigen]
+  );
+  const destiny = useMemo(
+    () => citiesByCode[vuelo.aeropuertoDestino],
+    [vuelo.aeropuertoDestino]
+  );
 
-      const originGMTOffset = origin.GMT;
-      const destinyGMTOffset = destiny.GMT;
+  const horaSalida = useMemo(() => {
+    const time = arrayToTime(vuelo.horaSalida);
+    time.setUTCHours(time.getUTCHours() - origin.GMT);
+    return time;
+  }, [vuelo.horaSalida, origin.GMT]);
 
-      const horaSalida = arrayToTime(vuelo.horaSalida);
+  const horaLlegada = useMemo(() => {
+    const time = arrayToTime(vuelo.horaLlegada);
+    time.setUTCHours(time.getUTCHours() - destiny.GMT);
+    return time;
+  }, [vuelo.horaLlegada, destiny.GMT]);
 
-      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
-
-      const horaLlegada = arrayToTime(vuelo.horaLlegada);
-      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
-
-      if (
-        currentTime &&
-        (currentTime > horaLlegada || currentTime < horaSalida)
-      ) {
-        setIsVisible(false);
-
-        if (currentTime > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
-          vuelo.status = 2;
-          clearInterval(intervalId);
-          listVuelos.splice(index, 1);
-          console.log("listVuelos", listVuelos.length);
-        }
-        return;
-      }
-
-      if (
-        currentTime &&
-        currentTime >= horaSalida &&
-        currentTime <= horaLlegada
-      ) {
-        setIsVisible(true);
-      }
-
-      const progress =
-        ((currentTime?.getTime() ?? 0) - horaSalida.getTime()) /
-        (horaLlegada.getTime() - horaSalida.getTime());
-
-      const newLat =
-        origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-
-      const newLng =
-        origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-
-      setPosition([newLat, newLng] as LatLngExpression);
-    };
-    const intervalId = setInterval(updateTime, 1000);
-  }
-
-  const getAngle = () => {
+  const getAngle = useCallback(() => {
     const route = routesAngles.find(
       (route) =>
         route.origin === vuelo.aeropuertoOrigen &&
         route.destination === vuelo.aeropuertoDestino
     );
     return route ? route.angle : 0;
-  };
+  }, [vuelo.aeropuertoOrigen, vuelo.aeropuertoDestino]);
 
   useEffect(() => {
     if (!startSimulation || dayToDay) return;
+
     const updateSimulatedTime = () => {
       if (!startSimulation || !startTime.current) return;
       const currentTime = Date.now();
       const elapsedTime = (currentTime - startTime.current) / 1000; // in seconds
       const simulatedTime = elapsedTime * speedFactor;
-      const startDateSim = new Date(startDate + "T" + startHour + ":00");
+      const startDateSim = new Date(`${startDate}T${startHour}:00`);
       simulatedDate.current = new Date(
         startDateSim.getTime() + simulatedTime * 1000
       );
-      const systemTimezoneOffset = new Date().getTimezoneOffset();
-      const origin = citiesByCode[vuelo.aeropuertoOrigen];
-      const destiny = citiesByCode[vuelo.aeropuertoDestino];
-
-      const originGMTOffset = origin.GMT;
-      const destinyGMTOffset = destiny.GMT;
-
-      const horaSalida = arrayToTime(vuelo.horaSalida);
-      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
-      const horaLlegada = arrayToTime(vuelo.horaLlegada);
-      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
 
       if (
-        simulatedDate.current &&
-        (simulatedDate.current > horaLlegada ||
-          simulatedDate.current < horaSalida)
+        simulatedDate.current > horaLlegada ||
+        simulatedDate.current < horaSalida
       ) {
         setIsVisible(false);
-
         if (simulatedDate.current > horaLlegada) {
-          console.log("Plane has arrived");
-          console.log("horaLlegada aquí", horaLlegada);
-          console.log("simulatedDate.current", simulatedDate.current);
           vuelo.status = 2;
-          clearInterval(intervalId);
           listVuelos.splice(index, 1);
-          console.log("listVuelos", listVuelos.length);
         }
         return;
       }
 
-      if (
-        simulatedDate.current &&
-        simulatedDate.current >= horaSalida &&
-        simulatedDate.current <= horaLlegada
-      ) {
-        setIsVisible(true);
-      }
-
+      setIsVisible(true);
       const progress =
-        ((simulatedDate.current?.getTime() ?? 0) - horaSalida.getTime()) /
+        (simulatedDate.current.getTime() - horaSalida.getTime()) /
         (horaLlegada.getTime() - horaSalida.getTime());
 
       const newLat =
         origin.coords.lat + (destiny.coords.lat - origin.coords.lat) * progress;
-
       const newLng =
         origin.coords.lng + (destiny.coords.lng - origin.coords.lng) * progress;
-
       setPosition([newLat, newLng] as LatLngExpression);
     };
 
-    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
+    const intervalId = setInterval(updateSimulatedTime, 1000 / speedFactor);
 
-    return () => {
-      clearInterval(intervalId);
-    };
+    return () => clearInterval(intervalId);
   }, [
+    startSimulation,
     dayToDay,
-    index,
-    listVuelos,
-    speedFactor,
+    startTime,
     startDate,
     startHour,
-    startSimulation,
-    startTime,
+    speedFactor,
     vuelo,
+    index,
+    listVuelos,
+    horaLlegada,
+    horaSalida,
+    origin,
+    destiny,
   ]);
-
-  useEffect(() => {
-    if (vuelo === undefined) return;
-    if (startTime === undefined) return;
-    if (startDate === undefined) return;
-    if (!startSimulation) return;
-  }, [vuelo, startTime, startDate, startSimulation]);
 
   useEffect(() => {
     if (markerRef.current && isOpen) {
       markerRef.current.openPopup();
-      setShowPackages(true); // Automatically show packages
-      setForceOpenPopup(false); // Reset the forceOpenPopup state after opening
+      setShowPackages(true);
+      setForceOpenPopup(false);
     }
   }, [isOpen, setForceOpenPopup]);
 
@@ -229,8 +162,7 @@ const Plane: React.FC<
     }
   }, [showPackages]);
 
-  const loadPercentage = (vuelo.cantPaquetes / vuelo.capacidad) * 100;
-  const color = getColorByLoadPercentage(vuelo.cantPaquetes);
+  const color = getColorByCantidadPaquetes(vuelo.cantPaquetes);
 
   useEffect(() => {
     const angle = getAngle();
@@ -238,7 +170,7 @@ const Plane: React.FC<
     if (isVisible && position) {
       markerRef.current?.setIcon(icon);
     }
-  });
+  }, [isVisible, position, getAngle, color]);
 
   const handlePopupClose = () => {
     setShowPackages(false);
@@ -253,14 +185,8 @@ const Plane: React.FC<
       {isVisible && (
         <Polyline
           positions={[
-            [
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lat,
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lng,
-            ],
-            [
-              citiesByCode[vuelo.aeropuertoDestino].coords.lat,
-              citiesByCode[vuelo.aeropuertoDestino].coords.lng,
-            ],
+            [origin.coords.lat, origin.coords.lng],
+            [destiny.coords.lat, destiny.coords.lng],
           ]}
           pathOptions={{ color: "grey", weight: 0.5, dashArray: "5,10" }}
         />
@@ -268,29 +194,23 @@ const Plane: React.FC<
       {isVisible && (
         <Marker
           position={position}
-          icon={createRotatedIcon(getAngle(), color)} // Set the rotated icon here
+          icon={createRotatedIcon(getAngle(), color)}
           ref={markerRef}
         >
-          <Popup
-            eventHandlers={{
-              remove: handlePopupClose,
-            }}
-          >
+          <Popup eventHandlers={{ remove: handlePopupClose }}>
             <div>
               <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
                 Detalles de vuelo
               </h2>
               <p>
-                <strong>Origen:</strong>{" "}
-                {citiesByCode[vuelo.aeropuertoOrigen].name}
+                <strong>Origen:</strong> {origin.name}
               </p>
               <p>
-                <strong>Destino:</strong>{" "}
-                {citiesByCode[vuelo.aeropuertoDestino].name}
+                <strong>Destino:</strong> {destiny.name}
               </p>
               <p>
                 <strong>Hora de salida:</strong>{" "}
-                {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
+                {horaSalida.toLocaleString(undefined, {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
@@ -301,12 +221,11 @@ const Plane: React.FC<
                 })}
               </p>
               <p>
-                <strong>GMT origen:</strong>
-                {citiesByCode[vuelo.aeropuertoOrigen].GMT}
+                <strong>GMT origen:</strong> {origin.GMT}
               </p>
               <p>
                 <strong>Hora de llegada:</strong>{" "}
-                {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
+                {horaLlegada.toLocaleString(undefined, {
                   day: "2-digit",
                   month: "2-digit",
                   year: "numeric",
@@ -317,8 +236,7 @@ const Plane: React.FC<
                 })}
               </p>
               <p>
-                <strong>GMT destino:</strong>
-                {citiesByCode[vuelo.aeropuertoDestino].GMT}
+                <strong>GMT destino:</strong> {destiny.GMT}
               </p>
               <p>
                 <strong>Capacidad:</strong> {vuelo.capacidad}
@@ -353,9 +271,9 @@ const Plane: React.FC<
                               ? "bold"
                               : "normal",
                           fontSize:
-                            paquete.id === selectedPackageId ? "1.2em" : "1em", // Change font size for selected package
+                            paquete.id === selectedPackageId ? "1.2em" : "1em",
                           color:
-                            paquete.id === selectedPackageId ? "red" : "black", // Change color for selected package
+                            paquete.id === selectedPackageId ? "red" : "black",
                         }}
                       >
                         <strong>ID:</strong> {paquete.id},{" "}
