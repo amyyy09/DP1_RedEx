@@ -37,12 +37,12 @@ public class ApiServices {
     private static List<Vuelo> vuelosGuardados = new ArrayList<>();
     private static Resumen reportResumen = null;
 
-    private static List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(
-            DatosAeropuertos.getAeropuertosInicializados());
+    private static List<Aeropuerto> aeropuertosGuardados;
 
     private static Map<Paquete, Resultado> jsonprevio = null;
     ResultadoFinal finalD = new ResultadoFinal();
     public String ejecutarPso(LocalDateTime fechaHora) {
+        aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
         jsonprevio = null;
         List<Vuelo> vuelos = getVuelosGuardados();
         List<Envio> envios = envioService.getEnviosPorFechaHora(fechaHora, aeropuertosGuardados);
@@ -71,42 +71,15 @@ public class ApiServices {
                 }
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
-                int zonaHorariaGMT;
                 int zonaHorariaGMT2;
-                LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
-                Almacen almacen;
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
                 List<Vuelo> jsonVuelosProximos = new ArrayList<>();
                 
                 for (Vuelo vn : json) {
-                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoDestino());
                     zonaHorariaGMT2 = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
-                    horallegadaGMT0 = vn.getHoraLlegada().plusHours(zonaHorariaGMT);
                     horaSalidaGMT0 = vn.getHoraSalida().minusHours(zonaHorariaGMT2);
-                    if (horallegadaGMT0.isAfter(fechaHora) && horallegadaGMT0.isBefore(fechaHoraReal)) {
-                        Aeropuerto aeropuertoDestino = aeropuertosGuardados.stream()
-                                .filter(a -> a.getCodigoIATA().equals(vn.getAeropuertoDestino()))
-                                .findFirst()
-                                .orElse(null);
-
-                        if (aeropuertoDestino != null) {
-                            almacen = aeropuertoDestino.getAlmacen();
-                            almacen.setCantPaquetes(almacen.getCantPaquetes() + vn.getCantPaquetes());
-                        }
-                    }
                     if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
-                        Aeropuerto aeropuertoSalida = aeropuertosGuardados.stream()
-                                .filter(a -> a.getCodigoIATA().equals(vn.getAeropuertoOrigen()))
-                                .findFirst()
-                                .orElse(null);
-                        almacen = aeropuertoSalida.getAlmacen();
-                        if(almacen.getCantPaquetes()>0){
-                        almacen.setCantPaquetes(almacen.getCantPaquetes() - vn.getCantPaquetes());
-                        }
-                        if(almacen.getCantPaquetes()==0){
-                            almacen.setCantPaquetes(0);
-                        }
                         jsonVuelosActuales.add(vn);
                     }
                     if (horaSalidaGMT0.isAfter(fechaHoraReal)) {

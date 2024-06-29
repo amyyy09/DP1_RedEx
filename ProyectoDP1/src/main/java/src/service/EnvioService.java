@@ -36,7 +36,7 @@ public class EnvioService {
         LocalDateTime fechaHoraFin = fechaHora.plusMinutes(40);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd-HH:mm");
         List<Envio> envios = new ArrayList<>();
-
+        
         // Crear un mapa para búsqueda rápida de aeropuertos
         Map<String, Aeropuerto> aeropuertoMap = aeropuertosGuardados.stream()
                 .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, aeropuerto -> aeropuerto));
@@ -61,9 +61,10 @@ public class EnvioService {
 
                     Envio envio = new Envio(idEnvio, fechaHoraI, 0, codigoIATAOrigen, codigoIATADestino, cantPaquetes,
                             null);
-                    List<Paquete> paquetes = new ArrayList<>(cantPaquetes); // Pre-allocate list size
+                    List<Paquete> paquetes = new ArrayList<>(cantPaquetes);
                     for (int i = 0; i < cantPaquetes; i++) {
-                        paquetes.add(new Paquete(idEnvio, 0, envio));
+                        String paqueteId = idEnvio + "-" + i; 
+                        paquetes.add(new Paquete(paqueteId, 0, envio));
                     }
                     envio.setPaquetes(paquetes);
                     envios.add(envio);
