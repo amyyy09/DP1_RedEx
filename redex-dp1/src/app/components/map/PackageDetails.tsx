@@ -5,7 +5,7 @@ import '../../styles/packageDetails.css';
 interface PackageDetailsProps {
   paquetes: any[];
   selectedPackageId: string | null;
-  onClose: () => void;
+  onClose?: () => void;
 }
 
 const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPackageId, onClose }) => {
@@ -35,7 +35,7 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPacka
       <div className="package-details">
         <div className="package-details-header">
           <h2><strong>Detalles de Paquetes</strong></h2>
-          <button className="close-button-detalles" onClick={onClose}>&times;</button>
+          {onClose && <button className="close-button-detalles" onClick={onClose}>&times;</button>}
         </div>
         <div className="divider"></div>
         <div className="table-container">
