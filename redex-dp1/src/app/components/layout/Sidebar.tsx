@@ -29,8 +29,8 @@ const Sidebar: React.FC = () => {
         </Link>
       </div>
       <div className="sidebar-item">
-        <Link href="/verVuelos">
-          <img src="./icons/salir.png" alt="Logout" />
+        <Link href="/planesDeVuelo">
+          <img src="./icons/torre-de-control.png" alt="Logout" />
         </Link>
       </div>
     </div>
