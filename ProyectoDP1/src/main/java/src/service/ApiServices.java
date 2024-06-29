@@ -53,7 +53,7 @@ public class ApiServices {
         String jsonResult = null;
         Resumen reportResumenAux = null;
         try {
-            String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v3.txt";
+            String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()

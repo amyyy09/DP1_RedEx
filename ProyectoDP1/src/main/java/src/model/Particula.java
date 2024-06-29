@@ -78,6 +78,7 @@ public class Particula {
             for (Paquete pkg : envio.getPaquetes()) {
                 if(filteredRutasPred.isEmpty()){
                     position.put(pkg, null);
+                    System.out.println("AAAAAAAAAAAAAAAAAAAA");
                 }else{
                 int index = new Random().nextInt(filteredRutasPred.size());
                 RutaPredefinida randomRoute = filteredRutasPred.get(index);

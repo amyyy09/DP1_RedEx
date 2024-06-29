@@ -48,7 +48,7 @@ public class ApiServicesDiario {
         LocalDateTime fechaHora= LocalDateTime.now();
         List<PaqueteDTO> paquetesEnvio = null;
         try {
-            String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+            String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v4.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
@@ -66,7 +66,6 @@ public class ApiServicesDiario {
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
                 int zonaHorariaGMT;
-                LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
 
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
