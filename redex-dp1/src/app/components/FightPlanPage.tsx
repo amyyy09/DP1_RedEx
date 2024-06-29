@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import AdvancedTable from "./table/Table";
-import { columns } from "@/utils/columns";
-import { flightPlans } from "@/utils/data/flightPlans";
+import { columns } from "../utils/columns";
+import { flightPlans } from "../data/flightPlans";
 import "@/styles/Flightplans.css";
 import TitleWithIcon from "./registro/TitleWithIcon";
 
