@@ -123,21 +123,41 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             }
 
             const responseData = await response.json();
-            const responseVuelos = responseData.vuelos;
+
             allResponses.push(responseData); // Guardar la respuesta en la lista
             console.log('allResponses:', allResponses);
 
             const responseVuelos = responseData.vuelos;
 
+            const responseAeropuertos = responseData.aeropuertos;
+
             if(i === 0){
-
-              const responseAeropuertos = responseData.aeropuertos;
-
               airports.current = responseAeropuertos.map((aeropuerto: any) => new Airport(aeropuerto));
             }
+            else{
+              // Procesar los aeropuertos desde el responseAeropuertos
+              responseAeropuertos.forEach((data: Airport) => {
+                const index = airports.current.findIndex((aeropuerto: Airport) => aeropuerto.codigoIATA === data.codigoIATA);
+                if (index !== -1) {
+                  // console.log('Aeropuerto encontrado:', data.codigoIATA);
+                  // console.log('cantidad de paquetes:', data.almacen.cantPaquetes);
+                  // console.log('cantidad de paquetes almacen:', airports.current[index].almacen.cantPaquetes);
+                  airports.current[index].almacen.cantPaquetes += data.almacen.cantPaquetes;
+                  // console.log('cantidad de paquetes suma:', airports.current);
+                  
+                  data.almacen.paquetes.forEach((paquete: any) => {
+                      airports.current[index].almacen.paquetes.push(paquete);
+                  });
+                }
+                else{
+                  console.log('Aeropuerto no encontrado:', data.codigoIATA);
+                }
+              });
+            }
 
-            console.log('Response Vuelos:', responseVuelos);
-            console.log('aeropuertos:', airports.current);
+
+            // console.log('Response Vuelos:', responseVuelos);
+            // console.log('aeropuertos:', airports.current);
 
             // Procesar los vuelos desde el responseData
             //console.log("Response data:", responseData);
@@ -172,7 +192,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
 
 
-            console.log("Vuelos:", vuelos.current);
+            // console.log("Vuelos:", vuelos.current);
 
             //const vuelosRef = { current: updatedVuelos };
             // for (const key in responseData) {
