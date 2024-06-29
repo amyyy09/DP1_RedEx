@@ -147,20 +147,20 @@ export const cities = [
     capacidad: 480,
   },
   
-  //Nuevas Ciudades//
+  /*Nuevas Ciudades*/
   {
-  name: "Damasco",
-  coords: { lat: 33.4114, lng: 36.5156 },
-  code: "OSDI",
-  GMT: 3,
-  capacidad: 400,
+    name: "Damasco",
+    coords: { lat: 33.4114, lng: 36.5156 },
+    code: "OSDI",
+    GMT: 3,
+    capacidad: 400,
   },
   {
-  name: "Riad",
-  coords: { lat: 24.9511, lng: 46.6989 },
-  code: "OERK",
-  GMT: 3,
-  capacidad: 420,
+    name: "Riad",
+    coords: { lat: 24.9511, lng: 46.6989 },
+    code: "OERK",
+    GMT: 3,
+    capacidad: 420,
   },
   {
     name: "Kabul",
@@ -205,70 +205,72 @@ export const cities = [
     capacidad: 400,
   },
 
-  //No se consideran//
-  // {
-  //   name: "Seul",
-  //   coords: { lat: 37.5665, lng: 126.978 },
-  //   code: "RKSI",
-  //   GMT: 9,
-  //   capacidad: 400,
-  // },
-  // {
-  //   name: "Bangkok",
-  //   coords: { lat: 13.7563, lng: 100.5018 },
-  //   code: "VTBS",
-  //   GMT: 7,
-  //   capacidad: 420,
-  // },
-  // {
-  //   name: "Dubai",
-  //   coords: { lat: 25.276987, lng: 55.296249 },
-  //   code: "OMDB",
-  //   GMT: 4,
-  //   capacidad: 420,
-  // },
-  // {
-  //   name: "Beijing",
-  //   coords: { lat: 40.0708, lng: 116.597 },
-  //   code: "ZBAA",
-  //   GMT: 8,
-  //   capacidad: 480,
-  // },
-  // {
-  //   name: "Tokyo",
-  //   coords: { lat: 35.5533, lng: 139.781 },
-  //   code: "RJTT",
-  //   GMT: 9,
-  //   capacidad: 460,
-  // },
-  // {
-  //   name: "Kuala Lumpur",
-  //   coords: { lat: 2.7456, lng: 101.701 },
-  //   code: "WMKK",
-  //   GMT: 8,
-  //   capacidad: 420,
-  // },
-  // {
-  //   name: "Singapore",
-  //   coords: { lat: 1.3571, lng: 103.987 },
-  //   code: "WSSS",
-  //   GMT: 8,
-  //   capacidad: 400,
-  // },
-  // {
-  //   name: "Jakarta",
-  //   coords: { lat: -6.1256, lng: 106.655 },
-  //   code: "WIII",
-  //   GMT: 7,
-  //   capacidad: 400,
-  // },
-  // {
-  //   name: "Manila",
-  //   coords: { lat: 14.5086, lng: 121.019 },
-  //   code: "RPLL",
-  //   GMT: 8,
-  //   capacidad: 400,
-  // },
+  /*No se consideran*/
+  /*
+  {
+    name: "seul",
+    coords: { lat: 37.5665, lng: 126.978 },
+    code: "rksi",
+    gmt: 9,
+    capacidad: 400,
+  },
+  {
+    name: "bangkok",
+    coords: { lat: 13.7563, lng: 100.5018 },
+    code: "vtbs",
+    gmt: 7,
+    capacidad: 420,
+  },
+  {
+    name: "dubai",
+    coords: { lat: 25.276987, lng: 55.296249 },
+    code: "omdb",
+    gmt: 4,
+    capacidad: 420,
+  },
+  {
+    name: "beijing",
+    coords: { lat: 40.0708, lng: 116.597 },
+    code: "zbaa",
+    gmt: 8,
+    capacidad: 480,
+  },
+  {
+    name: "tokyo",
+    coords: { lat: 35.5533, lng: 139.781 },
+    code: "rjtt",
+    gmt: 9,
+    capacidad: 460,
+  },
+  {
+    name: "kuala lumpur",
+    coords: { lat: 2.7456, lng: 101.701 },
+    code: "wmkk",
+    gmt: 8,
+    capacidad: 420,
+  },
+  {
+    name: "singapore",
+    coords: { lat: 1.3571, lng: 103.987 },
+    code: "wsss",
+    gmt: 8,
+    capacidad: 400,
+  },
+  {
+    name: "jakarta",
+    coords: { lat: -6.1256, lng: 106.655 },
+    code: "wiii",
+    gmt: 7,
+    capacidad: 400,
+  },
+  {
+    name: "manila",
+    coords: { lat: 14.5086, lng: 121.019 },
+    code: "rpll",
+    gmt: 8,
+    capacidad: 400,
+  },
+  */
 ];
 
 export const citiesByCode: { [code: string]: typeof cities[0] } = {};
