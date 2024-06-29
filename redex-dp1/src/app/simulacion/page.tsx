@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useRef, use } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Topbar from "../components/layout/Topbar";
 import Sidebar from "../components/layout/Sidebar";
 import ConfigurationModal from "../components/map/ConfigurationModal";
-import { Vuelo } from "../types/Planes";
+import { Airport, Vuelo } from "../types/Planes";
 import EndModal from "../components/modal/EndModal";
 import { citiesByCode } from "../data/cities";
 import "../styles/SimulatedTime.css";
@@ -18,6 +18,7 @@ const Simulation: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [startHour, setStartHour] = useState("");
   const vuelos = useRef<Vuelo[]>([]);
+  const airports = useRef<Airport[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [simulationEnd, setSimulationEnd] = useState(false);
@@ -201,6 +202,7 @@ const Simulation: React.FC = () => {
         >
           <Map
             planes={startSimulation ? vuelos : { current: [] }}
+            airports={startSimulation ? airports : { current: [] }}
             startTime={startTime}
             startDate={startDate}
             startHour={startHour}
@@ -230,6 +232,7 @@ const Simulation: React.FC = () => {
               simulationMode={simulationMode}
               setSimulationMode={setSimulationMode}
               vuelos={vuelos}
+              airports={airports}
               loading={loading}
               setLoading={setLoading}
               isMounted={isMounted}

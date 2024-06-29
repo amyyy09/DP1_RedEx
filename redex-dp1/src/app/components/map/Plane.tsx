@@ -24,6 +24,7 @@ const planeIcon = L.icon({
 const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void; selectedPackageId: string | null }> = ({
   vuelo,
   index,
+  airports,
   listVuelos,
   startTime,
   startDate,

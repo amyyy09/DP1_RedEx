@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, { useEffect } from "react";
+import React, { useRef } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -12,12 +12,13 @@ import {
 import L, { LatLngTuple } from "leaflet";
 import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
-import { Vuelo } from "@/app/types/Planes";
+import { Airport, Vuelo } from "@/app/types/Planes";
 import { cities } from "@/app/data/cities";
 import MapCenter from "./MapCenter";
 
 interface MapProps {
   planes: React.RefObject<Vuelo[]>;
+  airports: React.MutableRefObject<Airport[]>;
   startTime: React.RefObject<number>;
   startDate: string;
   startHour: string;
@@ -46,6 +47,7 @@ const customIcon = new L.Icon({
 
 const Map: React.FC<MapProps> = ({
   planes,
+  airports,
   startTime,
   startDate,
   startHour,
@@ -58,7 +60,6 @@ const Map: React.FC<MapProps> = ({
   forceOpenPopup,
   setForceOpenPopup,
 }) => {
-
   // console.log("planes",planes.current);
 
   return (
@@ -77,7 +78,43 @@ const Map: React.FC<MapProps> = ({
 
       {mapCenter && <MapCenter center={mapCenter} />}
 
-      {cities.map((city, idx) => (
+      {cities.map((city, idx) => {
+        // Find the corresponding city data in the JSON
+        const cityData = airports.current ? airports.current[idx] : null;
+
+        return (
+          <Marker
+            key={idx}
+            position={[city.coords.lat, city.coords.lng] as LatLngTuple}
+            icon={customIcon}
+          >
+            <Popup>
+              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+                {city.name}
+              </h2>
+              <br />
+              <strong>Capacidad de Almacenamiento: </strong>{city.capacidad}
+              {cityData && (
+                <>
+                  <br />
+                  <strong>Cantidad de paquetes: </strong>{cityData.almacen.cantPaquetes}
+                  <br />
+                  Paquetes:
+                  <ul>
+                    {cityData.almacen.paquetes
+                      .slice(0, 5)
+                      .map((paquete, index) => (
+                        <li key={index}>{paquete.id}</li>
+                      ))}
+                  </ul>
+                </>
+              )}
+            </Popup>
+          </Marker>
+        );
+      })}
+
+      {/* {cities.map((city, idx) => (
         <Marker
           key={idx}
           position={[city.coords.lat, city.coords.lng] as LatLngTuple}
@@ -85,28 +122,31 @@ const Map: React.FC<MapProps> = ({
         >
           <Popup>{city.name}</Popup>
         </Marker>
-      ))}
+      ))} */}
 
       {planes.current &&
         planes.current.length > 0 &&
-        planes.current.map((plane, index) => (
-          plane.status !== 2 &&
-          <Plane
-            key={plane.idVuelo}
-            listVuelos={planes.current as Vuelo[]}
-            index={index}
-            vuelo={plane}
-            startTime={startTime}
-            startDate={startDate}
-            startHour={startHour}
-            speedFactor={speedFactor}
-            startSimulation={startSimulation}
-             dayToDay={dayToDay}
-            isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado           
-            setForceOpenPopup={setForceOpenPopup}
-            selectedPackageId={selectedPackageId} // Pass the selected package ID
-          />
-        ))}
+        planes.current.map(
+          (plane, index) =>
+            plane.status !== 2 && (
+              <Plane
+                key={plane.idVuelo}
+                listVuelos={planes.current as Vuelo[]}
+                airports={airports.current as Airport[]}
+                index={index}
+                vuelo={plane}
+                startTime={startTime}
+                startDate={startDate}
+                startHour={startHour}
+                speedFactor={speedFactor}
+                startSimulation={startSimulation}
+                dayToDay={dayToDay}
+                isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado
+                setForceOpenPopup={setForceOpenPopup}
+                selectedPackageId={selectedPackageId} // Pass the selected package ID
+              />
+            )
+        )}
     </MapContainer>
   );
 };
