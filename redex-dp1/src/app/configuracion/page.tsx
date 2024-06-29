@@ -1,6 +1,5 @@
 "use client";
 import React from "react";
-import RegisterPage from "../components/registro/RegisterPage";
 import Image from "next/image";
 import Sidebar from "../components/layout/Sidebar";
 import ConfigPage from "../components/configurationPage";
