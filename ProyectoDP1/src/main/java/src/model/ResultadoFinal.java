@@ -1,6 +1,7 @@
 package src.model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,11 +12,7 @@ import lombok.NoArgsConstructor;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
-public class Paquete {
-    private String iD;
-    private int status;
-    private LocalDateTime horaInicio;
-    private String aeropuertoOrigen;
-    private String aeropuertoDestino;
+public class ResultadoFinal {
+    private List<Vuelo> vuelos;
+    private List<Aeropuerto> aeropuertos;
 }

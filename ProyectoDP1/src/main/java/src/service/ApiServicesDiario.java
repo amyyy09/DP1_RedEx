@@ -62,7 +62,7 @@ public class ApiServicesDiario {
                 paqueteDAO.insertPaquetes(paquetesEnvio);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
-                LocalDateTime fechaHoraReal = fechaHora.plusMinutes(40);
+                LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
                 int zonaHorariaGMT;
                 LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
