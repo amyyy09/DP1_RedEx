@@ -18,32 +18,30 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({ vuelo, selectedPackageI
       </div>
       <div className="divider"></div> {/* Línea debajo del título */}
       <ul className="package-list">
-        {vuelo.paquetes.map((paquete, index) => (
-          <li
-            key={index}
-            className={`package-item ${paquete.id === selectedPackageId ? "selected" : ""}`}
-          >
-            <p
-              style={{
-                fontWeight: paquete.id === selectedPackageId ? "bold" : "normal",
-                color: paquete.id === selectedPackageId ? "red" : "black",
-              }}
+        {vuelo.paquetes.map((paquete, index) => {
+          const isSelected = paquete.id === selectedPackageId;
+          return (
+            <li
+              key={index}
+              className={`package-item ${isSelected ? "selected" : ""}`}
             >
-              <strong>ID:</strong> {paquete.id}, 
-              <strong> Origen:</strong> {paquete.aeropuertoOrigen}, 
-              <strong> Destino:</strong> {paquete.aeropuertoDestino}, 
-              <strong> Hora de Registro:</strong> {arrayToTime(paquete.horaInicio).toLocaleString(undefined, {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit",
-                hour12: false,
-              })}
-            </p>
-          </li>
-        ))}
+              <p style={{ color: isSelected ? "red" : "black" }}>
+                <strong>ID:</strong> {paquete.id}, 
+                <strong> Origen:</strong> {paquete.aeropuertoOrigen}, 
+                <strong> Destino:</strong> {paquete.aeropuertoDestino}, 
+                <strong> Hora de Registro:</strong> {arrayToTime(paquete.horaInicio).toLocaleString(undefined, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}
+              </p>
+            </li>
+          );
+        })}
       </ul>
     </div>
   );

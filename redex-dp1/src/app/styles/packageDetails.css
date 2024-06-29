@@ -60,7 +60,7 @@
 }
 
 .package-item.selected {
-  background-color: #000000;
+  background-color: transparent;
 }
 
 .package-item strong {

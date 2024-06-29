@@ -21,7 +21,14 @@ const planeIcon = L.icon({
   iconSize: [20, 20], // size of the icon
 });
 
-const Plane: React.FC<PlaneProps & { isOpen: boolean; setForceOpenPopup: (value: boolean) => void; selectedPackageId: string | null, handleShowPackages: (vuelo: any) => void, showPackages: boolean, setShowPackages: (value: boolean) => void }> = ({
+const Plane: React.FC<PlaneProps & {
+  isOpen: boolean;
+  setForceOpenPopup: (value: boolean) => void;
+  selectedPackageId: string | null;
+  handleShowPackages: (vuelo: any) => void;
+  showPackages: boolean;
+  setShowPackages: (value: boolean) => void;
+}> = ({
   vuelo,
   index,
   listVuelos,

@@ -1,7 +1,7 @@
 // components/PlaneMap.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -62,15 +62,75 @@ const Map: React.FC<MapProps> = ({
   const [showPackages, setShowPackages] = useState(false);
   const [selectedVuelo, setSelectedVuelo] = useState<Vuelo | null>(null);
 
-  const handleShowPackages = (vuelo: Vuelo) => {
+  const handleShowPackages = useCallback((vuelo: Vuelo) => {
     setSelectedVuelo(vuelo);
     setShowPackages(true);
-  };
+  }, []);
 
-  const handlePopupClose = () => {
+  const handlePopupClose = useCallback(() => {
     setShowPackages(false);
     setSelectedVuelo(null);
-  };
+  }, []);
+
+  useEffect(() => {
+    if (selectedPackageId) {
+      // Cierra el paquete actual primero
+      setShowPackages(false);
+      setSelectedVuelo(null);
+
+      // Espera un momento antes de abrir el nuevo paquete
+      setTimeout(() => {
+        const foundVuelo = planes.current?.find((vuelo) =>
+          vuelo.paquetes.some((paquete) => paquete.id === selectedPackageId)
+        );
+        if (foundVuelo) {
+          setSelectedVuelo(foundVuelo);
+          setShowPackages(true);
+        }
+      }, 300); // Ajusta el retraso si es necesario
+    }
+  }, [selectedPackageId, planes]);
+
+  const renderCitiesMarkers = useMemo(() => (
+    cities.map((city, idx) => (
+      <Marker
+        key={idx}
+        position={[city.coords.lat, city.coords.lng] as LatLngTuple}
+        icon={customIcon}
+      >
+        <Popup>{city.name}</Popup>
+      </Marker>
+    ))
+  ), []);
+
+  const renderPlanes = useMemo(() => (
+    planes.current && planes.current.length > 0 &&
+    planes.current.map((plane, index) => (
+      plane.status !== 2 &&
+      <Plane
+        key={plane.idVuelo}
+        listVuelos={planes.current as Vuelo[]}
+        index={index}
+        vuelo={plane}
+        startTime={startTime}
+        startDate={startDate}
+        startHour={startHour}
+        speedFactor={speedFactor}
+        startSimulation={startSimulation}
+        dayToDay={dayToDay}
+        isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup}
+        setForceOpenPopup={setForceOpenPopup}
+        selectedPackageId={selectedPackageId}
+        handleShowPackages={handleShowPackages}
+        showPackages={showPackages}
+        setShowPackages={setShowPackages}
+      />
+    ))
+  ), [
+    planes, startTime, startDate, startHour, speedFactor, startSimulation,
+    dayToDay, highlightedPlaneId, forceOpenPopup, selectedPackageId,
+    handleShowPackages, showPackages, setShowPackages
+  ]);
 
   return (
     <>
@@ -88,7 +148,8 @@ const Map: React.FC<MapProps> = ({
         <ZoomControl position="topright" />
 
         {mapCenter && <MapCenter center={mapCenter} />}
-
+        {renderCitiesMarkers}
+        {renderPlanes}
         {cities.map((city, idx) => (
           <Marker
             key={idx}
