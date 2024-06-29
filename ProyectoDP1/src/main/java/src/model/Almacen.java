@@ -22,4 +22,12 @@ public class Almacen {
         }
         return 0.0;
     }
+
+    public void actualizarCantPaquetes() {
+        if (paquetes != null) {
+            this.cantPaquetes = paquetes.size();
+        } else {
+            this.cantPaquetes = 0;
+        }
+    }
 }

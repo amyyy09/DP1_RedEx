@@ -13,7 +13,7 @@ import lombok.Setter;
 public class DatosAeropuertos {    
     public static List<Aeropuerto> getAeropuertosInicializados() {
         List<Aeropuerto> aeropuertos = new ArrayList<>();
-        aeropuertos.add(new Aeropuerto("SKBO", "Bogota", "Colombia", "America del Sur", "bogo", -5, new Almacen(430, 0, new ArrayList<>()), "04° 42' 05\" N","74° 08' 49\" W"));
+        aeropuertos.add(new Aeropuerto("SKBO", "Bogota", "Colombia", "America del Sur", "bogo", -5, new Almacen(430, 0, new ArrayList<>()),"04° 42' 05\" N","74° 08' 49\" W"));
         aeropuertos.add(new Aeropuerto("SEQM", "Quito", "Ecuador", "America del Sur", "quit", -5, new Almacen(410, 0, new ArrayList<>()),"00° 06' 48\" N","78° 21' 31\" W"));
         aeropuertos.add(new Aeropuerto("SVMI", "Caracas", "Venezuela", "America del Sur", "cara", -4, new Almacen(400, 0, new ArrayList<>()),"10° 36' 11\" N","66° 59' 26\" W"));
         aeropuertos.add(new Aeropuerto("SBBR", "Brasilia", "Brasil", "America del Sur", "bras", -3, new Almacen(480, 0, new ArrayList<>()),"15° 51' 53\" S","47° 55' 05\" W"));
@@ -36,16 +36,15 @@ public class DatosAeropuertos {
         aeropuertos.add(new Aeropuerto("EHAM", "Amsterdam", "Holanda", "Europa", "amst", 2, new Almacen(480, 0, new ArrayList<>()),"52° 18' 00\" N","04° 45' 54\" E"));
         
         aeropuertos.add(new Aeropuerto("VIDP", "Delhi", "India", "Asia", "delh", 5, new Almacen(480, 0, new ArrayList<>()),"28° 33' 59\" N","77° 06' 11\" E"));
-        aeropuertos.add(new Aeropuerto("RKSI", "Seul", "Corea del Sur", "Asia", "seul", 9, new Almacen(400, 0, new ArrayList<>()),"37° 27' 48\" N","126° 26' 24\" E"));
-        aeropuertos.add(new Aeropuerto("VTBS", "Bangkok", "Tailandia", "Asia", "bang", 7, new Almacen(420, 0, new ArrayList<>()),"13° 40' 51\" N","100° 44' 50\" E"));
-        aeropuertos.add(new Aeropuerto("OMDB", "Dubai", "Emiratos A.U", "Asia", "emir", 4, new Almacen(420, 0, new ArrayList<>()),"25° 15' 10\" N","55° 21' 52\" E"));
-        aeropuertos.add(new Aeropuerto("ZBAA", "Beijing", "China", "Asia", "beij", 8, new Almacen(480, 0, new ArrayList<>()),"40° 04' 21\" N","116° 35' 51\" E"));
-        aeropuertos.add(new Aeropuerto("RJTT", "Tokyio", "Japon", "Asia", "toky", 9, new Almacen(460, 0, new ArrayList<>()),"35° 33' 08\" N","139° 46' 48\" E"));
-        aeropuertos.add(new Aeropuerto("WMKK", "Kuala", "Malasia", "Asia", "kual", 8, new Almacen(420, 0, new ArrayList<>()),"02° 44' 36\" N","101° 41' 53\" E"));
-        aeropuertos.add(new Aeropuerto("WSSS", "Singapure", "Singapure", "Asia", "sing", 8, new Almacen(400, 0, new ArrayList<>()),"01° 21' 25\" N","103° 59' 19\" E"));
-        aeropuertos.add(new Aeropuerto("WIII", "Jakarta", "Indonesia", "Asia", "jaka", 7, new Almacen(400, 0, new ArrayList<>()),"06° 07' 32\" S","106° 39' 21\" E"));
-        aeropuertos.add(new Aeropuerto("RPLL", "Manila", "Filipinas", "Asia", "mani", 8, new Almacen(400, 0, new ArrayList<>()),"14° 30' 31\" N","121° 01' 10\" E"));
-        
+        aeropuertos.add(new Aeropuerto("OSDI", "Damasco", "Siria", "Asia", "dama", 3, new Almacen(400, 0, new ArrayList<>()),"33° 24' 41\" N","36° 30' 56\" E"));
+        aeropuertos.add(new Aeropuerto("OERK", "Riad", "Arabia Saudita", "Asia", "riad", 3, new Almacen(420, 0, new ArrayList<>()),"24° 57' 28\" N","46° 41' 56\" E"));
+        aeropuertos.add(new Aeropuerto("OMDB", "Dubai", "Emiratos Árabes Unidos", "Asia", "emir", 4, new Almacen(420, 0, new ArrayList<>()),"25° 15' 10\" N","55° 21' 52\" E"));
+        aeropuertos.add(new Aeropuerto("OAKB", "Kabul", "Afganistán", "Asia", "kabu", 4, new Almacen(480, 0, new ArrayList<>()),"34° 33' 56\" N","69° 12' 39\" E"));
+        aeropuertos.add(new Aeropuerto("OOMS", "Mascate", "Omán", "Asia", "masc", 4, new Almacen(460, 0, new ArrayList<>()),"23° 35' 22\" N","58° 17' 03\" E"));
+        aeropuertos.add(new Aeropuerto("OYSN", "Sana", "Yemen", "Asia", "sana", 3, new Almacen(420, 0, new ArrayList<>()),"15° 28' 34\" N","44° 13' 11\" E"));
+        aeropuertos.add(new Aeropuerto("OPKC", "Karachi", "Pakistán", "Asia", "kara", 5, new Almacen(410, 0, new ArrayList<>()),"24° 54' 00\" N","67° 09' 00\" E"));
+        aeropuertos.add(new Aeropuerto("UBBB", "Bakú", "Azerbaiyán", "Asia", "baku", 2, new Almacen(400, 0, new ArrayList<>()),"40° 28' 02\" N", "50° 02' 48\" E"));
+        aeropuertos.add(new Aeropuerto("OJAI", "Amán", "Jordania", "Asia", "aman", 3, new Almacen(400, 0, new ArrayList<>()),"31° 43' 21\" N", "35° 59' 36\" E"));
         return aeropuertos;
     }
 

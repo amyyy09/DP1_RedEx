@@ -34,10 +34,10 @@ public class PlanificacionService {
     @Autowired
     private RutaPredefinidaService rutaPredefinidaService;
 
-    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes) {
+    public List<RutaPredefinida> generarRutas(List<Aeropuerto> aeropuertos, List<PlanDeVuelo> planes,String pais) {
         List<RutaPredefinida> rutas = new ArrayList<>();
-        Aeropuerto origen = aeropuertos.stream()//en este caso solo tenemos de origen ZBAA
-            .filter(a -> a.getCodigoIATA().equals("ZBAA"))
+        Aeropuerto origen = aeropuertos.stream()
+            .filter(a -> a.getCodigoIATA().equals(pais))
             .findFirst()
             .orElse(null);
             if (origen == null) return rutas;
@@ -90,7 +90,7 @@ public class PlanificacionService {
                 return;
             }
         }
-        if (currentRoute.size() > 3 || visited.contains(current)) {
+        if (currentRoute.size() > 2 || visited.contains(current)) {
             return; // Limit recursion depth and prevent visiting the same airport in one route
         }
     
@@ -567,8 +567,8 @@ public class PlanificacionService {
                 .max(Map.Entry.comparingByValue())
                 .map(Map.Entry::getKey)
                 .orElse(-1);
-    
-        double promedioPaquetesPorVuelo = (double) totalPaquetes / todosVuelos.size();
+        
+        double promedioPaquetesPorVuelo = Math.ceil((double) totalPaquetes / ((double) todosVuelos.size() / 2));
     
         double tiempoPromedioVuelo = todosVuelos.stream()
                 .mapToLong(vuelo -> {
