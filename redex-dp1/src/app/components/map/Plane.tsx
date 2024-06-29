@@ -183,8 +183,8 @@ const Plane: React.FC<PlaneProps & {
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
       // Get the origin and destiny city's GMT offsets in minutes
-      const originGMTOffset = origin.GMT? origin.GMT : 0;
-      const destinyGMTOffset = destiny.GMT? destiny.GMT : 0;
+      const originGMTOffset = origin.GMT;
+      const destinyGMTOffset = destiny.GMT;
 
       // Convert the departure and arrival times to the system's timezone
       // Subtract 1 from the month to make it 0-indexed
@@ -309,16 +309,16 @@ const Plane: React.FC<PlaneProps & {
     }
   }, [showPackages]);
 
-  const loadPercentage = (vuelo.cantPaquetes / vuelo.capacidad) * 100;
-  const color = getColorByLoadPercentage(loadPercentage);
+  // const loadPercentage = (vuelo.cantPaquetes / vuelo.capacidad) * 100;
+  // const color = getColorByLoadPercentage(loadPercentage);
 
-  useEffect(() => {
-    const angle = getAngle();
-    const icon = createRotatedIcon(angle, color);
-    if (isVisible && position) {
-      markerRef.current?.setIcon(icon);
-    }
-  }, [isVisible, position, getAngle, color]);
+  // useEffect(() => {
+  //   const angle = getAngle();
+  //   const icon = createRotatedIcon(angle, color);
+  //   if (isVisible && position) {
+  //     markerRef.current?.setIcon(icon);
+  //   }
+  // }, [isVisible, position, getAngle, color]);
 
   const handlePopupClose = () => {
     setShowPackages(false);
@@ -389,14 +389,14 @@ const Plane: React.FC<PlaneProps & {
             [citiesByCode[vuelo.aeropuertoOrigen].coords.lat, citiesByCode[vuelo.aeropuertoOrigen].coords.lng],
             [citiesByCode[vuelo.aeropuertoDestino].coords.lat, citiesByCode[vuelo.aeropuertoDestino].coords.lng],
           ]}
-          pathOptions={{ color: "grey", weight: 0.5, dashArray: "5,10" }}
+          pathOptions={{ color: "black", weight: 0.75, dashArray: "5,10" }}
         />
       )}
       {isVisible && (
         <>
           <Marker
           position={position}
-          icon={createRotatedIcon(getAngle(), color)}
+          icon={createRotatedIcon(getAngle(), "black")}
           ref={markerRef}
         >
             <Popup
