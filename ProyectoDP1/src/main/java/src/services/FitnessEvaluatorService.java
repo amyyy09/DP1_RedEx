@@ -38,10 +38,10 @@ public class FitnessEvaluatorService {
             if (entrada.getValue() == null) continue;
             RutaTiempoReal ruta = entrada.getValue();
             List<Vuelo> vuelos = ruta.getVuelos();
-            int horaOrigen = paquete.getEnvio().getFechaHoraOrigen().getHour();
+            int horaOrigen = paquete.getHoraInicio().getHour();
 
             if (gbest) {
-                int horaMinOrigen = horaOrigen * 100 + paquete.getEnvio().getFechaHoraOrigen().getMinute();
+                int horaMinOrigen = horaOrigen * 100 + paquete.getHoraInicio().getMinute();
                 int horaLlegada = ruta.getHoraLlegada().getHour() * 100 + ruta.getHoraLlegada().getMinute();
                 if (horaMinOrigen < horaLlegada) horaLlegada += 2400;
             }
