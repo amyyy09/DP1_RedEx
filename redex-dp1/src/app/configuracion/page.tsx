@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
+import RegisterPage from "../components/registro/RegisterPage";
 import Image from "next/image";
+import Sidebar from "../components/layout/Sidebar";
 import ConfigPage from "../components/configurationPage";
 
 const pedidos: React.FC = () => {
@@ -14,14 +16,15 @@ const pedidos: React.FC = () => {
         justifyContent: "space-between",
       }}
     >
+      <Sidebar />
       <div style={{ flex: 1 }}>
         <ConfigPage />
       </div>
       <Image
-        src="/image.png"
+        src="/cajitas.png"
         alt="Side Visual"
-        width={500}
-        height={500}
+        width={500} // Puedes ajustar esto según necesites
+        height={500} // Puedes ajustar esto según necesites
         layout="intrinsic"
       />
     </div>
