@@ -123,6 +123,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
             }
 
             const responseData = await response.json();
+            const responseVuelos = responseData.vuelos;
             allResponses.push(responseData); // Guardar la respuesta en la lista
             console.log('allResponses:', allResponses);
 
