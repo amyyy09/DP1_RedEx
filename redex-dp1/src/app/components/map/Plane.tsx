@@ -6,12 +6,13 @@ import React, {
   useCallback,
 } from "react";
 import { Marker, Popup, Polyline } from "react-leaflet";
-import L, { LatLngExpression } from "leaflet";
+import L, { LatLngExpression, LatLng } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import "../../styles/popupPlane.css";
 import { routesAngles } from "@/app/data/routesAngles";
+import GeodesicLine from "./GeodesicLine";
 
 const createRotatedIcon = (angle: number, color: string) => {
   return L.divIcon({
@@ -29,14 +30,40 @@ const getColorByLoadPercentage = (percentage: number) => {
   return "red";
 };
 
-const Plane: React.FC<PlaneProps & {
-  isOpen: boolean;
-  setForceOpenPopup: (value: boolean) => void;
-  selectedPackageId: string | null;
-  handleShowPackages: (vuelo: any) => void;
-  showPackages: boolean;
-  setShowPackages: (value: boolean) => void;
-}> = ({
+function areLatLngExpressionsClose(
+  expr1: any,
+  expr2: LatLngExpression,
+  threshold: number = 1
+): boolean {
+  // Extract lat and lng based on the type of expression
+  console.log("expr1", expr1);
+  const a = expr1 as LatLng;
+  expr2 = expr2 as LatLng;
+
+  const lat1 = a.lat;
+  const lng1 = a.lng;
+  const lat2 = expr2.lat;
+  const lng2 = expr2.lng;
+
+  // console.log("lat1", lat1);
+  // console.log("lng1", lng1);
+  // console.log("lat2", lat2);
+  // console.log("lng2", lng2);
+
+  // Compare using the threshold
+  return Math.abs(lat1 - lat2) < threshold && Math.abs(lng1 - lng2) < threshold;
+}
+
+const Plane: React.FC<
+  PlaneProps & {
+    isOpen: boolean;
+    setForceOpenPopup: (value: boolean) => void;
+    selectedPackageId: string | null;
+    handleShowPackages: (vuelo: any) => void;
+    showPackages: boolean;
+    setShowPackages: (value: boolean) => void;
+  }
+> = ({
   vuelo,
   index,
   airports,
@@ -63,15 +90,15 @@ const Plane: React.FC<PlaneProps & {
   const prevIsVisibleRef = useRef<boolean>(false);
 
   if (dayToDay) {
-    const updateTime = () => {
+    const updateTimeDia = () => {
       if (!dayToDay) return;
       const currentTime = new Date();
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
       // Get the origin and destiny city's GMT offsets in minutes
-      const originGMTOffset = origin.GMT? origin.GMT : 0;
-      const destinyGMTOffset = destiny.GMT? destiny.GMT : 0;
+      const originGMTOffset = origin.GMT;
+      const destinyGMTOffset = destiny.GMT;
 
       // Convert the departure and arrival times to the system's timezone
       // Subtract 1 from the month to make it 0-indexed
@@ -140,7 +167,7 @@ const Plane: React.FC<PlaneProps & {
       setPosition([newLat, newLng] as LatLngExpression);
     };
     // console.log("dayToDay", dayToDay);
-    const intervalId = setInterval(updateTime, 1000);
+    const intervalId = setInterval(updateTimeDia, 1000);
   }
 
   useEffect(() => {
@@ -210,14 +237,23 @@ const Plane: React.FC<PlaneProps & {
         setIsVisible(false);
 
         if (simulatedDate.current > horaLlegada) {
-          if (vuelo.aeropuertoDestino === "WIII" || vuelo.aeropuertoOrigen === "WIII") {
-            console.log("Plane has arrived correct");
-            console.log("horaLlegada vuelo", vuelo.horaLlegada);
-            console.log("ciudad destino", citiesByCode[vuelo.aeropuertoDestino].name);
-            console.log("gmt destino", citiesByCode[vuelo.aeropuertoDestino].GMT);
-            console.log("horaLlegada aquí", horaLlegada);
-            console.log("simulatedDate.current", simulatedDate.current);
-          }
+          // if (vuelo.aeropuertoDestino === "WIII" || vuelo.aeropuertoOrigen === "WIII") {
+          //check if the plane is in the destination airport position
+
+          // if (index === 367) {
+          //   console.log("Plane has arrived correct");
+          //   console.log("horaLlegada vuelo", vuelo.horaLlegada);
+          //   console.log(
+          //     "ciudad destino",
+          //     citiesByCode[vuelo.aeropuertoDestino].name
+          //   );
+          //   console.log(
+          //     "gmt destino",
+          //     citiesByCode[vuelo.aeropuertoDestino].GMT
+          //   );
+          //   console.log("horaLlegada aquí", horaLlegada);
+          //   console.log("simulatedDate.current", simulatedDate.current);
+          // }
           vuelo.status = 2;
           clearInterval(intervalId);
           listVuelos.splice(index, 1);
@@ -226,10 +262,14 @@ const Plane: React.FC<PlaneProps & {
           );
           if (foundAirport) {
             // console.log("Aeropuerto destino", foundAirport.almacen);
+            // foundAirport.almacen.cantPaquetes =
+            //   foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
+            vuelo.paquetes.forEach((paquete) => {
+              foundAirport.almacen.paquetes.push(paquete);
+            });
+
             foundAirport.almacen.cantPaquetes =
-              foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
-            foundAirport.almacen.paquetes =
-              foundAirport.almacen.paquetes.concat(vuelo.paquetes);
+              foundAirport.almacen.paquetes.length;
             // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
           } else {
             console.log("No se encontró el aeropuerto");
@@ -280,7 +320,6 @@ const Plane: React.FC<PlaneProps & {
       clearInterval(intervalId);
     };
   }, [startSimulation]);
-
 
   const getAngle = useCallback(() => {
     const route = routesAngles.find(
@@ -349,17 +388,14 @@ const Plane: React.FC<PlaneProps & {
         (airport) => airport.codigoIATA === vuelo.aeropuertoOrigen
       );
       if (foundAirport) {
-        // console.log("Aeropuerto origen", foundAirport.almacen);
-        foundAirport.almacen.cantPaquetes =
-          foundAirport.almacen.cantPaquetes - vuelo.cantPaquetes;
-        // filter all the packages that are in the vuelo
         foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.filter(
-          (paquete) =>
-            !vuelo.paquetes.some(
-              (vueloPaquete) => vueloPaquete.id === paquete.id
-            )
+          (paquete) => !vuelo.paquetes.some((p) => p.id === paquete.id)
         );
-        // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
+        foundAirport.almacen.cantPaquetes =
+          foundAirport.almacen.paquetes.length;
+
+        // foundAirport.almacen.cantPaquetes =
+        //   foundAirport.almacen.cantPaquetes - vuelo.cantPaquetes;
       } else {
         console.log("No se encontró el aeropuerto");
       }
@@ -383,22 +419,33 @@ const Plane: React.FC<PlaneProps & {
 
   return (
     <>
-      {isVisible && (
+      {/* {isVisible && (
         <Polyline
           positions={[
-            [citiesByCode[vuelo.aeropuertoOrigen].coords.lat, citiesByCode[vuelo.aeropuertoOrigen].coords.lng],
-            [citiesByCode[vuelo.aeropuertoDestino].coords.lat, citiesByCode[vuelo.aeropuertoDestino].coords.lng],
+            [
+              citiesByCode[vuelo.aeropuertoOrigen].coords.lat,
+              citiesByCode[vuelo.aeropuertoOrigen].coords.lng,
+            ],
+            [
+              citiesByCode[vuelo.aeropuertoDestino].coords.lat,
+              citiesByCode[vuelo.aeropuertoDestino].coords.lng,
+            ],
           ]}
           pathOptions={{ color: "black", weight: 0.75, dashArray: "5,10" }}
         />
-      )}
+      )} */}
+      <GeodesicLine
+        isVisible={isVisible}
+        citiesByCode={citiesByCode}
+        vuelo={vuelo}
+      />
       {isVisible && (
         <>
           <Marker
-          position={position}
-          icon={createRotatedIcon(getAngle(), "black")}
-          ref={markerRef}
-        >
+            position={position}
+            icon={createRotatedIcon(getAngle(), "black")}
+            ref={markerRef}
+          >
             <Popup
               eventHandlers={{
                 remove: handlePopupClose,
@@ -406,7 +453,9 @@ const Plane: React.FC<PlaneProps & {
             >
               <div className="flight-plan-popup">
                 <div className="flight-plan-popup-content">
-                  <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo</h2>
+                  <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+                    Detalles de vuelo
+                  </h2>
                   <p>
                     <strong>Origen:</strong>{" "}
                     {citiesByCode[vuelo.aeropuertoOrigen].name}

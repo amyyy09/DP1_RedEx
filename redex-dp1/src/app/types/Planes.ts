@@ -30,10 +30,13 @@ export class Airport {
       capacidad: data.almacen.capacidad,
       cantPaquetes: data.almacen.cantPaquetes,
       paquetes: data.almacen.paquetes.map(
-        (p: { status: number; id: string }) => ({
-          status: p.status,
-          id: p.id,
-        })
+        (paquete: any) => ({
+          status: paquete.status,
+          horaInicio: paquete.horaInicio,
+          aeropuertoOrigen: paquete.aeropuertoOrigen,
+          aeropuertoDestino: paquete.aeropuertoDestino,
+          id: paquete.id,
+        } as any)
       ),
     };
     this.latitud = data.latitud;

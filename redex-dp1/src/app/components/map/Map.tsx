@@ -35,19 +35,6 @@ interface MapProps {
   airportsHistory?: React.MutableRefObject<Airport[][]>;
 }
 
-const customIcon = new L.Icon({
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  shadowSize: [41, 41],
-});
-
 const Map: React.FC<MapProps> = ({
   planes,
   airports,
@@ -104,7 +91,7 @@ const Map: React.FC<MapProps> = ({
         (1000 * 60 * 60); // Convert milliseconds to hours
       const hoursSinceLastUpdate = hoursElapsed - prevUpdate.current;
       if (hoursSinceLastUpdate >= 2) {
-        console.log("Updating airports");
+        // console.log("Updating airports");
         // Perform the desired action here
         // Procesar los aeropuertos desde el responseAeropuertos
         const responseAeropuertos = airportsHistory?.current[0];
@@ -133,8 +120,8 @@ const Map: React.FC<MapProps> = ({
 
         // Update prevUpdate to the current hoursElapsed rounded down to the nearest even number
         prevUpdate.current = Math.floor(hoursElapsed / 2) * 2;
-        console.log("airports", airports.current);
-        console.log("history", airportsHistory.current);
+        // console.log("airports", airports.current);
+        // console.log("history", airportsHistory.current);
       }
 
       if (prevUpdate.current === 168) {
@@ -276,7 +263,7 @@ const Map: React.FC<MapProps> = ({
   return (
     <>
       <MapContainer
-        center={[20, 20]}
+        center={[17.5, -7.5]}
         zoom={3}
         style={{ height: "calc(100vh - 50px)", width: "calc(100vw - 50px)" }}
         zoomControl={false}
@@ -289,8 +276,8 @@ const Map: React.FC<MapProps> = ({
         <ZoomControl position="topright" />
 
         {mapCenter && <MapCenter center={mapCenter} />}
-        {renderCitiesMarkers}
-        {renderPlanes}
+        {/* {renderCitiesMarkers} */}
+        {/* {renderPlanes} */}
          {cities.map((city, idx) => {
         // Find the corresponding city data in the JSON
         const cityData = airports.current ? airports.current[idx] : null;

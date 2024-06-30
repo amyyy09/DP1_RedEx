@@ -135,6 +135,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
 
             if(i === 0){
               airports.current = responseAeropuertos.map((aeropuerto: any) => new Airport(aeropuerto));
+              console.log('aeropuertos:', airports.current);
             }
             else{
               airportsHistory.current.push(responseAeropuertos.map((aeropuerto: any) => new Airport(aeropuerto)));
