@@ -33,19 +33,6 @@ interface MapProps {
   airportsHistory?: React.MutableRefObject<Airport[][]>;
 }
 
-const customIcon = new L.Icon({
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-  shadowSize: [41, 41],
-});
-
 const Map: React.FC<MapProps> = ({
   planes,
   airports,
@@ -103,9 +90,10 @@ const Map: React.FC<MapProps> = ({
       const hoursElapsed =
         (simulatedDate.current.getTime() - startDateSim.getTime()) /
         (1000 * 60 * 60); // Convert milliseconds to hours
+
       const hoursSinceLastUpdate = hoursElapsed - prevUpdate.current;
       if (hoursSinceLastUpdate >= 2) {
-        console.log("Updating airports");
+        // console.log("Updating airports");
         // Perform the desired action here
         // Procesar los aeropuertos desde el responseAeropuertos
         const responseAeropuertos = airportsHistory?.current[0];
@@ -134,8 +122,25 @@ const Map: React.FC<MapProps> = ({
 
         // Update prevUpdate to the current hoursElapsed rounded down to the nearest even number
         prevUpdate.current = Math.floor(hoursElapsed / 2) * 2;
-        console.log("airports", airports.current);
-        console.log("history", airportsHistory.current);
+
+        // if (prevUpdate.current % 24 === 0) {
+        //   airports.current.forEach((aeropuerto: Airport) => {
+        //     aeropuerto.almacen.paquetes
+        //       .slice(0, aeropuerto.almacen.paquetes.length / 4)
+        //       .forEach((paquete: any) => {
+        //         if (paquete.status === 0) {
+        //           // delete the package
+        //           const index = aeropuerto.almacen.paquetes.findIndex(
+        //             (p: any) => p.id === paquete.id
+        //           );
+        //           aeropuerto.almacen.paquetes.splice(index, 1);
+        //           aeropuerto.almacen.cantPaquetes -= 1;
+        //         }
+        //       });
+        //   });
+        // }
+        // console.log("airports", airports.current);
+        // console.log("history", airportsHistory.current);
       }
 
       if (prevUpdate.current === 168) {
@@ -159,7 +164,6 @@ const Map: React.FC<MapProps> = ({
     setSelectedVuelo(vuelo);
     setShowPackages(true);
   }, []);
-
 
   const handlePopupClose = useCallback(() => {
     setShowPackages(false);
@@ -194,7 +198,9 @@ const Map: React.FC<MapProps> = ({
           setShowPackages(true);
         } else {
           const foundAirport = airports.current.find((airport) =>
-            airport.almacen.paquetes.some((paquete) => paquete.id === selectedPackageId)
+            airport.almacen.paquetes.some(
+              (paquete) => paquete.id === selectedPackageId
+            )
           );
           if (foundAirport) {
             setSelectedAirport(foundAirport);
@@ -235,7 +241,7 @@ const Map: React.FC<MapProps> = ({
   return (
     <>
       <MapContainer
-        center={[20, 20]}
+        center={[17.5, -7.5]}
         zoom={3}
         style={{ height: "calc(100vh - 50px)", width: "calc(100vw - 50px)" }}
         zoomControl={false}
@@ -316,7 +322,9 @@ const Map: React.FC<MapProps> = ({
                   speedFactor={speedFactor}
                   startSimulation={startSimulation}
                   dayToDay={dayToDay}
-                  isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup}
+                  isOpen={
+                    highlightedPlaneId === plane.idVuelo && forceOpenPopup
+                  }
                   setForceOpenPopup={setForceOpenPopup}
                   selectedPackageId={selectedPackageId}
                   handleShowPackages={handleShowPackages}
@@ -336,7 +344,7 @@ const Map: React.FC<MapProps> = ({
       {showPackages && selectedAirport && (
         <div className="package-details-left" ref={airportDetailsRef}>
           <PackageDetails
-            paquetes={selectedAirport.almacen.paquetes}
+            paquetes={selectedAirport.almacen.paquetes.toReversed() || []}
             selectedPackageId={selectedPackageId}
             onClose={handleCloseAirportPackages}
           />

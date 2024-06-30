@@ -109,7 +109,7 @@ public class ApiController {
         List<VueloDTO> vueloDTOs = new ArrayList<>();
         String[] vuelosArray = vuelos.split("->");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v3.txt";
+        String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
         List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
     
         try {

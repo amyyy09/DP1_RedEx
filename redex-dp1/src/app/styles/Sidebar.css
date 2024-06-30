@@ -1,6 +1,6 @@
 /* components/Sidebar.css */
 .sidebar {
-  height: 100vh;
+  height: 100vh - 50px;
   width: 40px;
   background-color: #3D3D3D;
   display: flex;
