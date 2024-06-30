@@ -15,24 +15,24 @@ const Sidebar: React.FC = () => {
           <img src="./icons/modo-vuelo.png" alt="Plane" />
         </Link>
       </div>
-      <div className="sidebar-item">
+      {/* <div className="sidebar-item">
         <img src="./icons/radar.png" alt="Power" />
-      </div>
+      </div> */}
       <div className="sidebar-item">
         <Link href="/registro">
           <img src="./icons/paquete.png" alt="Package" />
         </Link>
       </div>
-      <div className="sidebar-item">
+      {/* <div className="sidebar-item">
         <Link href="/configuracion">
           <img src="./icons/actualizacion.png" alt="Loading" />
         </Link>
-      </div>
-      <div className="sidebar-item">
+      </div> */}
+      {/* <div className="sidebar-item">
         <Link href="/planesDeVuelo">
           <img src="./icons/torre-de-control.png" alt="Logout" />
         </Link>
-      </div>
+      </div> */}
     </div>
   );
 };

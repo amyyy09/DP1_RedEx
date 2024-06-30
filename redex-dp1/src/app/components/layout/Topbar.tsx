@@ -55,7 +55,7 @@ const Topbar: React.FC<TopbarProps> = ({ onSearch, errorMessage }) => {
         <img src="./icons/buscar.png" alt="Buscar Paquete" />
         <span>Buscar Paquete</span>
       </div>
-      <div className="topbar-item">
+      {/* <div className="topbar-item">
         <img src="./icons/caja.png" alt="Estado Envíos" />
         <span>Estado Envíos</span>
       </div>
@@ -66,7 +66,7 @@ const Topbar: React.FC<TopbarProps> = ({ onSearch, errorMessage }) => {
       <div className="topbar-item">
         <img src="./icons/cajas.png" alt="Almacenes" />
         <span>Almacenes</span>
-      </div>
+      </div> */}
       {isPopupOpen && (
         <div className="popup-topbar" style={popupStyle}>
           <div className="popup-header-topbar">
