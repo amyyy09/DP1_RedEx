@@ -44,6 +44,7 @@ const Simulation: React.FC = () => {
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(
     null
   );
+  const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
 
   let isMounted = true;
 
@@ -186,11 +187,30 @@ const Simulation: React.FC = () => {
         setHighlightedPlaneId(foundVuelo.idVuelo);
         setForceOpenPopup(true);
         setSelectedPackageId(id);
+        setSelectedAirport(null);
         setErrorMessage("");
+        return; // Salir de la función si se encuentra el paquete en un avión
       }
-    } else {
-      setErrorMessage("ID de paquete no encontrado");
     }
+
+    // Si no se encuentra en los aviones, buscar en los aeropuertos
+    const foundAirport = airports.current.find((airport) =>
+      airport.almacen.paquetes.some((paquete) => paquete.id === id)
+    );
+    if (foundAirport) {
+      const city = citiesByCode[foundAirport.codigoIATA];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(null); // No hay un avión específico
+        setForceOpenPopup(true); // Forzar abrir el popup para el aeropuerto
+        setSelectedPackageId(id);
+        setSelectedAirport(foundAirport);
+        setErrorMessage("");
+        return;
+      }
+    }
+
+    setErrorMessage("ID de paquete no encontrado");
   };
 
   return (

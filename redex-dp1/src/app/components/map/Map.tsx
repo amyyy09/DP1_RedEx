@@ -1,8 +1,6 @@
 // components/PlaneMap.tsx
 "use client";
-
-
-import React, { useState, useMemo, useCallback, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -53,7 +51,10 @@ const Map: React.FC<MapProps> = ({
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
-  // console.log("planes",planes.current);
+  const markerRefs = useRef<Record<string, L.Marker<any>>>({});
+  const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
+  const airportDetailsRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
     // console.log("startSimulation", startSimulation);
@@ -139,6 +140,7 @@ const Map: React.FC<MapProps> = ({
 
   const [showPackages, setShowPackages] = useState(false);
   const [selectedVuelo, setSelectedVuelo] = useState<Vuelo | null>(null);
+  const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
 
   const handleShowPackages = useCallback((vuelo: Vuelo) => {
     setSelectedVuelo(vuelo);
@@ -151,11 +153,23 @@ const Map: React.FC<MapProps> = ({
     setSelectedVuelo(null);
   }, []);
 
+  const handleShowAirportPackages = useCallback((airport: Airport) => {
+    console.log("Selected Airport Data:", airport); // Log the airport data
+    setSelectedAirport(airport);
+    setShowPackages(true);
+  }, []);
+
+  const handleCloseAirportPackages = useCallback(() => {
+    setShowPackages(false);
+    setSelectedAirport(null);
+  }, []);
+
   useEffect(() => {
     if (selectedPackageId) {
       // Cierra el paquete actual primero
       setShowPackages(false);
       setSelectedVuelo(null);
+      setShouldOpenPopup(true); // Forzar apertura del popup
 
       // Espera un momento antes de abrir el nuevo paquete
       setTimeout(() => {
@@ -165,100 +179,45 @@ const Map: React.FC<MapProps> = ({
         if (foundVuelo) {
           setSelectedVuelo(foundVuelo);
           setShowPackages(true);
+        } else {
+          const foundAirport = airports.current.find((airport) =>
+            airport.almacen.paquetes.some((paquete) => paquete.id === selectedPackageId)
+          );
+          if (foundAirport) {
+            setSelectedAirport(foundAirport);
+            setShowPackages(true);
+            const marker = markerRefs.current[foundAirport.codigoIATA];
+            if (marker) {
+              marker.openPopup();
+              setShouldOpenPopup(false); // Resetear el estado
+            }
+          }
         }
-      }, 300); // Ajusta el retraso si es necesario
+      }, 300); // Adjust delay if necessary
     }
-  }, [selectedPackageId, planes]);
-  const renderCitiesMarkers = useMemo(() => (
-     cities.map((city, idx) => {
-        // Find the corresponding city data in the JSON
-        const cityData = airports.current ? airports.current[idx] : null;
-        const iconColor =
-          cityData && cityData.almacen.cantPaquetes > 0
-            ? city.capacidad / cityData.almacen.cantPaquetes > 2 // Check if the capacity is at least double the number of packages
-              ? "green"
-              : city.capacidad / cityData.almacen.cantPaquetes > 4 / 3 // Check if the capacity is at least 1.33 times the number of packages
-              ? "yellow"
-              : "red"
-            : "green";
+  }, [selectedPackageId, planes, airports]);
 
-        const dynamicIcon = new L.Icon({
-          iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${iconColor}.png`,
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowUrl:
-            "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-          shadowSize: [41, 41],
-        });
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        airportDetailsRef.current &&
+        !airportDetailsRef.current.contains(event.target as Node)
+      ) {
+        setShowPackages(false);
+        setSelectedAirport(null);
+      }
+    };
 
-        return (
-          <Marker
-            key={idx}
-            position={[city.coords.lat, city.coords.lng] as LatLngTuple}
-            icon={dynamicIcon}
-          >
-            <Popup>
-              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
-                {city.name}
-              </h2>
-              <br />
-              <strong>Capacidad de Almacenamiento: </strong>
-              {city.capacidad}
-              {cityData && (
-                <>
-                  <br />
-                  <strong>Cantidad de paquetes: </strong>
-                  {cityData.almacen.cantPaquetes}
-                  <br />
-                  Paquetes:
-                  <ul>
-                    {cityData.almacen.paquetes
-                      .slice(0, 5)
-                      .map((paquete, index) => (
-                        <li key={index}>{paquete.id}</li>
-                      ))}
-                  </ul>
-                </>
-              )}
-            </Popup>
-          </Marker>
-        );
-      })
-  ), []);
+    if (showPackages && selectedAirport) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
 
-  const renderPlanes = useMemo(() => (
-    planes.current &&
-        planes.current.length > 0 &&
-        planes.current.map(
-          (plane, index) =>
-            plane.status !== 2 && (
-              <Plane
-                key={plane.idVuelo}
-                listVuelos={planes.current as Vuelo[]}
-                airports={airports.current as Airport[]}
-                index={index}
-                vuelo={plane}
-                startTime={startTime}
-                startDate={startDate}
-                startHour={startHour}
-                speedFactor={speedFactor}
-                startSimulation={startSimulation}
-                dayToDay={dayToDay}
-                isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado
-                setForceOpenPopup={setForceOpenPopup}
-                selectedPackageId={selectedPackageId} // Pass the selected package ID
-                handleShowPackages={handleShowPackages}
-                showPackages={showPackages}
-                setShowPackages={setShowPackages}
-              />
-            )
-        )
-  ), [
-    planes, startTime, startDate, startHour, speedFactor, startSimulation,
-    dayToDay, highlightedPlaneId, forceOpenPopup, selectedPackageId,
-    handleShowPackages, showPackages, setShowPackages
-  ]);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showPackages, selectedAirport]);
 
   return (
     <>
@@ -272,102 +231,103 @@ const Map: React.FC<MapProps> = ({
           url="https://tile.jawg.io/jawg-light/{z}/{x}/{y}.png?lang=es&access-token=bs1zsL2E6RmY3M31PldL4RlDqNN0AWy3PJAMBU0DRv2G1PGLdj0tDtxlZ1ju4WT4"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {/* Add custom zoom control */}
         <ZoomControl position="topright" />
 
         {mapCenter && <MapCenter center={mapCenter} />}
-        {/* {renderCitiesMarkers} */}
-        {/* {renderPlanes} */}
-         {cities.map((city, idx) => {
-        // Find the corresponding city data in the JSON
-        const cityData = airports.current ? airports.current[idx] : null;
-        const iconColor =
-          cityData && cityData.almacen.cantPaquetes > 0
-            ? city.capacidad / cityData.almacen.cantPaquetes > 2 // Check if the capacity is at least double the number of packages
-              ? "green"
-              : city.capacidad / cityData.almacen.cantPaquetes > 4 / 3 // Check if the capacity is at least 1.33 times the number of packages
-              ? "yellow"
-              : "red"
-            : "green";
+        {cities.map((city, idx) => {
+          const cityData = airports.current ? airports.current[idx] : null;
+          const iconColor =
+            cityData && cityData.almacen.cantPaquetes > 0
+              ? city.capacidad / cityData.almacen.cantPaquetes > 2
+                ? "green"
+                : city.capacidad / cityData.almacen.cantPaquetes > 4 / 3
+                ? "yellow"
+                : "red"
+              : "green";
 
-        const dynamicIcon = new L.Icon({
-          iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${iconColor}.png`,
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          shadowUrl:
-            "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-          shadowSize: [41, 41],
-        });
+          const dynamicIcon = new L.Icon({
+            iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${iconColor}.png`,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowUrl:
+              "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+            shadowSize: [41, 41],
+          });
 
-        return (
-          <Marker
-            key={idx}
-            position={[city.coords.lat, city.coords.lng] as LatLngTuple}
-            icon={dynamicIcon}
-          >
-            <Popup>
-              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
-                {city.name}
-              </h2>
-              <br />
-              <strong>Capacidad de Almacenamiento: </strong>
-              {city.capacidad}
-              {cityData && (
-                <>
-                  <br />
-                  <strong>Cantidad de paquetes: </strong>
-                  {cityData.almacen.cantPaquetes}
-                  <br />
-                  Paquetes:
-                  <ul>
-                    {cityData.almacen.paquetes
-                      .slice(0, 5)
-                      .map((paquete, index) => (
-                        <li key={index}>{paquete.id}</li>
-                      ))}
-                  </ul>
-                </>
-              )}
-            </Popup>
-          </Marker>
-        );
-      })}
-
-        { planes.current &&
-        planes.current.length > 0 &&
-        planes.current.map(
-          (plane, index) =>
-            plane.status !== 2 && (
-              <Plane
-                key={plane.idVuelo}
-                listVuelos={planes.current as Vuelo[]}
-                airports={airports.current as Airport[]}
-                index={index}
-                vuelo={plane}
-                startTime={startTime}
-                startDate={startDate}
-                startHour={startHour}
-                speedFactor={speedFactor}
-                startSimulation={startSimulation}
-                dayToDay={dayToDay}
-                isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup} // Comprueba si este avión es el resaltado
-                setForceOpenPopup={setForceOpenPopup}
-                selectedPackageId={selectedPackageId} // Pass the selected package ID
-                handleShowPackages={handleShowPackages}
-                showPackages={showPackages}
-                setShowPackages={setShowPackages}
-              />
-            )
-        )}
+          return (
+            <Marker
+              key={idx}
+              position={[city.coords.lat, city.coords.lng] as LatLngTuple}
+              icon={dynamicIcon}
+              eventHandlers={{
+                click: () => {
+                  if (cityData) {
+                    handleShowAirportPackages(cityData);
+                  }
+                },
+              }}
+            >
+              <Popup>
+                <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+                  {city.name}
+                </h2>
+                <br />
+                <strong>Capacidad de Almacenamiento: </strong>
+                {city.capacidad}
+                {cityData && (
+                  <>
+                    <br />
+                    <strong>Cantidad de paquetes: </strong>
+                    {cityData.almacen.cantPaquetes}
+                  </>
+                )}
+              </Popup>
+            </Marker>
+          );
+        })}
+        {planes.current &&
+          planes.current.length > 0 &&
+          planes.current.map(
+            (plane, index) =>
+              plane.status !== 2 && (
+                <Plane
+                  key={plane.idVuelo}
+                  listVuelos={planes.current as Vuelo[]}
+                  airports={airports.current as Airport[]}
+                  index={index}
+                  vuelo={plane}
+                  startTime={startTime}
+                  startDate={startDate}
+                  startHour={startHour}
+                  speedFactor={speedFactor}
+                  startSimulation={startSimulation}
+                  dayToDay={dayToDay}
+                  isOpen={highlightedPlaneId === plane.idVuelo && forceOpenPopup}
+                  setForceOpenPopup={setForceOpenPopup}
+                  selectedPackageId={selectedPackageId}
+                  handleShowPackages={handleShowPackages}
+                  showPackages={showPackages}
+                  setShowPackages={setShowPackages}
+                />
+              )
+          )}
       </MapContainer>
-
       {showPackages && selectedVuelo && (
         <PackageDetails
-          vuelo={selectedVuelo}
+          paquetes={selectedVuelo.paquetes || []}
           selectedPackageId={selectedPackageId}
           onClose={handlePopupClose}
         />
+      )}
+      {showPackages && selectedAirport && (
+        <div className="package-details-left" ref={airportDetailsRef}>
+          <PackageDetails
+            paquetes={selectedAirport.almacen.paquetes}
+            selectedPackageId={selectedPackageId}
+            onClose={handleCloseAirportPackages}
+          />
+        </div>
       )}
     </>
   );
