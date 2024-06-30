@@ -254,9 +254,9 @@ const Plane: React.FC<
           //   console.log("horaLlegada aquí", horaLlegada);
           //   console.log("simulatedDate.current", simulatedDate.current);
           // }
-          vuelo.status = 2;
+          
           clearInterval(intervalId);
-          listVuelos.splice(index, 1);
+          
           const foundAirport = airports.find(
             (airport) => airport.codigoIATA === vuelo.aeropuertoDestino
           );
@@ -265,7 +265,12 @@ const Plane: React.FC<
             // foundAirport.almacen.cantPaquetes =
             //   foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
             vuelo.paquetes.forEach((paquete) => {
-              foundAirport.almacen.paquetes.push(paquete);
+              if (paquete.aeropuertoDestino === foundAirport.codigoIATA) {
+                paquete.status = 2;
+              } else {
+                paquete.status = 1;
+                foundAirport.almacen.paquetes.push(paquete);
+              }
             });
 
             foundAirport.almacen.cantPaquetes =
@@ -274,7 +279,10 @@ const Plane: React.FC<
           } else {
             console.log("No se encontró el aeropuerto");
           }
-          // console.log("listVuelos", listVuelos.length);
+          console.log("listVuelos", listVuelos.length);
+          vuelo.status = 2;
+          // listVuelos.splice(index, 1);
+          
         }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
