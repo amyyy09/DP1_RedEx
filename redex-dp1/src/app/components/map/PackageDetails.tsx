@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import '../../styles/packageDetails.css';
+import { citiesByCode } from "@/app/data/cities";
 
 interface PackageDetailsProps {
   paquetes: any[];
@@ -57,10 +58,10 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPacka
                       {paquete.id}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
-                      {paquete.aeropuertoOrigen}
+                      {citiesByCode[paquete.aeropuertoOrigen].name}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
-                      {paquete.aeropuertoDestino}
+                      {citiesByCode[paquete.aeropuertoDestino].name}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
                       {arrayToTime(paquete.horaInicio).toLocaleString(undefined, {
