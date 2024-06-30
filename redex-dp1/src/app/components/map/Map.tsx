@@ -1,8 +1,6 @@
 // components/PlaneMap.tsx
 "use client";
-
-
-import React, { useState, useMemo, useCallback, useEffect,useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   MapContainer,
   TileLayer,
@@ -66,7 +64,10 @@ const Map: React.FC<MapProps> = ({
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
-  // console.log("planes",planes.current);
+  const markerRefs = useRef<Record<string, L.Marker<any>>>({});
+  const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
+  const airportDetailsRef = useRef<HTMLDivElement | null>(null);
+
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
     // console.log("startSimulation", startSimulation);
@@ -168,9 +169,11 @@ const Map: React.FC<MapProps> = ({
   const handleShowAirportPackages = useCallback((airport: Airport) => {
     console.log("Selected Airport Data:", airport); // Log the airport data
     setSelectedAirport(airport);
+    setShowPackages(true);
   }, []);
 
   const handleCloseAirportPackages = useCallback(() => {
+    setShowPackages(false);
     setSelectedAirport(null);
   }, []);
 
@@ -179,6 +182,7 @@ const Map: React.FC<MapProps> = ({
       // Cierra el paquete actual primero
       setShowPackages(false);
       setSelectedVuelo(null);
+      setShouldOpenPopup(true); // Forzar apertura del popup
 
       // Espera un momento antes de abrir el nuevo paquete
       setTimeout(() => {
@@ -188,21 +192,45 @@ const Map: React.FC<MapProps> = ({
         if (foundVuelo) {
           setSelectedVuelo(foundVuelo);
           setShowPackages(true);
+        } else {
+          const foundAirport = airports.current.find((airport) =>
+            airport.almacen.paquetes.some((paquete) => paquete.id === selectedPackageId)
+          );
+          if (foundAirport) {
+            setSelectedAirport(foundAirport);
+            setShowPackages(true);
+            const marker = markerRefs.current[foundAirport.codigoIATA];
+            if (marker) {
+              marker.openPopup();
+              setShouldOpenPopup(false); // Resetear el estado
+            }
+          }
         }
-      }, 300); // Ajusta el retraso si es necesario
+      }, 300); // Adjust delay if necessary
     }
-  }, [selectedPackageId, planes]);
+  }, [selectedPackageId, planes, airports]);
 
   useEffect(() => {
-    if (selectedAirport) {
-      const updatedAirport = airports.current.find(
-        (airport) => airport.codigoIATA === selectedAirport.codigoIATA
-      );
-      if (updatedAirport) {
-        setSelectedAirport(updatedAirport);
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        airportDetailsRef.current &&
+        !airportDetailsRef.current.contains(event.target as Node)
+      ) {
+        setShowPackages(false);
+        setSelectedAirport(null);
       }
+    };
+
+    if (showPackages && selectedAirport) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
     }
-  }, [airports]);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showPackages, selectedAirport]);
 
   return (
     <>
@@ -305,8 +333,8 @@ const Map: React.FC<MapProps> = ({
           onClose={handlePopupClose}
         />
       )}
-      {selectedAirport && (
-        <div className="package-details-left">
+      {showPackages && selectedAirport && (
+        <div className="package-details-left" ref={airportDetailsRef}>
           <PackageDetails
             paquetes={selectedAirport.almacen.paquetes}
             selectedPackageId={selectedPackageId}
