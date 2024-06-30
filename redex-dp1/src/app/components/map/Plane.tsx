@@ -5,12 +5,11 @@ import React, {
   useMemo,
   useCallback,
 } from "react";
-import { Marker, Popup, Polyline } from "react-leaflet";
+import { Marker, Popup } from "react-leaflet";
 import L, { LatLngExpression, LatLng } from "leaflet";
 import { PlaneProps } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
-import "../../styles/popupPlane.css";
 import { routesAngles } from "@/app/data/routesAngles";
 import GeodesicLine from "./GeodesicLine";
 
@@ -254,9 +253,9 @@ const Plane: React.FC<
           //   console.log("horaLlegada aquí", horaLlegada);
           //   console.log("simulatedDate.current", simulatedDate.current);
           // }
-          
+
           clearInterval(intervalId);
-          
+
           const foundAirport = airports.find(
             (airport) => airport.codigoIATA === vuelo.aeropuertoDestino
           );
@@ -282,7 +281,6 @@ const Plane: React.FC<
           console.log("listVuelos", listVuelos.length);
           vuelo.status = 2;
           // listVuelos.splice(index, 1);
-          
         }
         // console.log("Plane is not visible");
         // console.log("simulatedDate.current", simulatedDate.current);
@@ -459,66 +457,62 @@ const Plane: React.FC<
                 remove: handlePopupClose,
               }}
             >
-              <div className="flight-plan-popup">
-                <div className="flight-plan-popup-content">
-                  <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
-                    Detalles de vuelo
-                  </h2>
-                  <p>
-                    <strong>Origen:</strong>{" "}
-                    {citiesByCode[vuelo.aeropuertoOrigen].name}
-                  </p>
-                  <p>
-                    <strong>Destino:</strong>{" "}
-                    {citiesByCode[vuelo.aeropuertoDestino].name}
-                  </p>
-                  <p>
-                    <strong>Hora de salida:</strong>{" "}
-                    {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                      hour12: false,
-                    })}
-                  </p>
-                  <p>
-                    <strong>GMT origen:</strong>
-                    {citiesByCode[vuelo.aeropuertoOrigen].GMT}
-                  </p>
-                  <p>
-                    <strong>Hora de llegada:</strong>{" "}
-                    {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                      hour12: false,
-                    })}
-                  </p>
-                  <p>
-                    <strong>GMT destino:</strong>
-                    {citiesByCode[vuelo.aeropuertoDestino].GMT}
-                  </p>
-                  <p>
-                    <strong>Capacidad:</strong> {vuelo.capacidad}
-                  </p>
-                  <p>
-                    <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
-                  </p>
-                  <button
-                    onClick={togglePackages}
-                    className="button"
-                    style={{ fontSize: "0.8em", padding: "5px 10px" }}
-                  >
-                    {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
-                  </button>
-                </div>
-              </div>
+              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+                Detalles de vuelo
+              </h2>
+              <p>
+                <strong>Origen:</strong>{" "}
+                {citiesByCode[vuelo.aeropuertoOrigen].name}
+              </p>
+              <p>
+                <strong>Destino:</strong>{" "}
+                {citiesByCode[vuelo.aeropuertoDestino].name}
+              </p>
+              <p>
+                <strong>Hora de salida:</strong>{" "}
+                {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}
+              </p>
+              <p>
+                <strong>GMT origen:</strong>
+                {citiesByCode[vuelo.aeropuertoOrigen].GMT}
+              </p>
+              <p>
+                <strong>Hora de llegada:</strong>{" "}
+                {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}
+              </p>
+              <p>
+                <strong>GMT destino:</strong>
+                {citiesByCode[vuelo.aeropuertoDestino].GMT}
+              </p>
+              <p>
+                <strong>Capacidad:</strong> {vuelo.capacidad}
+              </p>
+              <p>
+                <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
+              </p>
+              <button
+                onClick={togglePackages}
+                className="button"
+                style={{ fontSize: "0.8em", padding: "5px 10px" }}
+              >
+                {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
+              </button>
             </Popup>
           </Marker>
         </>
