@@ -459,8 +459,6 @@ const Plane: React.FC<
                 remove: handlePopupClose,
               }}
             >
-              <div className="flight-plan-popup">
-                <div className="flight-plan-popup-content">
                   <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
                     Detalles de vuelo
                   </h2>
@@ -517,8 +515,6 @@ const Plane: React.FC<
                   >
                     {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
                   </button>
-                </div>
-              </div>
             </Popup>
           </Marker>
         </>
