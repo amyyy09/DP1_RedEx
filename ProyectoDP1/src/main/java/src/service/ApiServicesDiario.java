@@ -35,8 +35,10 @@ public class ApiServicesDiario {
 
     private static List<Vuelo> vuelosGuardados = new ArrayList<>();
 
-    private static List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
+    private static List<Aeropuerto> aeropuertosGuardados;
+    ResultadoFinal finalD = new ResultadoFinal();
     public String ejecutarPsoDiario(List<Envio> envios) {
+        aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
         List<Vuelo> vuelos = getVuelosGuardados();
         List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
         Map<Paquete, Resultado> jsonprevio = null;
@@ -46,7 +48,7 @@ public class ApiServicesDiario {
         LocalDateTime fechaHora= LocalDateTime.now();
         List<PaqueteDTO> paquetesEnvio = null;
         try {
-            String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v3.txt";
+            String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v4.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
@@ -62,25 +64,9 @@ public class ApiServicesDiario {
                 paqueteDAO.insertPaquetes(paquetesEnvio);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
-                LocalDateTime fechaHoraReal = fechaHora.plusMinutes(40);
+                LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
                 int zonaHorariaGMT;
-                LocalDateTime horallegadaGMT0;
                 LocalDateTime horaSalidaGMT0;
-                for (Vuelo vn : json) {
-                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoDestino());
-                    horallegadaGMT0=vn.getHoraLlegada().plusHours(zonaHorariaGMT);
-                    if (horallegadaGMT0.isAfter(fechaHora) && horallegadaGMT0.isBefore(fechaHoraReal)) {
-                        Aeropuerto aeropuertoDestino = aeropuertosGuardados.stream()
-                            .filter(a -> a.getCodigoIATA().equals(vn.getAeropuertoDestino()))
-                            .findFirst()
-                            .orElse(null);
-
-                        if (aeropuertoDestino != null) {
-                            Almacen almacen = aeropuertoDestino.getAlmacen();
-                            almacen.setCantPaquetes(almacen.getCantPaquetes() + vn.getCantPaquetes());
-                        }
-                    }
-                }
 
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
                 List<Vuelo> jsonVuelosProximos = new ArrayList<>();
@@ -101,10 +87,11 @@ public class ApiServicesDiario {
                 for (Vuelo vn : jsonVuelosProximos) {
                     vuelosGuardados.add(vn);
                 }
-
+                finalD.setAeropuertos(aeropuertosGuardados);
+                finalD.setVuelos(jsonVuelosActuales);
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
-                jsonResult = mapper.writeValueAsString(jsonVuelosActuales);
+                jsonResult = mapper.writeValueAsString(finalD);
             }
         } catch (Exception e) {
             e.printStackTrace();

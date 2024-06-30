@@ -13,5 +13,9 @@ export function minutesToTime(minutes: number): string {
 }
 
 export function arrayToTime(time: number[]): Date {
-  return new Date(time[0], time[1] - 1, time[2], time[3], time[4])
+  if (!time || time.length < 5) {
+    console.error("Invalid time array:", time);
+    return new Date(); // or handle it in a way that fits your use case
+  }
+  return new Date(time[0], time[1] - 1, time[2], time[3], time[4]);
 }

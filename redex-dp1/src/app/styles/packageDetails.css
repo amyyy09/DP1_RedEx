@@ -1,0 +1,101 @@
+.package-details-fixed {
+  position: fixed;
+  top: 20%;
+  right: 50px;
+  width: 450px;
+  height: 60%;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  z-index: 1000; /* Ensure it's above other elements */
+}
+
+.package-details {
+  padding: 10px;
+}
+
+.package-details-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.package-details-header h2 {
+  color: black; /* Ensure the title is black */
+}
+
+.close-button-detalles {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #333;
+}
+
+.divider {
+  margin: 10px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.table-container {
+  max-height: calc(100% - 80px);
+  overflow-y: auto;
+}
+
+.package-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.package-table th, .package-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+  color: black; /* Ensure column headers are black */
+}
+
+.package-table th {
+  background-color: #f7f7f7;
+}
+
+.selected {
+  background-color: #ffdddd;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+}
+
+.pagination-controls button {
+  padding: 8px 12px;
+  font-size: 0.9em;
+  cursor: pointer;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.pagination-controls button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.pagination-controls button:hover:not(:disabled) {
+  background-color: #0056b3;
+}
+
+.pagination-controls span {
+  margin: 0 10px;
+  font-size: 0.9em;
+  color: #333;
+}

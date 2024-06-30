@@ -1,14 +1,15 @@
 "use client";
 
-import React, { useMemo, useState, useEffect, useRef, use } from "react";
+import React, { useMemo, useState, useEffect, useRef } from "react";
 import dynamic from "next/dynamic";
 import Topbar from "../components/layout/Topbar";
 import Sidebar from "../components/layout/Sidebar";
 import ConfigurationModal from "../components/map/ConfigurationModal";
-import { Vuelo } from "../types/Planes";
+import { Airport, Vuelo } from "../types/Planes";
 import EndModal from "../components/modal/EndModal";
 import { citiesByCode } from "../data/cities";
 import "../styles/SimulatedTime.css";
+import Notification from "../components/notificacion/Notification";
 
 const Simulation: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -18,11 +19,14 @@ const Simulation: React.FC = () => {
   const [startDate, setStartDate] = useState("");
   const [startHour, setStartHour] = useState("");
   const vuelos = useRef<Vuelo[]>([]);
+  const airports = useRef<Airport[]>([]);
+  const airportsHistory = useRef<Airport[][]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [simulationEnd, setSimulationEnd] = useState(false);
   const [simulationTerminated, setSimulationTerminated] = useState(false);
   const [simulationSummary, setSimulationSummary] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -40,6 +44,7 @@ const Simulation: React.FC = () => {
   const [selectedPackageId, setSelectedPackageId] = useState<string | null>(
     null
   );
+  const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
 
   let isMounted = true;
 
@@ -182,13 +187,35 @@ const Simulation: React.FC = () => {
         setHighlightedPlaneId(foundVuelo.idVuelo);
         setForceOpenPopup(true);
         setSelectedPackageId(id);
+        setSelectedAirport(null);
+        setErrorMessage("");
+        return; // Salir de la función si se encuentra el paquete en un avión
       }
     }
+
+    // Si no se encuentra en los aviones, buscar en los aeropuertos
+    const foundAirport = airports.current.find((airport) =>
+      airport.almacen.paquetes.some((paquete) => paquete.id === id)
+    );
+    if (foundAirport) {
+      const city = citiesByCode[foundAirport.codigoIATA];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(null); // No hay un avión específico
+        setForceOpenPopup(true); // Forzar abrir el popup para el aeropuerto
+        setSelectedPackageId(id);
+        setSelectedAirport(foundAirport);
+        setErrorMessage("");
+        return;
+      }
+    }
+
+    setErrorMessage("ID de paquete no encontrado");
   };
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar onSearch={handleSearch} />
+      <Topbar onSearch={handleSearch} errorMessage={errorMessage} />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <div
@@ -201,6 +228,7 @@ const Simulation: React.FC = () => {
         >
           <Map
             planes={startSimulation ? vuelos : { current: [] }}
+            airports={startSimulation ? airports : { current: [] }}
             startTime={startTime}
             startDate={startDate}
             startHour={startHour}
@@ -212,12 +240,16 @@ const Simulation: React.FC = () => {
             forceOpenPopup={forceOpenPopup}
             selectedPackageId={selectedPackageId}
             setForceOpenPopup={setForceOpenPopup}
+            airportsHistory={airportsHistory}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
             <div className="simulated-time-container">
               Fecha de simulación: {displayTime}
             </div>
+          )}
+          {errorMessage && (
+            <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
           )}
           {showModal && (
             <ConfigurationModal
@@ -230,9 +262,11 @@ const Simulation: React.FC = () => {
               simulationMode={simulationMode}
               setSimulationMode={setSimulationMode}
               vuelos={vuelos}
+              airports={airports}
               loading={loading}
               setLoading={setLoading}
               isMounted={isMounted}
+              airportsHistory={airportsHistory}
             />
           )}{" "}
           {simulationEnd && simulationSummary && (

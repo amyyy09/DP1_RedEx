@@ -38,7 +38,7 @@ public class VueloServices {
 
             List<Paquete> paquetes = new ArrayList<>();
             for (int i = 0; i < cantPaquetes; i++) {
-                paquetes.add(new Paquete(idEnvio, 0, envio));
+                paquetes.add(new Paquete(idEnvio, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino()));
             }
 
             envio.setPaquetes(paquetes);
@@ -154,7 +154,8 @@ public class VueloServices {
                 ruta.isSameContinent());
 
         String detallesPlanes = ruta.getEscalas().stream()
-                .map(plan -> String.format("%s,%s,%s,%s,%d",
+                .map(plan -> String.format("%d,%s,%s,%s,%s,%d",
+                        plan.getIndexPlan(),
                         plan.getCodigoIATAOrigen(),
                         plan.getCodigoIATADestino(),
                         plan.getHoraSalida() != null ? plan.getHoraSalida().format(OFFSET_TIME_FORMATTER)  : "N/D",
