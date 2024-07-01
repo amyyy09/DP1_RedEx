@@ -12,6 +12,7 @@ import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import { routesAngles } from "@/app/data/routesAngles";
 import GeodesicLine from "./GeodesicLine";
+import '../../styles/popupPlane.css';
 
 const createRotatedIcon = (angle: number, color: string) => {
   return L.divIcon({
@@ -508,7 +509,7 @@ const Plane: React.FC<
               </p>
               <button
                 onClick={togglePackages}
-                className="button"
+                className="button_plane"
                 style={{ fontSize: "0.8em", padding: "5px 10px" }}
               >
                 {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
