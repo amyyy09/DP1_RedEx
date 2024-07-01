@@ -502,7 +502,7 @@ const Plane: React.FC<
                 {citiesByCode[vuelo.aeropuertoDestino].GMT}
               </p>
               <p>
-                <strong>Capacidad:</strong> {vuelo.capacidad}
+                <strong>Capacidad:</strong> {vuelo.capacidad - 150}
               </p>
               <p>
                 <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}

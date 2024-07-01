@@ -257,9 +257,9 @@ const Map: React.FC<MapProps> = ({
           const cityData = airports.current ? airports.current[idx] : null;
           const iconColor =
             cityData && cityData.almacen.cantPaquetes > 0
-              ? city.capacidad / cityData.almacen.cantPaquetes > 2
+              ? (city.capacidad + 1000) / cityData.almacen.cantPaquetes > 2
                 ? "green"
-                : city.capacidad / cityData.almacen.cantPaquetes > 4 / 3
+                : (city.capacidad + 1000) / cityData.almacen.cantPaquetes > 4 / 3
                 ? "yellow"
                 : "red"
               : "green";
@@ -293,7 +293,7 @@ const Map: React.FC<MapProps> = ({
                 </h2>
                 <br />
                 <strong>Capacidad de Almacenamiento: </strong>
-                {city.capacidad}
+                {city.capacidad + 1000}
                 {cityData && (
                   <>
                     <br />
