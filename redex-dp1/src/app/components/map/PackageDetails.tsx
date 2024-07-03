@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { arrayToTime } from "@/app/utils/timeHelper";
-import '../../styles/packageDetails.css';
+import "../../styles/packageDetails.css";
 import { citiesByCode } from "@/app/data/cities";
 
 interface PackageDetailsProps {
@@ -9,7 +9,11 @@ interface PackageDetailsProps {
   onClose?: () => void;
 }
 
-const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPackageId, onClose }) => {
+const PackageDetails: React.FC<PackageDetailsProps> = ({
+  paquetes,
+  selectedPackageId,
+  onClose,
+}) => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
@@ -35,18 +39,25 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPacka
     <div className="package-details-fixed">
       <div className="package-details">
         <div className="package-details-header">
-          <h2><strong>Detalles de Paquetes</strong></h2>
-          {onClose && <button className="close-button-detalles" onClick={onClose}>&times;</button>}
+          <h2>
+            <strong>Detalles de Paquetes</strong>
+          </h2>
+          {onClose && (
+            <button className="close-button-detalles" onClick={onClose}>
+              &times;
+            </button>
+          )}
         </div>
         <div className="divider"></div>
         <div className="table-container">
           <table className="package-table">
             <thead>
               <tr>
-                <th>ID</th>
-                <th>Origen</th>
-                <th>Destino</th>
-                <th>Hora de Registro</th>
+                <th style={{ width: "50px" }}>Código Envío</th>
+                <th style={{ width: "25px" }}>N° Paquete</th>
+                <th style={{ width: "50px" }}>Origen</th>
+                <th style={{ width: "50px" }}>Destino</th>
+                <th style={{ width: "50px" }}>Hora de Registro</th>
               </tr>
             </thead>
             <tbody>
@@ -55,7 +66,10 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPacka
                 return (
                   <tr key={index} className={isSelected ? "selected" : ""}>
                     <td style={{ color: isSelected ? "red" : "black" }}>
-                      {paquete.id}
+                      {paquete.id.split("-")[0]}
+                    </td>
+                    <td style={{ color: isSelected ? "red" : "black" }}>
+                      {paquete.id.split("-")[1]}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
                       {citiesByCode[paquete.aeropuertoOrigen].name}
@@ -64,15 +78,18 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPacka
                       {citiesByCode[paquete.aeropuertoDestino].name}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
-                      {arrayToTime(paquete.horaInicio).toLocaleString(undefined, {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit",
-                        hour12: false,
-                      })}
+                      {arrayToTime(paquete.horaInicio).toLocaleString(
+                        undefined,
+                        {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                          hour: "2-digit",
+                          minute: "2-digit",
+                          second: "2-digit",
+                          hour12: false,
+                        }
+                      )}
                     </td>
                   </tr>
                 );
@@ -84,8 +101,13 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({ paquetes, selectedPacka
           <button onClick={handleClickPrev} disabled={currentPage === 1}>
             Anterior
           </button>
-          <span>{currentPage} de {totalPages}</span>
-          <button onClick={handleClickNext} disabled={currentPage >= totalPages}>
+          <span>
+            {currentPage} de {totalPages}
+          </span>
+          <button
+            onClick={handleClickNext}
+            disabled={currentPage >= totalPages}
+          >
             Siguiente
           </button>
         </div>

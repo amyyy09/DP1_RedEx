@@ -30,30 +30,6 @@ const getColorByLoadPercentage = (percentage: number) => {
   return "red";
 };
 
-function areLatLngExpressionsClose(
-  expr1: any,
-  expr2: LatLngExpression,
-  threshold: number = 1
-): boolean {
-  // Extract lat and lng based on the type of expression
-  console.log("expr1", expr1);
-  const a = expr1 as LatLng;
-  expr2 = expr2 as LatLng;
-
-  const lat1 = a.lat;
-  const lng1 = a.lng;
-  const lat2 = expr2.lat;
-  const lng2 = expr2.lng;
-
-  // console.log("lat1", lat1);
-  // console.log("lng1", lng1);
-  // console.log("lat2", lat2);
-  // console.log("lng2", lng2);
-
-  // Compare using the threshold
-  return Math.abs(lat1 - lat2) < threshold && Math.abs(lng1 - lng2) < threshold;
-}
-
 const Plane: React.FC<
   PlaneProps & {
     isOpen: boolean;
@@ -355,7 +331,7 @@ const Plane: React.FC<
     }
   }, [showPackages]);
 
-  const loadPercentage = vuelo.cantPaquetes / vuelo.capacidad;
+  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 150);
   const color = getColorByLoadPercentage(loadPercentage);
 
   // useEffect(() => {
