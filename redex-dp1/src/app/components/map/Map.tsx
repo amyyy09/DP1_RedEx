@@ -225,6 +225,10 @@ const Map: React.FC<MapProps> = ({
         center={[17.5, -7.5]}
         zoom={3}
         style={{ height: "calc(100vh - 50px)", width: "calc(100vw - 50px)" }}
+        scrollWheelZoom={false}
+        // dragging={false}
+        // touchZoom={false}
+        doubleClickZoom={false}
         zoomControl={false}
       >
         <TileLayer
@@ -238,9 +242,10 @@ const Map: React.FC<MapProps> = ({
           const cityData = airports.current ? airports.current[idx] : null;
           const iconColor =
             cityData && cityData.almacen.cantPaquetes > 0
-              ? city.capacidad / cityData.almacen.cantPaquetes > 2
+              ? (city.capacidad + 1000) / cityData.almacen.cantPaquetes > 1 / 3
                 ? "green"
-                : city.capacidad / cityData.almacen.cantPaquetes > 4 / 3
+                : (city.capacidad + 1000) / cityData.almacen.cantPaquetes >
+                  2 / 3
                 ? "yellow"
                 : "red"
               : "green";

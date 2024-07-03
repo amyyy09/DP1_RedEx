@@ -13,11 +13,12 @@ import { arrayToTime } from "@/app/utils/timeHelper";
 import "../../styles/popupPlane.css";
 import { routesAngles } from "@/app/data/routesAngles";
 import GeodesicLine from "./GeodesicLine";
+import "../../styles/popupPlane.css";
 
 const createRotatedIcon = (angle: number, color: string) => {
   return L.divIcon({
     html: `<svg width="20" height="20" viewBox="0 0 50 50" fill="none" xmlns="http://www.w3.org/2000/svg" style="transform: rotate(${angle}deg);">
-      <path d="M26.602,24.568l15.401,6.072l-0.389-4.902c-10.271-7.182-9.066-6.481-14.984-10.615V2.681 c0-1.809-1.604-2.701-3.191-2.681c-1.587-0.021-3.19,0.872-3.19,2.681v12.44c-5.918,4.134-4.714,3.434-14.985,10.615l-0.39,4.903 l15.401-6.072c0,0-0.042,15.343-0.006,15.581l-5.511,3.771v2.957l7.044-2.427h3.271l7.046,2.427V43.92l-5.513-3.771 C26.644,39.909,26.602,24.568,26.602,24.568z" fill="black" />
+      <path d="M26.602,24.568l15.401,6.072l-0.389-4.902c-10.271-7.182-9.066-6.481-14.984-10.615V2.681 c0-1.809-1.604-2.701-3.191-2.681c-1.587-0.021-3.19,0.872-3.19,2.681v12.44c-5.918,4.134-4.714,3.434-14.985,10.615l-0.39,4.903 l15.401-6.072c0,0-0.042,15.343-0.006,15.581l-5.511,3.771v2.957l7.044-2.427h3.271l7.046,2.427V43.92l-5.513-3.771 C26.644,39.909,26.602,24.568,26.602,24.568z" fill=${color} />
     </svg>`,
     iconSize: [20, 20],
     className: "",
@@ -25,8 +26,8 @@ const createRotatedIcon = (angle: number, color: string) => {
 };
 
 const getColorByLoadPercentage = (percentage: number) => {
-  if (percentage < 20) return "green";
-  if (percentage < 80) return "yellow";
+  if (percentage < 1 / 3) return "green";
+  if (percentage < 2 / 3) return "yellow";
   return "red";
 };
 
@@ -348,8 +349,8 @@ const Plane: React.FC<
     }
   }, [showPackages]);
 
-  // const loadPercentage = (vuelo.cantPaquetes / vuelo.capacidad) * 100;
-  // const color = getColorByLoadPercentage(loadPercentage);
+  const loadPercentage = vuelo.cantPaquetes / vuelo.capacidad;
+  const color = getColorByLoadPercentage(loadPercentage);
 
   // useEffect(() => {
   //   const angle = getAngle();
@@ -364,25 +365,6 @@ const Plane: React.FC<
   };
 
   useEffect(() => {
-    // if (!isVisible && prevIsVisibleRef.current) {
-    //   // console.log("Plane has arrived correct");
-    //   console.log("horaLlegada aquí", vuelo.horaLlegada);
-    //   // console.log("ciudad destino", citiesByCode[vuelo.aeropuertoDestino].name);
-    //   console.log("gmt destino", citiesByCode[vuelo.aeropuertoDestino].GMT);
-    //   console.log("simulatedDate.current", simulatedDate.current);
-    //   console.log("listVuelos", listVuelos.length);
-    //   const foundAirport = airports.find(
-    //     (airport) => airport.codigoIATA === vuelo.aeropuertoDestino
-    //   );
-    //   if (foundAirport) {
-    //     console.log("Aeropuerto destino", foundAirport.almacen);
-    //     foundAirport.almacen.cantPaquetes = foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
-    //     foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.concat(vuelo.paquetes);
-    //     console.log("Paquetes en el aeropuerto", foundAirport.almacen);
-    //   } else {
-    //     console.log("No se encontró el aeropuerto");
-    //   }
-    // }
     if (isVisible && !prevIsVisibleRef.current) {
       const foundAirport = airports.find(
         (airport) => airport.codigoIATA === vuelo.aeropuertoOrigen
@@ -419,21 +401,6 @@ const Plane: React.FC<
 
   return (
     <>
-      {/* {isVisible && (
-        <Polyline
-          positions={[
-            [
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lat,
-              citiesByCode[vuelo.aeropuertoOrigen].coords.lng,
-            ],
-            [
-              citiesByCode[vuelo.aeropuertoDestino].coords.lat,
-              citiesByCode[vuelo.aeropuertoDestino].coords.lng,
-            ],
-          ]}
-          pathOptions={{ color: "black", weight: 0.75, dashArray: "5,10" }}
-        />
-      )} */}
       <GeodesicLine
         isVisible={isVisible}
         citiesByCode={citiesByCode}
@@ -443,74 +410,70 @@ const Plane: React.FC<
         <>
           <Marker
             position={position}
-            icon={createRotatedIcon(getAngle(), "black")}
+            icon={createRotatedIcon(getAngle(), color)}
             ref={markerRef}
           >
             <Popup
               eventHandlers={{
                 remove: handlePopupClose,
               }}
+              autoPan={false}
             >
-              <div className="flight-plan-popup">
-                <div className="flight-plan-popup-content">
-                  <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
-                    Detalles de vuelo
-                  </h2>
-                  <p>
-                    <strong>Origen:</strong>{" "}
-                    {citiesByCode[vuelo.aeropuertoOrigen].name}
-                  </p>
-                  <p>
-                    <strong>Destino:</strong>{" "}
-                    {citiesByCode[vuelo.aeropuertoDestino].name}
-                  </p>
-                  <p>
-                    <strong>Hora de salida:</strong>{" "}
-                    {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                      hour12: false,
-                    })}
-                  </p>
-                  <p>
-                    <strong>GMT origen:</strong>
-                    {citiesByCode[vuelo.aeropuertoOrigen].GMT}
-                  </p>
-                  <p>
-                    <strong>Hora de llegada:</strong>{" "}
-                    {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      second: "2-digit",
-                      hour12: false,
-                    })}
-                  </p>
-                  <p>
-                    <strong>GMT destino:</strong>
-                    {citiesByCode[vuelo.aeropuertoDestino].GMT}
-                  </p>
-                  <p>
-                    <strong>Capacidad:</strong> {vuelo.capacidad}
-                  </p>
-                  <p>
-                    <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
-                  </p>
-                  <button
-                    onClick={togglePackages}
-                    className="button"
-                    style={{ fontSize: "0.8em", padding: "5px 10px" }}
-                  >
-                    {showPackages ? "Ocultar Paquetes" : "Mostrar Paquetes"}
-                  </button>
-                </div>
-              </div>
+              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
+                Detalles de vuelo
+              </h2>
+              <p>
+                <strong>Plan de vuelo:</strong>{" "}
+                {citiesByCode[vuelo.aeropuertoOrigen].name} -{" "}
+                {citiesByCode[vuelo.aeropuertoDestino].name}
+              </p>
+              <p>
+                <strong>Hora de salida:</strong>{" "}
+                {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}{" "}
+                (
+                {citiesByCode[vuelo.aeropuertoOrigen].GMT > 0
+                  ? `+${citiesByCode[vuelo.aeropuertoOrigen].GMT}`
+                  : citiesByCode[vuelo.aeropuertoOrigen].GMT}
+                )
+              </p>
+              <p>
+                <strong>Hora de llegada:</strong>{" "}
+                {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
+                  day: "2-digit",
+                  month: "2-digit",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                  second: "2-digit",
+                  hour12: false,
+                })}{" "}
+                (
+                {citiesByCode[vuelo.aeropuertoDestino].GMT > 0
+                  ? `+${citiesByCode[vuelo.aeropuertoDestino].GMT}`
+                  : citiesByCode[vuelo.aeropuertoDestino].GMT}
+                )
+              </p>
+              <p>
+                <strong>Capacidad:</strong> {vuelo.capacidad - 150}
+              </p>
+              <p>
+                <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
+              </p>
+              <button
+                onClick={togglePackages}
+                className="button_plane"
+                style={{ fontSize: "0.8em", padding: "5px 10px" }}
+              >
+                {showPackages ? "Ocultar Envíos" : "Mostrar Envíos"}
+              </button>
             </Popup>
           </Marker>
         </>
