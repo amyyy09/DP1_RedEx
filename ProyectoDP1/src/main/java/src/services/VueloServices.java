@@ -38,7 +38,7 @@ public class VueloServices {
 
             List<Paquete> paquetes = new ArrayList<>();
             for (int i = 0; i < cantPaquetes; i++) {
-                paquetes.add(new Paquete(idEnvio, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino()));
+                paquetes.add(new Paquete(idEnvio, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino(),null));
             }
 
             envio.setPaquetes(paquetes);

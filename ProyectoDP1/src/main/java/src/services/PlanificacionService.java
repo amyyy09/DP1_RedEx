@@ -392,7 +392,7 @@ public class PlanificacionService {
                 }
                 resultado.setVuelos(vuelosSimples);
             }
-    
+            
             resultado.setStatus(ruta.getStatus());
     
             if (ruta.getXAlmacen() != null) {
@@ -474,6 +474,12 @@ public class PlanificacionService {
             if (resultado == null || resultado.getVuelos() == null) {
                 continue; // Saltar iteración si resultado o vuelos es nulo
             }
+
+            String rutaFinal = resultado.getVuelos().stream()
+                        .map(vuelo -> String.valueOf(vuelo.getIndexPlan()))
+                        .collect(Collectors.joining(";"));
+            
+            paquete.setRuta(rutaFinal);
 
             for (Vuelo vuelo : resultado.getVuelos()) {
                 String idVuelo = vuelo.getIdVuelo();
