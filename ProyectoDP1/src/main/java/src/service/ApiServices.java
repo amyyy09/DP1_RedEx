@@ -64,7 +64,6 @@ public class ApiServices {
                 resultado = planificacionService.PSO(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados,
                         vuelosActuales, fechaHora); 
                 jsonprevio = planificacionService.transformResult(resultado);
-                // con el jsonprevio puedes sacar las rutas
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
                 reportResumenAux =planificacionService.generarResumen(jsonprevio,planesDeVuelo);
                 if(reportResumenAux!=null){

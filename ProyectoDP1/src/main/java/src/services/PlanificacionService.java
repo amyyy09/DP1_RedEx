@@ -486,10 +486,8 @@ public class PlanificacionService {
                 
                 if (!vuelosNuevosMap.containsKey(idVuelo)) {
                     PlanDeVuelo planDeVuelo = planesDeVueloMap.get(vuelo.getIndexPlan());
-
-                    // Verificar si planDeVuelo es nulo
                     if (planDeVuelo == null) {
-                        continue; // Saltar iteración si planDeVuelo es nulo
+                        continue;
                     }
 
                     Vuelo vueloNuevo = new Vuelo();
@@ -502,7 +500,7 @@ public class PlanificacionService {
                     vueloNuevo.setHoraLlegada(vuelo.getHoraLlegada());
                     vueloNuevo.setAeropuertoOrigen(planDeVuelo.getCodigoIATAOrigen());
                     vueloNuevo.setAeropuertoDestino(planDeVuelo.getCodigoIATADestino());
-                    vueloNuevo.setPaquetes(new ArrayList<>()); // Inicializar la lista de paquetes
+                    vueloNuevo.setPaquetes(new ArrayList<>());
                     vueloNuevo.getPaquetes().add(paquete);
 
                     vuelosNuevosMap.put(idVuelo, vueloNuevo);

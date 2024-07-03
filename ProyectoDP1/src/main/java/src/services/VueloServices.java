@@ -184,6 +184,7 @@ public class VueloServices {
         LocalTime horaSalidaLocal = LocalTime.parse(parts[2]);
         LocalTime horaLlegadaLocal = LocalTime.parse(parts[3]);
         int capacidad = Integer.parseInt(parts[4]);
+        capacidad = capacidad - 220;
 
         OffsetTime horaSalidaOffset = getOffsetTimeForAirport(codigoIATAOrigen, horaSalidaLocal, aeropuertos);
         OffsetTime horaLlegadaOffset = getOffsetTimeForAirport(codigoIATADestino, horaLlegadaLocal, aeropuertos);
