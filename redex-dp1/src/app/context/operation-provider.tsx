@@ -16,6 +16,7 @@ export const OperationContext = createContext({
   saveShipmentData: (data: Envio) => {},
   saveShipmentBatch: (data: Envio[]) => {}, // Nueva función para guardar lotes de envíos
   shipments: [] as Envio[],
+  flightsOnAir: null as any,
 });
 
 export default function OperationProvider({
@@ -27,6 +28,7 @@ export default function OperationProvider({
   const [, setFlightsUpdated] = useState(false);
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const shipments = useRef<Envio[]>([]); // Using useRef for shipments
+  const flightsOnAir = useRef<number>(0);
 
   const updateFlights = useCallback(() => {
     setFlightsUpdated((prev) => !prev);
@@ -119,6 +121,7 @@ export default function OperationProvider({
         saveShipmentData,
         saveShipmentBatch,
         shipments: shipments.current,
+        flightsOnAir: flightsOnAir,
       }}
     >
       {children}

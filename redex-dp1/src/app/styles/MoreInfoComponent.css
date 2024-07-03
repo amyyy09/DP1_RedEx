@@ -1,0 +1,67 @@
+.more-info-container {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  left: 40px; /* Ensure it's positioned on the left */
+  bottom: 0;
+  width: 16.666%; /* One-sixth of the screen width */
+  height: calc(100vh - 50px); /* Full viewport height */
+  background: rgba(255, 255, 255, 0.95); /* Example background */
+  z-index: 1000; /* Ensure it's above other content */
+  padding: 20px; /* Padding inside the container */
+  border-radius: 10px;
+  border: 1px solid #ccc;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Shadow to the right */
+  color: black; /* Text color */
+}
+
+.more-info-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.more-info-content {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Allow scrolling if content exceeds container height */
+  /* justify-content: center; */
+  flex-grow: 1;
+}
+
+.close-button-more-info {
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #333;
+}
+
+.more-info-button {
+  position: absolute;
+  top: 62px;
+  left: 55px;
+  padding: 10px 20px;
+  background-color: #c80405;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  z-index: 1000; /* Asegura que el botón esté en el frente */
+}
+
+.more-info-button:hover {
+  background-color: #c74b4b;
+}
+
+.time-display {
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px;
+  border-radius: 5px;
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  z-index: 1000;
+  margin-bottom: 10px;
+}

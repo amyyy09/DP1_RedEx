@@ -56,6 +56,7 @@ export interface PlaneProps {
   speedFactor: number;
   startSimulation: boolean;
   dayToDay: boolean;
+  vuelosInAir: React.MutableRefObject<number>;
 }
 
 export class Vuelo {

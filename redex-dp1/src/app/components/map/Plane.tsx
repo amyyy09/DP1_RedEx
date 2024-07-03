@@ -56,6 +56,7 @@ const Plane: React.FC<
   handleShowPackages,
   showPackages,
   setShowPackages,
+  vuelosInAir,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
@@ -123,6 +124,7 @@ const Plane: React.FC<
         // console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaSalida", horaSalida);
         setIsVisible(true);
+
       }
 
       const progress =
@@ -257,6 +259,7 @@ const Plane: React.FC<
           }
           console.log("listVuelos", listVuelos.length);
           vuelo.status = 2;
+          vuelosInAir.current--;
           // listVuelos.splice(index, 1);
         }
         // console.log("Plane is not visible");
@@ -363,11 +366,13 @@ const Plane: React.FC<
       } else {
         console.log("No se encontró el aeropuerto");
       }
+      vuelosInAir.current++;
     }
 
     prevIsVisibleRef.current = isVisible;
     // console.log("isVisible", isVisible);
   }, [isVisible]);
+
   const togglePackages = () => {
     if (showPackages) {
       handlePopupClose();
