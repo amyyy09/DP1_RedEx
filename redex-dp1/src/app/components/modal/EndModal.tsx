@@ -1,6 +1,7 @@
 // components/modal/EndModal.tsx
 
 import React from "react";
+import "../../styles/endModal.css";
 
 interface EndModalProps {
   onClose: () => void;
@@ -36,15 +37,15 @@ const EndModal: React.FC<EndModalProps> = ({
   });
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <div className="modal-header">
+    <div className="modal-overlay-endModal">
+      <div className="modal-content-endModal">
+        <div className="modal-header-endModal">
           <h2>Fin de la simulación</h2>
-          <button className="close-button" onClick={onClose}>
+          <button className="close-button-endModal" onClick={onClose}>
             &times;
           </button>
         </div>
-        <div className="modal-body">
+        <div className="modal-body-endModal">
           <p>
             La simulación inició el{" "}
             <strong>
