@@ -28,6 +28,9 @@ const MoreInfo = ({
 }) => {
   const [currentTime, setCurrentTime] = useState<string | null>(null);
   const [elapsedTime, setElapsedTime] = useState<string | null>(null);
+  const [averageCapacityInAir, setAverageCapacityInAir] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -56,10 +59,43 @@ const MoreInfo = ({
       setElapsedTime(elapsedString);
     };
 
+    const updateSimulatedTime = () => {
+      if (startSimulation) {
+        if (planes.current && planes.current.length > 0) {
+          // Filter planes that are currently in the air
+          if (planes.current && planes.current.length > 0) {
+            // Filter planes that are currently in the air
+            const planesInAir = planes.current.filter((plane) => plane.enAire);
+
+            if (planesInAir.length > 0) {
+              const totalPlanesInAir = planesInAir.length;
+              const totalCapacityInAir = planesInAir.reduce(
+                (acc, plane) => acc + plane.capacidad,
+                0
+              );
+              const totalPackagesInAir = planesInAir.reduce(
+                (acc, plane) => acc + plane.cantPaquetes,
+                0
+              );
+
+              const saturationOfCapacityInAir =
+                (totalPackagesInAir / totalCapacityInAir) * 100;
+              // Use saturationOfCapacityInAir as needed
+              setAverageCapacityInAir(saturationOfCapacityInAir);
+            }
+          }
+        }
+      }
+    };
+
     updateCurrentTime();
     const intervalId = setInterval(updateCurrentTime, 1000);
+    const intervalId2 = setInterval(updateSimulatedTime, 1000 / speedFactor);
 
-    return () => clearInterval(intervalId);
+    return () => {
+      clearInterval(intervalId);
+      clearInterval(intervalId2);
+    };
   }, []);
 
   return (
@@ -74,19 +110,33 @@ const MoreInfo = ({
       </div>
       <div className="more-info-content">
         {!dayToDay && (
-          <div>
+          <div className="more-info-section">
             <p>Hora actual:</p>
             <div className="time-display">{currentTime}</div>
             <p>Tiempo transcurrido:</p>
             <div className="time-display">{elapsedTime}</div>
           </div>
         )}
-        <div>
+        {/* add a divider line*/}
+        <hr />
+        <div className="more-info-section">
           <p>
             <span style={{ fontWeight: "bold" }}>Vuelos en el aire: </span>
-            {vuelosInAir.current}
+            {vuelosInAir.current
+              ? vuelosInAir.current < 0
+                ? "0"
+                : vuelosInAir.current
+              : "0"}
+          </p>
+          <p className="mt-2">
+            <span style={{ fontWeight: "bold"}}>
+              Saturacion global de aviones:{" "}
+            </span>
+            {averageCapacityInAir ? averageCapacityInAir.toFixed(2) : "-"}%
           </p>
         </div>
+        <hr />
+        
       </div>
     </div>
   );

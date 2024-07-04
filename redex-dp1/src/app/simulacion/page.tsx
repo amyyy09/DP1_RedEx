@@ -248,7 +248,6 @@ const Simulation: React.FC = () => {
             showMoreInfo={showMoreInfo}
             setShowMoreInfo={setShowMoreInfo}
             vuelosInAir={vuelosInAir}
-            vuelosSaturation={vuelosSaturation}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (

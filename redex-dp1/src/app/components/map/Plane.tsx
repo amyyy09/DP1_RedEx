@@ -219,18 +219,18 @@ const Plane: React.FC<
           //check if the plane is in the destination airport position
 
           // if (index === 367) {
-          //   console.log("Plane has arrived correct");
-          //   console.log("horaLlegada vuelo", vuelo.horaLlegada);
-          //   console.log(
-          //     "ciudad destino",
-          //     citiesByCode[vuelo.aeropuertoDestino].name
-          //   );
-          //   console.log(
-          //     "gmt destino",
-          //     citiesByCode[vuelo.aeropuertoDestino].GMT
-          //   );
-          //   console.log("horaLlegada aquí", horaLlegada);
-          //   console.log("simulatedDate.current", simulatedDate.current);
+            // console.log("Plane has arrived correct");
+            // console.log("horaLlegada vuelo", vuelo.horaLlegada);
+            // console.log(
+            //   "ciudad destino",
+            //   citiesByCode[vuelo.aeropuertoDestino].name
+            // );
+            // console.log(
+            //   "gmt destino",
+            //   citiesByCode[vuelo.aeropuertoDestino].GMT
+            // );
+            // console.log("horaLlegada aquí", horaLlegada);
+            // console.log("simulatedDate.current", simulatedDate.current);
           // }
 
           clearInterval(intervalId);
@@ -257,9 +257,10 @@ const Plane: React.FC<
           } else {
             console.log("No se encontró el aeropuerto");
           }
-          console.log("listVuelos", listVuelos.length);
+          // console.log("listVuelos", listVuelos.length);
           vuelo.status = 2;
           vuelosInAir.current--;
+          vuelo.enAire = false;
           // listVuelos.splice(index, 1);
         }
         // console.log("Plane is not visible");
@@ -351,6 +352,7 @@ const Plane: React.FC<
 
   useEffect(() => {
     if (isVisible && !prevIsVisibleRef.current) {
+      vuelo.enAire = true;
       const foundAirport = airports.find(
         (airport) => airport.codigoIATA === vuelo.aeropuertoOrigen
       );

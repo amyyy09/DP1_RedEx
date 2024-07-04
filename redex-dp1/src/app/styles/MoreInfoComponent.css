@@ -38,6 +38,11 @@
   color: #333;
 }
 
+.more-info-section {
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
 .more-info-button {
   position: absolute;
   top: 62px;

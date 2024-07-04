@@ -35,7 +35,6 @@ interface MapProps {
   showMoreInfo: boolean;
   setShowMoreInfo: (value: boolean) => void;
   vuelosInAir: React.MutableRefObject<number>;
-  vuelosSaturation: React.MutableRefObject<number>;
 }
 
 const Map: React.FC<MapProps> = ({

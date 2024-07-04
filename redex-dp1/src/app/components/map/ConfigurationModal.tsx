@@ -73,8 +73,14 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   };
 
   useEffect(() => {
+    // Create a new Date object for the current time
     const now = new Date();
-    const formattedDate = now.toISOString().slice(0, 10); // yyyy-mm-dd
+
+    // Convert to local time by subtracting the timezone offset
+    const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+
+    // Format the date as yyyy-mm-dd
+    const formattedDate = localNow.toISOString().slice(0, 10);
     const formattedTime = now.toTimeString().slice(0, 5); // hh:mm
     setStartDate(formattedDate);
     setStartTime(formattedTime);
