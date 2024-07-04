@@ -40,7 +40,7 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({
       <div className="package-details">
         <div className="package-details-header">
           <h2>
-            <strong>Detalles de Paquetes</strong>
+            <strong>Detalles de Envios</strong>
           </h2>
           {onClose && (
             <button className="close-button-detalles" onClick={onClose}>
