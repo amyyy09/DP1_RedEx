@@ -219,18 +219,18 @@ const Plane: React.FC<
           //check if the plane is in the destination airport position
 
           // if (index === 367) {
-            // console.log("Plane has arrived correct");
-            // console.log("horaLlegada vuelo", vuelo.horaLlegada);
-            // console.log(
-            //   "ciudad destino",
-            //   citiesByCode[vuelo.aeropuertoDestino].name
-            // );
-            // console.log(
-            //   "gmt destino",
-            //   citiesByCode[vuelo.aeropuertoDestino].GMT
-            // );
-            // console.log("horaLlegada aquí", horaLlegada);
-            // console.log("simulatedDate.current", simulatedDate.current);
+            console.log("Plane has arrived correct");
+            console.log("horaLlegada vuelo", vuelo.horaLlegada);
+            console.log(
+              "ciudad destino",
+              citiesByCode[vuelo.aeropuertoDestino].name
+            );
+            console.log(
+              "gmt destino",
+              citiesByCode[vuelo.aeropuertoDestino].GMT
+            );
+            console.log("horaLlegada aquí", horaLlegada);
+            console.log("simulatedDate.current", simulatedDate.current);
           // }
 
           clearInterval(intervalId);
@@ -335,7 +335,7 @@ const Plane: React.FC<
     }
   }, [showPackages]);
 
-  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 150);
+  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 220);
   const color = getColorByLoadPercentage(loadPercentage);
 
   // useEffect(() => {
@@ -451,7 +451,7 @@ const Plane: React.FC<
                 )
               </p>
               <p>
-                <strong>Capacidad:</strong> {vuelo.capacidad - 150}
+                <strong>Capacidad:</strong> {vuelo.capacidad - 220}
               </p>
               <p>
                 <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}

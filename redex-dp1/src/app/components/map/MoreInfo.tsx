@@ -31,6 +31,9 @@ const MoreInfo = ({
   const [averageCapacityInAir, setAverageCapacityInAir] = useState<
     number | null
   >(null);
+  const [averageCapacityInAirports, setAverageCapacityInAirports] = useState<
+    number | null
+  >(null);
 
   useEffect(() => {
     const updateCurrentTime = () => {
@@ -85,6 +88,21 @@ const MoreInfo = ({
             }
           }
         }
+
+        if (airports.current && airports.current.length > 0) {
+          const totalAirportCapacity = airports.current.reduce(
+            (acc, airport) => acc + airport.almacen.capacidad,
+            0
+          );
+          const totalAirportPackages = airports.current.reduce(
+            (acc, airport) => acc + airport.almacen.cantPaquetes,
+            0
+          );
+          const saturationOfCapacityInAirports =
+            (totalAirportPackages / totalAirportCapacity) * 100;
+          // Use saturationOfCapacityInAirports as needed
+          setAverageCapacityInAirports(saturationOfCapacityInAirports);
+        }
       }
     };
 
@@ -129,14 +147,24 @@ const MoreInfo = ({
               : "0"}
           </p>
           <p className="mt-2">
-            <span style={{ fontWeight: "bold"}}>
+            <span style={{ fontWeight: "bold" }}>
               Saturacion global de aviones:{" "}
             </span>
             {averageCapacityInAir ? averageCapacityInAir.toFixed(2) : "-"}%
           </p>
         </div>
         <hr />
-        
+        <div className="more-info-section">
+          <p>
+            <span style={{ fontWeight: "bold" }}>
+              Saturacion global de aeropuertos:{" "}
+            </span>
+            {averageCapacityInAirports
+              ? averageCapacityInAirports.toFixed(2)
+              : "-"}
+            %
+          </p>
+        </div>
       </div>
     </div>
   );
