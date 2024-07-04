@@ -38,7 +38,7 @@ public class VueloServices {
 
             List<Paquete> paquetes = new ArrayList<>();
             for (int i = 0; i < cantPaquetes; i++) {
-                paquetes.add(new Paquete(idEnvio, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino()));
+                paquetes.add(new Paquete(idEnvio, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino(),null));
             }
 
             envio.setPaquetes(paquetes);
@@ -184,6 +184,7 @@ public class VueloServices {
         LocalTime horaSalidaLocal = LocalTime.parse(parts[2]);
         LocalTime horaLlegadaLocal = LocalTime.parse(parts[3]);
         int capacidad = Integer.parseInt(parts[4]);
+        capacidad = capacidad - 220;
 
         OffsetTime horaSalidaOffset = getOffsetTimeForAirport(codigoIATAOrigen, horaSalidaLocal, aeropuertos);
         OffsetTime horaLlegadaOffset = getOffsetTimeForAirport(codigoIATADestino, horaLlegadaLocal, aeropuertos);
