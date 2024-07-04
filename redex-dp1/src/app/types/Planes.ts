@@ -14,6 +14,7 @@ export class Airport {
       aeropuertoOrigen: string;
       aeropuertoDestino: string;
       id: string;
+      ruta: string;
     }>;
   };
   latitud: string;
@@ -36,6 +37,7 @@ export class Airport {
           aeropuertoOrigen: paquete.aeropuertoOrigen,
           aeropuertoDestino: paquete.aeropuertoDestino,
           id: paquete.id,
+          ruta: paquete.ruta,
         } as any)
       ),
     };
@@ -74,6 +76,7 @@ export class Vuelo {
     aeropuertoOrigen: string;
     aeropuertoDestino: string;
     id: string;
+    ruta: string;
   }>;
   idVuelo: string;
   enAire: boolean;
