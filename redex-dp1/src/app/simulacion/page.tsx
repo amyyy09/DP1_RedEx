@@ -10,6 +10,7 @@ import EndModal from "../components/modal/EndModal";
 import { citiesByCode } from "../data/cities";
 import "../styles/SimulatedTime.css";
 import Notification from "../components/notificacion/Notification";
+import MoreInfo from "../components/map/MoreInfo";
 
 const Simulation: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -27,6 +28,9 @@ const Simulation: React.FC = () => {
   const [simulationTerminated, setSimulationTerminated] = useState(false);
   const [simulationSummary, setSimulationSummary] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const vuelosInAir = useRef<number>(0);
+  const vuelosSaturation = useRef<number>(0);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -121,7 +125,7 @@ const Simulation: React.FC = () => {
   const fetchSimulationSummary = async () => {
     console.log("Fetching simulation summary");
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}reporte`,);
+      const response = await fetch(`${process.env.BACKEND_URL}reporte`);
       if (response.ok) {
         const summary = await response.json();
         setSimulationSummary(summary);
@@ -132,7 +136,7 @@ const Simulation: React.FC = () => {
       console.error("Error fetching simulation summary:", error);
     } finally {
       try {
-        const response = await fetch(`${process.env.BACKEND_URL}limpiar`,);
+        const response = await fetch(`${process.env.BACKEND_URL}limpiar`);
         if (response.ok) {
           console.log("Simulation data cleared");
         } else {
@@ -241,6 +245,9 @@ const Simulation: React.FC = () => {
             selectedPackageId={selectedPackageId}
             setForceOpenPopup={setForceOpenPopup}
             airportsHistory={airportsHistory}
+            showMoreInfo={showMoreInfo}
+            setShowMoreInfo={setShowMoreInfo}
+            vuelosInAir={vuelosInAir}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
@@ -249,7 +256,10 @@ const Simulation: React.FC = () => {
             </div>
           )}
           {errorMessage && (
-            <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
+            <Notification
+              message={errorMessage}
+              onClose={() => setErrorMessage("")}
+            />
           )}
           {showModal && (
             <ConfigurationModal
@@ -289,6 +299,20 @@ const Simulation: React.FC = () => {
           </button>
         )}
       </div>
+      {showMoreInfo && (
+        <MoreInfo
+          onClose={() => setShowMoreInfo(false)}
+          planes={startSimulation ? vuelos : { current: [] }}
+          airports={startSimulation ? airports : { current: [] }}
+          startTime={startTime}
+          startDate={startDate}
+          startHour={startHour}
+          speedFactor={speedFactor}
+          startSimulation={startSimulation}
+          dayToDay={dayToDay}
+          vuelosInAir={vuelosInAir}
+        />
+      )}
     </div>
   );
 };

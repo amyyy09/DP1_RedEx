@@ -16,6 +16,7 @@ import PackageDetails from "./PackageDetails";
 import AirportDetails from "./AirportDetails";
 import { cities } from "@/app/data/cities";
 import MapCenter from "./MapCenter";
+import "@/app/styles/MoreInfoComponent.css";
 
 interface MapProps {
   planes: React.RefObject<Vuelo[]>;
@@ -32,6 +33,9 @@ interface MapProps {
   forceOpenPopup: boolean;
   setForceOpenPopup: (value: boolean) => void;
   airportsHistory?: React.MutableRefObject<Airport[][]>;
+  showMoreInfo: boolean;
+  setShowMoreInfo: (value: boolean) => void;
+  vuelosInAir: React.MutableRefObject<number>;
 }
 
 const Map: React.FC<MapProps> = ({
@@ -49,11 +53,15 @@ const Map: React.FC<MapProps> = ({
   forceOpenPopup,
   setForceOpenPopup,
   airportsHistory,
+  showMoreInfo,
+  setShowMoreInfo,
+  vuelosInAir,
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
   const markerRefs = useRef<Record<string, L.Marker<any>>>({});
   const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
+
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -328,6 +336,7 @@ const Map: React.FC<MapProps> = ({
                   handleShowPackages={handleShowPackages}
                   showPackages={showPackages}
                   setShowPackages={setShowPackages}
+                  vuelosInAir={vuelosInAir}
                 />
               )
           )}
@@ -354,6 +363,14 @@ const Map: React.FC<MapProps> = ({
           selectedPackageId={selectedPackageId}
           onClose={handleClosePackageDetails}
         />
+      )}
+      {(dayToDay || startSimulation) && !showMoreInfo && (
+        <button
+          className="more-info-button"
+          onClick={() => setShowMoreInfo(true)}
+        >
+          Más información
+        </button>
       )}
     </>
   );

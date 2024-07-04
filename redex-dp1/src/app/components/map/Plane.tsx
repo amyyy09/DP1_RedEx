@@ -57,6 +57,7 @@ const Plane: React.FC<
   handleShowPackages,
   showPackages,
   setShowPackages,
+  vuelosInAir,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
@@ -125,6 +126,7 @@ const Plane: React.FC<
         // console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaSalida", horaSalida);
         setIsVisible(true);
+
       }
 
       const progress =
@@ -219,18 +221,18 @@ const Plane: React.FC<
           //check if the plane is in the destination airport position
 
           // if (index === 367) {
-          //   console.log("Plane has arrived correct");
-          //   console.log("horaLlegada vuelo", vuelo.horaLlegada);
-          //   console.log(
-          //     "ciudad destino",
-          //     citiesByCode[vuelo.aeropuertoDestino].name
-          //   );
-          //   console.log(
-          //     "gmt destino",
-          //     citiesByCode[vuelo.aeropuertoDestino].GMT
-          //   );
-          //   console.log("horaLlegada aquí", horaLlegada);
-          //   console.log("simulatedDate.current", simulatedDate.current);
+            console.log("Plane has arrived correct");
+            console.log("horaLlegada vuelo", vuelo.horaLlegada);
+            console.log(
+              "ciudad destino",
+              citiesByCode[vuelo.aeropuertoDestino].name
+            );
+            console.log(
+              "gmt destino",
+              citiesByCode[vuelo.aeropuertoDestino].GMT
+            );
+            console.log("horaLlegada aquí", horaLlegada);
+            console.log("simulatedDate.current", simulatedDate.current);
           // }
 
           clearInterval(intervalId);
@@ -257,8 +259,10 @@ const Plane: React.FC<
           } else {
             console.log("No se encontró el aeropuerto");
           }
-          console.log("listVuelos", listVuelos.length);
+          // console.log("listVuelos", listVuelos.length);
           vuelo.status = 2;
+          vuelosInAir.current--;
+          vuelo.enAire = false;
           // listVuelos.splice(index, 1);
         }
         // console.log("Plane is not visible");
@@ -322,7 +326,8 @@ const Plane: React.FC<
     }
   }, [isOpen, setForceOpenPopup]);
 
-  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 150);
+
+  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 220);
   const color = getColorByLoadPercentage(loadPercentage);
 
   // useEffect(() => {
@@ -345,6 +350,7 @@ const Plane: React.FC<
 
   useEffect(() => {
     if (isVisible && !prevIsVisibleRef.current) {
+      vuelo.enAire = true;
       const foundAirport = airports.find(
         (airport) => airport.codigoIATA === vuelo.aeropuertoOrigen
       );
@@ -360,11 +366,13 @@ const Plane: React.FC<
       } else {
         console.log("No se encontró el aeropuerto");
       }
+      vuelosInAir.current++;
     }
 
     prevIsVisibleRef.current = isVisible;
     // console.log("isVisible", isVisible);
   }, [isVisible]);
+
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -412,6 +420,7 @@ const Plane: React.FC<
               },
             }}
           />
+
         </>
       )}
       {selectedVuelo && (

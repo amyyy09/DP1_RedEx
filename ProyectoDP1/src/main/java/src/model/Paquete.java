@@ -18,4 +18,5 @@ public class Paquete {
     private LocalDateTime horaInicio;
     private String aeropuertoOrigen;
     private String aeropuertoDestino;
+    private String ruta;
 }

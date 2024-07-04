@@ -56,6 +56,7 @@ export interface PlaneProps {
   speedFactor: number;
   startSimulation: boolean;
   dayToDay: boolean;
+  vuelosInAir: React.MutableRefObject<number>;
 }
 
 export class Vuelo {
@@ -75,6 +76,7 @@ export class Vuelo {
     id: string;
   }>;
   idVuelo: string;
+  enAire: boolean;
 
   constructor(data: any) {
     this.cantPaquetes = data.cantPaquetes;
@@ -89,5 +91,6 @@ export class Vuelo {
     this.aeropuertoDestino = data.aeropuertoDestino;
     this.paquetes = data.paquetes || [];
     this.idVuelo = data.idVuelo;
+    this.enAire = false;
   }
 }
