@@ -13,6 +13,7 @@ import "leaflet/dist/leaflet.css";
 import Plane from "./Plane";
 import { Airport, Vuelo } from "@/app/types/Planes";
 import PackageDetails from "./PackageDetails";
+import AirportDetails from "./AirportDetails";
 import { cities } from "@/app/data/cities";
 import MapCenter from "./MapCenter";
 
@@ -53,7 +54,6 @@ const Map: React.FC<MapProps> = ({
   const prevUpdate = useRef<number>(0);
   const markerRefs = useRef<Record<string, L.Marker<any>>>({});
   const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
-  const airportDetailsRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -159,6 +159,7 @@ const Map: React.FC<MapProps> = ({
   const [showPackages, setShowPackages] = useState(false);
   const [selectedVuelo, setSelectedVuelo] = useState<Vuelo | null>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
+  const [selectedCity, setSelectedCity] = useState<typeof cities[0] | null>(null);
 
   const handleShowPackages = useCallback((vuelo: Vuelo) => {
     setSelectedVuelo(vuelo);
@@ -170,15 +171,20 @@ const Map: React.FC<MapProps> = ({
     setSelectedVuelo(null);
   }, []);
 
-  const handleShowAirportPackages = useCallback((airport: Airport) => {
+  const handleShowAirportPackages = useCallback((airport: Airport, city: typeof cities[0]) => {
     console.log("Selected Airport Data:", airport); // Log the airport data
     setSelectedAirport(airport);
+    setSelectedCity(city);
     setShowPackages(true);
   }, []);
 
   const handleCloseAirportPackages = useCallback(() => {
-    setShowPackages(false);
     setSelectedAirport(null);
+    setSelectedCity(null);
+  }, []);
+
+  const handleClosePackageDetails = useCallback(() => {
+    setShowPackages(false);
   }, []);
 
   useEffect(() => {
@@ -203,12 +209,18 @@ const Map: React.FC<MapProps> = ({
             )
           );
           if (foundAirport) {
-            setSelectedAirport(foundAirport);
-            setShowPackages(true);
-            const marker = markerRefs.current[foundAirport.codigoIATA];
-            if (marker) {
-              marker.openPopup();
-              setShouldOpenPopup(false); // Resetear el estado
+            const city = cities.find(
+              (city) => city.code === foundAirport.codigoIATA
+            );
+            if (city) {
+              setSelectedAirport(foundAirport);
+              setSelectedCity(city);
+              setShowPackages(true);
+              const marker = markerRefs.current[foundAirport.codigoIATA];
+              if (marker) {
+                marker.openPopup();
+                setShouldOpenPopup(false); // Resetear el estado
+              }
             }
           }
         }
@@ -218,12 +230,9 @@ const Map: React.FC<MapProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        airportDetailsRef.current &&
-        !airportDetailsRef.current.contains(event.target as Node)
-      ) {
-        setShowPackages(false);
-        setSelectedAirport(null);
+      const target = event.target as HTMLElement;
+      if (!target.closest(".airport-details-fixed") && !target.closest(".package-details-fixed")) {
+        handleCloseAirportPackages();
       }
     };
 
@@ -236,7 +245,7 @@ const Map: React.FC<MapProps> = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showPackages, selectedAirport]);
+  }, [showPackages, selectedAirport, handleCloseAirportPackages]);
 
   return (
     <>
@@ -287,27 +296,11 @@ const Map: React.FC<MapProps> = ({
               eventHandlers={{
                 click: () => {
                   if (cityData) {
-                    handleShowAirportPackages(cityData);
+                    handleShowAirportPackages(cityData, city);
                   }
                 },
               }}
-            >
-              <Popup>
-                <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
-                  {city.name}
-                </h2>
-                <br />
-                <strong>Capacidad de Almacenamiento: </strong>
-                {city.capacidad + 1000}
-                {cityData && (
-                  <>
-                    <br />
-                    <strong>Cantidad de paquetes: </strong>
-                    {cityData.almacen.cantPaquetes}
-                  </>
-                )}
-              </Popup>
-            </Marker>
+            />
           );
         })}
         {planes.current &&
@@ -346,14 +339,21 @@ const Map: React.FC<MapProps> = ({
           onClose={handlePopupClose}
         />
       )}
+      {selectedAirport && selectedCity && (
+        <AirportDetails
+          city={selectedCity}
+          cityData={selectedAirport}
+          onClose={handleCloseAirportPackages}
+          onShowPackages={() => setShowPackages((prev) => !prev)}
+          showPackages={showPackages}
+        />
+      )}
       {showPackages && selectedAirport && (
-        <div className="package-details-left" ref={airportDetailsRef}>
-          <PackageDetails
-            paquetes={selectedAirport.almacen.paquetes.toReversed() || []}
-            selectedPackageId={selectedPackageId}
-            onClose={handleCloseAirportPackages}
-          />
-        </div>
+        <PackageDetails
+          paquetes={selectedAirport.almacen.paquetes.toReversed() || []}
+          selectedPackageId={selectedPackageId}
+          onClose={handleClosePackageDetails}
+        />
       )}
     </>
   );

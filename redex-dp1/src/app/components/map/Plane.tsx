@@ -7,11 +7,12 @@ import React, {
 } from "react";
 import { Marker, Popup } from "react-leaflet";
 import L, { LatLngExpression, LatLng } from "leaflet";
-import { PlaneProps } from "../../types/Planes";
+import { PlaneProps, Vuelo } from "../../types/Planes";
 import { citiesByCode } from "@/app/data/cities";
 import { arrayToTime } from "@/app/utils/timeHelper";
 import { routesAngles } from "@/app/data/routesAngles";
 import GeodesicLine from "./GeodesicLine";
+import FlightDetails from "./FlightDetails";
 import "../../styles/popupPlane.css";
 
 const createRotatedIcon = (angle: number, color: string) => {
@@ -59,11 +60,12 @@ const Plane: React.FC<
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
+  const [selectedVuelo, setSelectedVuelo] = useState<Vuelo | null>(null);
+  const [selectedPlane, setSelectedPlane] = useState<string | null>(null);
   const markerRef = useRef<L.Marker>(null);
   const simulatedDate = useRef<Date>();
-  const selectedPackageRef = useRef<HTMLLIElement>(null);
-  const packagesListRef = useRef<HTMLDivElement>(null);
   const prevIsVisibleRef = useRef<boolean>(false);
+  const flightDetailsRef = useRef<HTMLDivElement>(null);
 
   if (dayToDay) {
     const updateTimeDia = () => {
@@ -320,17 +322,6 @@ const Plane: React.FC<
     }
   }, [isOpen, setForceOpenPopup]);
 
-  useEffect(() => {
-    if (showPackages && selectedPackageRef.current && packagesListRef.current) {
-      packagesListRef.current.scrollTo({
-        top:
-          selectedPackageRef.current.offsetTop -
-          packagesListRef.current.offsetTop,
-        behavior: "smooth",
-      });
-    }
-  }, [showPackages]);
-
   const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 150);
   const color = getColorByLoadPercentage(loadPercentage);
 
@@ -343,7 +334,13 @@ const Plane: React.FC<
   // }, [isVisible, position, getAngle, color]);
 
   const handlePopupClose = () => {
-    setShowPackages(false);
+    setSelectedVuelo(null);
+    setSelectedPlane(null);
+  };
+
+  const togglePackages = () => {
+    handleShowPackages(vuelo);
+    setShowPackages(!showPackages);
   };
 
   useEffect(() => {
@@ -368,14 +365,27 @@ const Plane: React.FC<
     prevIsVisibleRef.current = isVisible;
     // console.log("isVisible", isVisible);
   }, [isVisible]);
-  const togglePackages = () => {
-    if (showPackages) {
-      handlePopupClose();
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        flightDetailsRef.current &&
+        !flightDetailsRef.current.contains(event.target as Node)
+      ) {
+        handlePopupClose();
+      }
+    };
+
+    if (selectedVuelo) {
+      document.addEventListener("mousedown", handleClickOutside);
     } else {
-      handleShowPackages(vuelo);
+      document.removeEventListener("mousedown", handleClickOutside);
     }
-    setShowPackages(!showPackages);
-  };
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [selectedVuelo]);
 
   if (!isVisible) {
     return null;
@@ -392,73 +402,26 @@ const Plane: React.FC<
         <>
           <Marker
             position={position}
-            icon={createRotatedIcon(getAngle(), color)}
+            icon={createRotatedIcon(getAngle(), selectedPlane === vuelo.idVuelo ? "black" : color)}
             ref={markerRef}
-          >
-            <Popup
-              eventHandlers={{
-                remove: handlePopupClose,
-              }}
-              autoPan={false}
-            >
-              <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
-                Detalles de vuelo
-              </h2>
-              <p>
-                <strong>Plan de vuelo:</strong>{" "}
-                {citiesByCode[vuelo.aeropuertoOrigen].name} -{" "}
-                {citiesByCode[vuelo.aeropuertoDestino].name}
-              </p>
-              <p>
-                <strong>Hora de salida:</strong>{" "}
-                {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: false,
-                })}{" "}
-                (
-                {citiesByCode[vuelo.aeropuertoOrigen].GMT > 0
-                  ? `+${citiesByCode[vuelo.aeropuertoOrigen].GMT}`
-                  : citiesByCode[vuelo.aeropuertoOrigen].GMT}
-                )
-              </p>
-              <p>
-                <strong>Hora de llegada:</strong>{" "}
-                {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                  hour12: false,
-                })}{" "}
-                (
-                {citiesByCode[vuelo.aeropuertoDestino].GMT > 0
-                  ? `+${citiesByCode[vuelo.aeropuertoDestino].GMT}`
-                  : citiesByCode[vuelo.aeropuertoDestino].GMT}
-                )
-              </p>
-              <p>
-                <strong>Capacidad:</strong> {vuelo.capacidad - 150}
-              </p>
-              <p>
-                <strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}
-              </p>
-              <button
-                onClick={togglePackages}
-                className="button_plane"
-                style={{ fontSize: "0.8em", padding: "5px 10px" }}
-              >
-                {showPackages ? "Ocultar Envíos" : "Mostrar Envíos"}
-              </button>
-            </Popup>
-          </Marker>
+            eventHandlers={{
+              click: () => {
+                console.log("Vuelo seleccionado:", vuelo);
+                setSelectedVuelo(vuelo);
+                setSelectedPlane(vuelo.idVuelo);
+              },
+            }}
+          />
         </>
+      )}
+      {selectedVuelo && (
+        <FlightDetails
+          vuelo={selectedVuelo}
+          onClose={handlePopupClose}
+          showPackages={showPackages}
+          togglePackages={togglePackages}
+          ref={flightDetailsRef}
+        />
       )}
     </>
   );
