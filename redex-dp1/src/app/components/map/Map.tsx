@@ -282,7 +282,7 @@ const Map: React.FC<MapProps> = ({
         />
         <ZoomControl position="topright" />
 
-        {mapCenter && <MapCenter center={mapCenter} />}
+        {/* {mapCenter && <MapCenter center={mapCenter} />} */}
         {cities.map((city, idx) => {
           const cityData = airports.current ? airports.current[idx] : null;
           const iconColor =

@@ -250,6 +250,7 @@ const Plane: React.FC<
                 paquete.status = 2;
               } else {
                 paquete.status = 1;
+                paquete.ubicacion = foundAirport.codigoIATA;
                 foundAirport.almacen.paquetes.push(paquete);
               }
             });
@@ -357,7 +358,7 @@ const Plane: React.FC<
     if (isVisible && !prevIsVisibleRef.current) {
       vuelo.enAire = true;
       vuelo.paquetes.forEach((paquete) => {
-        paquete.status = vuelo.indexPlan;
+        paquete.status = 3;
       });
 
       const foundAirport = airports.find(

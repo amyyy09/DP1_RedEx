@@ -156,7 +156,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
           airports.current = responseAeropuertos.map(
             (aeropuerto: any) => new Airport(aeropuerto)
           );
-          console.log("aeropuertos:", airports.current);
+          // console.log("aeropuertos:", airports.current);
         } else {
           airportsHistory.current.push(
             responseAeropuertos.map(
@@ -179,7 +179,8 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
           // Check if the idVuelo of data is already in vuelosIds
           if (!vuelosIds.has(data.idVuelo)) {
             // If it's not in vuelosIds, add it to vuelos.current and vuelosIds
-            vuelos.current?.push(data);
+            const newVuelo = new Vuelo(data); // Assuming Vuelo constructor takes an object of type Vuelo
+            vuelos.current?.push(newVuelo);
             vuelosIds.add(data.idVuelo);
           } else {
             // If it's in vuelosIds, update the Vuelo in vuelos.current
