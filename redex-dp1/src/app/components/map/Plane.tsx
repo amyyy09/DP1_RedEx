@@ -39,6 +39,8 @@ const Plane: React.FC<
     handleShowPackages: (vuelo: any) => void;
     showPackages: boolean;
     setShowPackages: (value: boolean) => void;
+    selectedPlaneId: string | null;
+    setSelectedPlaneId: (value: string | null) => void;
   }
 > = ({
   vuelo,
@@ -58,11 +60,11 @@ const Plane: React.FC<
   showPackages,
   setShowPackages,
   vuelosInAir,
+  selectedPlaneId,
+  setSelectedPlaneId,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
-  const [selectedVuelo, setSelectedVuelo] = useState<Vuelo | null>(null);
-  const [selectedPlane, setSelectedPlane] = useState<string | null>(null);
   const markerRef = useRef<L.Marker>(null);
   const simulatedDate = useRef<Date>();
   const prevIsVisibleRef = useRef<boolean>(false);
@@ -326,6 +328,12 @@ const Plane: React.FC<
     }
   }, [isOpen, setForceOpenPopup]);
 
+  useEffect(() => {
+    if (markerRef.current && selectedPlaneId === vuelo.idVuelo) {
+      markerRef.current.openPopup();
+    }
+  }, [selectedPlaneId, vuelo.idVuelo]);
+
   const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 220);
   const color = getColorByLoadPercentage(loadPercentage);
 
@@ -338,8 +346,7 @@ const Plane: React.FC<
   // }, [isVisible, position, getAngle, color]);
 
   const handlePopupClose = () => {
-    setSelectedVuelo(null);
-    setSelectedPlane(null);
+    setSelectedPlaneId(null);
   };
 
   const togglePackages = () => {
@@ -386,7 +393,7 @@ const Plane: React.FC<
       }
     };
 
-    if (selectedVuelo) {
+    if (selectedPlaneId === vuelo.idVuelo) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -395,7 +402,7 @@ const Plane: React.FC<
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [selectedVuelo]);
+  }, [selectedPlaneId, vuelo.idVuelo]);
 
   if (!isVisible) {
     return null;
@@ -414,22 +421,21 @@ const Plane: React.FC<
             position={position}
             icon={createRotatedIcon(
               getAngle(),
-              selectedPlane === vuelo.idVuelo ? "black" : color
+              selectedPlaneId === vuelo.idVuelo ? "black" : color
             )}
             ref={markerRef}
             eventHandlers={{
               click: () => {
                 console.log("Vuelo seleccionado:", vuelo);
-                setSelectedVuelo(vuelo);
-                setSelectedPlane(vuelo.idVuelo);
+                setSelectedPlaneId(vuelo.idVuelo);
               },
             }}
           />
         </>
       )}
-      {selectedVuelo && (
+      {selectedPlaneId === vuelo.idVuelo && (
         <FlightDetails
-          vuelo={selectedVuelo}
+          vuelo={vuelo}
           onClose={handlePopupClose}
           showPackages={showPackages}
           togglePackages={togglePackages}

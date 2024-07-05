@@ -52,6 +52,8 @@ const Simulation: React.FC = () => {
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
   const [envioFound, setEnvioFound] = useState<any[] | null>(null);
   const [showEnvioDetails, setShowEnvioDetails] = useState(false);
+  const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null); // Nuevo estado para el avión seleccionado
+
 
   let isMounted = true;
 
@@ -184,14 +186,16 @@ const Simulation: React.FC = () => {
     if (simulationTerminated) return;
 
     const foundVuelo = vuelos.current.find((vuelo) =>
-      vuelo.paquetes.some((paquete) => paquete.id === id)
+      vuelo.paquetes.some((paquete) => paquete.id === id , vuelo.enAire === true)
     );
     if (foundVuelo) {
+      console.log("Paquete encontrado en avión:", foundVuelo);
       const { aeropuertoOrigen } = foundVuelo;
       const city = citiesByCode[aeropuertoOrigen];
       if (city) {
         setMapCenter([city.coords.lat, city.coords.lng]);
         setHighlightedPlaneId(foundVuelo.idVuelo);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
         setForceOpenPopup(true);
         setSelectedPackageId(id);
         setSelectedAirport(null);
@@ -258,16 +262,45 @@ const Simulation: React.FC = () => {
     return;
   };
 
+
   const handleCloseEnvioDetails = () => {
     setShowEnvioDetails(false);
     setEnvioFound(null);
   };
+
+  const handleVueloSearch = (id: string) => {
+    console.log("Buscando vuelo con ID:", id);
+
+    if (simulationTerminated) return;
+
+    const foundVuelo = vuelos.current.find((vuelo) => vuelo.idVuelo === id);
+
+    if (foundVuelo) {
+      console.log("Vuelo encontrado:", foundVuelo);
+      const { aeropuertoOrigen } = foundVuelo;
+      const city = citiesByCode[aeropuertoOrigen];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(foundVuelo.idVuelo);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
+        setForceOpenPopup(true);
+        setSelectedPackageId(null); // Deselecciona cualquier paquete
+        setSelectedAirport(null); // Deselecciona cualquier aeropuerto
+        setErrorMessage("");
+        return;
+      }
+    }
+
+    setErrorMessage("ID de vuelo no encontrado");
+
+  
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Topbar
         onSearch={handleSearch}
         envioSearch={handleEnvioSearch}
+        vueloSearch={handleVueloSearch}
         errorMessage={errorMessage}
       />
       <div style={{ display: "flex", flex: 1 }}>
@@ -298,6 +331,8 @@ const Simulation: React.FC = () => {
             showMoreInfo={showMoreInfo}
             setShowMoreInfo={setShowMoreInfo}
             vuelosInAir={vuelosInAir}
+            selectedPlaneId={selectedPlaneId} 
+            setSelectedPlaneId={setSelectedPlaneId} 
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
