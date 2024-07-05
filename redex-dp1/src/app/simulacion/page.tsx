@@ -31,6 +31,7 @@ const Simulation: React.FC = () => {
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const vuelosInAir = useRef<number>(0);
   const vuelosSaturation = useRef<number>(0);
+  const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -181,7 +182,7 @@ const Simulation: React.FC = () => {
     if (simulationTerminated) return;
 
     const foundVuelo = vuelos.current.find((vuelo) =>
-      vuelo.paquetes.some((paquete) => paquete.id === id)
+      vuelo.paquetes.some((paquete) => paquete.id === id , vuelo.enAire === true)
     );
     if (foundVuelo) {
       const { aeropuertoOrigen } = foundVuelo;
@@ -249,11 +250,28 @@ const Simulation: React.FC = () => {
     return;
   };
 
+  const handleVueloSearch = (id: string) => {
+    console.log("Buscando vuelo con ID:", id);
+
+    if (simulationTerminated) return;
+
+    const foundVuelo = vuelos.current.find((vuelo) => vuelo.idVuelo === id);
+
+    if (foundVuelo) {
+      console.log("Vuelo encontrado:", foundVuelo);
+      setSelectedPlaneId(foundVuelo.idVuelo);
+      setErrorMessage("");
+    } else {
+      setErrorMessage("ID de vuelo no encontrado");
+    }
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <Topbar
         onSearch={handleSearch}
         envioSearch={handleEnvioSearch}
+        vueloSearch={handleVueloSearch}
         errorMessage={errorMessage}
       />
       <div style={{ display: "flex", flex: 1 }}>
@@ -284,6 +302,8 @@ const Simulation: React.FC = () => {
             showMoreInfo={showMoreInfo}
             setShowMoreInfo={setShowMoreInfo}
             vuelosInAir={vuelosInAir}
+            selectedPlaneId={selectedPlaneId} 
+            setSelectedPlaneId={setSelectedPlaneId} 
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
