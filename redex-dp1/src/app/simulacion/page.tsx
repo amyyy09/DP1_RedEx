@@ -217,9 +217,45 @@ const Simulation: React.FC = () => {
     setErrorMessage("ID de paquete no encontrado");
   };
 
+  const handleEnvioSearch = (id: string) => {
+    console.log("Buscando envío con ID:", id);
+
+    if (simulationTerminated) return;
+
+    const matchingPackages: any = [];
+
+    vuelos.current.forEach((vuelo) => {
+      const foundPackages = vuelo.paquetes.filter((paquete) =>
+        paquete.id.startsWith(`${id}-`)
+      );
+      matchingPackages.push(...foundPackages);
+    });
+
+    airports.current.forEach((airport) => {
+      const foundPackages = airport.almacen.paquetes.filter((paquete) =>
+        paquete.id.startsWith(`${id}-`)
+      );
+      matchingPackages.push(...foundPackages);
+    });
+
+    if (matchingPackages.length > 0) {
+      // Assuming you have a way to handle the found packages
+      // For example, setting them in a state, or processing them further
+      console.log("Found packages:", matchingPackages);
+      // setFoundPackages(matchingPackages); // Example: Update state or handle found packages
+    } else {
+      setErrorMessage("ID de paquete no encontrado");
+    }
+    return;
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar onSearch={handleSearch} errorMessage={errorMessage} />
+      <Topbar
+        onSearch={handleSearch}
+        envioSearch={handleEnvioSearch}
+        errorMessage={errorMessage}
+      />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <div

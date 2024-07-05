@@ -126,7 +126,6 @@ const Plane: React.FC<
         // console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaSalida", horaSalida);
         setIsVisible(true);
-
       }
 
       const progress =
@@ -221,18 +220,18 @@ const Plane: React.FC<
           //check if the plane is in the destination airport position
 
           // if (index === 367) {
-            console.log("Plane has arrived correct");
-            console.log("horaLlegada vuelo", vuelo.horaLlegada);
-            console.log(
-              "ciudad destino",
-              citiesByCode[vuelo.aeropuertoDestino].name
-            );
-            console.log(
-              "gmt destino",
-              citiesByCode[vuelo.aeropuertoDestino].GMT
-            );
-            console.log("horaLlegada aquí", horaLlegada);
-            console.log("simulatedDate.current", simulatedDate.current);
+          // console.log("Plane has arrived correct");
+          // console.log("horaLlegada vuelo", vuelo.horaLlegada);
+          // console.log(
+          //   "ciudad destino",
+          //   citiesByCode[vuelo.aeropuertoDestino].name
+          // );
+          // console.log(
+          //   "gmt destino",
+          //   citiesByCode[vuelo.aeropuertoDestino].GMT
+          // );
+          // console.log("horaLlegada aquí", horaLlegada);
+          // console.log("simulatedDate.current", simulatedDate.current);
           // }
 
           clearInterval(intervalId);
@@ -326,7 +325,6 @@ const Plane: React.FC<
     }
   }, [isOpen, setForceOpenPopup]);
 
-
   const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 220);
   const color = getColorByLoadPercentage(loadPercentage);
 
@@ -351,6 +349,10 @@ const Plane: React.FC<
   useEffect(() => {
     if (isVisible && !prevIsVisibleRef.current) {
       vuelo.enAire = true;
+      vuelo.paquetes.forEach((paquete) => {
+        paquete.status = vuelo.indexPlan;
+      });
+
       const foundAirport = airports.find(
         (airport) => airport.codigoIATA === vuelo.aeropuertoOrigen
       );
@@ -372,7 +374,6 @@ const Plane: React.FC<
     prevIsVisibleRef.current = isVisible;
     // console.log("isVisible", isVisible);
   }, [isVisible]);
-
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -410,7 +411,10 @@ const Plane: React.FC<
         <>
           <Marker
             position={position}
-            icon={createRotatedIcon(getAngle(), selectedPlane === vuelo.idVuelo ? "black" : color)}
+            icon={createRotatedIcon(
+              getAngle(),
+              selectedPlane === vuelo.idVuelo ? "black" : color
+            )}
             ref={markerRef}
             eventHandlers={{
               click: () => {
@@ -420,7 +424,6 @@ const Plane: React.FC<
               },
             }}
           />
-
         </>
       )}
       {selectedVuelo && (

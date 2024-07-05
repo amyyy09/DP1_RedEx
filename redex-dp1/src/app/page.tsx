@@ -78,6 +78,12 @@ const DayToDay: React.FC = () => {
     }
   };
 
+  const handleEnvioSearch = async (id: string) => {
+    console.log("Buscando envío con ID:", id);
+    setErrorMessage("Búsqueda de envío no implementada");
+    return;
+  };
+
   useEffect(() => {
     // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
     //flights.current = hardcodedVuelos;
@@ -97,7 +103,11 @@ const DayToDay: React.FC = () => {
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar onSearch={handleSearch} errorMessage={errorMessage} />
+      <Topbar
+        onSearch={handleSearch}
+        envioSearch={handleEnvioSearch}
+        errorMessage={errorMessage}
+      />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <Map
