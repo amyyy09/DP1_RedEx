@@ -31,7 +31,6 @@ const Simulation: React.FC = () => {
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const vuelosInAir = useRef<number>(0);
   const vuelosSaturation = useRef<number>(0);
-  const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
@@ -50,6 +49,7 @@ const Simulation: React.FC = () => {
     null
   );
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
+  const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null); // Nuevo estado para el avión seleccionado
 
   let isMounted = true;
 
@@ -185,11 +185,13 @@ const Simulation: React.FC = () => {
       vuelo.paquetes.some((paquete) => paquete.id === id , vuelo.enAire === true)
     );
     if (foundVuelo) {
+      console.log("Paquete encontrado en avión:", foundVuelo);
       const { aeropuertoOrigen } = foundVuelo;
       const city = citiesByCode[aeropuertoOrigen];
       if (city) {
         setMapCenter([city.coords.lat, city.coords.lng]);
         setHighlightedPlaneId(foundVuelo.idVuelo);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
         setForceOpenPopup(true);
         setSelectedPackageId(id);
         setSelectedAirport(null);
@@ -259,11 +261,21 @@ const Simulation: React.FC = () => {
 
     if (foundVuelo) {
       console.log("Vuelo encontrado:", foundVuelo);
-      setSelectedPlaneId(foundVuelo.idVuelo);
-      setErrorMessage("");
-    } else {
-      setErrorMessage("ID de vuelo no encontrado");
+      const { aeropuertoOrigen } = foundVuelo;
+      const city = citiesByCode[aeropuertoOrigen];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(foundVuelo.idVuelo);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
+        setForceOpenPopup(true);
+        setSelectedPackageId(null); // Deselecciona cualquier paquete
+        setSelectedAirport(null); // Deselecciona cualquier aeropuerto
+        setErrorMessage("");
+        return;
+      }
     }
+
+    setErrorMessage("ID de vuelo no encontrado");
   };
 
   return (

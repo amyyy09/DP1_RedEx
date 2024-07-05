@@ -36,8 +36,8 @@ interface MapProps {
   showMoreInfo: boolean;
   setShowMoreInfo: (value: boolean) => void;
   vuelosInAir: React.MutableRefObject<number>;
-  selectedPlaneId: string | null; 
-  setSelectedPlaneId: (value: string | null) => void; 
+  selectedPlaneId: string | null;
+  setSelectedPlaneId: (value: string | null) => void;
 }
 
 const Map: React.FC<MapProps> = ({
@@ -58,14 +58,14 @@ const Map: React.FC<MapProps> = ({
   showMoreInfo,
   setShowMoreInfo,
   vuelosInAir,
-  selectedPlaneId, 
-  setSelectedPlaneId, 
+  selectedPlaneId,
+  setSelectedPlaneId,
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
   const markerRefs = useRef<Record<string, L.Marker<any>>>({});
   const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
-  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null); // Estado para almacenar el aeropuerto resaltado
+  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
 
 
   useEffect(() => {
@@ -180,9 +180,9 @@ const Map: React.FC<MapProps> = ({
   }, []);
 
   const handlePopupClose = useCallback(() => {
-    setShowPackages(false);
     setSelectedVuelo(null);
-  }, []);
+    setSelectedPlaneId(null);
+  }, [setSelectedPlaneId]);
 
   const handleShowAirportPackages = useCallback((airport: Airport, city: typeof cities[0]) => {
     console.log("Selected Airport Data:", airport); // Log the airport data
@@ -216,6 +216,7 @@ const Map: React.FC<MapProps> = ({
         );
         if (foundVuelo) {
           setSelectedVuelo(foundVuelo);
+          setSelectedPlaneId(foundVuelo.idVuelo);
           setShowPackages(true);
         } else {
           const foundAirport = airports.current.find((airport) =>
