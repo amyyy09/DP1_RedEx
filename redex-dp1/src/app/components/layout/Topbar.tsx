@@ -4,7 +4,7 @@ import "../../styles/Topbar.css";
 interface TopbarProps {
   onSearch: (id: string) => void;
   envioSearch: (id: string) => void;
-  vueloSearch: (id: string) => void;
+  vueloSearch: (id: number) => void;
   errorMessage?: string;
 }
 
@@ -32,7 +32,7 @@ const Topbar: React.FC<TopbarProps> = ({
         envioSearch(searchTerm);
         setPopupEnvio(false); // Close the popup after search
       } else if (popupVuelo) {
-        vueloSearch(searchTerm);
+        vueloSearch(parseInt(searchTerm));
         setPopupVuelo(false); // Close the popup after search
       }
       setSearchTerm(""); // Clear the search term after search

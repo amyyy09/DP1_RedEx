@@ -268,12 +268,12 @@ const Simulation: React.FC = () => {
     setEnvioFound(null);
   };
 
-  const handleVueloSearch = (id: string) => {
+  const handleVueloSearch = (id: number) => {
     console.log("Buscando vuelo con ID:", id);
 
     if (simulationTerminated) return;
 
-    const foundVuelo = vuelos.current.find((vuelo) => vuelo.idVuelo === id);
+    const foundVuelo = vuelos.current.find((vuelo) => vuelo.indexPlan === id);
 
     if (foundVuelo) {
       console.log("Vuelo encontrado:", foundVuelo);
@@ -292,7 +292,7 @@ const Simulation: React.FC = () => {
     }
 
     setErrorMessage("ID de vuelo no encontrado");
-
+  }
   
 
   return (
