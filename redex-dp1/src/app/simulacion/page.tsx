@@ -11,6 +11,7 @@ import { citiesByCode } from "../data/cities";
 import "../styles/SimulatedTime.css";
 import Notification from "../components/notificacion/Notification";
 import MoreInfo from "../components/map/MoreInfo";
+import EnvioDetails from "../components/map/EnvioDetails";
 
 const Simulation: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -49,6 +50,8 @@ const Simulation: React.FC = () => {
     null
   );
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
+  const [envioFound, setEnvioFound] = useState<any[] | null>(null);
+  const [showEnvioDetails, setShowEnvioDetails] = useState(false);
 
   let isMounted = true;
 
@@ -224,7 +227,11 @@ const Simulation: React.FC = () => {
 
     const matchingPackages: any = [];
 
-    vuelos.current.forEach((vuelo) => {
+    const filteredVuelos = vuelos.current.filter(
+      (vuelo) => vuelo.enAire === true
+    );
+
+    filteredVuelos.forEach((vuelo) => {
       const foundPackages = vuelo.paquetes.filter((paquete) =>
         paquete.id.startsWith(`${id}-`)
       );
@@ -242,11 +249,18 @@ const Simulation: React.FC = () => {
       // Assuming you have a way to handle the found packages
       // For example, setting them in a state, or processing them further
       console.log("Found packages:", matchingPackages);
+      setEnvioFound(matchingPackages);
+      setShowEnvioDetails(true);
       // setFoundPackages(matchingPackages); // Example: Update state or handle found packages
     } else {
-      setErrorMessage("ID de paquete no encontrado");
+      setErrorMessage("ID de envío no encontrado");
     }
     return;
+  };
+
+  const handleCloseEnvioDetails = () => {
+    setShowEnvioDetails(false);
+    setEnvioFound(null);
   };
 
   return (
@@ -347,6 +361,12 @@ const Simulation: React.FC = () => {
           startSimulation={startSimulation}
           dayToDay={dayToDay}
           vuelosInAir={vuelosInAir}
+        />
+      )}
+      {showEnvioDetails && (
+        <EnvioDetails
+          paquetes={envioFound || []}
+          onClose={handleCloseEnvioDetails}
         />
       )}
     </div>

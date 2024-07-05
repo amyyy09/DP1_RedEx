@@ -15,6 +15,7 @@ export class Airport {
       aeropuertoDestino: string;
       id: string;
       ruta: string;
+      ubicacion: string;
     }>;
   };
   latitud: string;
@@ -38,6 +39,7 @@ export class Airport {
           aeropuertoDestino: paquete.aeropuertoDestino,
           id: paquete.id,
           ruta: paquete.ruta,
+          ubicacion: data.ciudad,
         } as any)
       ),
     };
@@ -77,6 +79,7 @@ export class Vuelo {
     aeropuertoDestino: string;
     id: string;
     ruta: string;
+    ubicacion: string;
   }>;
   idVuelo: string;
   enAire: boolean;
@@ -92,7 +95,17 @@ export class Vuelo {
     // this.horaLlegada = new Date(data.horaLlegada[0], data.horaLlegada[1] - 1, data.horaLlegada[2], data.horaLlegada[3], data.horaLlegada[4]);
     this.aeropuertoOrigen = data.aeropuertoOrigen;
     this.aeropuertoDestino = data.aeropuertoDestino;
-    this.paquetes = data.paquetes || [];
+    this.paquetes = data.paquetes.map(
+      (paquete: any) => ({
+        status: paquete.status,
+        horaInicio: paquete.horaInicio,
+        aeropuertoOrigen: paquete.aeropuertoOrigen,
+        aeropuertoDestino: paquete.aeropuertoDestino,
+        id: paquete.id,
+        ruta: paquete.ruta,
+        ubicacion: data.indexPlan.toString(),
+      } as any)
+    );
     this.idVuelo = data.idVuelo;
     this.enAire = false;
   }
