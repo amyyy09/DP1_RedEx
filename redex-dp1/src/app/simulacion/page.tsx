@@ -23,6 +23,7 @@ const Simulation: React.FC = () => {
   const vuelos = useRef<Vuelo[]>([]);
   const airports = useRef<Airport[]>([]);
   const airportsHistory = useRef<Airport[][]>([]);
+  const paquetes = useRef<any[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [simulationEnd, setSimulationEnd] = useState(false);
@@ -249,6 +250,12 @@ const Simulation: React.FC = () => {
       matchingPackages.push(...foundPackages);
     });
 
+    paquetes.current.forEach((paquete) => {
+      if (paquete.id.startsWith(`${id}-`)) {
+        matchingPackages.push(paquete);
+      }
+    });
+
     if (matchingPackages.length > 0) {
       // Assuming you have a way to handle the found packages
       // For example, setting them in a state, or processing them further
@@ -333,6 +340,7 @@ const Simulation: React.FC = () => {
             vuelosInAir={vuelosInAir}
             selectedPlaneId={selectedPlaneId} 
             setSelectedPlaneId={setSelectedPlaneId} 
+            paquetes={paquetes}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (

@@ -61,6 +61,7 @@ export interface PlaneProps {
   startSimulation: boolean;
   dayToDay: boolean;
   vuelosInAir: React.MutableRefObject<number>;
+  paquetes: React.MutableRefObject<any>;
 }
 
 export class Vuelo {

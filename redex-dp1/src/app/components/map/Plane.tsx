@@ -62,6 +62,7 @@ const Plane: React.FC<
   vuelosInAir,
   selectedPlaneId,
   setSelectedPlaneId,
+  paquetes,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
@@ -248,7 +249,8 @@ const Plane: React.FC<
             vuelo.paquetes.forEach((paquete) => {
               if (paquete.aeropuertoDestino === foundAirport.codigoIATA) {
                 paquete.status = 2;
-                paquete.ubicacion = "destino";
+                paquete.ubicacion = "Recogido";
+                paquetes.current.push(paquete);
               } else {
                 paquete.status = 1;
                 paquete.ubicacion = foundAirport.codigoIATA;
