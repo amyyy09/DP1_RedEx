@@ -49,7 +49,7 @@ public class EnvioService {
                     continue; // Skip malformed lines
 
                 String codigoIATAOrigen = partes[0];
-                String idEnvio = partes[1];
+                String idEnvio = partes[0] + partes[1];
                 LocalDateTime fechaHoraI = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
 
                 // Filtrar por la ventana de tiempo relevante
