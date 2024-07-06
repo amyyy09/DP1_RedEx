@@ -94,12 +94,12 @@ const EnvioDetails: React.FC<EnvioDetailsProps> = ({ paquetes, onClose }) => {
                     <td>{paquete.id.split("-")[1]}</td>
                     <td>{transformCode(paquete.ruta)}</td>
                     <td>
-                      {/* {/^\d+$/.test(paquete.ubicacion)
+                      {/^\d+$/.test(paquete.ubicacion)
                         ? `Vuelo ${paquete.ubicacion}`
                         : citiesByCode[paquete.ubicacion]
                         ? citiesByCode[paquete.ubicacion].name
-                        : paquete.ubicacion} */}
-                        {paquete.ubicacion}
+                        : paquete.ubicacion}
+                        {/* {paquete.ubicacion} */}
                     </td>
                   </tr>
                 );

@@ -248,6 +248,7 @@ const Plane: React.FC<
             vuelo.paquetes.forEach((paquete) => {
               if (paquete.aeropuertoDestino === foundAirport.codigoIATA) {
                 paquete.status = 2;
+                paquete.ubicacion = "destino";
               } else {
                 paquete.status = 1;
                 paquete.ubicacion = foundAirport.codigoIATA;
@@ -334,7 +335,7 @@ const Plane: React.FC<
     }
   }, [selectedPlaneId, vuelo.idVuelo]);
 
-  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad);
+  const loadPercentage = vuelo.cantPaquetes / vuelo.capacidad;
   const color = getColorByLoadPercentage(loadPercentage);
 
   // useEffect(() => {
@@ -382,7 +383,6 @@ const Plane: React.FC<
           console.log("Paquetes en el aeropuerto after", foundAirport.almacen);
           console.log("FIN");
         }
-
 
         // foundAirport.almacen.cantPaquetes =
         //   foundAirport.almacen.cantPaquetes - vuelo.cantPaquetes;
