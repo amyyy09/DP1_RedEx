@@ -38,6 +38,7 @@ interface MapProps {
   vuelosInAir: React.MutableRefObject<number>;
   selectedPlaneId: string | null;
   setSelectedPlaneId: (value: string | null) => void;
+  paquetes: React.MutableRefObject<any[]>;
 }
 
 const Map: React.FC<MapProps> = ({
@@ -60,13 +61,15 @@ const Map: React.FC<MapProps> = ({
   vuelosInAir,
   selectedPlaneId,
   setSelectedPlaneId,
+  paquetes,
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
   const markerRefs = useRef<Record<string, L.Marker<any>>>({});
   const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
-  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
-
+  const [highlightedAirportCode, setHighlightedAirportCode] = useState<
+    string | null
+  >(null);
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -172,7 +175,9 @@ const Map: React.FC<MapProps> = ({
   const [showPackages, setShowPackages] = useState(false);
   const [selectedVuelo, setSelectedVuelo] = useState<Vuelo | null>(null);
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
-  const [selectedCity, setSelectedCity] = useState<typeof cities[0] | null>(null);
+  const [selectedCity, setSelectedCity] = useState<(typeof cities)[0] | null>(
+    null
+  );
 
   const handleShowPackages = useCallback((vuelo: Vuelo) => {
     setSelectedVuelo(vuelo);
@@ -184,13 +189,16 @@ const Map: React.FC<MapProps> = ({
     setSelectedPlaneId(null);
   }, [setSelectedPlaneId]);
 
-  const handleShowAirportPackages = useCallback((airport: Airport, city: typeof cities[0]) => {
-    console.log("Selected Airport Data:", airport); // Log the airport data
-    setSelectedAirport(airport);
-    setSelectedCity(city);
-    setShowPackages(true);
-    setHighlightedAirportCode(airport.codigoIATA); // Cambiar el color del aeropuerto seleccionado a negro
-  }, []);
+  const handleShowAirportPackages = useCallback(
+    (airport: Airport, city: (typeof cities)[0]) => {
+      console.log("Selected Airport Data:", airport); // Log the airport data
+      setSelectedAirport(airport);
+      setSelectedCity(city);
+      setShowPackages(true);
+      setHighlightedAirportCode(airport.codigoIATA); // Cambiar el color del aeropuerto seleccionado a negro
+    },
+    []
+  );
 
   const handleCloseAirportPackages = useCallback(() => {
     setSelectedAirport(null);
@@ -248,7 +256,10 @@ const Map: React.FC<MapProps> = ({
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
-      if (!target.closest(".airport-details-fixed") && !target.closest(".package-details-fixed")) {
+      if (
+        !target.closest(".airport-details-fixed") &&
+        !target.closest(".package-details-fixed")
+      ) {
         handleCloseAirportPackages();
       }
     };
@@ -291,7 +302,8 @@ const Map: React.FC<MapProps> = ({
               : cityData && cityData.almacen.cantPaquetes > 0
               ? (city.capacidad + 1000) / cityData.almacen.cantPaquetes > 1 / 3
                 ? "green"
-                : (city.capacidad + 1000) / cityData.almacen.cantPaquetes > 2 / 3
+                : (city.capacidad + 1000) / cityData.almacen.cantPaquetes >
+                  2 / 3
                 ? "yellow"
                 : "red"
               : "green";
@@ -348,7 +360,8 @@ const Map: React.FC<MapProps> = ({
                   setShowPackages={setShowPackages}
                   vuelosInAir={vuelosInAir}
                   selectedPlaneId={selectedPlaneId}
-                  setSelectedPlaneId={setSelectedPlaneId} 
+                  setSelectedPlaneId={setSelectedPlaneId}
+                  paquetes={paquetes}
                 />
               )
           )}

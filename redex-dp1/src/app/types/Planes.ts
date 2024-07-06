@@ -39,7 +39,7 @@ export class Airport {
           aeropuertoDestino: paquete.aeropuertoDestino,
           id: paquete.id,
           ruta: paquete.ruta,
-          ubicacion: data.ciudad,
+          ubicacion: data.codigoIATA,
         } as any)
       ),
     };
@@ -61,6 +61,7 @@ export interface PlaneProps {
   startSimulation: boolean;
   dayToDay: boolean;
   vuelosInAir: React.MutableRefObject<number>;
+  paquetes: React.MutableRefObject<any>;
 }
 
 export class Vuelo {
