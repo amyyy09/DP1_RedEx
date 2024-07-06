@@ -15,9 +15,9 @@ const EnvioDetails: React.FC<EnvioDetailsProps> = ({ paquetes, onClose }) => {
 
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-  const currentItems = paquetes.slice(indexOfFirstItem, indexOfLastItem);
-
-  const totalPages = Math.ceil(paquetes.length / itemsPerPage);
+  const filteredItems = paquetes.filter(paquete => paquete.ubicacion && paquete.ubicacion.trim() !== '');
+  const currentItems = filteredItems.slice(indexOfFirstItem, indexOfLastItem);
+  const totalPages = Math.ceil(currentItems.length / itemsPerPage);
 
   const handleClickNext = () => {
     if (currentPage < totalPages) {
@@ -30,6 +30,8 @@ const EnvioDetails: React.FC<EnvioDetailsProps> = ({ paquetes, onClose }) => {
       setCurrentPage(currentPage - 1);
     }
   };
+
+ 
 
   return (
     <div className="package-details-fixed">
@@ -99,7 +101,7 @@ const EnvioDetails: React.FC<EnvioDetailsProps> = ({ paquetes, onClose }) => {
                         : citiesByCode[paquete.ubicacion]
                         ? citiesByCode[paquete.ubicacion].name
                         : paquete.ubicacion}
-                        {/* {paquete.ubicacion} */}
+                      {/*paquete.ubicacion*/}
                     </td>
                   </tr>
                 );

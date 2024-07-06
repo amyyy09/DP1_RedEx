@@ -1,6 +1,6 @@
 // components/modal/EndModal.tsx
 
-import React from "react";
+import React, { useState } from "react";
 import "../../styles/endModal.css";
 
 interface EndModalProps {
@@ -36,6 +36,33 @@ const EndModal: React.FC<EndModalProps> = ({
     year: "numeric",
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 5;
+
+  const handleNextPage = () => {
+    setCurrentPage((prevPage) => prevPage + 1);
+  };
+
+  const handlePreviousPage = () => {
+    setCurrentPage((prevPage) => Math.max(prevPage - 1, 1));
+  };
+
+  const tableData = [
+    { codigoEnvio: "OERK000008589", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:50:00" },
+    { codigoEnvio: "OERK000008588", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:36:00" },
+    { codigoEnvio: "OERK000008589", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:50:00" },
+    { codigoEnvio: "OERK000008588", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:36:00" },
+    { codigoEnvio: "OERK000008589", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:50:00" },
+    { codigoEnvio: "OERK000008588", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:36:00" },
+    { codigoEnvio: "OERK000008589", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:50:00" },
+    { codigoEnvio: "OERK000008588", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:36:00" },
+    { codigoEnvio: "OERK000008589", numeroPaquete: 1, origen: "Riad", destino: "Zagreb", rutaSeleccionada: "Riad-Delhi-Zagreb", horaRegistro: "06/07/2024, 20:50:00" },
+    { codigoEnvio: "OERK000008587", numeroPaquete: 1, origen: "Riad", destino: "Delhi", rutaSeleccionada: "Riad-Zagreb-Delhi", horaRegistro: "06/07/2024, 20:20:00" }
+  ];
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const selectedItems = tableData.slice(startIndex, startIndex + itemsPerPage);
+
   return (
     <div className="modal-overlay-endModal">
       <div className="modal-content-endModal">
@@ -49,7 +76,11 @@ const EndModal: React.FC<EndModalProps> = ({
           <p>
             La simulación inició el{" "}
             <strong>
-              {new Date(simulatedStartDate).toLocaleDateString(undefined, {
+              {new Date(
+                new Date(simulatedStartDate).setDate(
+                  new Date(simulatedStartDate).getDate() + 1
+                )
+              ).toLocaleDateString(undefined, {
                 day: "2-digit",
                 month: "2-digit",
                 year: "numeric",
@@ -57,10 +88,6 @@ const EndModal: React.FC<EndModalProps> = ({
             </strong>{" "}
             a las <strong>{simulatedStartHour}</strong>.
           </p>
-          {/* <p>
-            La simulación finalizó el <strong>{endDate}</strong> a las{" "}
-            <strong>{timeString}</strong>.
-          </p> */}
           <br />
           <h3 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
             Resumen de la simulación:
@@ -73,6 +100,47 @@ const EndModal: React.FC<EndModalProps> = ({
             <li>Promedio de paquetes por vuelo: {summary.promedioPaquetesPorVuelo.toFixed(2)}</li>
             <li>Tiempo promedio de vuelo: {summary.tiempoPromedioVuelo.toFixed(2)} minutos</li>
           </ul>
+          <h3 style={{ fontSize: "1.5em", fontWeight: "bold", marginTop: "20px" }}>
+            Detalles de Envíos:
+          </h3>
+          <table className="table-endModal">
+            <thead>
+              <tr>
+                <th>Código Envío</th>
+                <th>N° Paquete</th>
+                <th>Origen</th>
+                <th>Destino</th>
+                <th>Ruta Seleccionada</th>
+                <th>Hora de Registro</th>
+              </tr>
+            </thead>
+            <tbody>
+              {selectedItems.map((row, index) => (
+                <tr key={index}>
+                  <td>{row.codigoEnvio}</td>
+                  <td>{row.numeroPaquete}</td>
+                  <td>{row.origen}</td>
+                  <td>{row.destino}</td>
+                  <td>{row.rutaSeleccionada}</td>
+                  <td>{row.horaRegistro}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="pagination">
+            <button onClick={handlePreviousPage} disabled={currentPage === 1}>
+              Anterior
+            </button>
+            <span>
+              Página {currentPage} de {Math.ceil(tableData.length / itemsPerPage)}
+            </span>
+            <button
+              onClick={handleNextPage}
+              disabled={currentPage === Math.ceil(tableData.length / itemsPerPage)}
+            >
+              Siguiente
+            </button>
+          </div>
         </div>
       </div>
     </div>
