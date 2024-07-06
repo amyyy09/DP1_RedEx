@@ -44,12 +44,14 @@ public class RutaPredefinida {
         // - this.duracion (y hora de salida para ver si se pasa de la media noche)
 
         LocalDate fechaInicio = fechaHora.toLocalDate();
-        if(this.horaSalida.isBefore(fechaHora.toLocalTime().atOffset(ZoneOffset.UTC))) {
+        LocalTime horaInicioTemp = fechaHora.toLocalTime();
+        LocalTime horaSalidaTemp = this.horaSalida.withOffsetSameInstant(ZoneOffset.UTC).toLocalTime();
+        if(horaSalidaTemp.isBefore(horaInicioTemp)) {
             fechaInicio = fechaInicio.plusDays(1);
         }
         LocalDate fechaFin = fechaInicio.plusDays(this.duracion);
-        LocalDateTime horaInicio = LocalDateTime.of(fechaInicio, horaSalida.toLocalTime());
-        LocalDateTime horaFin = LocalDateTime.of(fechaFin, horaLlegada.toLocalTime());
+        LocalDateTime horaInicio = LocalDateTime.of(fechaInicio, this.horaSalida.toLocalTime());
+        LocalDateTime horaFin = LocalDateTime.of(fechaFin, this.horaLlegada.toLocalTime());
 
         List<Vuelo> vuelos = new ArrayList<>(); // Esto debería ser poblado según lógica específica
 
@@ -82,7 +84,7 @@ public class RutaPredefinida {
                 }
             }
 
-            duracion = element.getHoraLlegada().isBefore(element.getHoraSalida()) ? 1 : 0;
+            duracion = element.getDiasD();
 
             LocalDateTime fechaLlegada = LocalDateTime.of(fechaInicioVuelo.toLocalDate().plusDays(duracion), element.getHoraLlegada().toLocalTime());
 
