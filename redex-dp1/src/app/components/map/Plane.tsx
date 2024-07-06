@@ -367,8 +367,8 @@ const Plane: React.FC<
 
       if (foundAirport) {
         // console.log("Aeropuerto origen", foundAirport.codigoIATA);
-        console.log("Paquetes en el aeropuerto", foundAirport.almacen);
-        console.log("Vuelo", vuelo);
+        // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
+        // console.log("Vuelo", vuelo);
         // console.log("Paquetes en el vuelo", vuelo.paquetes);
         foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.filter(
           (paquete) => !vuelo.paquetes.some((p) => p.id === paquete.id)
@@ -378,11 +378,11 @@ const Plane: React.FC<
           foundAirport.almacen.paquetes.length;
 
         if (temp - vuelo.cantPaquetes != foundAirport.almacen.cantPaquetes) {
-          console.log("Error en la cantidad de paquetes");
+          console.log("Error en la cantidad de paquetes", vuelo);
+          console.log("Paquetes en el aeropuerto after", foundAirport.almacen);
+          console.log("FIN");
         }
 
-        console.log("Paquetes en el aeropuerto after", foundAirport.almacen);
-        console.log("FIN");
 
         // foundAirport.almacen.cantPaquetes =
         //   foundAirport.almacen.cantPaquetes - vuelo.cantPaquetes;
