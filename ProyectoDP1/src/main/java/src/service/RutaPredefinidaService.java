@@ -104,7 +104,7 @@ public class RutaPredefinidaService {
                     int escalaDuracion = Integer.parseInt(escalaPartes[5]);
                     escalaDuracion = escalaDuracion-220;//ajuste
 
-                    PlanDeVuelo escala = new PlanDeVuelo(index, escalaOrigen, escalaDestino, escalaHoraSalida, escalaHoraLlegada, escalaDuracion, false);
+                    PlanDeVuelo escala = new PlanDeVuelo(index, escalaOrigen, escalaDestino, escalaHoraSalida, escalaHoraLlegada, escalaDuracion, false, 0);
                     escalas.add(escala);
                 }
 

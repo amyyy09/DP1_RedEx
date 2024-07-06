@@ -185,6 +185,8 @@ public class VueloServices {
         LocalTime horaLlegadaLocal = LocalTime.parse(parts[3]);
         int capacidad = Integer.parseInt(parts[4]);
         capacidad = capacidad - 220;
+        int days = Integer.parseInt(parts[5]);
+
 
         OffsetTime horaSalidaOffset = getOffsetTimeForAirport(codigoIATAOrigen, horaSalidaLocal, aeropuertos);
         OffsetTime horaLlegadaOffset = getOffsetTimeForAirport(codigoIATADestino, horaLlegadaLocal, aeropuertos);
@@ -192,8 +194,8 @@ public class VueloServices {
         if (horaSalidaOffset != null && horaLlegadaOffset != null) {
             boolean isSameContinent = isSameContinent(codigoIATAOrigen, codigoIATADestino, aeropuertos);
             return new PlanDeVuelo(i, codigoIATAOrigen, codigoIATADestino, horaSalidaOffset, horaLlegadaOffset, capacidad,
-                    isSameContinent);
-        }
+                    isSameContinent,days);
+        } 
         return null;
     }
 

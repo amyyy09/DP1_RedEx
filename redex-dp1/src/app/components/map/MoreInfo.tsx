@@ -79,7 +79,7 @@ const MoreInfo = ({
           if (planesInAir.length > 0) {
             const totalPlanesInAir = planesInAir.length;
             const totalCapacityInAir = planesInAir.reduce(
-              (acc, plane) => acc + plane.capacidad - 220,
+              (acc, plane) => acc + plane.capacidad,
               0
             );
             const totalPackagesInAir = planesInAir.reduce(
@@ -97,7 +97,7 @@ const MoreInfo = ({
 
       if (airports.current && airports.current.length > 0) {
         const totalAirportCapacity = airports.current.reduce(
-          (acc, airport) => acc + airport.almacen.capacidad + 1000,
+          (acc, airport) => acc + airport.almacen.capacidad,
           0
         );
         const totalAirportPackages = airports.current.reduce(
@@ -184,13 +184,13 @@ const MoreInfo = ({
                 <p>
                   <strong>{airport.ciudad}</strong>
                 </p>
-                <p>Capacidad: {airport.almacen.capacidad + 1000}</p>
+                <p>Capacidad: {airport.almacen.capacidad}</p>
                 <p>Paquetes: {airport.almacen.cantPaquetes}</p>
                 <p>
                   Saturación: {""}
                   {(
                     (airport.almacen.cantPaquetes /
-                      (airport.almacen.capacidad + 1000)) *
+                      (airport.almacen.capacidad)) *
                     100
                   ).toFixed(2)}
                   %{" "}

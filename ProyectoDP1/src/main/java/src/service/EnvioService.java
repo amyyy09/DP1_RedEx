@@ -62,9 +62,8 @@ public class EnvioService {
                     Envio envio = new Envio(idEnvio, fechaHoraI, 0, codigoIATAOrigen, codigoIATADestino, cantPaquetes,
                             null);
                     List<Paquete> paquetes = new ArrayList<>(cantPaquetes);
-                    for (int i = 0; i < cantPaquetes; i++) {
-                        i= i+1;
-                        String paqueteId = idEnvio + "-" + i; 
+                    for (int i = 1; i < cantPaquetes+1; i++) {
+                        String paqueteId = idEnvio + "-" + i;
                         paquetes.add(new Paquete(paqueteId, 0, fechaHoraI,codigoIATAOrigen,codigoIATADestino,null));
                     }
                     envio.setPaquetes(paquetes);

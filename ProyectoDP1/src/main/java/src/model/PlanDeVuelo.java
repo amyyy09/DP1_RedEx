@@ -18,4 +18,5 @@ public class PlanDeVuelo {
         private OffsetTime horaLlegada;
         private int capacidad;
         private boolean isSameContinent;
+        private int diasD;
 }

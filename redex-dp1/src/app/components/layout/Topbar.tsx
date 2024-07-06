@@ -108,7 +108,7 @@ const Topbar: React.FC<TopbarProps> = ({
         ref={envioButtonRef}
       >
         <img src="./icons/caja.png" alt="Buscar Envíos" />
-        <span>Estado Envíos</span>
+        <span>Buscar Envíos</span>
       </div>
       {/* <div className="topbar-item">
         <img src="./icons/rastro.png" alt="Rastrear Vuelo" />
