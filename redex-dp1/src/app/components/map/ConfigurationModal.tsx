@@ -25,6 +25,7 @@ interface ConfigurationModalProps {
   isMounted: boolean;
   airports: React.MutableRefObject<Airport[]>;
   airportsHistory: React.MutableRefObject<Airport[][]>;
+  lastPlan: React.MutableRefObject<Airport[]>;
 }
 
 const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
@@ -41,6 +42,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   setLoading,
   airports,
   airportsHistory,
+  lastPlan,
 }) => {
   const handleModeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setSimulationMode(e.target.value);
@@ -89,7 +91,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   const { clearInterval } = useContext(OperationContext);
 
   const handleApplyClick = async () => {
-    const numberOfCalls = 84; // Número de llamadas a la API
+    const numberOfCalls = 12; // Número de llamadas a la API
     const intervalHours = 2; // Intervalo de horas entre cada llamada
 
     // Formatear la fecha inicial
@@ -163,6 +165,11 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
               (aeropuerto: any) => new Airport(aeropuerto)
             )
           );
+          if (i === numberOfCalls - 1) {
+            lastPlan.current = responseAeropuertos.map(
+              (aeropuerto: any) => new Airport(aeropuerto)
+            );
+          }
         }
 
         // console.log('Response Vuelos:', responseVuelos);

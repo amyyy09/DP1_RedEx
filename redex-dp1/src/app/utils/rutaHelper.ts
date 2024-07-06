@@ -7,12 +7,12 @@ export function transformCode(ruta: string): string {
     const salida = flightPlans[Number(code)-1].departureTime;
     const llegada = flightPlans[Number(code)-1].arrivalTime;
     if (index === array.length - 1) {
-      return `${origin} ${salida} - ${llegada} : ${destination}`;
+      return `${origin} - ${destination}`;
     } else {
-      return `${origin} ${salida} - ${llegada}`;
+      return `${origin}`;
     }
     // return `${origin} - ${destination}`;
   });
 
-  return code.join(" : ");
+  return code.join(" - ");
 }
