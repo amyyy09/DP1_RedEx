@@ -334,7 +334,7 @@ const Plane: React.FC<
     }
   }, [selectedPlaneId, vuelo.idVuelo]);
 
-  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad - 220);
+  const loadPercentage = vuelo.cantPaquetes / (vuelo.capacidad);
   const color = getColorByLoadPercentage(loadPercentage);
 
   // useEffect(() => {
