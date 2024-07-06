@@ -35,7 +35,7 @@ const Simulation: React.FC = () => {
   const vuelosSaturation = useRef<number>(0);
 
   const speedFactor = 288; // Real-time seconds per simulated second
-  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
+  const totalSimulatedSeconds = 1 * 60 * 60; // One week in seconds debe decir 7*24*60*60
   const dayToDay = false;
 
   // State to store the display time
