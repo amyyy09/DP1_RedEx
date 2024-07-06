@@ -45,7 +45,7 @@ const FlightDetails = forwardRef<HTMLDivElement, FlightDetailsProps>(({
           ? `+${citiesByCode[vuelo.aeropuertoDestino].GMT}`
           : citiesByCode[vuelo.aeropuertoDestino].GMT}
         )</p>
-      <p><strong>Capacidad:</strong> {vuelo.capacidad - 150}</p>
+      <p><strong>Capacidad:</strong> {vuelo.capacidad}</p>
       <p><strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}</p>
       <button onClick={togglePackages} className="button_plane">
         {showPackages ? "Ocultar Envíos" : "Mostrar Envíos"}
