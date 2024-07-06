@@ -13,6 +13,7 @@ import java.time.OffsetTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,38 +26,38 @@ public class RutaPredefinidaService {
     
     public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredefinidas;
 
-     public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> getRutasPredefinidas(List<Envio> envios) {
+     public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> getRutasPredefinidas() {
         try {
-            rutasPredefinidas = cargarRutas(envios,
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EBCI.csv", 
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EDDI.csv", 
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EHAM.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EKCH.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LATI.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LBSF.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LDZA.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LKPR.csv", 
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LOWW.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OAKB.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OERK.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OJAI.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OMDB.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OOMS.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OPKC.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OSDI.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OYSN.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SABE.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SBBR.csv", 
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SCEL.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SEQM.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SGAS.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SKBO.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SLLP.csv", 
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SPIM.csv", 
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SUAA.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SVMI.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_UBBB.csv",
-             GlobalVariables.PATH + "rutasPred/rutas_predefinidas_UMMS.csv",
+            rutasPredefinidas = cargarRutas(
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EBCI.csv", 
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EDDI.csv", 
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EHAM.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_EKCH.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LATI.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LBSF.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LDZA.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LKPR.csv", 
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_LOWW.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OAKB.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OERK.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OJAI.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OMDB.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OOMS.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OPKC.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OSDI.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_OYSN.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SABE.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SBBR.csv", 
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SCEL.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SEQM.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SGAS.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SKBO.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SLLP.csv", 
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SPIM.csv", 
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SUAA.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_SVMI.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_UBBB.csv",
+            //  GlobalVariables.PATH + "rutasPred/rutas_predefinidas_UMMS.csv",
              GlobalVariables.PATH + "rutasPred/rutas_predefinidas_VIDP.csv"
               );
         } catch (IOException e) {
@@ -66,13 +67,12 @@ public class RutaPredefinidaService {
         return rutasPredefinidas;
     }
 
-    public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> cargarRutas(List<Envio> envios, String... archivos) throws IOException {
+    public Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> cargarRutas( String... archivos) throws IOException {
     Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPredMap = new HashMap<>();
 
     // Create a set of valid routes for quick lookup
-    Set<String> validRoutes = envios.stream()
-            .map(envio -> envio.getCodigoIATAOrigen() + "-" + envio.getCodigoIATADestino())
-            .collect(Collectors.toSet());
+   Set<String> validRoutes = new HashSet<>();
+   validRoutes.add("VIDP-SVMI");
 
     for (String archivo : archivos) {
         try (BufferedReader br = new BufferedReader(new FileReader(archivo, StandardCharsets.UTF_8))) {

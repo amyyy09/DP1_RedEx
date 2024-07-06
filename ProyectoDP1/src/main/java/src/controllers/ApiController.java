@@ -15,6 +15,7 @@ import src.service.ApiServices;
 import src.service.ApiServicesDiario;
 import src.service.EnvioService;
 import src.services.VueloServices;
+import src.service.RutaPredefinidaService;
 import src.utility.DatosAeropuertos;
 
 import java.io.IOException;
@@ -24,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 @RestController
@@ -33,6 +35,9 @@ public class ApiController {
 
     @Autowired
     private ApiServices apiServices;
+
+    @Autowired
+    private RutaPredefinidaService rutapredService ;
 
     @Autowired
     private ApiServicesDiario apiServicesDiario;
@@ -72,6 +77,36 @@ public class ApiController {
             return "{\"error\": \"Error processing JSON\"}";
         }
     }
+
+    @GetMapping("/prueba")
+    public String prueba() {
+            List <Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
+            List<Vuelo> vuelosActivos = new ArrayList<>();
+            String fechaHora= "2025-02-15T10:27:00";
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+            LocalDateTime fechaHoraParsed = LocalDateTime.parse(fechaHora, formatter);
+            Map<String, Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>>> rutasPred = rutapredService.getRutasPredefinidas();
+             // Iterate through the nested maps to find the first RutaPredefinida
+             RutaPredefinida firstRuta = null;
+             for (Map<String, TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>>> outerMap : rutasPred.values()) {
+                for (TreeMap<Integer, TreeMap<Integer, List<RutaPredefinida>>> middleMap : outerMap.values()) {
+                    for (TreeMap<Integer, List<RutaPredefinida>> innerMap : middleMap.values()) {
+                        for (List<RutaPredefinida> rutaList : innerMap.values()) {
+                            if (!rutaList.isEmpty()) {
+                                firstRuta = rutaList.get(0);
+                                break;
+                            }
+                        }
+                        if (firstRuta != null) break;
+                    }
+                    if (firstRuta != null) break;
+                }
+                if (firstRuta != null) break;
+            }
+            RutaTiempoReal randTiempoReal = firstRuta.convertirAPredefinidaEnTiempoReal(aeropuertosGuardados, vuelosActivos, fechaHoraParsed);
+            return null;
+        }
+
 
     @PostMapping("/diario")
     public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {

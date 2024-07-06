@@ -44,9 +44,10 @@ public class RutaPredefinida {
         // - this.duracion (y hora de salida para ver si se pasa de la media noche)
 
         LocalDate fechaInicio = fechaHora.toLocalDate();
-        LocalTime horaInicioTemp = fechaHora.toLocalTime();
-        LocalTime horaSalidaTemp = this.horaSalida.withOffsetSameInstant(ZoneOffset.UTC).toLocalTime();
-        if(horaSalidaTemp.isBefore(horaInicioTemp)) {
+        // LocalTime horaInicioTemp = fechaHora.toLocalTime();
+        // LocalTime horaSalidaTemp = this.horaSalida.withOffsetSameInstant(ZoneOffset.UTC).toLocalTime();
+        // if(horaSalidaTemp.isBefore(horaInicioTemp)) {
+        if(this.horaSalida.isBefore(fechaHora.toLocalTime().atOffset(ZoneOffset.UTC))) {
             fechaInicio = fechaInicio.plusDays(1);
         }
         LocalDate fechaFin = fechaInicio.plusDays(this.duracion);
