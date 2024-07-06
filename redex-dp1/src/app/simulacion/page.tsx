@@ -237,15 +237,17 @@ const Simulation: React.FC = () => {
     );
 
     filteredVuelos.forEach((vuelo) => {
-      const foundPackages = vuelo.paquetes.filter((paquete) =>
-        paquete.id.startsWith(`${id}-`)
-      );
-      matchingPackages.push(...foundPackages);
+      vuelo.paquetes.forEach((paquete) => {
+        if (paquete.id.startsWith(`${id}-`)) {
+          paquete.ubicacion = vuelo.indexPlan.toString();
+          matchingPackages.push(paquete);
+        }
+      });
     });
 
     airports.current.forEach((airport) => {
       const foundPackages = airport.almacen.paquetes.filter((paquete) =>
-        paquete.id.startsWith(`${id}-`)
+        paquete.id.startsWith(`${id}-`) && !matchingPackages.some((existingPaquete: any) => existingPaquete.id === paquete.id)
       );
       matchingPackages.push(...foundPackages);
     });
