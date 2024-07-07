@@ -268,22 +268,21 @@ const Simulation: React.FC = () => {
     });
 
     //check for repeated packages and drop the ones with paquete.ubicacion === paquete.origen
-    const uniqueOrValidRepeatedPackages = matchingPackages.filter(
-      (paquete: any, _: any, array: any) =>
-        array.findIndex(
-          (otherPaquete: any) =>
-            paquete.id === otherPaquete.id &&
-            paquete.ubicacion !== paquete.aeropuertoOrigen
-        ) === array.indexOf(paquete)
-    );
+    const filteredPackages = matchingPackages.reduce((acc: any, paquete: any) => {
+      const isDuplicate = acc.some((existingPaquete: any) => existingPaquete.id === paquete.id);
+      if (!isDuplicate || (isDuplicate && paquete.ubicacion !== paquete.aeropuertoOrigen)) {
+        acc.push(paquete);
+      }
+      return acc;
+    }, []);
 
     console.log("paquetes", paquetes.current);
 
     if (matchingPackages.length > 0) {
       // Assuming you have a way to handle the found packages
       // For example, setting them in a state, or processing them further
-      console.log("Found packages:", uniqueOrValidRepeatedPackages);
-      setEnvioFound(uniqueOrValidRepeatedPackages);
+      console.log("Found packages:", filteredPackages);
+      setEnvioFound(matchingPackages);
       setShowEnvioDetails(true);
       // setFoundPackages(matchingPackages); // Example: Update state or handle found packages
     } else {
