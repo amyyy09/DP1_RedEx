@@ -91,7 +91,7 @@ const ConfigurationModal: React.FC<ConfigurationModalProps> = ({
   const { clearInterval } = useContext(OperationContext);
 
   const handleApplyClick = async () => {
-    const numberOfCalls = 12; // Número de llamadas a la API
+    const numberOfCalls = 84; // Número de llamadas a la API
     const intervalHours = 2; // Intervalo de horas entre cada llamada
 
     // Formatear la fecha inicial
