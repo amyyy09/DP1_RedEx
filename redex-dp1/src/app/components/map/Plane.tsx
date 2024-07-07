@@ -377,9 +377,9 @@ const Plane: React.FC<
         foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.filter(
           (paquete) => !vuelo.paquetes.some((p) => p.id === paquete.id)
         );
-        const temp = foundAirport.almacen.cantPaquetes;
+        // const temp = foundAirport.almacen.cantPaquetes;
         foundAirport.almacen.cantPaquetes =
-          foundAirport.almacen.paquetes.length+suma;
+          foundAirport.almacen.paquetes.length + suma;
 
 
         // if (temp - vuelo.cantPaquetes != foundAirport.almacen.cantPaquetes) {

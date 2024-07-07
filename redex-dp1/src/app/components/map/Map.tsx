@@ -14,9 +14,11 @@ import Plane from "./Plane";
 import { Airport, Vuelo } from "@/app/types/Planes";
 import PackageDetails from "./PackageDetails";
 import AirportDetails from "./AirportDetails";
-import { cities } from "@/app/data/cities";
+import { cities, citiesByCode } from "@/app/data/cities";
 import MapCenter from "./MapCenter";
 import "@/app/styles/MoreInfoComponent.css";
+import { split } from "postcss/lib/list";
+import { arrayToTime } from "@/app/utils/timeHelper";
 
 interface MapProps {
   planes: React.RefObject<Vuelo[]>;
@@ -125,7 +127,12 @@ const Map: React.FC<MapProps> = ({
             // console.log('cantidad de paquetes almacen:', airports.current[index].almacen.cantPaquetes);
             airports.current[index].almacen.cantPaquetes +=
               data.almacen.cantPaquetes;
-            airports.current[index].almacen.cantPaquetes += 10;
+
+            if (prevUpdate.current >= 6 && prevUpdate.current <= 96) {
+              airports.current[index].almacen.cantPaquetes += 5;
+            } else if (prevUpdate.current >= 96 && prevUpdate.current <= 168) {
+              airports.current[index].almacen.cantPaquetes -= 2;
+            }
             // console.log('cantidad de paquetes suma:', airports.current);
 
             data.almacen.paquetes.forEach((paquete: any) => {
@@ -141,22 +148,91 @@ const Map: React.FC<MapProps> = ({
         // Update prevUpdate to the current hoursElapsed rounded down to the nearest even number
         prevUpdate.current = Math.floor(hoursElapsed / 2) * 2;
 
-        // if (prevUpdate.current % 24 === 0) {
-        //   airports.current.forEach((aeropuerto: Airport) => {
-        //     aeropuerto.almacen.paquetes
-        //       .slice(0, aeropuerto.almacen.paquetes.length / 4)
-        //       .forEach((paquete: any) => {
-        //         if (paquete.status === 0) {
-        //           // delete the package
-        //           const index = aeropuerto.almacen.paquetes.findIndex(
-        //             (p: any) => p.id === paquete.id
-        //           );
-        //           aeropuerto.almacen.paquetes.splice(index, 1);
-        //           aeropuerto.almacen.cantPaquetes -= 1;
-        //         }
-        //       });
-        //   });
-        // }
+        if (prevUpdate.current % 2 === 0) {
+          // console.log("6 horas");
+          airports.current.forEach((airport) => {
+            airport.almacen.paquetes.forEach((paquete) => {
+              split(paquete.ruta, [";"], true).forEach((ruta) => {
+                // console.log("ruta", ruta);
+                const rutaIndex = Number(ruta);
+                planes.current?.forEach((vuelo) => {
+                  if (vuelo.indexPlan === rutaIndex && !vuelo.enAire) {
+                    // console.log("vuelo", vuelo);
+                    // chech if the package is in the vuelo
+                    if (vuelo.paquetes.some((p) => p.id === paquete.id)) {
+                      const horaLlegada = arrayToTime(vuelo.horaLlegada);
+                      //console.log("horaLlegada inicial", horaLlegada);
+                      horaLlegada.setUTCHours(
+                        horaLlegada.getUTCHours() -
+                          citiesByCode[vuelo.aeropuertoDestino].GMT
+                      );
+
+                      const horaSalida = arrayToTime(vuelo.horaSalida);
+                      //console.log("horaSalida", horaSalida);
+                      horaSalida.setUTCHours(
+                        horaSalida.getUTCHours() -
+                          citiesByCode[vuelo.aeropuertoOrigen].GMT
+                      );
+
+                      if (
+                        simulatedDate.current &&
+                        simulatedDate.current > horaSalida &&
+                        simulatedDate.current > horaLlegada
+                      ) {
+                        if (
+                          vuelo.aeropuertoDestino == paquete.aeropuertoDestino
+                        ) {
+                          paquete.ubicacion = "Recogido";
+                          paquetes.current.push(paquete);
+                          airport.almacen.paquetes =
+                            airport.almacen.paquetes.filter(
+                              (paquete) => paquete.id !== paquete.id
+                            );
+                          airport.almacen.cantPaquetes -= 1;
+                          // console.log("paquete.ubicacion", paquete.ubicacion);
+                        } else if (
+                          paquete.ubicacion !== "" &&
+                          isNaN(Number(paquete.ubicacion)) &&
+                          paquete.ubicacion !== vuelo.aeropuertoDestino
+                        ) {
+                          paquete.ubicacion = vuelo.aeropuertoDestino;
+                          // console.log("paquete.ubicacion", paquete.ubicacion);
+                          const index = airports.current.findIndex(
+                            (aeropuerto: Airport) =>
+                              aeropuerto.codigoIATA === paquete.ubicacion
+                          );
+                          if (index !== -1) {
+                            // console.log(
+                            //   "index",
+                            //   airports.current[index].almacen.paquetes
+                            // );
+                            airports.current[index].almacen.paquetes.push(
+                              paquete
+                            );
+                            airports.current[index].almacen.cantPaquetes += 1;
+                            // console.log(
+                            //   "airport.almacen.paquetes",
+                            //   airports.current[index].almacen.paquetes
+                            // );
+
+                            airport.almacen.paquetes =
+                              airport.almacen.paquetes.filter(
+                                (paquete) =>
+                                  !vuelo.paquetes.some(
+                                    (p) => p.id === paquete.id
+                                  )
+                              );
+                            airport.almacen.cantPaquetes -= 1;
+                          }
+                        }
+                      }
+                    }
+                  }
+                });
+              });
+            });
+          });
+        }
         // console.log("airports", airports.current);
         // console.log("history", airportsHistory.current);
       }
@@ -325,12 +401,6 @@ const Map: React.FC<MapProps> = ({
                 ? "yellow"
                 : "red" // More than two-thirds full
               : "green";
-          console.log("iconColor", iconColor);
-          cityData &&
-            console.log(
-              "calculo",
-              (city.capacidad + 1000) / cityData.almacen.cantPaquetes
-            );
 
           const dynamicIcon = new L.Icon({
             iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${iconColor}.png`,
