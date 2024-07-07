@@ -373,13 +373,13 @@ const Plane: React.FC<
         // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
         // console.log("Vuelo", vuelo);
         // console.log("Paquetes en el vuelo", vuelo.paquetes);
-        const suma = foundAirport.almacen.cantPaquetes - foundAirport.almacen.paquetes.length;
+        // const suma = foundAirport.almacen.cantPaquetes - foundAirport.almacen.paquetes.length;
         foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.filter(
           (paquete) => !vuelo.paquetes.some((p) => p.id === paquete.id)
         );
         // const temp = foundAirport.almacen.cantPaquetes;
         foundAirport.almacen.cantPaquetes =
-          foundAirport.almacen.paquetes.length + suma;
+          foundAirport.almacen.paquetes.length;
 
 
         // if (temp - vuelo.cantPaquetes != foundAirport.almacen.cantPaquetes) {

@@ -253,11 +253,10 @@ const Simulation: React.FC = () => {
     airports.current.forEach((airport) => {
       const foundPackages = airport.almacen.paquetes.filter(
         (paquete) =>
-          paquete.id.startsWith(`${id}`) 
-        // &&
-        //   !matchingPackages.some(
-        //     (existingPaquete: any) => existingPaquete.id === paquete.id
-        //   )
+          paquete.id.startsWith(`${id}`) &&
+          !matchingPackages.some(
+            (existingPaquete: any) => existingPaquete.id === paquete.id
+          )
       );
       matchingPackages.push(...foundPackages);
     });
@@ -268,13 +267,23 @@ const Simulation: React.FC = () => {
       }
     });
 
+    //check for repeated packages and drop the ones with paquete.ubicacion === paquete.origen
+    const uniqueOrValidRepeatedPackages = matchingPackages.filter(
+      (paquete: any, _: any, array: any) =>
+        array.findIndex(
+          (otherPaquete: any) =>
+            paquete.id === otherPaquete.id &&
+            paquete.ubicacion !== paquete.aeropuertoOrigen
+        ) === array.indexOf(paquete)
+    );
+
     console.log("paquetes", paquetes.current);
 
     if (matchingPackages.length > 0) {
       // Assuming you have a way to handle the found packages
       // For example, setting them in a state, or processing them further
-      console.log("Found packages:", matchingPackages);
-      setEnvioFound(matchingPackages);
+      console.log("Found packages:", uniqueOrValidRepeatedPackages);
+      setEnvioFound(uniqueOrValidRepeatedPackages);
       setShowEnvioDetails(true);
       // setFoundPackages(matchingPackages); // Example: Update state or handle found packages
     } else {

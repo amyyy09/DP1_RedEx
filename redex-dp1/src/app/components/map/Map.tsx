@@ -128,16 +128,25 @@ const Map: React.FC<MapProps> = ({
             airports.current[index].almacen.cantPaquetes +=
               data.almacen.cantPaquetes;
 
-            if (prevUpdate.current >= 6 && prevUpdate.current <= 96) {
-              airports.current[index].almacen.cantPaquetes += 5;
-            } else if (prevUpdate.current >= 96 && prevUpdate.current <= 168) {
-              airports.current[index].almacen.cantPaquetes -= 2;
-            }
-            // console.log('cantidad de paquetes suma:', airports.current);
+            
+              data.almacen.paquetes.forEach((paquete: any) => {
+                airports.current[index].almacen.paquetes.push(paquete);
+              });
 
-            data.almacen.paquetes.forEach((paquete: any) => {
-              airports.current[index].almacen.paquetes.push(paquete);
-            });
+            // if (prevUpdate.current >= 6 && prevUpdate.current <= 30) {
+            //   airports.current[index].almacen.cantPaquetes += 5;
+            // } else if (prevUpdate.current >= 30 && prevUpdate.current <= 168) {
+            //   if (
+            //     airports.current[index].almacen.cantPaquetes -10 >
+            //     airports.current[index].almacen.paquetes.length
+            //   ) {
+            //     airports.current[index].almacen.cantPaquetes -= 10;
+            //   } else {
+            //     airports.current[index].almacen.cantPaquetes =
+            //       airports.current[index].almacen.paquetes.length;
+            //   }
+            // }
+            // console.log('cantidad de paquetes suma:', airports.current);
           } else {
             console.log("Aeropuerto no encontrado:", data.codigoIATA);
           }
@@ -156,7 +165,11 @@ const Map: React.FC<MapProps> = ({
                 // console.log("ruta", ruta);
                 const rutaIndex = Number(ruta);
                 planes.current?.forEach((vuelo) => {
-                  if (vuelo.indexPlan === rutaIndex && !vuelo.enAire) {
+                  if (
+                    vuelo.indexPlan === rutaIndex &&
+                    !vuelo.enAire &&
+                    vuelo.aeropuertoOrigen === airport.codigoIATA
+                  ) {
                     // console.log("vuelo", vuelo);
                     // chech if the package is in the vuelo
                     if (vuelo.paquetes.some((p) => p.id === paquete.id)) {
