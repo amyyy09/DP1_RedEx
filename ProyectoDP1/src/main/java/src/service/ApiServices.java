@@ -62,7 +62,7 @@ public class ApiServices {
             System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
             if (!envios.isEmpty()) {
                 resultado = planificacionService.PSO(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados,
-                        vuelosActuales, fechaHora);
+                        vuelosActuales, fechaHora); 
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
                 reportResumenAux =planificacionService.generarResumen(jsonprevio,planesDeVuelo);

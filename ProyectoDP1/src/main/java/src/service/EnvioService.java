@@ -49,7 +49,7 @@ public class EnvioService {
                     continue; // Skip malformed lines
 
                 String codigoIATAOrigen = partes[0];
-                String idEnvio = partes[1];
+                String idEnvio = partes[0] + partes[1];
                 LocalDateTime fechaHoraI = LocalDateTime.parse(partes[2] + "-" + partes[3], formatter);
 
                 // Filtrar por la ventana de tiempo relevante
@@ -62,10 +62,9 @@ public class EnvioService {
                     Envio envio = new Envio(idEnvio, fechaHoraI, 0, codigoIATAOrigen, codigoIATADestino, cantPaquetes,
                             null);
                     List<Paquete> paquetes = new ArrayList<>(cantPaquetes);
-                    for (int i = 0; i < cantPaquetes; i++) {
-                        i= i+1;
-                        String paqueteId = idEnvio + "-" + i; 
-                        paquetes.add(new Paquete(paqueteId, 0, fechaHoraI,codigoIATAOrigen,codigoIATADestino));
+                    for (int i = 1; i < cantPaquetes+1; i++) {
+                        String paqueteId = idEnvio + "-" + i;
+                        paquetes.add(new Paquete(paqueteId, 0, fechaHoraI,codigoIATAOrigen,codigoIATADestino,null));
                     }
                     envio.setPaquetes(paquetes);
                     envios.add(envio);
@@ -94,7 +93,7 @@ public class EnvioService {
     public static Envio parseDataToFrontend(Envio envio) {
         for (int i = 0; i < envio.getCantPaquetes(); i++) {
             String nombrePaquete = envio.getIdEnvio() + "-" + (i + 1);
-            Paquete paquete = new Paquete(nombrePaquete, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino());
+            Paquete paquete = new Paquete(nombrePaquete, 0, envio.getFechaHoraOrigen(),envio.getCodigoIATAOrigen(),envio.getCodigoIATADestino(),null);
             envio.getPaquetes().add(paquete);
         }
 

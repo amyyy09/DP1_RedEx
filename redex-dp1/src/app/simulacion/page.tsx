@@ -10,6 +10,8 @@ import EndModal from "../components/modal/EndModal";
 import { citiesByCode } from "../data/cities";
 import "../styles/SimulatedTime.css";
 import Notification from "../components/notificacion/Notification";
+import MoreInfo from "../components/map/MoreInfo";
+import EnvioDetails from "../components/map/EnvioDetails";
 
 const Simulation: React.FC = () => {
   const [showModal, setShowModal] = useState(true);
@@ -21,15 +23,20 @@ const Simulation: React.FC = () => {
   const vuelos = useRef<Vuelo[]>([]);
   const airports = useRef<Airport[]>([]);
   const airportsHistory = useRef<Airport[][]>([]);
+  const lastPlan = useRef<Airport[]>([]);
+  const paquetes = useRef<any[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [simulationEnd, setSimulationEnd] = useState(false);
   const [simulationTerminated, setSimulationTerminated] = useState(false);
   const [simulationSummary, setSimulationSummary] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const vuelosInAir = useRef<number>(0);
+  const vuelosSaturation = useRef<number>(0);
 
   const speedFactor = 288; // Real-time seconds per simulated second
-  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
+  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds debe decir 7*24*60*60
   const dayToDay = false;
 
   // State to store the display time
@@ -45,6 +52,9 @@ const Simulation: React.FC = () => {
     null
   );
   const [selectedAirport, setSelectedAirport] = useState<Airport | null>(null);
+  const [envioFound, setEnvioFound] = useState<any[] | null>(null);
+  const [showEnvioDetails, setShowEnvioDetails] = useState(false);
+  const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null); // Nuevo estado para el avión seleccionado
 
   let isMounted = true;
 
@@ -121,7 +131,7 @@ const Simulation: React.FC = () => {
   const fetchSimulationSummary = async () => {
     console.log("Fetching simulation summary");
     try {
-      const response = await fetch(`${process.env.BACKEND_URL}reporte`,);
+      const response = await fetch(`${process.env.BACKEND_URL}reporte`);
       if (response.ok) {
         const summary = await response.json();
         setSimulationSummary(summary);
@@ -132,7 +142,7 @@ const Simulation: React.FC = () => {
       console.error("Error fetching simulation summary:", error);
     } finally {
       try {
-        const response = await fetch(`${process.env.BACKEND_URL}limpiar`,);
+        const response = await fetch(`${process.env.BACKEND_URL}limpiar`);
         if (response.ok) {
           console.log("Simulation data cleared");
         } else {
@@ -177,14 +187,16 @@ const Simulation: React.FC = () => {
     if (simulationTerminated) return;
 
     const foundVuelo = vuelos.current.find((vuelo) =>
-      vuelo.paquetes.some((paquete) => paquete.id === id)
+      vuelo.paquetes.some((paquete) => paquete.id === id, vuelo.enAire === true)
     );
     if (foundVuelo) {
+      console.log("Paquete encontrado en avión:", foundVuelo);
       const { aeropuertoOrigen } = foundVuelo;
       const city = citiesByCode[aeropuertoOrigen];
       if (city) {
         setMapCenter([city.coords.lat, city.coords.lng]);
         setHighlightedPlaneId(foundVuelo.idVuelo);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
         setForceOpenPopup(true);
         setSelectedPackageId(id);
         setSelectedAirport(null);
@@ -213,9 +225,95 @@ const Simulation: React.FC = () => {
     setErrorMessage("ID de paquete no encontrado");
   };
 
+  const handleEnvioSearch = (id: string) => {
+    console.log("Buscando envío con ID:", id);
+
+    if (simulationTerminated) return;
+
+    const matchingPackages: any = [];
+
+    const filteredVuelos = vuelos.current.filter(
+      (vuelo) => vuelo.enAire === true
+    );
+
+    filteredVuelos.forEach((vuelo) => {
+      vuelo.paquetes.forEach((paquete) => {
+        if (paquete.id.startsWith(`${id}-`)) {
+          paquete.ubicacion = vuelo.indexPlan.toString();
+          matchingPackages.push(paquete);
+        }
+      });
+    });
+
+    airports.current.forEach((airport) => {
+      const foundPackages = airport.almacen.paquetes.filter(
+        (paquete) =>
+          paquete.id.startsWith(`${id}-`) &&
+          !matchingPackages.some(
+            (existingPaquete: any) => existingPaquete.id === paquete.id
+          )
+      );
+      matchingPackages.push(...foundPackages);
+    });
+
+    paquetes.current.forEach((paquete) => {
+      if (paquete.id.startsWith(`${id}-`)) {
+        matchingPackages.push(paquete);
+      }
+    });
+
+    if (matchingPackages.length > 0) {
+      // Assuming you have a way to handle the found packages
+      // For example, setting them in a state, or processing them further
+      console.log("Found packages:", matchingPackages);
+      setEnvioFound(matchingPackages);
+      setShowEnvioDetails(true);
+      // setFoundPackages(matchingPackages); // Example: Update state or handle found packages
+    } else {
+      setErrorMessage("ID de envío no encontrado");
+    }
+    return;
+  };
+
+  const handleCloseEnvioDetails = () => {
+    setShowEnvioDetails(false);
+    setEnvioFound(null);
+  };
+
+  const handleVueloSearch = (id: number) => {
+    console.log("Buscando vuelo con ID:", id);
+
+    if (simulationTerminated) return;
+
+    const foundVuelo = vuelos.current.find((vuelo) => vuelo.indexPlan === id);
+
+    if (foundVuelo) {
+      console.log("Vuelo encontrado:", foundVuelo);
+      const { aeropuertoOrigen } = foundVuelo;
+      const city = citiesByCode[aeropuertoOrigen];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(foundVuelo.idVuelo);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
+        setForceOpenPopup(true);
+        setSelectedPackageId(null); // Deselecciona cualquier paquete
+        setSelectedAirport(null); // Deselecciona cualquier aeropuerto
+        setErrorMessage("");
+        return;
+      }
+    }
+
+    setErrorMessage("ID de vuelo no encontrado");
+  };
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <Topbar onSearch={handleSearch} errorMessage={errorMessage} />
+      <Topbar
+        onSearch={handleSearch}
+        envioSearch={handleEnvioSearch}
+        vueloSearch={handleVueloSearch}
+        errorMessage={errorMessage}
+      />
       <div style={{ display: "flex", flex: 1 }}>
         <Sidebar />
         <div
@@ -241,6 +339,12 @@ const Simulation: React.FC = () => {
             selectedPackageId={selectedPackageId}
             setForceOpenPopup={setForceOpenPopup}
             airportsHistory={airportsHistory}
+            showMoreInfo={showMoreInfo}
+            setShowMoreInfo={setShowMoreInfo}
+            vuelosInAir={vuelosInAir}
+            selectedPlaneId={selectedPlaneId}
+            setSelectedPlaneId={setSelectedPlaneId}
+            paquetes={paquetes}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
@@ -249,7 +353,10 @@ const Simulation: React.FC = () => {
             </div>
           )}
           {errorMessage && (
-            <Notification message={errorMessage} onClose={() => setErrorMessage("")} />
+            <Notification
+              message={errorMessage}
+              onClose={() => setErrorMessage("")}
+            />
           )}
           {showModal && (
             <ConfigurationModal
@@ -267,6 +374,7 @@ const Simulation: React.FC = () => {
               setLoading={setLoading}
               isMounted={isMounted}
               airportsHistory={airportsHistory}
+              lastPlan={lastPlan}
             />
           )}{" "}
           {simulationEnd && simulationSummary && (
@@ -276,6 +384,7 @@ const Simulation: React.FC = () => {
               simulatedStartHour={startHour}
               simulatedEndDate={displayTime}
               summary={simulationSummary}
+              lastPlan={lastPlan}
             />
           )}
         </div>
@@ -289,6 +398,26 @@ const Simulation: React.FC = () => {
           </button>
         )}
       </div>
+      {showMoreInfo && (
+        <MoreInfo
+          onClose={() => setShowMoreInfo(false)}
+          planes={startSimulation ? vuelos : { current: [] }}
+          airports={startSimulation ? airports : { current: [] }}
+          startTime={startTime}
+          startDate={startDate}
+          startHour={startHour}
+          speedFactor={speedFactor}
+          startSimulation={startSimulation}
+          dayToDay={dayToDay}
+          vuelosInAir={vuelosInAir}
+        />
+      )}
+      {showEnvioDetails && (
+        <EnvioDetails
+          paquetes={envioFound || []}
+          onClose={handleCloseEnvioDetails}
+        />
+      )}
     </div>
   );
 };
