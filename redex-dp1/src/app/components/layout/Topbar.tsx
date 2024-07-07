@@ -256,7 +256,7 @@ const Topbar: React.FC<TopbarProps> = ({
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
-              placeholder="Código IATA del almacén"
+              placeholder="Ciudad del almacén"
               className="search-input-topbar"
               style={{ color: "black" }}
             />

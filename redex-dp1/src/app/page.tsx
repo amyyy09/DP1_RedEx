@@ -34,6 +34,7 @@ const DayToDay: React.FC = () => {
   const [showFlightPlanPopup, setShowFlightPlanPopup] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null);
+  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
 
   //quiero tener los vuelos hardcodeados de arriba
   //flights.current = hardcodedVuelos;
@@ -91,6 +92,12 @@ const DayToDay: React.FC = () => {
     return;
   };
 
+  const handleAlmacenSearch = async (id: string) => {
+    console.log("Buscando almacen con ID:", id);
+    setErrorMessage("Búsqueda de almacenes no implementada");
+    return;
+  };
+
   useEffect(() => {
     // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
     //flights.current = hardcodedVuelos;
@@ -114,6 +121,7 @@ const DayToDay: React.FC = () => {
         onSearch={handleSearch}
         envioSearch={handleEnvioSearch}
         vueloSearch={handleVueloSearch}
+        almacenSearch={handleAlmacenSearch}
         errorMessage={errorMessage}
       />
       <div style={{ display: "flex", flex: 1 }}>
@@ -138,6 +146,8 @@ const DayToDay: React.FC = () => {
           selectedPlaneId={selectedPlaneId}
           setSelectedPlaneId={setSelectedPlaneId}
           paquetes={packages}
+          highlightedAirportCode={highlightedAirportCode}
+          setHighlightedAirportCode={setHighlightedAirportCode}
         />
         <CurrentTimeDisplay />{" "}
         <div style={{ display: "flow" }}>
