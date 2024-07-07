@@ -381,9 +381,9 @@ const Plane: React.FC<
           foundAirport.almacen.paquetes.length;
 
         if (temp - vuelo.cantPaquetes != foundAirport.almacen.cantPaquetes) {
-          console.log("Error en la cantidad de paquetes", vuelo);
-          console.log("Paquetes en el aeropuerto after", foundAirport.almacen);
-          console.log("FIN");
+          // console.log("Error en la cantidad de paquetes", vuelo);
+          // console.log("Paquetes en el aeropuerto after", foundAirport.almacen);
+          // console.log("FIN");
         }
 
         // foundAirport.almacen.cantPaquetes =

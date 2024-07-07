@@ -54,7 +54,7 @@ const Simulation: React.FC = () => {
   const [envioFound, setEnvioFound] = useState<any[] | null>(null);
   const [showEnvioDetails, setShowEnvioDetails] = useState(false);
   const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null); // Nuevo estado para el avión seleccionado
-
+  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
 
   let isMounted = true;
 
@@ -217,6 +217,7 @@ const Simulation: React.FC = () => {
         setForceOpenPopup(true); // Forzar abrir el popup para el aeropuerto
         setSelectedPackageId(id);
         setSelectedAirport(foundAirport);
+        setHighlightedAirportCode(foundAirport.codigoIATA); // Set highlighted airport code
         setErrorMessage("");
         return;
       }
@@ -301,6 +302,34 @@ const Simulation: React.FC = () => {
     setErrorMessage("ID de vuelo no encontrado");
   }
   
+  const handleAlmacenSearch = (id: string) => {
+    console.log("Buscando almacén con ID:", id);
+    console.log(airports.current);
+
+    if (simulationTerminated) return;
+
+    const foundAirport = airports.current.find(
+      (airport) => airport.ciudad === id
+    );
+
+    if (foundAirport) {
+      console.log("Almacén encontrado:", foundAirport);
+      const city = citiesByCode[foundAirport.codigoIATA];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(null);
+        setSelectedPlaneId(null);
+        setForceOpenPopup(true);
+        setSelectedPackageId(null);
+        setSelectedAirport(foundAirport);
+        setHighlightedAirportCode(foundAirport.codigoIATA); // Set highlighted airport code
+        setErrorMessage("");
+        return;
+      }
+    }
+
+    setErrorMessage("ID de almacén no encontrado");
+  }
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -308,6 +337,7 @@ const Simulation: React.FC = () => {
         onSearch={handleSearch}
         envioSearch={handleEnvioSearch}
         vueloSearch={handleVueloSearch}
+        almacenSearch={handleAlmacenSearch}
         errorMessage={errorMessage}
       />
       <div style={{ display: "flex", flex: 1 }}>
@@ -341,6 +371,8 @@ const Simulation: React.FC = () => {
             selectedPlaneId={selectedPlaneId} 
             setSelectedPlaneId={setSelectedPlaneId} 
             paquetes={paquetes}
+            highlightedAirportCode={highlightedAirportCode} // Pass highlighted airport code
+            setHighlightedAirportCode={setHighlightedAirportCode} // Pass setter for highlighted airport code
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
