@@ -23,6 +23,7 @@ const Simulation: React.FC = () => {
   const vuelos = useRef<Vuelo[]>([]);
   const airports = useRef<Airport[]>([]);
   const airportsHistory = useRef<Airport[][]>([]);
+  const lastPlan = useRef<Airport[]>([]);
   const paquetes = useRef<any[]>([]);
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
@@ -35,7 +36,7 @@ const Simulation: React.FC = () => {
   const vuelosSaturation = useRef<number>(0);
 
   const speedFactor = 288; // Real-time seconds per simulated second
-  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds
+  const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds debe decir 7*24*60*60
   const dayToDay = false;
 
   // State to store the display time
@@ -54,7 +55,9 @@ const Simulation: React.FC = () => {
   const [envioFound, setEnvioFound] = useState<any[] | null>(null);
   const [showEnvioDetails, setShowEnvioDetails] = useState(false);
   const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null); // Nuevo estado para el avión seleccionado
+
   const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
+
 
   let isMounted = true;
 
@@ -187,7 +190,7 @@ const Simulation: React.FC = () => {
     if (simulationTerminated) return;
 
     const foundVuelo = vuelos.current.find((vuelo) =>
-      vuelo.paquetes.some((paquete) => paquete.id === id , vuelo.enAire === true)
+      vuelo.paquetes.some((paquete) => paquete.id === id, vuelo.enAire === true)
     );
     if (foundVuelo) {
       console.log("Paquete encontrado en avión:", foundVuelo);
@@ -238,15 +241,21 @@ const Simulation: React.FC = () => {
     );
 
     filteredVuelos.forEach((vuelo) => {
-      const foundPackages = vuelo.paquetes.filter((paquete) =>
-        paquete.id.startsWith(`${id}-`)
-      );
-      matchingPackages.push(...foundPackages);
+      vuelo.paquetes.forEach((paquete) => {
+        if (paquete.id.startsWith(`${id}-`)) {
+          paquete.ubicacion = vuelo.indexPlan.toString();
+          matchingPackages.push(paquete);
+        }
+      });
     });
 
     airports.current.forEach((airport) => {
-      const foundPackages = airport.almacen.paquetes.filter((paquete) =>
-        paquete.id.startsWith(`${id}-`)
+      const foundPackages = airport.almacen.paquetes.filter(
+        (paquete) =>
+          paquete.id.startsWith(`${id}-`) &&
+          !matchingPackages.some(
+            (existingPaquete: any) => existingPaquete.id === paquete.id
+          )
       );
       matchingPackages.push(...foundPackages);
     });
@@ -269,7 +278,6 @@ const Simulation: React.FC = () => {
     }
     return;
   };
-
 
   const handleCloseEnvioDetails = () => {
     setShowEnvioDetails(false);
@@ -300,6 +308,7 @@ const Simulation: React.FC = () => {
     }
 
     setErrorMessage("ID de vuelo no encontrado");
+
   }
   
   const handleAlmacenSearch = (id: string) => {
@@ -330,6 +339,7 @@ const Simulation: React.FC = () => {
 
     setErrorMessage("ID de almacén no encontrado");
   }
+
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
@@ -368,8 +378,8 @@ const Simulation: React.FC = () => {
             showMoreInfo={showMoreInfo}
             setShowMoreInfo={setShowMoreInfo}
             vuelosInAir={vuelosInAir}
-            selectedPlaneId={selectedPlaneId} 
-            setSelectedPlaneId={setSelectedPlaneId} 
+            selectedPlaneId={selectedPlaneId}
+            setSelectedPlaneId={setSelectedPlaneId}
             paquetes={paquetes}
             highlightedAirportCode={highlightedAirportCode} // Pass highlighted airport code
             setHighlightedAirportCode={setHighlightedAirportCode} // Pass setter for highlighted airport code
@@ -402,6 +412,7 @@ const Simulation: React.FC = () => {
               setLoading={setLoading}
               isMounted={isMounted}
               airportsHistory={airportsHistory}
+              lastPlan={lastPlan}
             />
           )}{" "}
           {simulationEnd && simulationSummary && (
@@ -411,6 +422,7 @@ const Simulation: React.FC = () => {
               simulatedStartHour={startHour}
               simulatedEndDate={displayTime}
               summary={simulationSummary}
+              lastPlan={lastPlan}
             />
           )}
         </div>

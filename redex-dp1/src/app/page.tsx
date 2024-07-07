@@ -17,7 +17,7 @@ const DayToDay: React.FC = () => {
   // const vuelos = useContext(OperationContext); // Obtiene los vuelos del contexto
 
   const [startSimulation, setStartSimulation] = useState(false); // Inicia la simulación
-  const { flights, updateFlights, startInterval, flightsOnAir } =
+  const { flights, updateFlights, startInterval, flightsOnAir, packages } =
     useContext(OperationContext);
   const speedFactor = 1; // Factor de velocidad de la simulación
   const dayToDay = true; // Indica que se trata de una simulación de día a día
@@ -137,6 +137,7 @@ const DayToDay: React.FC = () => {
           vuelosInAir={flightsOnAir}
           selectedPlaneId={selectedPlaneId}
           setSelectedPlaneId={setSelectedPlaneId}
+          paquetes={packages}
         />
         <CurrentTimeDisplay />{" "}
         <div style={{ display: "flow" }}>
