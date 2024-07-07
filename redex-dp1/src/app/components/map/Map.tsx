@@ -39,6 +39,8 @@ interface MapProps {
   selectedPlaneId: string | null;
   setSelectedPlaneId: (value: string | null) => void;
   paquetes: React.MutableRefObject<any[]>;
+  highlightedAirportCode: string | null;
+  setHighlightedAirportCode: (value: string | null) => void;
 }
 
 const Map: React.FC<MapProps> = ({
@@ -62,14 +64,13 @@ const Map: React.FC<MapProps> = ({
   selectedPlaneId,
   setSelectedPlaneId,
   paquetes,
+  highlightedAirportCode,
+  setHighlightedAirportCode,
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
-  const markerRefs = useRef<Record<string, L.Marker<any>>>({});
+  const markerRefs = useRef<Record<string, L.Marker<any> | null>>({});
   const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
-  const [highlightedAirportCode, setHighlightedAirportCode] = useState<
-    string | null
-  >(null);
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -196,19 +197,29 @@ const Map: React.FC<MapProps> = ({
       setSelectedCity(city);
       setShowPackages(true);
       setHighlightedAirportCode(airport.codigoIATA); // Cambiar el color del aeropuerto seleccionado a negro
+      setShouldOpenPopup(true);
     },
-    []
+    [setHighlightedAirportCode]
   );
 
   const handleCloseAirportPackages = useCallback(() => {
     setSelectedAirport(null);
     setSelectedCity(null);
     setHighlightedAirportCode(null); // Resetear el color del aeropuerto
-  }, []);
+  }, [setHighlightedAirportCode]);
 
   const handleClosePackageDetails = useCallback(() => {
     setShowPackages(false);
   }, []);
+
+  useEffect(() => {
+    if (highlightedAirportCode) {
+      const marker = markerRefs.current[highlightedAirportCode];
+      if (marker) {
+        marker.openPopup();
+      }
+    }
+  }, [highlightedAirportCode]);
 
   useEffect(() => {
     if (selectedPackageId) {
@@ -245,13 +256,12 @@ const Map: React.FC<MapProps> = ({
                 marker.openPopup();
                 setShouldOpenPopup(false); // Resetear el estado
               }
-              setHighlightedAirportCode(foundAirport.codigoIATA); // Cambiar el color del aeropuerto encontrado a negro
             }
           }
         }
       }, 300); // Adjust delay if necessary
     }
-  }, [selectedPackageId, planes, airports]);
+  }, [selectedPackageId, planes, airports, setSelectedAirport, setHighlightedAirportCode]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -264,7 +274,7 @@ const Map: React.FC<MapProps> = ({
       }
     };
 
-    if (showPackages && selectedAirport) {
+    if (selectedAirport) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -273,7 +283,7 @@ const Map: React.FC<MapProps> = ({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [showPackages, selectedAirport, handleCloseAirportPackages]);
+  }, [selectedAirport, handleCloseAirportPackages]);
 
   return (
     <>
@@ -295,7 +305,9 @@ const Map: React.FC<MapProps> = ({
 
         {/* {mapCenter && <MapCenter center={mapCenter} />} */}
         {cities.map((city, idx) => {
-          const cityData = airports.current ? airports.current[idx] : null;
+          const cityData = airports.current.find(
+            (airport) => airport.codigoIATA === city.code
+          );
           const iconColor =
             highlightedAirportCode === city.code
               ? "black"
@@ -329,6 +341,9 @@ const Map: React.FC<MapProps> = ({
                     handleShowAirportPackages(cityData, city);
                   }
                 },
+              }}
+              ref={(el) => {
+                markerRefs.current[city.code] = el;
               }}
             />
           );

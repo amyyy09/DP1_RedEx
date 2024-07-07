@@ -5,6 +5,7 @@ interface TopbarProps {
   onSearch: (id: string) => void;
   envioSearch: (id: string) => void;
   vueloSearch: (id: number) => void;
+  almacenSearch: (id: string) => void; 
   errorMessage?: string;
 }
 
@@ -12,6 +13,7 @@ const Topbar: React.FC<TopbarProps> = ({
   onSearch,
   envioSearch,
   vueloSearch,
+  almacenSearch, 
   errorMessage,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -19,9 +21,11 @@ const Topbar: React.FC<TopbarProps> = ({
   const searchButtonRef = useRef<HTMLDivElement>(null);
   const envioButtonRef = useRef<HTMLDivElement>(null);
   const vueloButtonRef = useRef<HTMLDivElement>(null);
+  const almacenButtonRef = useRef<HTMLDivElement>(null); 
   const [popupStyle, setPopupStyle] = useState<React.CSSProperties>({});
   const [popupEnvio, setPopupEnvio] = useState(false);
   const [popupVuelo, setPopupVuelo] = useState(false);
+  const [popupAlmacen, setPopupAlmacen] = useState(false); 
 
   const handleSearch = () => {
     if (searchTerm.trim() !== "") {
@@ -34,6 +38,9 @@ const Topbar: React.FC<TopbarProps> = ({
       } else if (popupVuelo) {
         vueloSearch(parseInt(searchTerm));
         setPopupVuelo(false); // Close the popup after search
+      } else if (popupAlmacen) {
+        almacenSearch(searchTerm);
+        setPopupAlmacen(false); // Close the popup after search
       }
       setSearchTerm(""); // Clear the search term after search
     }
@@ -55,16 +62,25 @@ const Topbar: React.FC<TopbarProps> = ({
       setIsPopupOpen(true);
       setPopupEnvio(false);
       setPopupVuelo(false);
+      setPopupAlmacen(false); 
     } else if (tipo === "envio" && envioButtonRef.current) {
       rect = envioButtonRef.current.getBoundingClientRect();
       setPopupEnvio(true);
       setIsPopupOpen(false);
       setPopupVuelo(false);
+      setPopupAlmacen(false); 
     } else if (tipo === "vuelo" && vueloButtonRef.current) {
       rect = vueloButtonRef.current.getBoundingClientRect();
       setPopupVuelo(true);
       setIsPopupOpen(false);
       setPopupEnvio(false);
+      setPopupAlmacen(false); 
+    } else if (tipo === "almacen" && almacenButtonRef.current) { // Nueva opción
+      rect = almacenButtonRef.current.getBoundingClientRect();
+      setPopupAlmacen(true);
+      setIsPopupOpen(false);
+      setPopupEnvio(false);
+      setPopupVuelo(false); 
     }
 
     if (rect) {
@@ -84,6 +100,8 @@ const Topbar: React.FC<TopbarProps> = ({
       setPopupEnvio(false);
     } else if (popupVuelo) {
       setPopupVuelo(false);
+    } else if (popupAlmacen) {
+      setPopupAlmacen(false);
     }
   };
 
@@ -126,6 +144,15 @@ const Topbar: React.FC<TopbarProps> = ({
       >
         <img src="./icons/modo-vuelo.png" alt="Buscar Vuelo" />
         <span>Buscar Vuelo</span>
+      </div>
+      <div
+        className="topbar-item"
+        onClick={() => openPopup("almacen")}
+        style={{ cursor: "pointer" }}
+        ref={almacenButtonRef}
+      >
+        <img src="./icons/radar.png" alt="Buscar Almacén" />
+        <span>Buscar Almacén</span>
       </div>
       {isPopupOpen && (
         <div className="popup-topbar" style={popupStyle}>
@@ -202,6 +229,34 @@ const Topbar: React.FC<TopbarProps> = ({
               onChange={(e) => setSearchTerm(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="ID del vuelo"
+              className="search-input-topbar"
+              style={{ color: "black" }}
+            />
+            <button onClick={handleSearch} className="search-button-topbar">
+              APLICAR
+            </button>
+          </div>
+        </div>
+      )}
+      {popupAlmacen && ( // Nueva ventana emergente
+        <div className="popup-topbar" style={popupStyle}>
+          <div className="popup-header-topbar">
+            <h2 style={{ color: "black" }}>Buscar Almacén</h2>
+            <button
+              onClick={closePopup}
+              className="close-button-topbar"
+              style={{ color: "black" }}
+            >
+              &times;
+            </button>
+          </div>
+          <div className="popup-content-topbar">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Código IATA del almacén"
               className="search-input-topbar"
               style={{ color: "black" }}
             />

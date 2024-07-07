@@ -72,10 +72,10 @@ const PackageDetails: React.FC<PackageDetailsProps> = ({
                       {paquete.id.split("-")[1]}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
-                      {citiesByCode[paquete.aeropuertoOrigen].name}
+                      {citiesByCode[paquete.aeropuertoOrigen]?.name || "N/A"}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
-                      {citiesByCode[paquete.aeropuertoDestino].name}
+                      {citiesByCode[paquete.aeropuertoDestino]?.name || "N/A"}
                     </td>
                     <td style={{ color: isSelected ? "red" : "black" }}>
                       {arrayToTime(paquete.horaInicio).toLocaleString(
