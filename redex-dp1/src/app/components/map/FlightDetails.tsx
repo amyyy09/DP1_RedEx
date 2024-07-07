@@ -17,7 +17,7 @@ const FlightDetails = forwardRef<HTMLDivElement, FlightDetailsProps>(({
   return (
     <div className="flight-details" ref={ref}>
       <button onClick={onClose} className="close-button">X</button>
-      <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo</h2>
+      <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo {vuelo.indexPlan}</h2>
       <p><strong>Plan de vuelo:</strong> {citiesByCode[vuelo.aeropuertoOrigen].name} - {citiesByCode[vuelo.aeropuertoDestino].name}</p>
       <p><strong>Hora de salida:</strong> {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
         day: "2-digit",
