@@ -54,4 +54,6 @@ const FlightDetails = forwardRef<HTMLDivElement, FlightDetailsProps>(({
   );
 });
 
+FlightDetails.displayName = 'FlightDetails';
+
 export default FlightDetails;
