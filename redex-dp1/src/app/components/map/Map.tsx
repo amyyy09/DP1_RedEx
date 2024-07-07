@@ -125,6 +125,7 @@ const Map: React.FC<MapProps> = ({
             // console.log('cantidad de paquetes almacen:', airports.current[index].almacen.cantPaquetes);
             airports.current[index].almacen.cantPaquetes +=
               data.almacen.cantPaquetes;
+            airports.current[index].almacen.cantPaquetes += 10;
             // console.log('cantidad de paquetes suma:', airports.current);
 
             data.almacen.paquetes.forEach((paquete: any) => {
@@ -261,7 +262,13 @@ const Map: React.FC<MapProps> = ({
         }
       }, 300); // Adjust delay if necessary
     }
-  }, [selectedPackageId, planes, airports, setSelectedAirport, setHighlightedAirportCode]);
+  }, [
+    selectedPackageId,
+    planes,
+    airports,
+    setSelectedAirport,
+    setHighlightedAirportCode,
+  ]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -312,13 +319,18 @@ const Map: React.FC<MapProps> = ({
             highlightedAirportCode === city.code
               ? "black"
               : cityData && cityData.almacen.cantPaquetes > 0
-              ? (city.capacidad + 1000) / cityData.almacen.cantPaquetes > 1 / 3
+              ? (city.capacidad + 1000) / cityData.almacen.cantPaquetes >= 3 // More than or equal to full capacity (less than one-third full)
                 ? "green"
-                : (city.capacidad + 1000) / cityData.almacen.cantPaquetes >
-                  2 / 3
+                : (city.capacidad + 1000) / cityData.almacen.cantPaquetes >= 1.5 // Between one-third and two-thirds full
                 ? "yellow"
-                : "red"
+                : "red" // More than two-thirds full
               : "green";
+          console.log("iconColor", iconColor);
+          cityData &&
+            console.log(
+              "calculo",
+              (city.capacidad + 1000) / cityData.almacen.cantPaquetes
+            );
 
           const dynamicIcon = new L.Icon({
             iconUrl: `https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${iconColor}.png`,
