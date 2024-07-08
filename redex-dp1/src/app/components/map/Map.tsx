@@ -21,7 +21,7 @@ import { split } from "postcss/lib/list";
 import { arrayToTime } from "@/app/utils/timeHelper";
 
 interface MapProps {
-  planes: React.RefObject<Vuelo[]>;
+  planes: React.MutableRefObject<Vuelo[]>;
   airports: React.MutableRefObject<Airport[]>;
   startTime: React.RefObject<number>;
   startDate: string;
@@ -245,6 +245,11 @@ const Map: React.FC<MapProps> = ({
               });
             });
           });
+
+          // drop all planes that have status 2
+          planes.current = planes.current.filter(
+            (vuelo) => vuelo.status !== 2
+          );
         }
         // console.log("airports", airports.current);
         // console.log("history", airportsHistory.current);
@@ -408,11 +413,11 @@ const Map: React.FC<MapProps> = ({
             highlightedAirportCode === city.code
               ? "black"
               : cityData && cityData.almacen.cantPaquetes > 0
-              ? (city.capacidad + 1000) / cityData.almacen.cantPaquetes >= 3 // More than or equal to full capacity (less than one-third full)
+              ? cityData.almacen.cantPaquetes < (city.capacidad + 1000) * 0.2 // More than or equal to full capacity (less than one-third full)
                 ? "green"
-                : (city.capacidad + 1000) / cityData.almacen.cantPaquetes >= 1.5 // Between one-third and two-thirds full
-                ? "yellow"
-                : "red" // More than two-thirds full
+                : cityData.almacen.cantPaquetes > (city.capacidad + 1000) * 0.8// Between one-third and two-thirds full
+                ? "red"
+                : "yellow" // More than two-thirds full
               : "green";
 
           const dynamicIcon = new L.Icon({

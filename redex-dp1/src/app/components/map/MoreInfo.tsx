@@ -159,7 +159,7 @@ const MoreInfo = ({
               : "0"}
           </p>
           <p className="mt-2">
-            <span className="font-bold">Saturacion global de aviones: </span>
+            <span className="font-bold">Saturacion de aviones: </span>
             {averageCapacityInAir ? averageCapacityInAir.toFixed(2) : "-"}%
           </p>
         </div>
@@ -167,7 +167,7 @@ const MoreInfo = ({
         <div className="more-info-section">
           <p>
             <span className="font-bold">
-              Saturacion global de aeropuertos:{" "}
+              Saturacion de aeropuertos:{" "}
             </span>
             {averageCapacityInAirports
               ? averageCapacityInAirports.toFixed(2)
