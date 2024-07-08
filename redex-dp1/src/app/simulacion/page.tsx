@@ -56,8 +56,9 @@ const Simulation: React.FC = () => {
   const [showEnvioDetails, setShowEnvioDetails] = useState(false);
   const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null); // Nuevo estado para el avión seleccionado
 
-  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
-
+  const [highlightedAirportCode, setHighlightedAirportCode] = useState<
+    string | null
+  >(null);
 
   let isMounted = true;
 
@@ -252,7 +253,7 @@ const Simulation: React.FC = () => {
     airports.current.forEach((airport) => {
       const foundPackages = airport.almacen.paquetes.filter(
         (paquete) =>
-          paquete.id.startsWith(`${id}-`) &&
+          paquete.id.startsWith(`${id}`) &&
           !matchingPackages.some(
             (existingPaquete: any) => existingPaquete.id === paquete.id
           )
@@ -266,10 +267,21 @@ const Simulation: React.FC = () => {
       }
     });
 
+    //check for repeated packages and drop the ones with paquete.ubicacion === paquete.origen
+    const filteredPackages = matchingPackages.reduce((acc: any, paquete: any) => {
+      const isDuplicate = acc.some((existingPaquete: any) => existingPaquete.id === paquete.id);
+      if (!isDuplicate || (isDuplicate && paquete.ubicacion !== paquete.aeropuertoOrigen)) {
+        acc.push(paquete);
+      }
+      return acc;
+    }, []);
+
+    console.log("paquetes", paquetes.current);
+
     if (matchingPackages.length > 0) {
       // Assuming you have a way to handle the found packages
       // For example, setting them in a state, or processing them further
-      console.log("Found packages:", matchingPackages);
+      console.log("Found packages:", filteredPackages);
       setEnvioFound(matchingPackages);
       setShowEnvioDetails(true);
       // setFoundPackages(matchingPackages); // Example: Update state or handle found packages
@@ -308,9 +320,8 @@ const Simulation: React.FC = () => {
     }
 
     setErrorMessage("ID de vuelo no encontrado");
+  };
 
-  }
-  
   const handleAlmacenSearch = (id: string) => {
     console.log("Buscando almacén con ID:", id);
     console.log(airports.current);
@@ -338,8 +349,7 @@ const Simulation: React.FC = () => {
     }
 
     setErrorMessage("ID de almacén no encontrado");
-  }
-
+  };
 
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>

@@ -24,14 +24,16 @@
   }
   
   .button_plane {
-    padding: 10px 20px;
-    background-color: #C80405;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
+      background-color: #C80405;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      height: fit-content;
+      padding: 5px 10px; /* Adjust padding to make the button smaller */
+      font-size: 12px; /* Reduce font size to decrease button size */
+    }
   
   .button_plane:hover {
     background-color: #b64c4c;

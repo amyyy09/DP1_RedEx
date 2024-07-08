@@ -17,9 +17,9 @@ const FlightDetails = forwardRef<HTMLDivElement, FlightDetailsProps>(({
   return (
     <div className="flight-details" ref={ref}>
       <button onClick={onClose} className="close-button">X</button>
-      <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Detalles de vuelo {vuelo.indexPlan}</h2>
-      <p><strong>Plan de vuelo:</strong> {citiesByCode[vuelo.aeropuertoOrigen].name} - {citiesByCode[vuelo.aeropuertoDestino].name}</p>
-      <p><strong>Hora de salida:</strong> {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
+      <h2 style={{ fontSize: "1.5em", fontWeight: "bold" }}>Vuelo {vuelo.indexPlan} {citiesByCode[vuelo.aeropuertoOrigen].name} - {citiesByCode[vuelo.aeropuertoDestino].name}</h2>
+      {/* <p><strong>Plan de vuelo:</strong> {citiesByCode[vuelo.aeropuertoOrigen].name} - {citiesByCode[vuelo.aeropuertoDestino].name}</p> */}
+      <p><strong>Salida:</strong> {arrayToTime(vuelo.horaSalida).toLocaleString(undefined, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -32,7 +32,7 @@ const FlightDetails = forwardRef<HTMLDivElement, FlightDetailsProps>(({
           ? `+${citiesByCode[vuelo.aeropuertoOrigen].GMT}`
           : citiesByCode[vuelo.aeropuertoOrigen].GMT}
         )</p>
-      <p><strong>Hora de llegada:</strong> {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
+      <p><strong>Llegada:</strong> {arrayToTime(vuelo.horaLlegada).toLocaleString(undefined, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
@@ -45,8 +45,8 @@ const FlightDetails = forwardRef<HTMLDivElement, FlightDetailsProps>(({
           ? `+${citiesByCode[vuelo.aeropuertoDestino].GMT}`
           : citiesByCode[vuelo.aeropuertoDestino].GMT}
         )</p>
-      <p><strong>Capacidad:</strong> {vuelo.capacidad}</p>
-      <p><strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}</p>
+      <p><strong>Paquetes:</strong> {vuelo.cantPaquetes}/{vuelo.capacidad}</p>
+      {/* <p><strong>Cantidad de paquetes:</strong> {vuelo.cantPaquetes}</p> */}
       <button onClick={togglePackages} className="button_plane">
         {showPackages ? "Ocultar Envíos" : "Mostrar Envíos"}
       </button>
