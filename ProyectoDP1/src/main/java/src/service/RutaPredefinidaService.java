@@ -101,9 +101,9 @@ public class RutaPredefinidaService {
                     String escalaDestino = escalaPartes[2];
                     OffsetTime escalaHoraSalida = OffsetTime.parse(escalaPartes[3], OFFSET_TIME_FORMATTER);
                     OffsetTime escalaHoraLlegada = OffsetTime.parse(escalaPartes[4], OFFSET_TIME_FORMATTER);
-                    int capacidad = Integer.parseInt(escalaPartes[5]);
+                    int capacidad = 180;
                     int diasDuracion = Integer.parseInt(escalaPartes[6]);
-                    capacidad = capacidad-220;//ajuste
+                    // capacidad = capacidad-220;//ajuste
 
                     PlanDeVuelo escala = new PlanDeVuelo(index, escalaOrigen, escalaDestino, escalaHoraSalida, escalaHoraLlegada, capacidad, false, diasDuracion);
                     escalas.add(escala);

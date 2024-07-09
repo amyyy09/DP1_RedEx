@@ -248,6 +248,8 @@ const Plane: React.FC<
             // console.log("Aeropuerto destino", foundAirport.almacen);
             // foundAirport.almacen.cantPaquetes =
             //   foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
+            
+            const temp = foundAirport.almacen.paquetes.length - foundAirport.almacen.cantPaquetes;
             vuelo.paquetes.forEach((paquete) => {
               if (paquete.aeropuertoDestino === foundAirport.codigoIATA) {
                 paquete.status = 2;
@@ -260,8 +262,8 @@ const Plane: React.FC<
               }
             });
 
-            foundAirport.almacen.cantPaquetes =
-              foundAirport.almacen.paquetes.length;
+
+            foundAirport.almacen.cantPaquetes = foundAirport.almacen.paquetes.length - temp;
             // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
           } else {
             console.log("No se encontró el aeropuerto");
@@ -269,6 +271,10 @@ const Plane: React.FC<
           // console.log("listVuelos", listVuelos.length);
           vuelo.status = 2;
           vuelosInAir.current--;
+          if (vuelosInAir.current < 0) {
+            console.log("Error en la cantidad de vuelos en el aire");
+            vuelosInAir.current = 0;  
+          }
           vuelo.enAire = false;
           // listVuelos.splice(index, 1);
         }
@@ -310,7 +316,7 @@ const Plane: React.FC<
     };
 
     // Call updateSimulatedTime every second
-    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
+    const intervalId = setInterval(updateSimulatedTime, 100);
 
     return () => {
       clearInterval(intervalId);
@@ -375,13 +381,12 @@ const Plane: React.FC<
         // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
         // console.log("Vuelo", vuelo);
         // console.log("Paquetes en el vuelo", vuelo.paquetes);
-        // const suma = foundAirport.almacen.cantPaquetes - foundAirport.almacen.paquetes.length;
+        const temp = foundAirport.almacen.paquetes.length - foundAirport.almacen.cantPaquetes;
         foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.filter(
           (paquete) => !vuelo.paquetes.some((p) => p.id === paquete.id)
         );
         // const temp = foundAirport.almacen.cantPaquetes;
-        foundAirport.almacen.cantPaquetes =
-          foundAirport.almacen.paquetes.length;
+        foundAirport.almacen.cantPaquetes = foundAirport.almacen.paquetes.length - temp;
 
 
         // if (temp - vuelo.cantPaquetes != foundAirport.almacen.cantPaquetes) {

@@ -192,7 +192,7 @@ const MoreInfo = ({
                   <strong>{airport.ciudad}</strong>
                 </p>
                 <p>Capacidad: {airport.almacen.capacidad}</p>
-                <p>Paquetes: {airport.almacen.cantPaquetes}</p>
+                <p>Paquetes: {airport.almacen.cantPaquetes.toFixed(0)}</p>
                 <p>
                   Saturación: {""}
                   {(

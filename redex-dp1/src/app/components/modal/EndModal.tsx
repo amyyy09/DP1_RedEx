@@ -42,6 +42,8 @@ const EndModal: React.FC<EndModalProps> = ({
     month: "2-digit",
     day: "2-digit",
     year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 
   const [currentPage, setCurrentPage] = useState(1);
@@ -104,7 +106,7 @@ const EndModal: React.FC<EndModalProps> = ({
               <p>
                 La simulación terminó el{" "}
                 <strong>
-                  {simulatedEndDate}
+                  {endDate}
                 </strong>{" "}
                 {/* a las <strong>{simulatedEndDa}</strong>. */}
               </p>
