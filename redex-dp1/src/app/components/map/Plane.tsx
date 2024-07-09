@@ -41,6 +41,7 @@ const Plane: React.FC<
     setShowPackages: (value: boolean) => void;
     selectedPlaneId: string | null;
     setSelectedPlaneId: (value: string | null) => void;
+    showLine: boolean; 
   }
 > = ({
   vuelo,
@@ -63,6 +64,7 @@ const Plane: React.FC<
   selectedPlaneId,
   setSelectedPlaneId,
   paquetes,
+  showLine, 
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
@@ -427,11 +429,13 @@ const Plane: React.FC<
 
   return (
     <>
-      <GeodesicLine
-        isVisible={isVisible}
-        citiesByCode={citiesByCode}
-        vuelo={vuelo}
-      />
+      {showLine && (
+        <GeodesicLine
+          isVisible={isVisible}
+          citiesByCode={citiesByCode}
+          vuelo={vuelo}
+        />
+      )}
       {isVisible && (
         <>
           <Marker

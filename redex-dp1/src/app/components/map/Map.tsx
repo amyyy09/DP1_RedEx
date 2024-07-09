@@ -19,6 +19,7 @@ import MapCenter from "./MapCenter";
 import "@/app/styles/MoreInfoComponent.css";
 import { split } from "postcss/lib/list";
 import { arrayToTime } from "@/app/utils/timeHelper";
+import "../../styles/LinePlane.css";
 
 interface MapProps {
   planes: React.MutableRefObject<Vuelo[]>;
@@ -77,6 +78,7 @@ const Map: React.FC<MapProps> = ({
   const prevUpdate = useRef<number>(0);
   const markerRefs = useRef<Record<string, L.Marker<any> | null>>({});
   const [shouldOpenPopup, setShouldOpenPopup] = useState(false);
+  const [showLine, setShowLine] = useState(true); // Estado para controlar la visibilidad de la línea
 
   useEffect(() => {
     // console.log("Plane vuelo", vuelo);
@@ -487,10 +489,17 @@ const Map: React.FC<MapProps> = ({
                   selectedPlaneId={selectedPlaneId}
                   setSelectedPlaneId={setSelectedPlaneId}
                   paquetes={paquetes}
+                  showLine={showLine} 
                 />
               )
           )}
       </MapContainer>
+      <button
+        className="toggle-line-button"
+        onClick={() => setShowLine((prev) => !prev)}
+      >
+        {showLine ? "Ocultar Línea" : "Mostrar Línea"}
+      </button>
       {showPackages && selectedVuelo && (
         <PackageDetails
           paquetes={selectedVuelo.paquetes || []}
