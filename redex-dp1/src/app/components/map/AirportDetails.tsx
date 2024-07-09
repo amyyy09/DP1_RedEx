@@ -30,7 +30,7 @@ const AirportDetails: React.FC<AirportDetailsProps> = ({
           <>
             <p>
               <strong>Paquetes: </strong>
-              {cityData.almacen.cantPaquetes}/{city.capacidad + 1000}
+              {cityData.almacen.cantPaquetes}/{city.capacidad}
             </p>
             <button onClick={onShowPackages} className="button_plane">
               {showPackages ? "Ocultar Envíos" : "Mostrar Envíos"}
@@ -41,7 +41,7 @@ const AirportDetails: React.FC<AirportDetailsProps> = ({
           <>
             <p>
               <strong>Paquetes: </strong>
-              0/{city.capacidad + 1000}
+              0/{city.capacidad}
             </p>
           </>
         )}
