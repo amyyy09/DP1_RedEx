@@ -14,7 +14,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
-import src.DAO.PaqueteDAO;
 import src.model.*;
 import src.services.PlanificacionService;
 import src.services.VueloServices;
@@ -59,9 +58,9 @@ public class ApiServicesDiario {
                 resultado = planificacionService.PSODiario(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados, vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
-                paquetesEnvio = PaqueteDTO.fromMap(jsonprevio);
-                PaqueteDAO paqueteDAO = new PaqueteDAO();
-                paqueteDAO.insertPaquetes(paquetesEnvio);
+                // paquetesEnvio = PaqueteDTO.fromMap(jsonprevio);
+                // PaqueteDAO paqueteDAO = new PaqueteDAO();
+                // paqueteDAO.insertPaquetes(paquetesEnvio);
 
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
@@ -110,7 +109,7 @@ public class ApiServicesDiario {
     public void reiniciarTodo() {
         vuelosGuardados.clear();
         aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
-        PaqueteDAO paqueteDAO = new PaqueteDAO();
-        paqueteDAO.deleteAllPaquetes();
+        // PaqueteDAO paqueteDAO = new PaqueteDAO();
+        // paqueteDAO.deleteAllPaquetes();
     }
 }

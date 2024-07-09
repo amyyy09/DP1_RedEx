@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
-import src.DAO.PaqueteDAO;
 import src.dto.VueloDTO;
 import src.global.GlobalVariables;
 import src.model.*;
@@ -36,9 +35,6 @@ public class ApiController {
 
     @Autowired
     private ApiServicesDiario apiServicesDiario;
-
-    @Autowired
-    private PaqueteDAO paqueteDAO;
 
     @Autowired
     private VueloServices vueloService;
@@ -87,23 +83,23 @@ public class ApiController {
         }
     }
 
-    @GetMapping("/paquete/{idPaquete}")
-    public String getVuelosByPaqueteId(@PathVariable String idPaquete) {
-    String vuelos = paqueteDAO.getVuelosByIdPaquete(idPaquete);
-    if (vuelos != null) {
-        try {
-            List<VueloDTO> vueloDTOs = parseVuelos(vuelos);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            return mapper.writeValueAsString(vueloDTOs);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "{\"error\": \"Error processing JSON\"}";
-        }
-    } else {
-        return "{\"error\": \"Paquete not found\"}";
-    }
-    }
+    // @GetMapping("/paquete/{idPaquete}")
+    // public String getVuelosByPaqueteId(@PathVariable String idPaquete) {
+    // String vuelos = paqueteDAO.getVuelosByIdPaquete(idPaquete);
+    // if (vuelos != null) {
+    //     try {
+    //         List<VueloDTO> vueloDTOs = parseVuelos(vuelos);
+    //         ObjectMapper mapper = new ObjectMapper();
+    //         mapper.registerModule(new JavaTimeModule());
+    //         return mapper.writeValueAsString(vueloDTOs);
+    //     } catch (JsonProcessingException e) {
+    //         e.printStackTrace();
+    //         return "{\"error\": \"Error processing JSON\"}";
+    //     }
+    // } else {
+    //     return "{\"error\": \"Paquete not found\"}";
+    // }
+    // }
     
     private List<VueloDTO> parseVuelos(String vuelos) {
         List<VueloDTO> vueloDTOs = new ArrayList<>();
