@@ -145,20 +145,93 @@ const Map: React.FC<MapProps> = ({
                 airports.current[index].almacen.paquetes.push(paquete);
               });
 
-            // if (prevUpdate.current >= 6 && prevUpdate.current <= 30) {
-            //   airports.current[index].almacen.cantPaquetes += 5;
-            // } else if (prevUpdate.current >= 30 && prevUpdate.current <= 168) {
-            //   if (
-            //     airports.current[index].almacen.cantPaquetes -10 >
-            //     airports.current[index].almacen.paquetes.length
-            //   ) {
-            //     airports.current[index].almacen.cantPaquetes -= 10;
-            //   } else {
-            //     airports.current[index].almacen.cantPaquetes =
-            //       airports.current[index].almacen.paquetes.length;
-            //   }
-            // }
-            // console.log('cantidad de paquetes suma:', airports.current);
+              airports.current[index].almacen.paquetes.forEach((paquete) => {
+                split(paquete.ruta, [";"], true).forEach((ruta) => {
+                  // console.log("ruta", ruta);
+                  const rutaIndex = Number(ruta);
+                  planes.current?.forEach((vuelo) => {
+                    if (
+                      vuelo.indexPlan === rutaIndex &&
+                      !vuelo.enAire &&
+                      vuelo.aeropuertoOrigen === airports.current[index].codigoIATA
+                    ) {
+                      // console.log("vuelo", vuelo);
+                      // chech if the package is in the vuelo
+                      if (vuelo.paquetes.some((p) => p.id === paquete.id)) {
+                        const horaLlegada = arrayToTime(vuelo.horaLlegada);
+                        //console.log("horaLlegada inicial", horaLlegada);
+                        horaLlegada.setUTCHours(
+                          horaLlegada.getUTCHours() -
+                            citiesByCode[vuelo.aeropuertoDestino].GMT
+                        );
+  
+                        const horaSalida = arrayToTime(vuelo.horaSalida);
+                        //console.log("horaSalida", horaSalida);
+                        horaSalida.setUTCHours(
+                          horaSalida.getUTCHours() -
+                            citiesByCode[vuelo.aeropuertoOrigen].GMT
+                        );
+  
+                        if (
+                          simulatedDate.current &&
+                          simulatedDate.current > horaSalida &&
+                          simulatedDate.current > horaLlegada
+                        ) {
+                          if (
+                            vuelo.aeropuertoDestino == paquete.aeropuertoDestino
+                          ) {
+                            paquete.ubicacion = "Recogido";
+                            paquetes.current.push(paquete);
+                            airports.current[index].almacen.paquetes =
+                            airports.current[index].almacen.paquetes.filter(
+                                (paquete) => paquete.id !== paquete.id
+                              );
+                              airports.current[index].almacen.cantPaquetes -= 1;
+                            // console.log("paquete.ubicacion", paquete.ubicacion);
+                          } else if (
+                            paquete.ubicacion !== "" &&
+                            isNaN(Number(paquete.ubicacion)) &&
+                            paquete.ubicacion !== vuelo.aeropuertoDestino
+                          ) {
+                            paquete.ubicacion = vuelo.aeropuertoDestino;
+                            // console.log("paquete.ubicacion", paquete.ubicacion);
+                            const tempindex = airports.current.findIndex(
+                              (aeropuerto: Airport) =>
+                                aeropuerto.codigoIATA === paquete.ubicacion
+                            );
+                            if (index !== -1) {
+                              // console.log(
+                              //   "index",
+                              //   airports.current[index].almacen.paquetes
+                              // );
+                              airports.current[tempindex].almacen.paquetes.push(
+                                paquete
+                              );
+                              airports.current[tempindex].almacen.cantPaquetes += 1;
+                              // console.log(
+                              //   "airport.almacen.paquetes",
+                              //   airports.current[index].almacen.paquetes
+                              // );
+  
+                              airports.current[index].almacen.paquetes =
+                              airports.current[index].almacen.paquetes.filter(
+                                  (paquete) =>
+                                    !vuelo.paquetes.some(
+                                      (p) => p.id === paquete.id
+                                    )
+                                );
+                                airports.current[index].almacen.cantPaquetes -= 1;
+                            }
+                          }
+                        }
+                      }
+                    }
+                  });
+                });
+              });
+              planes.current = planes.current.filter(
+                (vuelo) => vuelo.status !== 2
+              );
           } else {
             console.log("Aeropuerto no encontrado:", data.codigoIATA);
           }
@@ -169,98 +242,10 @@ const Map: React.FC<MapProps> = ({
         // Update prevUpdate to the current hoursElapsed rounded down to the nearest even number
         prevUpdate.current = Math.floor(hoursElapsed / 2) * 2;
 
-        if (prevUpdate.current % 2 === 0) {
-          // console.log("6 horas");
-          airports.current.forEach((airport) => {
-            airport.almacen.paquetes.forEach((paquete) => {
-              split(paquete.ruta, [";"], true).forEach((ruta) => {
-                // console.log("ruta", ruta);
-                const rutaIndex = Number(ruta);
-                planes.current?.forEach((vuelo) => {
-                  if (
-                    vuelo.indexPlan === rutaIndex &&
-                    !vuelo.enAire &&
-                    vuelo.aeropuertoOrigen === airport.codigoIATA
-                  ) {
-                    // console.log("vuelo", vuelo);
-                    // chech if the package is in the vuelo
-                    if (vuelo.paquetes.some((p) => p.id === paquete.id)) {
-                      const horaLlegada = arrayToTime(vuelo.horaLlegada);
-                      //console.log("horaLlegada inicial", horaLlegada);
-                      horaLlegada.setUTCHours(
-                        horaLlegada.getUTCHours() -
-                          citiesByCode[vuelo.aeropuertoDestino].GMT
-                      );
-
-                      const horaSalida = arrayToTime(vuelo.horaSalida);
-                      //console.log("horaSalida", horaSalida);
-                      horaSalida.setUTCHours(
-                        horaSalida.getUTCHours() -
-                          citiesByCode[vuelo.aeropuertoOrigen].GMT
-                      );
-
-                      if (
-                        simulatedDate.current &&
-                        simulatedDate.current > horaSalida &&
-                        simulatedDate.current > horaLlegada
-                      ) {
-                        if (
-                          vuelo.aeropuertoDestino == paquete.aeropuertoDestino
-                        ) {
-                          paquete.ubicacion = "Recogido";
-                          paquetes.current.push(paquete);
-                          airport.almacen.paquetes =
-                            airport.almacen.paquetes.filter(
-                              (paquete) => paquete.id !== paquete.id
-                            );
-                          airport.almacen.cantPaquetes -= 1;
-                          // console.log("paquete.ubicacion", paquete.ubicacion);
-                        } else if (
-                          paquete.ubicacion !== "" &&
-                          isNaN(Number(paquete.ubicacion)) &&
-                          paquete.ubicacion !== vuelo.aeropuertoDestino
-                        ) {
-                          paquete.ubicacion = vuelo.aeropuertoDestino;
-                          // console.log("paquete.ubicacion", paquete.ubicacion);
-                          const index = airports.current.findIndex(
-                            (aeropuerto: Airport) =>
-                              aeropuerto.codigoIATA === paquete.ubicacion
-                          );
-                          if (index !== -1) {
-                            // console.log(
-                            //   "index",
-                            //   airports.current[index].almacen.paquetes
-                            // );
-                            airports.current[index].almacen.paquetes.push(
-                              paquete
-                            );
-                            airports.current[index].almacen.cantPaquetes += 1;
-                            // console.log(
-                            //   "airport.almacen.paquetes",
-                            //   airports.current[index].almacen.paquetes
-                            // );
-
-                            airport.almacen.paquetes =
-                              airport.almacen.paquetes.filter(
-                                (paquete) =>
-                                  !vuelo.paquetes.some(
-                                    (p) => p.id === paquete.id
-                                  )
-                              );
-                            airport.almacen.cantPaquetes -= 1;
-                          }
-                        }
-                      }
-                    }
-                  }
-                });
-              });
-            });
-          });
-
-          // drop all planes that have status 2
-          planes.current = planes.current.filter(
-            (vuelo) => vuelo.status !== 2
+        if (prevUpdate.current % 6 === 0) {
+          // clear the first half of paquetes
+          paquetes.current = paquetes.current.slice(
+            Math.floor(paquetes.current.length / 2)
           );
         }
         // console.log("airports", airports.current);
