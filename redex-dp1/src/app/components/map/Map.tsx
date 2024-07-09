@@ -202,7 +202,7 @@ const Map: React.FC<MapProps> = ({
                             (aeropuerto: Airport) =>
                               aeropuerto.codigoIATA === paquete.ubicacion
                           );
-                          if (index !== -1) {
+                          if (tempindex !== -1) {
                             // console.log(
                             //   "index",
                             //   airports.current[index].almacen.paquetes
