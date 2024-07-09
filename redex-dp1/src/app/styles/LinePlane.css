@@ -1,7 +1,7 @@
 .toggle-line-button {
     position: absolute;
     bottom: 20px; 
-    left: 40px;
+    right: 40px;
     padding: 10px 20px;
     background-color: #c80405; 
     color: #fff; 

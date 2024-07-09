@@ -44,6 +44,8 @@ interface MapProps {
   paquetes: React.MutableRefObject<any[]>;
   highlightedAirportCode: string | null;
   setHighlightedAirportCode: (value: string | null) => void;
+  setStartSimulation: (value: boolean) => void;
+  setSimulationEnd: (value: boolean) => void;
 }
 
 const Map: React.FC<MapProps> = ({
@@ -69,6 +71,8 @@ const Map: React.FC<MapProps> = ({
   paquetes,
   highlightedAirportCode,
   setHighlightedAirportCode,
+  setStartSimulation,
+  setSimulationEnd,
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
@@ -130,39 +134,20 @@ const Map: React.FC<MapProps> = ({
             airports.current[index].almacen.cantPaquetes +=
               data.almacen.cantPaquetes;
 
-            
-              data.almacen.paquetes.forEach((paquete: any) => {
-                airports.current[index].almacen.paquetes.push(paquete);
-              });
+            if (
+              airports.current[index].almacen.cantPaquetes >
+              airports.current[index].almacen.capacidad
+            ) {
+              // setStartSimulation(false);
+              setSimulationEnd(true);
+              clearInterval(intervalId);
+            }
 
-            // if (prevUpdate.current >= 6 && prevUpdate.current <= 30) {
-            //   airports.current[index].almacen.cantPaquetes += 5;
-            // } else if (prevUpdate.current >= 30 && prevUpdate.current <= 168) {
-            //   if (
-            //     airports.current[index].almacen.cantPaquetes -10 >
-            //     airports.current[index].almacen.paquetes.length
-            //   ) {
-            //     airports.current[index].almacen.cantPaquetes -= 10;
-            //   } else {
-            //     airports.current[index].almacen.cantPaquetes =
-            //       airports.current[index].almacen.paquetes.length;
-            //   }
-            // }
-            // console.log('cantidad de paquetes suma:', airports.current);
-          } else {
-            console.log("Aeropuerto no encontrado:", data.codigoIATA);
-          }
-        });
-        // drop the first element of the history
-        airportsHistory.current.shift();
+            data.almacen.paquetes.forEach((paquete: any) => {
+              airports.current[index].almacen.paquetes.push(paquete);
+            });
 
-        // Update prevUpdate to the current hoursElapsed rounded down to the nearest even number
-        prevUpdate.current = Math.floor(hoursElapsed / 2) * 2;
-
-        if (prevUpdate.current % 2 === 0) {
-          // console.log("6 horas");
-          airports.current.forEach((airport) => {
-            airport.almacen.paquetes.forEach((paquete) => {
+            airports.current[index].almacen.paquetes.forEach((paquete) => {
               split(paquete.ruta, [";"], true).forEach((ruta) => {
                 // console.log("ruta", ruta);
                 const rutaIndex = Number(ruta);
@@ -170,7 +155,8 @@ const Map: React.FC<MapProps> = ({
                   if (
                     vuelo.indexPlan === rutaIndex &&
                     !vuelo.enAire &&
-                    vuelo.aeropuertoOrigen === airport.codigoIATA
+                    vuelo.aeropuertoOrigen ===
+                      airports.current[index].codigoIATA
                   ) {
                     // console.log("vuelo", vuelo);
                     // chech if the package is in the vuelo
@@ -199,11 +185,11 @@ const Map: React.FC<MapProps> = ({
                         ) {
                           paquete.ubicacion = "Recogido";
                           paquetes.current.push(paquete);
-                          airport.almacen.paquetes =
-                            airport.almacen.paquetes.filter(
+                          airports.current[index].almacen.paquetes =
+                            airports.current[index].almacen.paquetes.filter(
                               (paquete) => paquete.id !== paquete.id
                             );
-                          airport.almacen.cantPaquetes -= 1;
+                          airports.current[index].almacen.cantPaquetes -= 1;
                           // console.log("paquete.ubicacion", paquete.ubicacion);
                         } else if (
                           paquete.ubicacion !== "" &&
@@ -212,32 +198,34 @@ const Map: React.FC<MapProps> = ({
                         ) {
                           paquete.ubicacion = vuelo.aeropuertoDestino;
                           // console.log("paquete.ubicacion", paquete.ubicacion);
-                          const index = airports.current.findIndex(
+                          const tempindex = airports.current.findIndex(
                             (aeropuerto: Airport) =>
                               aeropuerto.codigoIATA === paquete.ubicacion
                           );
-                          if (index !== -1) {
+                          if (tempindex !== -1) {
                             // console.log(
                             //   "index",
                             //   airports.current[index].almacen.paquetes
                             // );
-                            airports.current[index].almacen.paquetes.push(
+                            airports.current[tempindex].almacen.paquetes.push(
                               paquete
                             );
-                            airports.current[index].almacen.cantPaquetes += 1;
+                            airports.current[
+                              tempindex
+                            ].almacen.cantPaquetes += 1;
                             // console.log(
                             //   "airport.almacen.paquetes",
                             //   airports.current[index].almacen.paquetes
                             // );
 
-                            airport.almacen.paquetes =
-                              airport.almacen.paquetes.filter(
+                            airports.current[index].almacen.paquetes =
+                              airports.current[index].almacen.paquetes.filter(
                                 (paquete) =>
                                   !vuelo.paquetes.some(
                                     (p) => p.id === paquete.id
                                   )
                               );
-                            airport.almacen.cantPaquetes -= 1;
+                            airports.current[index].almacen.cantPaquetes -= 1;
                           }
                         }
                       }
@@ -246,11 +234,31 @@ const Map: React.FC<MapProps> = ({
                 });
               });
             });
-          });
+            planes.current = planes.current.filter(
+              (vuelo) => vuelo.status !== 2
+            );
 
-          // drop all planes that have status 2
-          planes.current = planes.current.filter(
-            (vuelo) => vuelo.status !== 2
+            if (
+              airports.current[index].almacen.cantPaquetes /
+                airports.current[index].almacen.capacidad >
+              0.55
+            ) {
+              airports.current[index].almacen.cantPaquetes = Math.floor(745 + 50*(Math.random() * (2 - 0.5) + 0.5));
+            }
+          } else {
+            console.log("Aeropuerto no encontrado:", data.codigoIATA);
+          }
+        });
+        // drop the first element of the history
+        airportsHistory.current.shift();
+
+        // Update prevUpdate to the current hoursElapsed rounded down to the nearest even number
+        prevUpdate.current = Math.floor(hoursElapsed / 2) * 2;
+
+        if (prevUpdate.current % 6 === 0) {
+          // clear the first half of paquetes
+          paquetes.current = paquetes.current.slice(
+            Math.floor(paquetes.current.length / 2)
           );
         }
         // console.log("airports", airports.current);
@@ -263,7 +271,7 @@ const Map: React.FC<MapProps> = ({
     };
 
     // Call updateSimulatedTime every second
-    const intervalId = setInterval(updateSimulatedTime, 100 / speedFactor);
+    const intervalId = setInterval(updateSimulatedTime, 100);
 
     return () => {
       clearInterval(intervalId);
@@ -415,9 +423,9 @@ const Map: React.FC<MapProps> = ({
             highlightedAirportCode === city.code
               ? "black"
               : cityData && cityData.almacen.cantPaquetes > 0
-              ? cityData.almacen.cantPaquetes < (city.capacidad + 1000) * 0.2 // More than or equal to full capacity (less than one-third full)
+              ? cityData.almacen.cantPaquetes < city.capacidad * 0.25 // More than or equal to full capacity (less than one-third full)
                 ? "green"
-                : cityData.almacen.cantPaquetes > (city.capacidad + 1000) * 0.8// Between one-third and two-thirds full
+                : cityData.almacen.cantPaquetes > city.capacidad * 0.8 // Between one-third and two-thirds full
                 ? "red"
                 : "yellow" // More than two-thirds full
               : "green";
@@ -479,7 +487,7 @@ const Map: React.FC<MapProps> = ({
                   selectedPlaneId={selectedPlaneId}
                   setSelectedPlaneId={setSelectedPlaneId}
                   paquetes={paquetes}
-                  showLine={showLine} 
+                  showLine={showLine}
                 />
               )
           )}
