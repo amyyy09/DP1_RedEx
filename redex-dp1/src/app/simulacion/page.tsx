@@ -28,12 +28,11 @@ const Simulation: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const simulatedDate = useRef(new Date());
   const [simulationEnd, setSimulationEnd] = useState(false);
-  const [simulationTerminated, setSimulationTerminated] = useState(false);
   const [simulationSummary, setSimulationSummary] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [showMoreInfo, setShowMoreInfo] = useState(false);
+  const colapso = useRef<boolean>(false);
   const vuelosInAir = useRef<number>(0);
-  const vuelosSaturation = useRef<number>(0);
 
   const speedFactor = 288; // Real-time seconds per simulated second
   const totalSimulatedSeconds = 7 * 24 * 60 * 60; // One week in seconds debe decir 7*24*60*60
@@ -78,7 +77,7 @@ const Simulation: React.FC = () => {
 
     // Update the simulated time
     const updateSimulatedTime = () => {
-      if (!startSimulation || simulationTerminated) return;
+      if (!startSimulation) return;
 
       // console.log("startTime", startTime.current);
 
@@ -108,17 +107,22 @@ const Simulation: React.FC = () => {
       );
 
       // Stop the simulation after the total simulated seconds have passed
-      if (simulatedTime >= totalSimulatedSeconds) {
+      if (simulatedTime >= totalSimulatedSeconds || simulationEnd) {
         // console.log("simulatedTime", simulatedTime);
         // console.log("totalSimulatedSeconds", totalSimulatedSeconds);
+        if (simulationEnd) {
+          colapso.current = true;
+        } else {
+          setSimulationEnd(true);
+        }
+        clearInterval(intervalId);
         setStartSimulation(false);
-        setSimulationTerminated(true);
+
         const peruTime = new Date().toLocaleTimeString("en-US", {
           timeZone: "America/Lima",
         });
         console.log(`Simulation stopped at ${peruTime} Peru time`);
         console.log("display time: ", displayTime);
-        setSimulationEnd(true);
         fetchSimulationSummary();
       }
     };
@@ -130,7 +134,7 @@ const Simulation: React.FC = () => {
     return () => {
       clearInterval(intervalId);
     };
-  }, [startSimulation, simulationTerminated]);
+  }, [startSimulation, simulationEnd]);
 
   const fetchSimulationSummary = async () => {
     console.log("Fetching simulation summary");
@@ -173,7 +177,7 @@ const Simulation: React.FC = () => {
     setStartSimulation(true);
     setLoading(false);
     setDisplayTime("");
-    setSimulationTerminated(false);
+    setSimulationEnd(false);
     console.log("Simulation started");
   };
 
@@ -188,7 +192,7 @@ const Simulation: React.FC = () => {
 
   const handleSearch = (id: string) => {
     // Buscar el paquete por ID
-    if (simulationTerminated) return;
+    if (simulationEnd) return;
 
     const foundVuelo = vuelos.current.find((vuelo) =>
       vuelo.paquetes.some((paquete) => paquete.id === id, vuelo.enAire === true)
@@ -233,7 +237,7 @@ const Simulation: React.FC = () => {
   const handleEnvioSearch = (id: string) => {
     console.log("Buscando envío con ID:", id);
 
-    if (simulationTerminated) return;
+    if (simulationEnd) return;
 
     const matchingPackages: any = [];
 
@@ -268,13 +272,21 @@ const Simulation: React.FC = () => {
     });
 
     //check for repeated packages and drop the ones with paquete.ubicacion === paquete.origen
-    const filteredPackages = matchingPackages.reduce((acc: any, paquete: any) => {
-      const isDuplicate = acc.some((existingPaquete: any) => existingPaquete.id === paquete.id);
-      if (!isDuplicate || (isDuplicate && paquete.ubicacion !== paquete.aeropuertoOrigen)) {
-        acc.push(paquete);
-      }
-      return acc;
-    }, []);
+    const filteredPackages = matchingPackages.reduce(
+      (acc: any, paquete: any) => {
+        const isDuplicate = acc.some(
+          (existingPaquete: any) => existingPaquete.id === paquete.id
+        );
+        if (
+          !isDuplicate ||
+          (isDuplicate && paquete.ubicacion !== paquete.aeropuertoOrigen)
+        ) {
+          acc.push(paquete);
+        }
+        return acc;
+      },
+      []
+    );
 
     console.log("paquetes", paquetes.current);
 
@@ -299,7 +311,7 @@ const Simulation: React.FC = () => {
   const handleVueloSearch = (id: number) => {
     console.log("Buscando vuelo con ID:", id);
 
-    if (simulationTerminated) return;
+    if (simulationEnd) return;
 
     const foundVuelo = vuelos.current.find((vuelo) => vuelo.indexPlan === id);
 
@@ -326,7 +338,7 @@ const Simulation: React.FC = () => {
     console.log("Buscando almacén con ID:", id);
     console.log(airports.current);
 
-    if (simulationTerminated) return;
+    if (simulationEnd) return;
 
     const foundAirport = airports.current.find(
       (airport) => airport.ciudad === id
@@ -348,7 +360,7 @@ const Simulation: React.FC = () => {
       }
     }
 
-    setErrorMessage("ID de almacén no encontrado");
+    setErrorMessage("Almacén no encontrado");
   };
 
   return (
@@ -393,6 +405,8 @@ const Simulation: React.FC = () => {
             paquetes={paquetes}
             highlightedAirportCode={highlightedAirportCode} // Pass highlighted airport code
             setHighlightedAirportCode={setHighlightedAirportCode} // Pass setter for highlighted airport code
+            setStartSimulation={setStartSimulation}
+            setSimulationEnd={setSimulationEnd}
           />
           {/* Contenedor para el tiempo simulado */}
           {startSimulation && (
@@ -433,6 +447,7 @@ const Simulation: React.FC = () => {
               simulatedEndDate={displayTime}
               summary={simulationSummary}
               lastPlan={lastPlan}
+              colapso={colapso.current}
             />
           )}
         </div>

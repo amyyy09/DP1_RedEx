@@ -21,6 +21,7 @@ interface EndModalProps {
     tiempoPromedioVuelo: number;
   };
   lastPlan: React.RefObject<Airport[]>;
+  colapso: boolean;
 }
 
 const EndModal: React.FC<EndModalProps> = ({
@@ -30,6 +31,7 @@ const EndModal: React.FC<EndModalProps> = ({
   simulatedEndDate,
   summary,
   lastPlan,
+  colapso,
 }) => {
   const date = new Date(simulatedEndDate);
   const hours = date.getHours().toString().padStart(2, "0");
@@ -93,6 +95,21 @@ const EndModal: React.FC<EndModalProps> = ({
             </strong>{" "}
             a las <strong>{simulatedStartHour}</strong>.
           </p>
+          {/* Conditional rendering based on colapso */}
+          {colapso && (
+            <>
+              <p style={{ color: "red", fontWeight: "bold" }}>
+                Atención: El sistema ha colapsado debido a la sobrecarga.
+              </p>
+              <p>
+                La simulación terminó el{" "}
+                <strong>
+                  {simulatedEndDate}
+                </strong>{" "}
+                {/* a las <strong>{simulatedEndDa}</strong>. */}
+              </p>
+            </>
+          )}
           <br />
           <h3 style={{ fontSize: "1.5em", fontWeight: "bold" }}>
             Resumen de la última planificación:

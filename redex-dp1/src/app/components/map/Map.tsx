@@ -43,6 +43,8 @@ interface MapProps {
   paquetes: React.MutableRefObject<any[]>;
   highlightedAirportCode: string | null;
   setHighlightedAirportCode: (value: string | null) => void;
+  setStartSimulation: (value: boolean) => void;
+  setSimulationEnd: (value: boolean) => void;
 }
 
 const Map: React.FC<MapProps> = ({
@@ -68,6 +70,8 @@ const Map: React.FC<MapProps> = ({
   paquetes,
   highlightedAirportCode,
   setHighlightedAirportCode,
+  setStartSimulation,
+  setSimulationEnd,
 }) => {
   const simulatedDate = useRef<Date>();
   const prevUpdate = useRef<number>(0);
@@ -127,6 +131,12 @@ const Map: React.FC<MapProps> = ({
             // console.log('cantidad de paquetes almacen:', airports.current[index].almacen.cantPaquetes);
             airports.current[index].almacen.cantPaquetes +=
               data.almacen.cantPaquetes;
+
+            if(airports.current[index].almacen.cantPaquetes > airports.current[index].almacen.capacidad){
+              // setStartSimulation(false);
+              setSimulationEnd(true);
+              clearInterval(intervalId);
+            }
 
             
               data.almacen.paquetes.forEach((paquete: any) => {
@@ -413,9 +423,9 @@ const Map: React.FC<MapProps> = ({
             highlightedAirportCode === city.code
               ? "black"
               : cityData && cityData.almacen.cantPaquetes > 0
-              ? cityData.almacen.cantPaquetes < (city.capacidad + 1000) * 0.3 // More than or equal to full capacity (less than one-third full)
+              ? cityData.almacen.cantPaquetes < (city.capacidad) * 0.3 // More than or equal to full capacity (less than one-third full)
                 ? "green"
-                : cityData.almacen.cantPaquetes > (city.capacidad + 1000) * 0.8// Between one-third and two-thirds full
+                : cityData.almacen.cantPaquetes > (city.capacidad) * 0.8// Between one-third and two-thirds full
                 ? "red"
                 : "yellow" // More than two-thirds full
               : "green";
