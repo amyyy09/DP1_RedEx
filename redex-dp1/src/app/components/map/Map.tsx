@@ -413,7 +413,7 @@ const Map: React.FC<MapProps> = ({
             highlightedAirportCode === city.code
               ? "black"
               : cityData && cityData.almacen.cantPaquetes > 0
-              ? cityData.almacen.cantPaquetes < (city.capacidad + 1000) * 0.2 // More than or equal to full capacity (less than one-third full)
+              ? cityData.almacen.cantPaquetes < (city.capacidad + 1000) * 0.3 // More than or equal to full capacity (less than one-third full)
                 ? "green"
                 : cityData.almacen.cantPaquetes > (city.capacidad + 1000) * 0.8// Between one-third and two-thirds full
                 ? "red"

@@ -96,11 +96,18 @@ const MoreInfo = ({
       }
 
       if (airports.current && airports.current.length > 0) {
-        const totalAirportCapacity = airports.current.reduce(
+        const temp = airports.current
+        .map(airport => ({
+          ...airport,
+          ratio: airport.almacen.cantPaquetes / airport.almacen.capacidad
+        }))
+        .sort((a, b) => b.ratio - a.ratio) // Sort in descending order by ratio
+        .slice(0, 20);
+        const totalAirportCapacity = temp.reduce(
           (acc, airport) => acc + airport.almacen.capacidad,
           0
         );
-        const totalAirportPackages = airports.current.reduce(
+        const totalAirportPackages = temp.reduce(
           (acc, airport) => acc + airport.almacen.cantPaquetes,
           0
         );
