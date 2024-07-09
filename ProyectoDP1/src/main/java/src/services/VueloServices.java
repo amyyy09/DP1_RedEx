@@ -183,8 +183,7 @@ public class VueloServices {
         String codigoIATADestino = parts[1];
         LocalTime horaSalidaLocal = LocalTime.parse(parts[2]);
         LocalTime horaLlegadaLocal = LocalTime.parse(parts[3]);
-        int capacidad = Integer.parseInt(parts[4]);
-        capacidad = capacidad - 220;
+        int capacidad = 180;
         int days = Integer.parseInt(parts[5]);
 
 
