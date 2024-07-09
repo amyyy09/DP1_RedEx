@@ -68783,4 +68783,4 @@ export const flightPlans = [
     "capacidad": 180,
     "code": 2866
   }
-]
+];
