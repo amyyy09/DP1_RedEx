@@ -38,9 +38,11 @@ public class ApiServices {
     private static Resumen reportResumen = null;
 
     private List<Aeropuerto> aeropuertosGuardados;
+    private List<PlanDeVuelo> planesDeVuelo;
     @Autowired
     public ApiServices(List<Aeropuerto> aeropuertosGuardados, List<PlanDeVuelo> planesDeVueloGuardados) {
         this.aeropuertosGuardados = aeropuertosGuardados;
+        this.planesDeVuelo = planesDeVueloGuardados;
     }
 
     private static Map<Paquete, Resultado> jsonprevio = null;
@@ -57,8 +59,6 @@ public class ApiServices {
         String jsonResult = null;
         Resumen reportResumenAux = null;
         try {
-            String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
-            List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
                     .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
