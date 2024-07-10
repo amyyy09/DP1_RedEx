@@ -1,6 +1,7 @@
 package src.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -8,23 +9,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import src.DAO.PaqueteDAO;
-import src.dto.VueloDTO;
-import src.global.GlobalVariables;
 import src.model.*;
 import src.service.ApiServices;
 import src.service.ApiServicesDiario;
-import src.service.EnvioService;
 import src.services.VueloServices;
-import src.utility.DatosAeropuertos;
 
-import java.io.IOException;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api")
@@ -37,12 +30,11 @@ public class ApiController {
     @Autowired
     private ApiServicesDiario apiServicesDiario;
 
-    @Autowired
-    private PaqueteDAO paqueteDAO;
+    private List<Envio> enviosDiario=new ArrayList<>();
 
-    @Autowired
-    private VueloServices vueloService;
+    private String jsonDiario=null;
 
+    //Simulación Semanal
     @PostMapping("/pso")
     public String ejecutarPSO(@RequestBody PeticionPSO peticionPSO) {
         String JSON;
@@ -73,84 +65,31 @@ public class ApiController {
         }
     }
 
-    @PostMapping("/diario")
-    public String ejecutarPSO(@RequestBody PeticionPSOD peticionPSO) {
-        try {
-            List<Envio> enviosProcesados = peticionPSO.getEnvios().stream()
-                    .map(EnvioService::parseDataToFrontend)
-                    .collect(Collectors.toList());
-
-            String JSON = apiServicesDiario.ejecutarPsoDiario(enviosProcesados);
-            return JSON;
-        } catch (Exception e) {
-            return "{\"error\": \"An error occurred while processing the request.\"}";
-        }
+    //Simulación Diaria
+    @PostMapping("/registro")
+    public String registrarEnvios(@RequestBody PeticionPSOD peticionPSO) {
+        List<Envio> envios = peticionPSO.getEnvios();
+        enviosDiario.addAll(envios);
+        return "Envios registrados exitosamente. Total de envios: " + enviosDiario.size();
     }
 
-    @GetMapping("/paquete/{idPaquete}")
-    public String getVuelosByPaqueteId(@PathVariable String idPaquete) {
-    String vuelos = paqueteDAO.getVuelosByIdPaquete(idPaquete);
-    if (vuelos != null) {
-        try {
-            List<VueloDTO> vueloDTOs = parseVuelos(vuelos);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            return mapper.writeValueAsString(vueloDTOs);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-            return "{\"error\": \"Error processing JSON\"}";
+    @Scheduled(cron = "0 */10 * * * *")
+    public void actualizarJsonDiario() {
+        if (!enviosDiario.isEmpty()) {
+            jsonDiario = apiServicesDiario.ejecutarPsoDiario(enviosDiario);
+            enviosDiario.clear();
+            System.out.println("jsonDiario actualizado: ");
         }
-    } else {
-        return "{\"error\": \"Paquete not found\"}";
     }
-    }
-    
-    private List<VueloDTO> parseVuelos(String vuelos) {
-        List<VueloDTO> vueloDTOs = new ArrayList<>();
-        String[] vuelosArray = vuelos.split("->");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
-        List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
-    
-        try {
-            List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
-            Map<Integer, PlanDeVuelo> planDeVueloMap = planesDeVuelo.stream()
-                    .collect(Collectors.toMap(PlanDeVuelo::getIndexPlan, plan -> plan));
-    
-            for (String vuelo : vuelosArray) {
-                String[] vueloData = vuelo.split("-", 2);
-                if (vueloData.length == 2) {
-                    VueloDTO vueloDTO = new VueloDTO();
-                    vueloDTO.setIndexPlan(Integer.parseInt(vueloData[0]));
-                    LocalDate fechaSalida = LocalDate.parse(vueloData[1], formatter);
-                    
-                    PlanDeVuelo planDeVueloS = planDeVueloMap.get(vueloDTO.getIndexPlan());
-                    if (planDeVueloS != null) {
-                        // Sumar hora de salida a la fecha de salida
-                        LocalDateTime fechaSalidaConHora = fechaSalida.atTime(planDeVueloS.getHoraSalida().toLocalTime());
-                        vueloDTO.setFechaSalida(fechaSalidaConHora);
-                        
-                        // Calcular la fecha de llegada
-                        LocalDateTime fechaLlegadaConHora = fechaSalida.atTime(planDeVueloS.getHoraLlegada().toLocalTime());
-                        if (fechaLlegadaConHora.isBefore(fechaSalidaConHora)) {
-                            fechaLlegadaConHora = fechaLlegadaConHora.plusDays(1);
-                        }
-                        vueloDTO.setFechaLLegada(fechaLlegadaConHora);
-                        
-                        vueloDTO.setAeropuertoDestino(planDeVueloS.getCodigoIATADestino());
-                        vueloDTO.setAeropuertoSalida(planDeVueloS.getCodigoIATAOrigen());
-                    } else {
-                        System.err.println("Plan de vuelo no encontrado para indexPlan: " + vueloDTO.getIndexPlan());
-                    }
-    
-                    vueloDTOs.add(vueloDTO);
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+
+    @GetMapping("/psoDiario")
+    public String psoDiario() {
+        if(jsonDiario!=null){
+            return jsonDiario;
+        }else{
+            return "Aún no termina la ejecucion" ;
         }
-    
-        return vueloDTOs;
     }
+
 }
 
