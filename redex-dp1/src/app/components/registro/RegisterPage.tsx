@@ -90,7 +90,7 @@ const RegisterPage: React.FC = () => {
               if (parts.length === 5) {
                 const [
                   codigoIATAOrigen, // idEnvio is not needed anymore
-                  idEnvio,
+                  correlativo,
                   fechaStr,
                   horaStr,
                   codigoIATADestinoPackage,
@@ -107,6 +107,7 @@ const RegisterPage: React.FC = () => {
                     `${year}-${month}-${day}T${horaStr}:00`
                   ).toISOString()
                 );
+                const idEnvio = `${codigoIATAOrigen}${correlativo}`;
 
                 // shipmentCounter += 1;
                 // const idEnvio = generateUniqueIdMasiv(
@@ -116,6 +117,21 @@ const RegisterPage: React.FC = () => {
                 //   shipmentCounter
                 // );
 
+                const paquetes = [];
+                const hora = convertDateTimeToArray(fechaHoraOrigen);
+
+                for (let i = 0; i < parseInt(packageCount, 10); i++) {
+                  paquetes.push({
+                    id: `${idEnvio}-${i + 1}`,
+                    status: 0,
+                    horaInicio: hora,
+                    aeropuertoOrigen: codigoIATAOrigen,
+                    aeropuertoDestino: codigoIATADestino,
+                    ruta: "No asignada",
+                    ubicacion: codigoIATAOrigen,
+                  });
+                }
+
                 return {
                   idEnvio,
                   fechaHoraOrigen,
@@ -123,7 +139,7 @@ const RegisterPage: React.FC = () => {
                   codigoIATAOrigen,
                   codigoIATADestino,
                   cantPaquetes: parseInt(packageCount, 10),
-                  paquetes: [],
+                  paquetes: paquetes,
                 } as Envio;
               } else {
                 throw new Error("Formato incorrecto");
@@ -136,6 +152,7 @@ const RegisterPage: React.FC = () => {
           .filter((envio): envio is Envio => envio !== null);
 
         saveShipmentBatch([...shipments, ...newShipments]);
+        console.log("Envíos:", newShipments);
         toast.success("Registro por Archivo Exitoso!");
       } catch (error) {
         toast.error("Error al procesar el archivo");
@@ -259,7 +276,7 @@ const RegisterPage: React.FC = () => {
       paquetes: [],
     };
 
-    envio.idEnvio = `${envio.codigoIATAOrigen}-${formData.dniPassport}`;
+    envio.idEnvio = `${envio.codigoIATAOrigen}${formData.dniPassport}`;
 
     console.log("Envío", envio);
 
