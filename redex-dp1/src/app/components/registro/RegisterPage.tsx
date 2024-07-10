@@ -21,6 +21,8 @@ interface FormData {
   originGMT: number;
   packageCount: string;
   contentDescription: string;
+  startDate: string;
+  startTime: string;
 }
 
 const RegisterPage: React.FC = () => {
@@ -40,6 +42,8 @@ const RegisterPage: React.FC = () => {
     originGMT: 0,
     packageCount: "",
     contentDescription: "",
+    startDate: "2024-07-22",
+    startTime: "12:00",
   });
 
   const [filteredOriginCities, setFilteredOriginCities] =
@@ -211,6 +215,10 @@ const RegisterPage: React.FC = () => {
       );
     if (!formData.packageCount.trim())
       newErrors.push("La cantidad de paquetes es obligatoria.");
+    if (!formData.startDate.trim())
+      newErrors.push("La fecha de envío es obligatoria.");
+    if (!formData.startTime.trim())
+      newErrors.push("La hora de envío es obligatoria.");
     return newErrors;
   };
 
@@ -222,7 +230,7 @@ const RegisterPage: React.FC = () => {
   const handleFinalSubmit = () => {
     const envio: Envio = {
       idEnvio: "",
-      fechaHoraOrigen: formatDateForBackend(new Date().toISOString()),
+      fechaHoraOrigen: `${formData.startDate}T${formData.startTime}:00`,
       zonaHorariaGMT: formData.originGMT,
       codigoIATAOrigen: formData.originCity,
       codigoIATADestino: formData.destinationCity,
@@ -263,6 +271,8 @@ const RegisterPage: React.FC = () => {
       originGMT: 0,
       packageCount: "",
       contentDescription: "",
+      startDate: "2024-07-22",
+      startTime: "12:00",
     });
     toast.success(
       "Envío registrado con éxito. El identificador es: " + envio.idEnvio
@@ -410,9 +420,7 @@ const RegisterPage: React.FC = () => {
           />
         </div>
         <div className="form-group">
-          <label htmlFor="dniPassport">
-            DNI/Pasaporte <span className="required">*</span>
-          </label>
+          <label htmlFor="dniPassport">DNI/Pasaporte</label>
           <input
             type="text"
             id="dniPassport"
@@ -492,7 +500,30 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           />
         </div>
-        <div></div>
+        <div className="form-group">
+          <label htmlFor="startDate">
+            Fecha de Envio <span className="required">*</span>
+          </label>
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="startTime">
+            Hora de Envio <span className="required">*</span>
+          </label>
+          <input
+            type="time"
+            id="startTime"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+          />
+        </div>
         <div className="form-group">
           <button className="register-shipment-button" type="submit">
             Registrar Envío
