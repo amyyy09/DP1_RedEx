@@ -82,14 +82,15 @@ const RegisterPage: React.FC = () => {
         const text = e.target?.result as string;
         const lines = text.split(/\r?\n/);
 
+        let shipmentCounter = 0;
         const newShipments = lines
           .map((line) => {
             try {
               const parts = line.split("-");
               if (parts.length === 5) {
                 const [
-                  codigoIATAOrigen,
-                  idEnvio,
+                  codigoIATAOrigen, // idEnvio is not needed anymore
+                  ,
                   fechaStr,
                   horaStr,
                   codigoIATADestinoPackage,
@@ -105,6 +106,14 @@ const RegisterPage: React.FC = () => {
                   new Date(
                     `${year}-${month}-${day}T${horaStr}:00`
                   ).toISOString()
+                );
+
+                shipmentCounter += 1;
+                const idEnvio = generateUniqueIdMasiv(
+                  codigoIATAOrigen,
+                  codigoIATADestino,
+                  fechaHoraOrigen,
+                  shipmentCounter
                 );
 
                 return {
@@ -139,6 +148,15 @@ const RegisterPage: React.FC = () => {
     } catch (error) {
       toast.error("Error al leer el archivo");
     }
+  };
+
+  const generateUniqueIdMasiv = (
+    codigoIATAOrigen: string,
+    codigoIATADestino: string,
+    fechaHoraOrigen: string,
+    counter: number
+  ): string => {
+    return `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}-${counter}`;
   };
 
   const handleChange = (
