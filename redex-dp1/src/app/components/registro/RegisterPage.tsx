@@ -6,6 +6,7 @@ import { OperationContext } from "@/app/context/operation-provider";
 import { Envio } from "@/app/types/envios";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "react-modal";
+import { convertDateTimeToArray } from "@/app/utils/timeHelper";
 
 interface FormData {
   firstName: string;
@@ -230,6 +231,23 @@ const RegisterPage: React.FC = () => {
     };
 
     envio.idEnvio = generateUniqueId(envio);
+
+    console.log("Envío", envio);
+
+    const hora = convertDateTimeToArray(envio.fechaHoraOrigen);
+    // create paquetes array
+    for (let i = 0; i < envio.cantPaquetes; i++) {
+      envio.paquetes.push({
+        id: `${envio.idEnvio}-${i + 1}`,
+        status: 0,
+        horaInicio: hora,
+        aeropuertoOrigen: envio.codigoIATAOrigen,
+        aeropuertoDestino: envio.codigoIATADestino,
+        ruta: "No asignada",
+        ubicacion: envio.codigoIATAOrigen,
+      });
+    }
+
     saveShipmentData(envio);
 
     setFormData({
@@ -246,7 +264,9 @@ const RegisterPage: React.FC = () => {
       packageCount: "",
       contentDescription: "",
     });
-    toast.success("Envío registrado con éxito. El identificador es: " + envio.idEnvio);
+    toast.success(
+      "Envío registrado con éxito. El identificador es: " + envio.idEnvio
+    );
     setShowConfirmationPopup(false);
   };
 
