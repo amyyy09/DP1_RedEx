@@ -168,7 +168,7 @@ const DayToDay: React.FC = () => {
             <MoreInfo
               onClose={() => setShowMoreInfo(false)}
               planes={flights}
-              airports={{ current: [] }}
+              airports={airports}
               startTime={{ current: Date.now() }}
               startDate={""}
               startHour={""}

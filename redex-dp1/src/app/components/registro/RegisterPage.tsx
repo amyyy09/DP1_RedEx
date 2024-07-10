@@ -102,11 +102,14 @@ const RegisterPage: React.FC = () => {
                 const codigoIATADestino =
                   codigoIATADestinoPackage.split(":")[0];
                 const packageCount = codigoIATADestinoPackage.split(":")[1];
-                const fechaHoraOrigen = formatDateForBackend(
-                  new Date(
-                    `${year}-${month}-${day}T${horaStr}:00`
-                  ).toISOString()
-                );
+                console.log("horaStr", horaStr);
+                // const fechaHoraOrigen = formatDateForBackend(
+                //   new Date(
+                //     `${year}-${month}-${day}T${horaStr}:00`
+                //   ).toISOString()
+                // );
+                const fechaHoraOrigen = `${year}-${month}-${day}T${horaStr}:00`;
+                console.log("fechaHoraOrigen", fechaHoraOrigen);
                 const idEnvio = `${codigoIATAOrigen}${correlativo}`;
 
                 // shipmentCounter += 1;
@@ -119,6 +122,7 @@ const RegisterPage: React.FC = () => {
 
                 const paquetes = [];
                 const hora = convertDateTimeToArray(fechaHoraOrigen);
+                console.log("hora", hora);
 
                 for (let i = 0; i < parseInt(packageCount, 10); i++) {
                   paquetes.push({
@@ -151,7 +155,7 @@ const RegisterPage: React.FC = () => {
           })
           .filter((envio): envio is Envio => envio !== null);
 
-        saveShipmentBatch([...shipments, ...newShipments]);
+        saveShipmentBatch(newShipments);
         console.log("Envíos:", newShipments);
         toast.success("Registro por Archivo Exitoso!");
       } catch (error) {

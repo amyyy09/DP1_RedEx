@@ -1,7 +1,7 @@
 // components/CurrentTimeDisplay.tsx
 "use client";
 
-import React, { useState, useEffect, use, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import "../../styles/CurrentTimeDisplay.css"; // Add styles for the time display
 
 interface CurrentTimeDisplayProps {
@@ -28,8 +28,8 @@ const CurrentTimeDisplay: React.FC<CurrentTimeDisplayProps> = ({ startTime }) =>
         customDate.setMonth(6);
         customDate.setDate(22);
         customDate.setFullYear(2024);
-        customDate.setHours(6);
-        customDate.setMinutes(current.getMinutes() - start.getMinutes());
+        customDate.setHours(5);
+        customDate.setMinutes(45 + current.getMinutes() - start.getMinutes());
 
         const updateCurrentTime = () => {
             customDate = new Date(customDate.getTime() + 1000); // Increment by one second

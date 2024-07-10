@@ -15,7 +15,15 @@ export interface Envio {
   codigoIATAOrigen: string;
   codigoIATADestino: string;
   cantPaquetes: number;
-  paquetes: Paquete[];
+  paquetes: Array<{
+    status: number;
+    horaInicio: Array<number>;
+    aeropuertoOrigen: string;
+    aeropuertoDestino: string;
+    id: string;
+    ruta: string;
+    ubicacion: string;
+  }>;
 }
 
 export interface PeticionPSOD {
