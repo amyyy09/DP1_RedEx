@@ -76,19 +76,18 @@ const Plane: React.FC<
   if (dayToDay) {
     const updateTimeDia = () => {
       if (!dayToDay || !startSimulation || !startTime.current) return;
-      const currentTime = new Date();
       let customDate = new Date();
 
       const current = new Date();
-      console.log("Start time:", startTime.current); // "2021-07-22T06:00:00.000Z"
+      // console.log("Start time:", startTime.current); // "2021-07-22T06:00:00.000Z"
       const start = new Date(startTime.current);
 
       // add to customDate the difference between the current time and the start time
       customDate.setMonth(6);
       customDate.setDate(22);
       customDate.setFullYear(2024);
-      customDate.setHours(6);
-      customDate.setMinutes(current.getMinutes() - start.getMinutes());
+      customDate.setHours(5);
+      customDate.setMinutes(45 + current.getMinutes() - start.getMinutes());
 
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
@@ -105,13 +104,13 @@ const Plane: React.FC<
       // console.log("systemTimezoneOffset", systemTimezoneOffset);
       // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
 
-      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
+      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset - 5);
       //console.log("offset", originGMTOffset);
       // console.log("horaSalida after", horaSalida);
 
       const horaLlegada = arrayToTime(vuelo.horaLlegada);
       //console.log("horaLlegada inicial", horaLlegada);
-      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
+      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset - 5);
 
       if (customDate && (customDate > horaLlegada || customDate < horaSalida)) {
         setIsVisible(false);
