@@ -43,7 +43,7 @@ const RegisterPage: React.FC = () => {
     packageCount: "",
     contentDescription: "",
     startDate: "2024-07-22",
-    startTime: "12:00",
+    startTime: "06:00",
   });
 
   const [filteredOriginCities, setFilteredOriginCities] =
@@ -90,7 +90,7 @@ const RegisterPage: React.FC = () => {
               if (parts.length === 5) {
                 const [
                   codigoIATAOrigen, // idEnvio is not needed anymore
-                  ,
+                  idEnvio,
                   fechaStr,
                   horaStr,
                   codigoIATADestinoPackage,
@@ -108,13 +108,13 @@ const RegisterPage: React.FC = () => {
                   ).toISOString()
                 );
 
-                shipmentCounter += 1;
-                const idEnvio = generateUniqueIdMasiv(
-                  codigoIATAOrigen,
-                  codigoIATADestino,
-                  fechaHoraOrigen,
-                  shipmentCounter
-                );
+                // shipmentCounter += 1;
+                // const idEnvio = generateUniqueIdMasiv(
+                //   codigoIATAOrigen,
+                //   codigoIATADestino,
+                //   fechaHoraOrigen,
+                //   shipmentCounter
+                // );
 
                 return {
                   idEnvio,
@@ -156,7 +156,8 @@ const RegisterPage: React.FC = () => {
     fechaHoraOrigen: string,
     counter: number
   ): string => {
-    return `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}-${counter}`;
+    return `${codigoIATAOrigen}-${counter}`;
+    // return `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}-${counter}`;
   };
 
   const handleChange = (
@@ -237,6 +238,8 @@ const RegisterPage: React.FC = () => {
       newErrors.push("La fecha de envío es obligatoria.");
     if (!formData.startTime.trim())
       newErrors.push("La hora de envío es obligatoria.");
+    if(!formData.dniPassport.trim())
+      newErrors.push("El N° correlativo es obligatorio.");
     return newErrors;
   };
 
@@ -256,7 +259,7 @@ const RegisterPage: React.FC = () => {
       paquetes: [],
     };
 
-    envio.idEnvio = generateUniqueId(envio);
+    envio.idEnvio = `${envio.codigoIATAOrigen}-${formData.dniPassport}`;
 
     console.log("Envío", envio);
 
@@ -337,7 +340,7 @@ const RegisterPage: React.FC = () => {
 
   const generateUniqueId = (envio: Envio): string => {
     const { codigoIATAOrigen, codigoIATADestino, fechaHoraOrigen } = envio;
-    const hashString = `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}`;
+    const hashString = `${codigoIATAOrigen}-${fechaHoraOrigen}`;
     let hash = 0;
 
     for (let i = 0; i < hashString.length; i++) {
@@ -346,7 +349,7 @@ const RegisterPage: React.FC = () => {
       hash |= 0;
     }
 
-    return `ID${Math.abs(hash)}`;
+    return hashString;
   };
 
   return (
@@ -358,7 +361,7 @@ const RegisterPage: React.FC = () => {
           display: "flex",
           width: "100%",
           gap: "10px",
-          paddingBottom: "12px",
+          paddingBottom: "10px",
         }}
       >
         <input
@@ -385,12 +388,12 @@ const RegisterPage: React.FC = () => {
         >
           Registro por Archivo
         </button>
-        <button
+        {/* <button
           onClick={handleEnviarPedidos}
           className="register-shipment-button"
         >
           Enviar Envíos
-        </button>
+        </button> */}
       </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -426,7 +429,7 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           />
         </div>
-        <div className="form-group">
+        {/*<div className="form-group">
           <label htmlFor="phoneNumber">Número Telefónico</label>
           <input
             type="text"
@@ -436,14 +439,16 @@ const RegisterPage: React.FC = () => {
             value={formData.phoneNumber}
             onChange={handleChange}
           />
-        </div>
+        </div>*/}
         <div className="form-group">
-          <label htmlFor="dniPassport">DNI/Pasaporte</label>
+          <label htmlFor="dniPassport">
+            N° Correlativo <span className="required">*</span>
+          </label>
           <input
-            type="text"
+            type="number"
             id="dniPassport"
             name="dniPassport"
-            placeholder="DNI/Pasaporte"
+            placeholder="N° correlativo del envío"
             value={formData.dniPassport}
             onChange={handleChange}
           />
