@@ -140,7 +140,7 @@ const DayToDay: React.FC = () => {
         <Map
           planes={flights} // Pasa los vuelos hardcodeados directamente
           airports={airports}
-          startTime={{ current: Date.now() }} // Asigna un tiempo de inicio ficticio
+          startTime={startTime} // Asigna un tiempo de inicio ficticio
           startDate={""} // Asigna la fecha actual
           startHour={""} // Asigna la hora actual
           speedFactor={speedFactor} // Supone 1 como un marcador de posición, ajustar según sea necesario
@@ -162,7 +162,7 @@ const DayToDay: React.FC = () => {
           setStartSimulation={setStartSimulation}
           setSimulationEnd={setSimulationEnd}
         />
-        {startSimulation && startTime && <CurrentTimeDisplay startTime={startTime.current} />}
+        {startSimulation && <CurrentTimeDisplay startTime={startTime.current} />}
         <div style={{ display: "flow" }}>
           {showMoreInfo && (
             <MoreInfo
