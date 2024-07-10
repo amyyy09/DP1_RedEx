@@ -1,7 +1,5 @@
 package src.service;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +13,11 @@ import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
 import src.DAO.PaqueteDAO;
+import src.global.GlobalVariables;
 import src.model.*;
 import src.services.PlanificacionService;
 import src.services.VueloServices;
 import src.utility.*;
-
 
 @Service
 public class ApiServicesDiario {
@@ -31,46 +29,54 @@ public class ApiServicesDiario {
     private VueloServices vueloService;
 
     @Autowired
+    private EnvioService envioService;
+
+    @Autowired
     private AeropuertoService aeropuertoService;
 
     private static List<Vuelo> vuelosGuardados = new ArrayList<>();
+    private static Resumen reportResumen = null;
 
     private static List<Aeropuerto> aeropuertosGuardados;
+
+    private static Map<Paquete, Resultado> jsonprevio = null;
     ResultadoFinal finalD = new ResultadoFinal();
+
     public String ejecutarPsoDiario(List<Envio> envios) {
+        LocalDateTime fechaHora = LocalDateTime.now();
         aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
+        jsonprevio = null;
         List<Vuelo> vuelos = getVuelosGuardados();
-        List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream).collect(Collectors.toList());
-        Map<Paquete, Resultado> jsonprevio = null;
+        List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream)
+                .collect(Collectors.toList());
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
         String jsonResult = null;
-        LocalDateTime fechaHora= LocalDateTime.now();
-        List<PaqueteDTO> paquetesEnvio = null;
+        Resumen reportResumenAux = null;
         try {
-            String archivoRutaPlanes = "ProyectoDP1/src/main/resources/planes_vuelo.v4.txt";
+            String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
             List<Vuelo> vuelosActuales = vueloService.getVuelosActuales(planesDeVuelo, vuelos);
             Map<String, Almacen> almacenes = aeropuertosGuardados.stream()
-                .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
-            
+                    .collect(Collectors.toMap(Aeropuerto::getCodigoIATA, Aeropuerto::getAlmacen));
+
             System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
             if (!envios.isEmpty()) {
-                resultado = planificacionService.PSODiario(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados, vuelosActuales, fechaHora);
+                resultado = planificacionService.PSO(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados,
+                        vuelosActuales, fechaHora); 
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
-                paquetesEnvio = PaqueteDTO.fromMap(jsonprevio);
-                PaqueteDAO paqueteDAO = new PaqueteDAO();
-                paqueteDAO.insertPaquetes(paquetesEnvio);
-
+                reportResumenAux =planificacionService.generarResumen(jsonprevio,planesDeVuelo);
+                if(reportResumenAux!=null){
+                    reportResumen=reportResumenAux;
+                }
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
-                LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
+                LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
                 int zonaHorariaGMT;
                 LocalDateTime horaSalidaGMT0;
-
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
                 List<Vuelo> jsonVuelosProximos = new ArrayList<>();
-
+                
                 for (Vuelo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
                     horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
@@ -81,11 +87,13 @@ public class ApiServicesDiario {
                         jsonVuelosProximos.add(vn);
                     }
                 }
-
                 clearVuelosGuardados();
                 envios.clear();
                 for (Vuelo vn : jsonVuelosProximos) {
                     vuelosGuardados.add(vn);
+                }
+                for (Aeropuerto aeropuerto : aeropuertosGuardados) {
+                    aeropuerto.getAlmacen().actualizarCantPaquetes();
                 }
                 finalD.setAeropuertos(aeropuertosGuardados);
                 finalD.setVuelos(jsonVuelosActuales);
@@ -103,6 +111,10 @@ public class ApiServicesDiario {
         return vuelosGuardados;
     }
 
+    public static Resumen getReportesResumen() {
+        return reportResumen;
+    }
+
     public static void clearVuelosGuardados() {
         vuelosGuardados.clear();
     }
@@ -110,7 +122,5 @@ public class ApiServicesDiario {
     public void reiniciarTodo() {
         vuelosGuardados.clear();
         aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
-        PaqueteDAO paqueteDAO = new PaqueteDAO();
-        paqueteDAO.deleteAllPaquetes();
     }
 }
