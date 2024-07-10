@@ -1,12 +1,8 @@
 "use client";
-import React, {
-  createContext,
-  useRef,
-  useState,
-  useCallback,
-} from "react";
-import { Vuelo } from "../types/Planes";
+import React, { createContext, useRef, useState, useCallback } from "react";
+import { Airport, Vuelo } from "../types/Planes";
 import { Envio } from "../types/envios";
+import { cities } from "../data/cities";
 
 export const OperationContext = createContext({
   flights: null as any,
@@ -18,6 +14,8 @@ export const OperationContext = createContext({
   shipments: [] as Envio[],
   flightsOnAir: null as any,
   packages: null as any,
+  airports: null as any,
+  startTime: null as any,
 });
 
 export default function OperationProvider({
@@ -26,11 +24,34 @@ export default function OperationProvider({
   children: React.ReactNode;
 }) {
   const flights = useRef<Vuelo[]>([]);
+  const airports = useRef<Airport[]>([]);
   const [, setFlightsUpdated] = useState(false);
   const intervalId = useRef<NodeJS.Timeout | null>(null);
   const shipments = useRef<Envio[]>([]); // Using useRef for shipments
   const flightsOnAir = useRef<number>(0);
   const packages = useRef<any[]>([]);
+  const startTime = useRef<number | null>(null);
+
+  const createAirports = () => {
+    cities.forEach((city) => {
+      const airport = {
+        codigoIATA: city.code,
+        ciudad: city.name,
+        pais: "Pais",
+        continente: "Continente",
+        alias: "Alias",
+        zonaHorariaGMT: city.GMT,
+        almacen: {
+          capacidad: city.capacidad,
+          cantPaquetes: 0,
+          paquetes: [],
+        },
+        latitud: city.coords.lat,
+        longitud: city.coords.lng,
+      };
+      airports.current.push(new Airport(airport));
+    });
+  };
 
   const updateFlights = useCallback(() => {
     setFlightsUpdated((prev) => !prev);
@@ -38,6 +59,9 @@ export default function OperationProvider({
 
   const startInterval = () => {
     if (intervalId.current === null) {
+      createAirports();
+      startTime.current = Date.now();
+      console.log ("Start time:", startTime.current);
       intervalId.current = setInterval(async () => {
         console.log("Sending shipments at ", new Date());
         const peticion = { envios: shipments.current };
@@ -58,7 +82,6 @@ export default function OperationProvider({
         //     const responseData = await response.json();
         //     console.log("Response:", responseData);
         //     shipments.current = [];
-          
 
         //     // Procesar los vuelos desde el responseData
         //     //console.log("Response data:", responseData);
@@ -128,6 +151,8 @@ export default function OperationProvider({
         shipments: shipments.current,
         flightsOnAir: flightsOnAir,
         packages: packages,
+        airports: airports,
+        startTime: startTime,
       }}
     >
       {children}
