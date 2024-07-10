@@ -19,3 +19,18 @@ export function arrayToTime(time: number[]): Date {
   }
   return new Date(time[0], time[1] - 1, time[2], time[3], time[4]);
 }
+
+export function convertDateTimeToArray(dateTimeStr: string): number[] {
+  // Parse the date-time string into a Date object
+  const date = new Date(dateTimeStr);
+
+  // Extract the year, month, day, hour, and minute
+  const year = date.getFullYear();
+  const month = date.getMonth() + 1; // getMonth() returns 0-11
+  const day = date.getDate();
+  const hour = date.getHours();
+  const minute = date.getMinutes();
+
+  // Create an array with these values
+  return [year, month, day, hour, minute];
+};

@@ -18,8 +18,15 @@ const DayToDay: React.FC = () => {
 
   const [startSimulation, setStartSimulation] = useState(false); // Inicia la simulación
   const [simulationEnd, setSimulationEnd] = useState(false);
-  const { flights, updateFlights, startInterval, flightsOnAir, packages } =
-    useContext(OperationContext);
+  const {
+    flights,
+    updateFlights,
+    startInterval,
+    flightsOnAir,
+    packages,
+    airports,
+    startTime,
+  } = useContext(OperationContext);
   const speedFactor = 1; // Factor de velocidad de la simulación
   const dayToDay = true; // Indica que se trata de una simulación de día a día
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
@@ -35,7 +42,9 @@ const DayToDay: React.FC = () => {
   const [showFlightPlanPopup, setShowFlightPlanPopup] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null);
-  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
+  const [highlightedAirportCode, setHighlightedAirportCode] = useState<
+    string | null
+  >(null);
 
   //quiero tener los vuelos hardcodeados de arriba
   //flights.current = hardcodedVuelos;
@@ -103,6 +112,7 @@ const DayToDay: React.FC = () => {
     // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
     //flights.current = hardcodedVuelos;
     // console.log("flights inicio", flights);
+    console.log("setInterval");
     startInterval(); // Inicia el intervalo de actualización
     setStartSimulation(true); // Inicia la simulación al montar el componente
   }, []);
@@ -129,8 +139,8 @@ const DayToDay: React.FC = () => {
         <Sidebar />
         <Map
           planes={flights} // Pasa los vuelos hardcodeados directamente
-          airports={{ current: [] }}
-          startTime={{ current: Date.now() }} // Asigna un tiempo de inicio ficticio
+          airports={airports}
+          startTime={startTime} // Asigna un tiempo de inicio ficticio
           startDate={""} // Asigna la fecha actual
           startHour={""} // Asigna la hora actual
           speedFactor={speedFactor} // Supone 1 como un marcador de posición, ajustar según sea necesario
@@ -152,7 +162,7 @@ const DayToDay: React.FC = () => {
           setStartSimulation={setStartSimulation}
           setSimulationEnd={setSimulationEnd}
         />
-        <CurrentTimeDisplay />{" "}
+        {startSimulation && <CurrentTimeDisplay startTime={startTime.current} />}
         <div style={{ display: "flow" }}>
           {showMoreInfo && (
             <MoreInfo

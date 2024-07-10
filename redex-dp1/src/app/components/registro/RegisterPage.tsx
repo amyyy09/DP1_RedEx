@@ -6,6 +6,7 @@ import { OperationContext } from "@/app/context/operation-provider";
 import { Envio } from "@/app/types/envios";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "react-modal";
+import { convertDateTimeToArray } from "@/app/utils/timeHelper";
 
 interface FormData {
   firstName: string;
@@ -20,6 +21,8 @@ interface FormData {
   originGMT: number;
   packageCount: string;
   contentDescription: string;
+  startDate: string;
+  startTime: string;
 }
 
 const RegisterPage: React.FC = () => {
@@ -39,6 +42,8 @@ const RegisterPage: React.FC = () => {
     originGMT: 0,
     packageCount: "",
     contentDescription: "",
+    startDate: "2024-07-22",
+    startTime: "06:00",
   });
 
   const [filteredOriginCities, setFilteredOriginCities] =
@@ -77,14 +82,15 @@ const RegisterPage: React.FC = () => {
         const text = e.target?.result as string;
         const lines = text.split(/\r?\n/);
 
+        let shipmentCounter = 0;
         const newShipments = lines
           .map((line) => {
             try {
               const parts = line.split("-");
               if (parts.length === 5) {
                 const [
-                  codigoIATAOrigen,
-                  idEnvio,
+                  codigoIATAOrigen, // idEnvio is not needed anymore
+                  correlativo,
                   fechaStr,
                   horaStr,
                   codigoIATADestinoPackage,
@@ -101,6 +107,30 @@ const RegisterPage: React.FC = () => {
                     `${year}-${month}-${day}T${horaStr}:00`
                   ).toISOString()
                 );
+                const idEnvio = `${codigoIATAOrigen}${correlativo}`;
+
+                // shipmentCounter += 1;
+                // const idEnvio = generateUniqueIdMasiv(
+                //   codigoIATAOrigen,
+                //   codigoIATADestino,
+                //   fechaHoraOrigen,
+                //   shipmentCounter
+                // );
+
+                const paquetes = [];
+                const hora = convertDateTimeToArray(fechaHoraOrigen);
+
+                for (let i = 0; i < parseInt(packageCount, 10); i++) {
+                  paquetes.push({
+                    id: `${idEnvio}-${i + 1}`,
+                    status: 0,
+                    horaInicio: hora,
+                    aeropuertoOrigen: codigoIATAOrigen,
+                    aeropuertoDestino: codigoIATADestino,
+                    ruta: "No asignada",
+                    ubicacion: codigoIATAOrigen,
+                  });
+                }
 
                 return {
                   idEnvio,
@@ -109,7 +139,7 @@ const RegisterPage: React.FC = () => {
                   codigoIATAOrigen,
                   codigoIATADestino,
                   cantPaquetes: parseInt(packageCount, 10),
-                  paquetes: [],
+                  paquetes: paquetes,
                 } as Envio;
               } else {
                 throw new Error("Formato incorrecto");
@@ -122,6 +152,7 @@ const RegisterPage: React.FC = () => {
           .filter((envio): envio is Envio => envio !== null);
 
         saveShipmentBatch([...shipments, ...newShipments]);
+        console.log("Envíos:", newShipments);
         toast.success("Registro por Archivo Exitoso!");
       } catch (error) {
         toast.error("Error al procesar el archivo");
@@ -134,6 +165,16 @@ const RegisterPage: React.FC = () => {
     } catch (error) {
       toast.error("Error al leer el archivo");
     }
+  };
+
+  const generateUniqueIdMasiv = (
+    codigoIATAOrigen: string,
+    codigoIATADestino: string,
+    fechaHoraOrigen: string,
+    counter: number
+  ): string => {
+    return `${codigoIATAOrigen}-${counter}`;
+    // return `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}-${counter}`;
   };
 
   const handleChange = (
@@ -210,6 +251,12 @@ const RegisterPage: React.FC = () => {
       );
     if (!formData.packageCount.trim())
       newErrors.push("La cantidad de paquetes es obligatoria.");
+    if (!formData.startDate.trim())
+      newErrors.push("La fecha de envío es obligatoria.");
+    if (!formData.startTime.trim())
+      newErrors.push("La hora de envío es obligatoria.");
+    if(!formData.dniPassport.trim())
+      newErrors.push("El N° correlativo es obligatorio.");
     return newErrors;
   };
 
@@ -221,7 +268,7 @@ const RegisterPage: React.FC = () => {
   const handleFinalSubmit = () => {
     const envio: Envio = {
       idEnvio: "",
-      fechaHoraOrigen: formatDateForBackend(new Date().toISOString()),
+      fechaHoraOrigen: `${formData.startDate}T${formData.startTime}:00`,
       zonaHorariaGMT: formData.originGMT,
       codigoIATAOrigen: formData.originCity,
       codigoIATADestino: formData.destinationCity,
@@ -229,7 +276,24 @@ const RegisterPage: React.FC = () => {
       paquetes: [],
     };
 
-    envio.idEnvio = generateUniqueId(envio);
+    envio.idEnvio = `${envio.codigoIATAOrigen}${formData.dniPassport}`;
+
+    console.log("Envío", envio);
+
+    const hora = convertDateTimeToArray(envio.fechaHoraOrigen);
+    // create paquetes array
+    for (let i = 0; i < envio.cantPaquetes; i++) {
+      envio.paquetes.push({
+        id: `${envio.idEnvio}-${i + 1}`,
+        status: 0,
+        horaInicio: hora,
+        aeropuertoOrigen: envio.codigoIATAOrigen,
+        aeropuertoDestino: envio.codigoIATADestino,
+        ruta: "No asignada",
+        ubicacion: envio.codigoIATAOrigen,
+      });
+    }
+
     saveShipmentData(envio);
 
     setFormData({
@@ -245,8 +309,12 @@ const RegisterPage: React.FC = () => {
       originGMT: 0,
       packageCount: "",
       contentDescription: "",
+      startDate: "2024-07-22",
+      startTime: "12:00",
     });
-    toast.success("Envío registrado con éxito. El identificador es: " + envio.idEnvio);
+    toast.success(
+      "Envío registrado con éxito. El identificador es: " + envio.idEnvio
+    );
     setShowConfirmationPopup(false);
   };
 
@@ -289,7 +357,7 @@ const RegisterPage: React.FC = () => {
 
   const generateUniqueId = (envio: Envio): string => {
     const { codigoIATAOrigen, codigoIATADestino, fechaHoraOrigen } = envio;
-    const hashString = `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}`;
+    const hashString = `${codigoIATAOrigen}-${fechaHoraOrigen}`;
     let hash = 0;
 
     for (let i = 0; i < hashString.length; i++) {
@@ -298,7 +366,7 @@ const RegisterPage: React.FC = () => {
       hash |= 0;
     }
 
-    return `ID${Math.abs(hash)}`;
+    return hashString;
   };
 
   return (
@@ -310,7 +378,7 @@ const RegisterPage: React.FC = () => {
           display: "flex",
           width: "100%",
           gap: "10px",
-          paddingBottom: "12px",
+          paddingBottom: "10px",
         }}
       >
         <input
@@ -337,12 +405,12 @@ const RegisterPage: React.FC = () => {
         >
           Registro por Archivo
         </button>
-        <button
+        {/* <button
           onClick={handleEnviarPedidos}
           className="register-shipment-button"
         >
           Enviar Envíos
-        </button>
+        </button> */}
       </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -378,7 +446,7 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           />
         </div>
-        <div className="form-group">
+        {/*<div className="form-group">
           <label htmlFor="phoneNumber">Número Telefónico</label>
           <input
             type="text"
@@ -388,16 +456,16 @@ const RegisterPage: React.FC = () => {
             value={formData.phoneNumber}
             onChange={handleChange}
           />
-        </div>
+        </div>*/}
         <div className="form-group">
           <label htmlFor="dniPassport">
-            DNI/Pasaporte <span className="required">*</span>
+            N° Correlativo <span className="required">*</span>
           </label>
           <input
-            type="text"
+            type="number"
             id="dniPassport"
             name="dniPassport"
-            placeholder="DNI/Pasaporte"
+            placeholder="N° correlativo del envío"
             value={formData.dniPassport}
             onChange={handleChange}
           />
@@ -472,7 +540,30 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           />
         </div>
-        <div></div>
+        <div className="form-group">
+          <label htmlFor="startDate">
+            Fecha de Envio <span className="required">*</span>
+          </label>
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="startTime">
+            Hora de Envio <span className="required">*</span>
+          </label>
+          <input
+            type="time"
+            id="startTime"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+          />
+        </div>
         <div className="form-group">
           <button className="register-shipment-button" type="submit">
             Registrar Envío
