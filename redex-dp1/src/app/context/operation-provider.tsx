@@ -14,8 +14,8 @@ export const OperationContext = createContext({
   flights: null as any,
   updateFlights: () => {},
   clearInterval: () => {},
-  saveShipmentData: (data: Envio) => {},
-  saveShipmentBatch: (data: Envio[]) => {}, // Nueva función para guardar lotes de envíos
+  saveShipmentData: async (data: Envio) => {},
+  saveShipmentBatch: async (data: Envio[]) => {}, // Nueva función para guardar lotes de envíos
   shipments: [] as Envio[],
   flightsOnAir: null as any,
   packages: null as any,
@@ -235,12 +235,12 @@ export default function OperationProvider({
     }
   };
 
-  const saveShipmentData = (data: Envio) => {
+  const saveShipmentData = async (data: Envio) => {
     //Llamada a la API
     shipments.current.push(data);
     console.log("Shipment :", shipments.current);
 
-    sendShipmentData([data]);
+    await sendShipmentData([data]);
   };
 
   const sendShipmentData = async (data: Envio[]) => {
@@ -265,15 +265,16 @@ export default function OperationProvider({
       }
     } catch (error) {
       console.error("Failed to send shipments:", error);
+      // throw error;
     }
   };
 
-  const saveShipmentBatch = (data: Envio[]) => {
+  const saveShipmentBatch = async (data: Envio[]) => {
     //Llamada a la API
     shipments.current = shipments.current.concat(data);
 
     console.log("Shipments:", shipments.current);
-    // sendShipmentData(data);
+    await sendShipmentData(data);
   };
 
   return (
