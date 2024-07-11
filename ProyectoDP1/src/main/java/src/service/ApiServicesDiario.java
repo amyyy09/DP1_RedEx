@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.time.LocalDateTime;
 
-import src.DAO.PaqueteDAO;
 import src.global.GlobalVariables;
 import src.model.*;
 import src.services.PlanificacionService;
@@ -29,24 +28,18 @@ public class ApiServicesDiario {
     private VueloServices vueloService;
 
     @Autowired
-    private EnvioService envioService;
-
-    @Autowired
     private AeropuertoService aeropuertoService;
 
     private static List<Vuelo> vuelosGuardados = new ArrayList<>();
     private static Resumen reportResumen = null;
 
-    private static List<Aeropuerto> aeropuertosGuardados;
 
     private static Map<Paquete, Resultado> jsonprevio = null;
     ResultadoFinal finalD = new ResultadoFinal();
 
-    public String ejecutarPsoDiario(List<Envio> envios) {
-        LocalDateTime fechaHora = LocalDateTime.now();
+    public ResultadoFinal ejecutarPsoDiario(List<Envio> envios,LocalDateTime fechaHora , List<Aeropuerto> aeropuertosGuardados) {  
         try {
             if(envios.isEmpty()){
-            String jsonResult = null;
             LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
             LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
             int zonaHorariaGMT;
@@ -75,21 +68,17 @@ public class ApiServicesDiario {
             }
             finalD.setAeropuertos(aeropuertosGuardados);
             finalD.setVuelos(jsonVuelosActuales);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.registerModule(new JavaTimeModule());
-            jsonResult = mapper.writeValueAsString(finalD);  
+            return finalD;
             }
         } catch (Exception e) {
             e.printStackTrace();
         }  
-        aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
         jsonprevio = null;
         List<Vuelo> vuelos = getVuelosGuardados();
         List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream)
                 .collect(Collectors.toList());
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
-        String jsonResult = null;
         Resumen reportResumenAux = null;
         try {
             String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
@@ -135,14 +124,11 @@ public class ApiServicesDiario {
                 }
                 finalD.setAeropuertos(aeropuertosGuardados);
                 finalD.setVuelos(jsonVuelosActuales);
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.registerModule(new JavaTimeModule());
-                jsonResult = mapper.writeValueAsString(finalD);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return jsonResult;
+    return finalD;
     }
 
     public static List<Vuelo> getVuelosGuardados() {
@@ -159,6 +145,5 @@ public class ApiServicesDiario {
 
     public void reiniciarTodo() {
         vuelosGuardados.clear();
-        aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
     }
 }

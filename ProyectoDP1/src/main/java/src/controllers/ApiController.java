@@ -6,19 +6,28 @@ import org.springframework.web.bind.annotation.*;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
+import src.global.GlobalVariables;
 import src.model.*;
 import src.repository.EnvioRepository;
 import src.service.ApiServices;
 import src.service.ApiServicesDiario;
 import src.service.EnvioService;
 import src.service.TareaProgramadaService;
+import src.services.VueloServices;
+import src.utility.DatosAeropuertos;
 
-
+import java.io.IOException;
 import java.time.LocalDateTime;
+import java.time.OffsetTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 @RestController
 @RequestMapping("/api")
@@ -33,12 +42,26 @@ public class ApiController {
     @Autowired
     private EnvioService envioService;
     @Autowired
+    private VueloServices vueloService;
+    @Autowired
     private TareaProgramadaService tareaProgramadaService;
     private List<Envio> enviosDiario=new ArrayList<>();
     private String jsonDiario=null;
     private int contador=0;
     private PaquetePSOD resultadoDiario;
-
+    String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
+    private List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
+    private List<PlanDeVuelo> planesDeVuelo=null;
+    private ResultadoFinal finalD;
+    @PostConstruct
+    public void init() {
+        try {
+            this.planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
+        } catch (IOException e) {
+            e.printStackTrace();
+            this.planesDeVuelo = new ArrayList<>(); // Inicializa con una lista vacía si ocurre un error
+        }
+    }
     //Simulación Semanal
     @PostMapping("/pso")
     public String ejecutarPSO(@RequestBody PeticionPSO peticionPSO) {
@@ -77,7 +100,23 @@ public class ApiController {
                 .collect(Collectors.toList());
         envioRepository.saveAll(envioEntities);
         enviosDiario.addAll(envios);
+        actualizarAlmacenes(envios);
         return "Envios registrados exitosamente. Total de envios: " + enviosDiario.size();
+    }
+
+    private void actualizarAlmacenes(List<Envio> envios) {
+        for (Envio envio : envios) {
+            Optional<Aeropuerto> aeropuertoOrigen = aeropuertosGuardados.stream()
+                .filter(a -> a.getCodigoIATA().equals(envio.getCodigoIATAOrigen()))
+                .findFirst();
+            if (aeropuertoOrigen.isPresent()) {
+                Almacen almacenOrigen = aeropuertoOrigen.get().getAlmacen();
+                if (almacenOrigen != null) {
+                    almacenOrigen.setCantPaquetes(almacenOrigen.getCantPaquetes() + envio.getCantPaquetes());
+                    almacenOrigen.getPaquetes().addAll(envio.getPaquetes());
+                }
+            }
+        }
     }
 
     @GetMapping("/iniciar")
@@ -97,22 +136,72 @@ public class ApiController {
     }
 
     public void actualizarJsonDiario() {
-        jsonDiario = apiServicesDiario.ejecutarPsoDiario(enviosDiario);
+        finalD = apiServicesDiario.ejecutarPsoDiario(enviosDiario, tareaProgramadaService.getHoraSimulada(), aeropuertosGuardados);
         enviosDiario.clear();
-        System.out.println("jsonDiario actualizado: ");
+        System.out.println("jsonDiario actualizado: " + jsonDiario);
         contador++;
     }
 
     @GetMapping("/psoDiario")
     public String psoDiario() {
-        if(jsonDiario!=null){
-            resultadoDiario.setJson(jsonDiario);
-            resultadoDiario.setNroEnvio(contador);
-            return jsonDiario;
-        }else{
-            return "Aún no hay ejecución" ;
+        try {
+            if (jsonDiario != null) {
+                aeropuertosGuardados = finalD.getAeropuertos();
+                LocalDateTime horaSimulada = tareaProgramadaService.getHoraSimulada();
+                actualizarPaquetes(horaSimulada);
+                finalD.setAeropuertos(aeropuertosGuardados);
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.registerModule(new JavaTimeModule());
+                jsonDiario = mapper.writeValueAsString(finalD);
+                resultadoDiario.setJson(jsonDiario);
+                resultadoDiario.setNroEnvio(contador);
+                return jsonDiario;
+            } else {
+                return "Aún no hay ejecución";
+            }
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            System.err.println("Error al convertir el objeto a JSON: " + e.getMessage());
+            return "Error al procesar JSON: " + e.getMessage();
         }
     }
 
+    private void actualizarPaquetes(LocalDateTime horaSimulada) {
+        for (Aeropuerto aeropuerto : aeropuertosGuardados) {
+            Almacen almacen = aeropuerto.getAlmacen();
+            if (almacen != null) {
+                Iterator<Paquete> iterator = almacen.getPaquetes().iterator();
+                while (iterator.hasNext()) {
+                    Paquete paquete = iterator.next();
+                    if (paqueteDebeSalir(paquete, horaSimulada)) {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean paqueteDebeSalir(Paquete paquete, LocalDateTime horaSimulada) {
+    String ruta = paquete.getRuta();
+    if (ruta != null && !ruta.isEmpty()) {
+        String[] indices = ruta.split(";");
+        int primerIndice = Integer.parseInt(indices[0]);
+        PlanDeVuelo primerPlan = obtenerPlanDeVueloPorIndice(primerIndice);
+        if (primerPlan != null) {
+            OffsetTime horaSalida = primerPlan.getHoraSalida();
+            LocalDateTime horaSalidaLocal = horaSimulada.toLocalDate().atTime(horaSalida.toLocalTime());
+            return horaSimulada.isAfter(horaSalidaLocal);
+        }
+    }
+    return false;
+    }
+    private PlanDeVuelo obtenerPlanDeVueloPorIndice(int indice) {
+        for (PlanDeVuelo plan : planesDeVuelo) {
+            if (plan.getIndexPlan() == indice) {
+                return plan;
+            }
+        }
+        return null;
+    }
 }
 
