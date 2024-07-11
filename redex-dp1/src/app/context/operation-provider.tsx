@@ -237,10 +237,10 @@ export default function OperationProvider({
 
   const saveShipmentData = async (data: Envio) => {
     //Llamada a la API
-    shipments.current.push(data);
     console.log("Shipment :", shipments.current);
 
     await sendShipmentData([data]);
+    shipments.current.push(data);
   };
 
   const sendShipmentData = async (data: Envio[]) => {
@@ -271,10 +271,10 @@ export default function OperationProvider({
 
   const saveShipmentBatch = async (data: Envio[]) => {
     //Llamada a la API
-    shipments.current = shipments.current.concat(data);
 
     console.log("Shipments:", shipments.current);
     await sendShipmentData(data);
+    shipments.current = shipments.current.concat(data);
   };
 
   return (
