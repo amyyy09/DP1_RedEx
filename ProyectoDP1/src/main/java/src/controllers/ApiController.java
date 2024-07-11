@@ -1,7 +1,6 @@
 package src.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -14,12 +13,11 @@ import src.service.ApiServicesDiario;
 import src.service.EnvioService;
 import src.service.TareaProgramadaService;
 
-import java.time.Duration;
+
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @RestController
@@ -82,19 +80,17 @@ public class ApiController {
         return "Envios registrados exitosamente. Total de envios: " + enviosDiario.size();
     }
 
-    @GetMapping("/iniciarCronometro")
+    @GetMapping("/iniciar")
     public String iniciarCronometro() {
         if (!tareaProgramadaService.isRunning()) {
             tareaProgramadaService.iniciarTareaProgramada(this::actualizarJsonDiario);
-            return "Cronometro iniciado.";
-        } else {
-            LocalDateTime horaSimulada = tareaProgramadaService.getHoraSimulada();
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-            return "Hora simulada actual: " + horaSimulada.format(formatter);
-        }
+        } 
+        LocalDateTime horaSimulada = tareaProgramadaService.getHoraSimulada();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        return "Hora simulada actual: " + horaSimulada.format(formatter);
     }
 
-    @PostMapping("/detenerCronometro")
+    @GetMapping("/detener")
     public String detenerCronometro() {
         tareaProgramadaService.detenerTareaProgramada();
         return "Cronometro detenido.";
