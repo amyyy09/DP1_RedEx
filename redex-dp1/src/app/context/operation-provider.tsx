@@ -1,5 +1,11 @@
 "use client";
-import React, { createContext, useRef, useState, useCallback } from "react";
+import React, {
+  createContext,
+  useRef,
+  useState,
+  useCallback,
+  useEffect,
+} from "react";
 import { Airport, Vuelo } from "../types/Planes";
 import { Envio } from "../types/envios";
 import { cities, citiesByCode } from "../data/cities";
@@ -7,7 +13,6 @@ import { cities, citiesByCode } from "../data/cities";
 export const OperationContext = createContext({
   flights: null as any,
   updateFlights: () => {},
-  startInterval: () => {},
   clearInterval: () => {},
   saveShipmentData: (data: Envio) => {},
   saveShipmentBatch: (data: Envio[]) => {}, // Nueva función para guardar lotes de envíos
@@ -16,6 +21,9 @@ export const OperationContext = createContext({
   packages: null as any,
   airports: null as any,
   startTime: null as any,
+  start: false,
+  setStart: (start: boolean) => {},
+  referenceTime: null as any,
 });
 
 export default function OperationProvider({
@@ -31,6 +39,14 @@ export default function OperationProvider({
   const flightsOnAir = useRef<number>(0);
   const packages = useRef<any[]>([]);
   const startTime = useRef<number | null>(null);
+  const [start, setStart] = useState(false);
+  const [referenceTime, setReferenceTime] = useState<Date | null>(null);
+
+  useEffect(() => {
+    if (start) {
+      startInterval();
+    }
+  }, [start]);
 
   const createAirports = () => {
     cities.forEach((city) => {
@@ -57,11 +73,15 @@ export default function OperationProvider({
     setFlightsUpdated((prev) => !prev);
   }, []);
 
-  const startInterval = () => {
+  const startInterval = async () => {
     if (intervalId.current === null) {
       createAirports();
       startTime.current = Date.now();
-      console.log("Start time:", startTime.current);
+      const ref = await getDateTime();
+      setReferenceTime(ref);
+      console.log("Reference time called again:", ref);
+      // console.log("Reference time:", referenceTime.current);
+      // console.log("Start time:", startTime.current);
       intervalId.current = setInterval(async () => {
         updateAirports();
         // await psoDiario(); // Existing async operation
@@ -72,12 +92,36 @@ export default function OperationProvider({
     return intervalId;
   };
 
+  const getDateTime = async () => {
+    const response = await fetch(`${process.env.BACKEND_URL}iniciar`);
+    if (response.ok) {
+      const responseData = await response.text();
+      console.log("Response:", responseData);
+
+      // Extract the date and time part from the response
+      const dateTimePart = responseData.split("Hora simulada actual: ")[1];
+
+      // Assuming the date and time part is in "YYYY-MM-DD HH:mm:ss" format
+      // Convert the space between date and time to 'T' to make it ISO 8601 format
+      const isoDateTime = dateTimePart.replace(" ", "T");
+
+      // Create a Date object from the ISO 8601 formatted string
+      const dateTime = new Date(isoDateTime);
+
+      // console.log("Extracted Date and Time:", dateTime);
+      return dateTime;
+    } else {
+      const errorResponse = await response.text();
+      throw new Error(errorResponse);
+    }
+  };
+
   const updateAirports = () => {
     if (shipments.current.length === 0 || startTime.current === null) {
       console.log("No shipments to update");
       return;
     }
-    const toRemove : any = []; 
+    const toRemove: any = [];
     shipments.current.forEach((envio, index) => {
       // convert the envio fechaHora to gmt -5 considering its origen timezone
       const gmtOffset = citiesByCode[envio.codigoIATAOrigen].GMT;
@@ -86,19 +130,24 @@ export default function OperationProvider({
       fechaHora.setHours(fechaHora.getHours() - gmtOffset - 5);
       console.log("FechaHora:", fechaHora);
 
-      let customDate = new Date();
-
+      let customDate = referenceTime ? new Date(referenceTime) : null;
+      if (customDate === null) {
+        return; // Don't do anything if the reference time is not set
+      }
       const current = new Date();
-      const start = new Date(startTime.current ?? 0);
+      const start = new Date(startTime.current || 0);
 
       // add to customDate the difference between the current time and the start time
-      customDate.setMonth(6);
-      customDate.setDate(22);
-      customDate.setFullYear(2024);
-      customDate.setHours(5);
-      customDate.setMinutes(45 + current.getMinutes() - start.getMinutes());
+      customDate.setMinutes(
+        customDate.getMinutes() + current.getMinutes() - start.getMinutes()
+      );
+
+      customDate.setSeconds(
+        customDate.getSeconds() + current.getSeconds() - start.getSeconds()
+      );
 
       console.log("customDate:", customDate);
+
       if (fechaHora.getTime() <= customDate.getTime()) {
         console.log("subir paquetes al avion");
         // find the airport with the same IATA code as the envio.origen
@@ -232,7 +281,6 @@ export default function OperationProvider({
       value={{
         flights: flights,
         updateFlights,
-        startInterval,
         clearInterval,
         saveShipmentData,
         saveShipmentBatch,
@@ -241,6 +289,9 @@ export default function OperationProvider({
         packages: packages,
         airports: airports,
         startTime: startTime,
+        start,
+        setStart,
+        referenceTime: referenceTime,
       }}
     >
       {children}

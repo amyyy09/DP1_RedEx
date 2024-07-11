@@ -4,6 +4,7 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  useContext,
 } from "react";
 import { Marker, Popup } from "react-leaflet";
 import L, { LatLngExpression, LatLng } from "leaflet";
@@ -14,6 +15,7 @@ import { routesAngles } from "@/app/data/routesAngles";
 import GeodesicLine from "./GeodesicLine";
 import FlightDetails from "./FlightDetails";
 import "../../styles/popupPlane.css";
+import { OperationContext } from "@/app/context/operation-provider";
 
 const createRotatedIcon = (angle: number, color: string) => {
   return L.divIcon({
@@ -72,22 +74,26 @@ const Plane: React.FC<
   const simulatedDate = useRef<Date>();
   const prevIsVisibleRef = useRef<boolean>(false);
   const flightDetailsRef = useRef<HTMLDivElement>(null);
+  const { referenceTime } = useContext(OperationContext); 
 
   if (dayToDay) {
     const updateTimeDia = () => {
       if (!dayToDay || !startSimulation || !startTime.current) return;
-      let customDate = new Date();
-
+      let customDate = referenceTime ? new Date(referenceTime) : null;
+      if (customDate === null) {
+        return; // Don't do anything if the reference time is not set
+      }
       const current = new Date();
-      // console.log("Start time:", startTime.current); // "2021-07-22T06:00:00.000Z"
-      const start = new Date(startTime.current);
+      const start = new Date(startTime.current || 0);
 
       // add to customDate the difference between the current time and the start time
-      customDate.setMonth(6);
-      customDate.setDate(22);
-      customDate.setFullYear(2024);
-      customDate.setHours(5);
-      customDate.setMinutes(45 + current.getMinutes() - start.getMinutes());
+      customDate.setMinutes(
+        customDate.getMinutes() + current.getMinutes() - start.getMinutes()
+      );
+
+      customDate.setSeconds(
+        customDate.getSeconds() + current.getSeconds() - start.getSeconds()
+      );
 
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];

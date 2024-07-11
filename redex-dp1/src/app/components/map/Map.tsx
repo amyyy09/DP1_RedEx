@@ -71,7 +71,6 @@ const Map: React.FC<MapProps> = ({
   paquetes,
   highlightedAirportCode,
   setHighlightedAirportCode,
-  setStartSimulation,
   setSimulationEnd,
 }) => {
   const simulatedDate = useRef<Date>();

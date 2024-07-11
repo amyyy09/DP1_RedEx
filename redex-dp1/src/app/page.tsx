@@ -14,23 +14,25 @@ import { Paquete} from "@/app/types/envios";
 import { Envio} from "@/app/types/envios";
 import { Vuelo} from "@/app/types/Planes";
 import { Airport} from "@/app/types/Planes";
-import "./styles/popupPlanDeVuelo.css";
+import "./styles/startOperation.css";
 import MoreInfo from "./components/map/MoreInfo";
 import EnvioDetails from "./components/map/EnvioDetails";
 
 const DayToDay: React.FC = () => {
   // const vuelos = useContext(OperationContext); // Obtiene los vuelos del contexto
 
-  const [startSimulation, setStartSimulation] = useState(false); // Inicia la simulación
+  // const [startSimulation, setStartSimulation] = useState(false); // Inicia la simulación
   const [simulationEnd, setSimulationEnd] = useState(false);
   const {
     flights,
     updateFlights,
-    startInterval,
     flightsOnAir,
     packages,
     airports,
     startTime,
+    start,
+    setStart,
+    referenceTime,
   } = useContext(OperationContext);
   const speedFactor = 1; // Factor de velocidad de la simulación
   const dayToDay = true; // Indica que se trata de una simulación de día a día
@@ -134,7 +136,6 @@ const DayToDay: React.FC = () => {
   //   startInterval();
   //   setStartSimulation(true);
   // }, [startInterval]);
-
   const handleCloseEnvioDetails = () => {
     setShowEnvioDetails(false);
     setEnvioFound(null);
@@ -148,7 +149,7 @@ const DayToDay: React.FC = () => {
     const filteredVuelos = flights.current.filter(
       (vuelo: any) => vuelo.enAire === true
     );
-    
+
     // Buscar el paquete en los vuelos
     const foundVuelo = filteredVuelos.find((vuelo: Vuelo) =>
       vuelo.paquetes.some((paquete) => paquete.id === id)
@@ -317,13 +318,10 @@ const DayToDay: React.FC = () => {
   };
 
   useEffect(() => {
-    // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
-    //flights.current = hardcodedVuelos;
-    // console.log("flights inicio", flights);
-    console.log("setInterval");
-    startInterval(); // Inicia el intervalo de actualización
-    setStartSimulation(true); // Inicia la simulación al montar el componente
-  }, []);
+    if (start) {
+      updateFlights();
+    }
+  }, [start]);
 
   const Map = useMemo(
     () =>
@@ -352,7 +350,7 @@ const DayToDay: React.FC = () => {
           startDate={""} // Asigna la fecha actual
           startHour={""} // Asigna la hora actual
           speedFactor={speedFactor} // Supone 1 como un marcador de posición, ajustar según sea necesario
-          startSimulation={startSimulation} // Siempre inicia la simulación
+          startSimulation={start} // Siempre inicia la simulación
           dayToDay={dayToDay} // Indica que se trata de una simulación de día a día
           mapCenter={mapCenter} // Pasa el centro del mapa actualizado
           highlightedPlaneId={highlightedPlaneId} // Pasa el ID del avión resaltado
@@ -367,10 +365,15 @@ const DayToDay: React.FC = () => {
           paquetes={packages}
           highlightedAirportCode={highlightedAirportCode}
           setHighlightedAirportCode={setHighlightedAirportCode}
-          setStartSimulation={setStartSimulation}
+          setStartSimulation={setStart}
           setSimulationEnd={setSimulationEnd}
         />
-        {startSimulation && <CurrentTimeDisplay startTime={startTime.current} />}
+        {!start && (
+          <button className="start-button" onClick={() => setStart(true)}>
+            Start Simulation
+          </button>
+        )}
+        {referenceTime && <CurrentTimeDisplay startTime={startTime.current} />}
         <div style={{ display: "flow" }}>
           {showMoreInfo && (
             <MoreInfo
@@ -381,7 +384,7 @@ const DayToDay: React.FC = () => {
               startDate={""}
               startHour={""}
               speedFactor={speedFactor}
-              startSimulation={startSimulation}
+              startSimulation={start}
               dayToDay={dayToDay}
               vuelosInAir={flightsOnAir}
             />
