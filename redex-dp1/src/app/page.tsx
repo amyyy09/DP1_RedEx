@@ -124,7 +124,7 @@ const DayToDay: React.FC = () => {
   // useEffect(() => {
   //   // Asignar datos hardcodeados al contexto
   //   flights.current = hardcodedFlights;
-  //   packages.current = hardcodedEnvios;
+  //   packages.current = hardcodedPaquetes;
   //   airports.current = hardcodedAirports;
     
   //   console.log("setInterval");
@@ -145,8 +145,12 @@ const DayToDay: React.FC = () => {
   const handleSearch = (id: string) => {
     console.log("Buscando paquete con ID:", id);
 
+    const filteredVuelos = flights.current.filter(
+      (vuelo: any) => vuelo.enAire === true
+    );
+    
     // Buscar el paquete en los vuelos
-    const foundVuelo = flights.current.find((vuelo: Vuelo) =>
+    const foundVuelo = filteredVuelos.find((vuelo: Vuelo) =>
       vuelo.paquetes.some((paquete) => paquete.id === id)
     );
     if (foundVuelo) {
