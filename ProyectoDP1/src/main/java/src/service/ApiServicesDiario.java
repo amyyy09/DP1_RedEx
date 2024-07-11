@@ -44,6 +44,44 @@ public class ApiServicesDiario {
 
     public String ejecutarPsoDiario(List<Envio> envios) {
         LocalDateTime fechaHora = LocalDateTime.now();
+        try {
+            if(envios.isEmpty()){
+            String jsonResult = null;
+            LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
+            LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
+            int zonaHorariaGMT;
+            LocalDateTime horaSalidaGMT0;
+            List<Vuelo> json=vuelosGuardados;
+            List<Vuelo> jsonVuelosActuales = new ArrayList<>();
+            List<Vuelo> jsonVuelosProximos = new ArrayList<>();
+
+            for (Vuelo vn : json) {
+                zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
+                horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
+                if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
+                    jsonVuelosActuales.add(vn);
+                } 
+                if (horaSalidaGMT0.isAfter(fechaHoraReal)){
+                    jsonVuelosProximos.add(vn);
+                }
+            }
+            clearVuelosGuardados();
+            envios.clear();
+            for (Vuelo vn : jsonVuelosProximos) {
+                vuelosGuardados.add(vn);
+            }
+            for (Aeropuerto aeropuerto : aeropuertosGuardados) {
+                aeropuerto.getAlmacen().actualizarCantPaquetes();
+            }
+            finalD.setAeropuertos(aeropuertosGuardados);
+            finalD.setVuelos(jsonVuelosActuales);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.registerModule(new JavaTimeModule());
+            jsonResult = mapper.writeValueAsString(finalD);  
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }  
         aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
         jsonprevio = null;
         List<Vuelo> vuelos = getVuelosGuardados();

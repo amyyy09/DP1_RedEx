@@ -99,4 +99,32 @@ public class EnvioService {
 
         return envio;
     }
+
+    public EnvioEntity convertToEntity(Envio envio) {
+        EnvioEntity envioEntity = new EnvioEntity();
+        envioEntity.setIdEnvio(envio.getIdEnvio());
+        envioEntity.setFechaHoraOrigen(envio.getFechaHoraOrigen());
+        envioEntity.setZonaHorariaGMT(envio.getZonaHorariaGMT());
+        envioEntity.setCodigoIATAOrigen(envio.getCodigoIATAOrigen());
+        envioEntity.setCodigoIATADestino(envio.getCodigoIATADestino());
+        envioEntity.setCantPaquetes(envio.getCantPaquetes());
+
+        // Convertir paquetes
+        List<PaqueteEntity> paqueteEntities = envio.getPaquetes().stream()
+                .map(paquete -> {
+                    PaqueteEntity paqueteEntity = new PaqueteEntity();
+                    paqueteEntity.setIdentificacion(paquete.getID());
+                    paqueteEntity.setStatus(paquete.getStatus());
+                    paqueteEntity.setHoraInicio(paquete.getHoraInicio());
+                    paqueteEntity.setAeropuertoOrigen(paquete.getAeropuertoOrigen());
+                    paqueteEntity.setAeropuertoDestino(paquete.getAeropuertoDestino());
+                    paqueteEntity.setRuta(paquete.getRuta());
+                    paqueteEntity.setEnvio(envioEntity);
+                    return paqueteEntity;
+                })
+                .collect(Collectors.toList());
+        envioEntity.setPaquetes(paqueteEntities);
+
+        return envioEntity;
+    }
 }

@@ -1,12 +1,8 @@
 package src.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Transactional;
 
-import src.dto.EnvioDTO;
+import src.model.EnvioEntity;
 
-@Repository
-@Transactional
-public interface EnvioRepository extends JpaRepository<EnvioDTO, Long>{
-    
+public interface EnvioRepository extends JpaRepository<EnvioEntity, Long> {
 }
+
