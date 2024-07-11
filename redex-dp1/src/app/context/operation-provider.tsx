@@ -265,7 +265,7 @@ export default function OperationProvider({
       }
     } catch (error) {
       console.error("Failed to send shipments:", error);
-      // throw error;
+      throw error;
     }
   };
 

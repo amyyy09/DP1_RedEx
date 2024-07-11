@@ -153,15 +153,16 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ loading, setLoading }) => {
         })
         .filter((envio): envio is Envio => envio !== null);
 
-      try {
-        await saveShipmentBatch(newShipments);
-      } catch (error) {
-        console.error("Error al enviar los pedidos:", error);
-        toast.error("Error al procesar el archivo");
-      }
-      console.log("Envíos:", newShipments);
+      // try {
+      await saveShipmentBatch(newShipments);
+      // } catch (error) {
+      //   console.error("Error al enviar los pedidos:", error);
+      //   toast.error("Error al procesar el archivo");
+      // }
+      // console.log("Envíos:", newShipments);
       toast.success("Registro por Archivo Exitoso!");
     } catch (error) {
+      console.error("Error al procesar el archivo:", error);
       toast.error("Error al procesar el archivo");
     } finally {
       setLoading(false);
@@ -270,35 +271,44 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ loading, setLoading }) => {
 
   const handleFinalSubmit = async () => {
     setLoading(true);
-    const envio: Envio = {
-      idEnvio: "",
-      fechaHoraOrigen: `${formData.startDate}T${formData.startTime}:00`,
-      zonaHorariaGMT: formData.originGMT,
-      codigoIATAOrigen: formData.originCity,
-      codigoIATADestino: formData.destinationCity,
-      cantPaquetes: parseInt(formData.packageCount),
-      paquetes: [],
-    };
+    setShowConfirmationPopup(false);
+    try {
+      const envio: Envio = {
+        idEnvio: "",
+        fechaHoraOrigen: `${formData.startDate}T${formData.startTime}:00`,
+        zonaHorariaGMT: formData.originGMT,
+        codigoIATAOrigen: formData.originCity,
+        codigoIATADestino: formData.destinationCity,
+        cantPaquetes: parseInt(formData.packageCount),
+        paquetes: [],
+      };
 
-    envio.idEnvio = `${envio.codigoIATAOrigen}${formData.dniPassport}`;
+      envio.idEnvio = `${envio.codigoIATAOrigen}${formData.dniPassport}`;
 
-    console.log("Envío", envio);
+      console.log("Envío", envio);
 
-    const hora = convertDateTimeToArray(envio.fechaHoraOrigen);
-    // create paquetes array
-    for (let i = 0; i < envio.cantPaquetes; i++) {
-      envio.paquetes.push({
-        id: `${envio.idEnvio}-${i + 1}`,
-        status: 0,
-        horaInicio: hora,
-        aeropuertoOrigen: envio.codigoIATAOrigen,
-        aeropuertoDestino: envio.codigoIATADestino,
-        ruta: "No asignada",
-        ubicacion: envio.codigoIATAOrigen,
-      });
+      const hora = convertDateTimeToArray(envio.fechaHoraOrigen);
+      // create paquetes array
+      for (let i = 0; i < envio.cantPaquetes; i++) {
+        envio.paquetes.push({
+          id: `${envio.idEnvio}-${i + 1}`,
+          status: 0,
+          horaInicio: hora,
+          aeropuertoOrigen: envio.codigoIATAOrigen,
+          aeropuertoDestino: envio.codigoIATADestino,
+          ruta: "No asignada",
+          ubicacion: envio.codigoIATAOrigen,
+        });
+      }
+
+      await saveShipmentData(envio);
+      toast.success(
+        "Envío registrado con éxito. El identificador es: " + envio.idEnvio
+      );
+    } catch (error) {
+      console.error("Error al registrar el envío:", error);
+      toast.error("Error al registrar el envío");
     }
-
-    await saveShipmentData(envio);
     setLoading(false);
 
     setFormData({
@@ -317,10 +327,6 @@ const RegisterPage: React.FC<RegisterPageProps> = ({ loading, setLoading }) => {
       startDate: "2024-07-22",
       startTime: "05:45",
     });
-    toast.success(
-      "Envío registrado con éxito. El identificador es: " + envio.idEnvio
-    );
-    setShowConfirmationPopup(false);
   };
 
   const handleSubmit = (e: FormEvent) => {
