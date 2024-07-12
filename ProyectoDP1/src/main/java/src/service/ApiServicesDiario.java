@@ -40,6 +40,7 @@ public class ApiServicesDiario {
                 LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
                 int zonaHorariaGMT;
                 LocalDateTime horaSalidaGMT0;
+                LocalDateTime horaLlegadaGMT0;
                 List<Vuelo> json = vuelosGuardados;
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
                 List<Vuelo> jsonVuelosProximos = new ArrayList<>();
