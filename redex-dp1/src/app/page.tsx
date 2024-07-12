@@ -370,7 +370,7 @@ const DayToDay: React.FC = () => {
         />
         {!start && (
           <button className="start-button" onClick={() => setStart(true)}>
-            Start Simulation
+            Iniciar Operaciones
           </button>
         )}
         {referenceTime && <CurrentTimeDisplay startTime={startTime.current} />}

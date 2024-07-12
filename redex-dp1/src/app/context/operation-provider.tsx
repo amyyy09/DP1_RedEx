@@ -236,6 +236,8 @@ export default function OperationProvider({
           });
         }
 
+        console.log("Flights:", flights.current);
+
         // Procesar los vuelos desde el responseData
         //console.log("Response data:", responseData);
         // Create a new Set to store the idVuelo of each Vuelo in vuelos.current
@@ -280,15 +282,15 @@ export default function OperationProvider({
             if (newPackage.aeropuertoOrigen === newAirport.codigoIATA) {
               const gmtOffset = citiesByCode[newPackage.aeropuertoOrigen].GMT;
               const fechaHora = arrayToTime(newPackage.horaInicio);
-              console.log("envio.horaInicio:", newPackage.horaInicio);
+              // console.log("envio.horaInicio:", newPackage.horaInicio);
               fechaHora.setHours(fechaHora.getHours() - gmtOffset - 5);
-              console.log("FechaHora:", fechaHora);
+              // console.log("FechaHora:", fechaHora);
               
               let customDate = referenceRef.current
                 ? new Date(referenceRef.current?.getTime())
                 : null;
-              console.log("Reference time.current:", referenceRef.current);
-              console.log("Custom date:", customDate);
+              // console.log("Reference time.current:", referenceRef.current);
+              // console.log("Custom date:", customDate);
 
               if (customDate === null) {
                 return; // Don't do anything if the reference time is not set
@@ -309,7 +311,7 @@ export default function OperationProvider({
                   start.getSeconds()
               );
 
-              console.log("customDate:", customDate);
+              // console.log("customDate:", customDate);
 
               if (fechaHora.getTime() <= customDate.getTime()) {
                 existingAirport.almacen.paquetes.push(newPackage);
@@ -324,6 +326,8 @@ export default function OperationProvider({
       //   airports.current.push(newAirport);
       // }
     });
+
+    console.log("Airports:", airports.current);
   };
 
   const clearInterval = (current?: NodeJS.Timeout) => {
