@@ -47,7 +47,6 @@ public class ApiController {
     @Autowired
     private TareaProgramadaService tareaProgramadaService;
     private List<Envio> enviosDiario=new ArrayList<>();
-    private String jsonDiario=null;
     private String jsonCompleto=null;
     private int contador=0;
     private PaquetePSOD resultadoDiario = new PaquetePSOD();
