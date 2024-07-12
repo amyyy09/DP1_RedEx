@@ -86,7 +86,7 @@ export default function OperationProvider({
       setReferenceTime(ref);
       console.log("Reference time called again:", ref);
       // console.log("Reference time:", referenceTime.current);
-      // console.log("Start time:", startTime.current);
+      console.log("Start time:", startTime.current);
       intervalId.current = setInterval(async () => {
         // updateAirports();
         await psoDiario(); // Existing async operation
@@ -235,9 +235,8 @@ export default function OperationProvider({
               }
             }
           });
+          console.log("Flights:", flights.current);
         }
-
-        console.log("Flights:", flights.current);
 
         // Procesar los vuelos desde el responseData
         //console.log("Response data:", responseData);
@@ -259,73 +258,89 @@ export default function OperationProvider({
   const getAirports = (data: any) => {
     const newAirports = data.map((aeropuerto: any) => new Airport(aeropuerto));
 
-    newAirports.forEach((newAirport: any) => {
-      // Find the corresponding airport in airports.current
-      const existingAirport = airports.current.find(
-        (a: any) => a.codigoIATA === newAirport.codigoIATA
-      );
+    newAirports.forEach((newAirport: any, index: number) => {
+      // Directly access the corresponding airport in airports.current using index
+      const existingAirport = airports.current[index];
 
-      if (existingAirport) {
-        // Iterate through the new packages
-        newAirport.almacen.paquetes.forEach((newPackage: any) => {
-          // Check if the package already exists in the existing airport
-          const existingPackage = existingAirport.almacen.paquetes.find(
-            (p: any) => p.id === newPackage.id
+      if (
+        existingAirport &&
+        existingAirport.codigoIATA === newAirport.codigoIATA
+      ) {
+        if (
+          newAirport.almacen.cantPaquetes > existingAirport.almacen.cantPaquetes
+        ) {
+          const pack =
+            newAirport.almacen.paquetes[
+              existingAirport.almacen.paquetes.length
+            ];
+          const idEnvio = pack.id.split("-")[0];
+
+          // check if there is a paqute that starts with the same idEnvio in existingAirport
+          const existingPackageIndex = existingAirport.almacen.paquetes.findIndex(
+            (p: any) => p.id.startsWith(idEnvio)
           );
 
-          if (existingPackage) {
-            // Update the route if it has changed
-            if (existingPackage.ruta !== newPackage.ruta) {
-              existingPackage.ruta = newPackage.ruta;
-            }
+          if (existingPackageIndex !== -1) {
+            console.log("Paquete salió del aeropuerto");
           } else {
-            // Add the package if it's from the same aeropuertoOrigen and doesn't exist in airports.current
-            if (newPackage.aeropuertoOrigen === newAirport.codigoIATA) {
-              const gmtOffset = citiesByCode[newPackage.aeropuertoOrigen].GMT;
-              const fechaHora = arrayToTime(newPackage.horaInicio);
-              // console.log("envio.horaInicio:", newPackage.horaInicio);
-              fechaHora.setHours(fechaHora.getHours() - gmtOffset - 5);
-              // console.log("FechaHora:", fechaHora);
-              
-              let customDate = referenceRef.current
-                ? new Date(referenceRef.current?.getTime())
-                : null;
-              // console.log("Reference time.current:", referenceRef.current);
-              // console.log("Custom date:", customDate);
-
-              if (customDate === null) {
-                return; // Don't do anything if the reference time is not set
-              }
-              const current = new Date();
-              const start = new Date(startTime.current || 0);
-
-              // add to customDate the difference between the current time and the start time
-              customDate.setMinutes(
-                customDate.getMinutes() +
-                  current.getMinutes() -
-                  start.getMinutes()
-              );
-
-              customDate.setSeconds(
-                customDate.getSeconds() +
-                  current.getSeconds() -
-                  start.getSeconds()
-              );
-
-              // console.log("customDate:", customDate);
-
-              if (fechaHora.getTime() <= customDate.getTime()) {
-                existingAirport.almacen.paquetes.push(newPackage);
-                existingAirport.almacen.cantPaquetes++;
-              }
-            }
+            existingAirport.almacen.paquetes.push(pack);
+            existingAirport.almacen.cantPaquetes++;
           }
-        });
+        }
+
+        // newAirport.almacen.paquetes.forEach((newPackage: any) => {
+        //   const existingPackageIndex =
+        //     existingAirport.almacen.paquetes.findIndex(
+        //       (p: any) => p.id === newPackage.id
+        //     );
+
+        //   if (existingPackageIndex !== -1) {
+        //     // Update the route if it has changed
+        //     if (
+        //       existingAirport.almacen.paquetes[existingPackageIndex].ruta !==
+        //       newPackage.ruta
+        //     ) {
+        //       existingAirport.almacen.paquetes[existingPackageIndex].ruta =
+        //         newPackage.ruta;
+        //     }
+        //   } else {
+        //     // Add the package if it's from the same aeropuertoOrigen and doesn't exist in airports.current
+        //     if (newPackage.aeropuertoOrigen === newAirport.codigoIATA) {
+        //       const gmtOffset = citiesByCode[newPackage.aeropuertoOrigen].GMT;
+        //       const fechaHora = arrayToTime(newPackage.horaInicio);
+        //       fechaHora.setHours(fechaHora.getHours() - gmtOffset - 5);
+
+        //       let customDate = referenceRef.current
+        //         ? new Date(referenceRef.current.getTime())
+        //         : null;
+
+        //       if (customDate === null) {
+        //         return; // Don't do anything if the reference time is not set
+        //       }
+        //       const current = new Date();
+        //       const start = new Date(startTime.current || 0);
+
+        //       // Add to customDate the difference between the current time and the start time
+        //       customDate.setMinutes(
+        //         customDate.getMinutes() +
+        //           current.getMinutes() -
+        //           start.getMinutes()
+        //       );
+
+        //       customDate.setSeconds(
+        //         customDate.getSeconds() +
+        //           current.getSeconds() -
+        //           start.getSeconds()
+        //       );
+
+        //       if (fechaHora.getTime() <= customDate.getTime()) {
+        //         existingAirport.almacen.paquetes.push(newPackage);
+        //         existingAirport.almacen.cantPaquetes++;
+        //       }
+        //     }
+        //   }
+        // });
       }
-      // else {
-      //   // If the airport doesn't exist in airports.current, add it
-      //   airports.current.push(newAirport);
-      // }
     });
 
     console.log("Airports:", airports.current);
