@@ -15,9 +15,9 @@ flight_plans = json.loads(json_str)
 
 
 for plan in flight_plans:
-    plan['capacidad'] = 180
-    plan['origin']['capacidad'] = 1350
-    plan['destiny']['capacidad'] = 1350
+    plan['capacidad'] = 120
+    plan['origin']['capacidad'] = 850
+    plan['destiny']['capacidad'] = 850
 
 
 updated_json_str = json.dumps(flight_plans, indent=2)
