@@ -269,24 +269,25 @@ export default function OperationProvider({
         if (
           newAirport.almacen.cantPaquetes > existingAirport.almacen.cantPaquetes
         ) {
-          
-          for (
-            let i = existingAirport.almacen.cantPaquetes;
-            i < newAirport.almacen.cantPaquetes;
-            i++
-          ) {
-            let pack = newAirport.almacen.paquetes[i];
-            const idEnvio = pack.id.split("-")[0];
+          let pack =
+            newAirport.almacen.paquetes[existingAirport.almacen.cantPaquetes];
+          const idEnvio = pack.id.split("-")[0];
 
-            // check if there is a paqute that starts with the same idEnvio in existingAirport
-            const existingPackageIndex =
-              existingAirport.almacen.paquetes.findIndex((p: any) =>
-                p.id.startsWith(idEnvio)
-              );
+          // check if there is a paqute that starts with the same idEnvio in existingAirport
+          const existingPackageIndex =
+            existingAirport.almacen.paquetes.findIndex((p: any) =>
+              p.id.startsWith(idEnvio)
+            );
 
-            if (existingPackageIndex !== -1) {
-              console.log("Paquete salió del aeropuerto");
-            } else {
+          if (existingPackageIndex !== -1) {
+            console.log("Paquete salió del aeropuerto");
+          } else {
+            for (
+              let i = existingAirport.almacen.cantPaquetes;
+              i < newAirport.almacen.cantPaquetes;
+              i++
+            ) {
+              pack = newAirport.almacen.paquetes[i];
               const gmtOffset = citiesByCode[pack.aeropuertoOrigen].GMT;
               const fechaHora = arrayToTime(pack.horaInicio);
               fechaHora.setHours(fechaHora.getHours() - gmtOffset - 5);
