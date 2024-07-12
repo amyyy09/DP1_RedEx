@@ -87,7 +87,7 @@ export default function OperationProvider({
       // console.log("Reference time:", referenceTime.current);
       // console.log("Start time:", startTime.current);
       intervalId.current = setInterval(async () => {
-        updateAirports();
+        // updateAirports();
         await psoDiario(); // Existing async operation
       }, 60 * 1000);
       //ahora será cada minuto
@@ -343,7 +343,7 @@ export default function OperationProvider({
     console.log("Shipment :", shipments.current);
 
     await sendShipmentData([data]);
-    shipments.current.push(data);
+    // shipments.current.push(data);
   };
 
   const sendShipmentData = async (data: Envio[]) => {
@@ -377,7 +377,7 @@ export default function OperationProvider({
 
     console.log("Shipments:", shipments.current);
     await sendShipmentData(data);
-    shipments.current = shipments.current.concat(data);
+    // shipments.current = shipments.current.concat(data);
   };
 
   return (
