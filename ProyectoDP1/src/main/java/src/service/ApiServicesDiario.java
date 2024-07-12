@@ -29,46 +29,46 @@ public class ApiServicesDiario {
     private static List<Vuelo> vuelosGuardados = new ArrayList<>();
     private static Resumen reportResumen = null;
 
-
     private static Map<Paquete, Resultado> jsonprevio = null;
     ResultadoFinal finalD = new ResultadoFinal();
 
-    public ResultadoFinal ejecutarPsoDiario(List<Envio> envios,LocalDateTime fechaHora , List<Aeropuerto> aeropuertosGuardados) {  
+    public ResultadoFinal ejecutarPsoDiario(List<Envio> envios, LocalDateTime fechaHora,
+            List<Aeropuerto> aeropuertosGuardados) {
         try {
-            if(envios.isEmpty()){
-            LocalDateTime fechaHoraLimite = fechaHora.plusHours(2);
-            LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
-            int zonaHorariaGMT;
-            LocalDateTime horaSalidaGMT0;
-            List<Vuelo> json=vuelosGuardados;
-            List<Vuelo> jsonVuelosActuales = new ArrayList<>();
-            List<Vuelo> jsonVuelosProximos = new ArrayList<>();
+            if (envios.isEmpty()) {
+                LocalDateTime fechaHoraLimite = fechaHora.plusHours(2);
+                LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
+                int zonaHorariaGMT;
+                LocalDateTime horaSalidaGMT0;
+                List<Vuelo> json = vuelosGuardados;
+                List<Vuelo> jsonVuelosActuales = new ArrayList<>();
+                List<Vuelo> jsonVuelosProximos = new ArrayList<>();
 
-            for (Vuelo vn : json) {
-                zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
-                horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
-                if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
-                    jsonVuelosActuales.add(vn);
-                } 
-                if (horaSalidaGMT0.isAfter(fechaHoraReal)){
-                    jsonVuelosProximos.add(vn);
+                for (Vuelo vn : json) {
+                    zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
+                    horaSalidaGMT0 = vn.getHoraSalida().minusHours(zonaHorariaGMT);
+                    if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
+                        jsonVuelosActuales.add(vn);
+                    }
+                    if (horaSalidaGMT0.isAfter(fechaHoraReal)) {
+                        jsonVuelosProximos.add(vn);
+                    }
                 }
-            }
-            clearVuelosGuardados();
-            envios.clear();
-            for (Vuelo vn : jsonVuelosProximos) {
-                vuelosGuardados.add(vn);
-            }
-            for (Aeropuerto aeropuerto : aeropuertosGuardados) {
-                aeropuerto.getAlmacen().actualizarCantPaquetes();
-            }
-            finalD.setAeropuertos(aeropuertosGuardados);
-            finalD.setVuelos(jsonVuelosActuales);
-            return finalD;
+                clearVuelosGuardados();
+                envios.clear();
+                for (Vuelo vn : jsonVuelosProximos) {
+                    vuelosGuardados.add(vn);
+                }
+                for (Aeropuerto aeropuerto : aeropuertosGuardados) {
+                    aeropuerto.getAlmacen().actualizarCantPaquetes();
+                }
+                finalD.setAeropuertos(aeropuertosGuardados);
+                finalD.setVuelos(jsonVuelosActuales);
+                return finalD;
             }
         } catch (Exception e) {
             e.printStackTrace();
-        }  
+        }
         jsonprevio = null;
         List<Vuelo> vuelos = getVuelosGuardados();
         List<Paquete> paquetes = envios.stream().map(Envio::getPaquetes).flatMap(List::stream)
@@ -85,23 +85,25 @@ public class ApiServicesDiario {
             System.out.println("Empezando a ejecutar PSO... en el tiempo de ejecución: " + System.currentTimeMillis());
             if (!envios.isEmpty()) {
                 resultado = planificacionService.PSO(envios, paquetes, almacenes, planesDeVuelo, aeropuertosGuardados,
-                        vuelosActuales, fechaHora); 
+                        vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(2);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(10);
                 int zonaHorariaGMT;
                 LocalDateTime horaSalidaGMT0;
+                LocalDateTime horaLlegadaGMT0;
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
                 List<Vuelo> jsonVuelosProximos = new ArrayList<>();
-                
+
                 for (Vuelo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
-                    horaSalidaGMT0=vn.getHoraLlegada().minusHours(zonaHorariaGMT);
-                    if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
+                    horaSalidaGMT0 = vn.getHoraSalida().minusHours(zonaHorariaGMT);
+                    horaLlegadaGMT0 = vn.getHoraLlegada().minusHours(zonaHorariaGMT);
+                    if (horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
-                    } 
-                    if (horaSalidaGMT0.isAfter(fechaHoraReal)){
+                    }
+                    if (horaLlegadaGMT0.isAfter(fechaHoraReal)) {
                         jsonVuelosProximos.add(vn);
                     }
                 }
@@ -119,7 +121,7 @@ public class ApiServicesDiario {
         } catch (Exception e) {
             e.printStackTrace();
         }
-    return finalD;
+        return finalD;
     }
 
     public static List<Vuelo> getVuelosGuardados() {
