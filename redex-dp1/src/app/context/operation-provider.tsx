@@ -269,22 +269,56 @@ export default function OperationProvider({
         if (
           newAirport.almacen.cantPaquetes > existingAirport.almacen.cantPaquetes
         ) {
-          const pack =
-            newAirport.almacen.paquetes[
-              existingAirport.almacen.paquetes.length
-            ];
-          const idEnvio = pack.id.split("-")[0];
+          
+          for (
+            let i = existingAirport.almacen.cantPaquetes;
+            i < newAirport.almacen.cantPaquetes;
+            i++
+          ) {
+            let pack = newAirport.almacen.paquetes[i];
+            const idEnvio = pack.id.split("-")[0];
 
-          // check if there is a paqute that starts with the same idEnvio in existingAirport
-          const existingPackageIndex = existingAirport.almacen.paquetes.findIndex(
-            (p: any) => p.id.startsWith(idEnvio)
-          );
+            // check if there is a paqute that starts with the same idEnvio in existingAirport
+            const existingPackageIndex =
+              existingAirport.almacen.paquetes.findIndex((p: any) =>
+                p.id.startsWith(idEnvio)
+              );
 
-          if (existingPackageIndex !== -1) {
-            console.log("Paquete salió del aeropuerto");
-          } else {
-            existingAirport.almacen.paquetes.push(pack);
-            existingAirport.almacen.cantPaquetes++;
+            if (existingPackageIndex !== -1) {
+              console.log("Paquete salió del aeropuerto");
+            } else {
+              const gmtOffset = citiesByCode[pack.aeropuertoOrigen].GMT;
+              const fechaHora = arrayToTime(pack.horaInicio);
+              fechaHora.setHours(fechaHora.getHours() - gmtOffset - 5);
+
+              let customDate = referenceRef.current
+                ? new Date(referenceRef.current.getTime())
+                : null;
+
+              if (customDate === null) {
+                continue; // Don't do anything if the reference time is not set
+              }
+              const current = new Date();
+              const start = new Date(startTime.current || 0);
+
+              // Add to customDate the difference between the current time and the start time
+              customDate.setMinutes(
+                customDate.getMinutes() +
+                  current.getMinutes() -
+                  start.getMinutes()
+              );
+
+              customDate.setSeconds(
+                customDate.getSeconds() +
+                  current.getSeconds() -
+                  start.getSeconds()
+              );
+
+              if (fechaHora.getTime() <= customDate.getTime()) {
+                existingAirport.almacen.paquetes.push(pack);
+                existingAirport.almacen.cantPaquetes++;
+              }
+            }
           }
         }
 
