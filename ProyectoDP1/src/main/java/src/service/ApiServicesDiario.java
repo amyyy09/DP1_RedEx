@@ -36,7 +36,7 @@ public class ApiServicesDiario {
             List<Aeropuerto> aeropuertosGuardados) {
         try {
             if (envios.isEmpty()) {
-                LocalDateTime fechaHoraLimite = fechaHora.plusHours(2);
+                LocalDateTime fechaHoraLimite = fechaHora.plusMinutes(45);
                 LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
                 int zonaHorariaGMT;
                 LocalDateTime horaSalidaGMT0;
@@ -90,8 +90,8 @@ public class ApiServicesDiario {
                         vuelosActuales, fechaHora);
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
-                LocalDateTime fechaHoraLimite = fechaHora.plusHours(2);
-                LocalDateTime fechaHoraReal = fechaHora.plusHours(10);
+                LocalDateTime fechaHoraLimite = fechaHora.plusMinutes(45);
+                LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
                 int zonaHorariaGMT;
                 LocalDateTime horaSalidaGMT0;
                 LocalDateTime horaLlegadaGMT0;
