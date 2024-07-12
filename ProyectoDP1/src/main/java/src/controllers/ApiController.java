@@ -148,10 +148,10 @@ public class ApiController {
     public String psoDiario() {
         try {
             if (finalD != null) {
-                aeropuertosGuardados = finalD.getAeropuertos();
-                LocalDateTime horaSimulada = tareaProgramadaService.getHoraSimulada().plusHours(5);
-                actualizarPaquetes(horaSimulada);
-                finalD.setAeropuertos(aeropuertosGuardados);                
+                // aeropuertosGuardados = finalD.getAeropuertos();
+                // LocalDateTime horaSimulada = tareaProgramadaService.getHoraSimulada().plusHours(5);
+                // actualizarPaquetes(horaSimulada);
+                // finalD.setAeropuertos(aeropuertosGuardados);                
                 // jsonDiario = mapper.writeValueAsString(finalD);
                 resultadoDiario.setJson(finalD);
                 resultadoDiario.setNroEnvio(contador);
