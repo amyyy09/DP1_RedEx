@@ -5,7 +5,7 @@ import Image from "next/image";
 import Sidebar from "../components/layout/Sidebar";
 import "../styles/loading.css";
 
-const pedidos: React.FC = () => {
+const Pedidos: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   return (
@@ -40,4 +40,4 @@ const pedidos: React.FC = () => {
   );
 };
 
-export default pedidos;
+export default Pedidos;
