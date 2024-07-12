@@ -25,6 +25,5 @@ public class Envio {
     private String codigoIATAOrigen;
     private String codigoIATADestino;
     private int cantPaquetes;
-    @JsonManagedReference
     private List<Paquete> paquetes;
 }

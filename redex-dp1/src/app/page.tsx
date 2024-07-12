@@ -10,16 +10,30 @@ import "./styles/SimulatedTime.css";
 import { OperationContext } from "./context/operation-provider";
 import { citiesByCode } from "@/app/data/cities";
 import { FlightPlan } from "@/app/types/FlightPlan ";
-import "./styles/popupPlanDeVuelo.css";
+import { Paquete} from "@/app/types/envios";
+import { Envio} from "@/app/types/envios";
+import { Vuelo} from "@/app/types/Planes";
+import { Airport} from "@/app/types/Planes";
+import "./styles/startOperation.css";
 import MoreInfo from "./components/map/MoreInfo";
+import EnvioDetails from "./components/map/EnvioDetails";
 
 const DayToDay: React.FC = () => {
   // const vuelos = useContext(OperationContext); // Obtiene los vuelos del contexto
 
-  const [startSimulation, setStartSimulation] = useState(false); // Inicia la simulación
+  // const [startSimulation, setStartSimulation] = useState(false); // Inicia la simulación
   const [simulationEnd, setSimulationEnd] = useState(false);
-  const { flights, updateFlights, startInterval, flightsOnAir, packages } =
-    useContext(OperationContext);
+  const {
+    flights,
+    updateFlights,
+    flightsOnAir,
+    packages,
+    airports,
+    startTime,
+    start,
+    setStart,
+    referenceTime,
+  } = useContext(OperationContext);
   const speedFactor = 1; // Factor de velocidad de la simulación
   const dayToDay = true; // Indica que se trata de una simulación de día a día
   const [mapCenter, setMapCenter] = useState<[number, number] | null>(null);
@@ -35,77 +49,279 @@ const DayToDay: React.FC = () => {
   const [showFlightPlanPopup, setShowFlightPlanPopup] = useState(false);
   const [showMoreInfo, setShowMoreInfo] = useState(false);
   const [selectedPlaneId, setSelectedPlaneId] = useState<string | null>(null);
-  const [highlightedAirportCode, setHighlightedAirportCode] = useState<string | null>(null);
+  const [highlightedAirportCode, setHighlightedAirportCode] = useState<
+    string | null
+  >(null);
+  const [selectedAirport, setSelectedAirport] = useState<any | null>(null);
+  const [envioFound, setEnvioFound] = useState<any[] | null>(null);
+  const [showEnvioDetails, setShowEnvioDetails] = useState(false);
 
+  // const hardcodedPaquetes: Paquete[] = [
+  //   {
+  //     status: 3,
+  //     horaInicio: [2024, 7, 10, 14, 54],
+  //     aeropuertoOrigen: "SLLP",
+  //     aeropuertoDestino: "VIDP",
+  //     id: "SLLP000026962-1",
+  //     ruta: "113;1616;2742",
+  //     ubicacion: "113",
+  //   },
+  //   {
+  //     status: 3,
+  //     horaInicio: [2024, 7, 10, 14, 54],
+  //     aeropuertoOrigen: "SLLP",
+  //     aeropuertoDestino: "VIDP",
+  //     id: "SLLP000026960-1",
+  //     ruta: "113;1602;2740",
+  //     ubicacion: "113",
+  //   },
+  // ];
+
+  // const hardcodedEnvios: Envio[] = [
+  //   {
+  //     idEnvio: "ENV1",
+  //     fechaHoraOrigen: "2024-07-10T10:00:00Z",
+  //     zonaHorariaGMT: -5,
+  //     codigoIATAOrigen: "SLLP",
+  //     codigoIATADestino: "VIDP",
+  //     cantPaquetes: 2,
+  //     paquetes: hardcodedPaquetes,
+  //   },
+  // ];
+
+  // const hardcodedAirports: Airport[] = [
+  //   new Airport({
+  //     codigoIATA: "SLLP",
+  //     ciudad: "La Paz",
+  //     pais: "Bolivia",
+  //     continente: "South America",
+  //     alias: "El Alto International Airport",
+  //     zonaHorariaGMT: -4,
+  //     almacen: {
+  //       capacidad: 100,
+  //       cantPaquetes: 2,
+  //       paquetes: hardcodedPaquetes,
+  //     },
+  //     latitud: "-16.5133",
+  //     longitud: "-68.1923",
+  //   }),
+  // ];
+
+  // const hardcodedFlights: Vuelo[] = [
+  //   new Vuelo({
+  //     cantPaquetes: 2,
+  //     capacidad: 180,
+  //     status: 0,
+  //     indexPlan: 113,
+  //     horaSalida: [2024, 7, 10, 13, 4],
+  //     horaLlegada: [2024, 7, 11, 4, 0],
+  //     aeropuertoOrigen: "SLLP",
+  //     aeropuertoDestino: "SBBR",
+  //     paquetes: hardcodedPaquetes,
+  //     idVuelo: "113-2024-07-10",
+  //     enAire: true,
+  //   }),
+  // ];
+
+  // useEffect(() => {
+  //   // Asignar datos hardcodeados al contexto
+  //   flights.current = hardcodedFlights;
+  //   packages.current = hardcodedPaquetes;
+  //   airports.current = hardcodedAirports;
+    
+  //   console.log("setInterval");
+  //   console.log("flights inicio", flights);
+  //   console.log("packages inicio", packages);
+  //   console.log("airports inicio", airports);
+  //   startInterval();
+  //   setStartSimulation(true);
+  // }, [startInterval]);
+  const handleCloseEnvioDetails = () => {
+    setShowEnvioDetails(false);
+    setEnvioFound(null);
+  };
+  
   //quiero tener los vuelos hardcodeados de arriba
   //flights.current = hardcodedVuelos;
-  const handleSearch = async (id: string) => {
-    // Buscar el paquete por ID
-    console.log("vuelos búsqueda", flights.current);
+  const handleSearch = (id: string) => {
+    console.log("Buscando paquete con ID:", id);
 
-    const foundVuelo = flights.current.find((vuelo: { paquetes: any[] }) =>
+    const filteredVuelos = flights.current.filter(
+      (vuelo: any) => vuelo.enAire === true
+    );
+
+    // Buscar el paquete en los vuelos
+    const foundVuelo = filteredVuelos.find((vuelo: Vuelo) =>
       vuelo.paquetes.some((paquete) => paquete.id === id)
     );
     if (foundVuelo) {
+      console.log("Paquete encontrado en avión:", foundVuelo);
       const { aeropuertoOrigen } = foundVuelo;
       const city = citiesByCode[aeropuertoOrigen];
       if (city) {
         setMapCenter([city.coords.lat, city.coords.lng]);
         setHighlightedPlaneId(foundVuelo.idVuelo);
-        setSelectedPackageId(id);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
         setForceOpenPopup(true);
+        setSelectedPackageId(id);
+        setSelectedAirport(null);
         setErrorMessage("");
-
-        // Fetch the flight plan
-        try {
-          const responseplanvuelo = await fetch(
-            `http://localhost:8080/api/paquete/${id}`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-              },
-            }
-          );
-          const dataplanvuelo = await responseplanvuelo.json();
-          console.log("data plan de vuelo ", dataplanvuelo);
-          setFlightPlan(dataplanvuelo);
-          setShowFlightPlanPopup(true);
-        } catch (error) {
-          console.error("Error fetching flight plan:", error);
-          setErrorMessage("Error fetching flight plan");
-        }
+        return; // Salir de la función si se encuentra el paquete en un avión
       }
-    } else {
-      setErrorMessage("ID de paquete no encontrado");
     }
+
+    // Si no se encuentra en los vuelos, buscar en los aeropuertos
+    const foundAirport = airports.current.find((airport: Airport) =>
+      airport.almacen.paquetes.some((paquete) => paquete.id === id)
+    );
+    if (foundAirport) {
+      const city = citiesByCode[foundAirport.codigoIATA];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(null); // No hay un avión específico
+        setForceOpenPopup(true); // Forzar abrir el popup para el aeropuerto
+        setSelectedPackageId(id);
+        setSelectedAirport(foundAirport);
+        setHighlightedAirportCode(foundAirport.codigoIATA); // Set highlighted airport code
+        setErrorMessage("");
+        return;
+      }
+    }
+
+    setErrorMessage("ID de paquete no encontrado");
   };
 
   const handleEnvioSearch = async (id: string) => {
     console.log("Buscando envío con ID:", id);
-    setErrorMessage("Búsqueda de envío no implementada");
+    const matchingPackages: any = [];
+
+    const filteredVuelos = flights.current.filter(
+      (vuelo: any) => vuelo.enAire === true
+    );
+
+    filteredVuelos.forEach((vuelo: any) => {
+      vuelo.paquetes.forEach((paquete: any) => {
+        if (paquete.id.startsWith(`${id}-`)) {
+          paquete.ubicacion = vuelo.indexPlan.toString();
+          matchingPackages.push(paquete);
+        }
+      });
+    });
+
+    airports.current.forEach((airport: any) => {
+      const foundPackages = airport.almacen.paquetes.filter(
+        (paquete: any) =>
+          paquete.id.startsWith(`${id}`) &&
+          !matchingPackages.some(
+            (existingPaquete: any) => existingPaquete.id === paquete.id
+          )
+      );
+      matchingPackages.push(...foundPackages);
+    });
+
+    packages.current.forEach((paquete: any) => {
+      if (paquete.id.startsWith(`${id}-`)) {
+        matchingPackages.push(paquete);
+      }
+    });
+
+    //check for repeated packages and drop the ones with paquete.ubicacion === paquete.origen
+    const filteredPackages = matchingPackages.reduce(
+      (acc: any, paquete: any) => {
+        const isDuplicate = acc.some(
+          (existingPaquete: any) => existingPaquete.id === paquete.id
+        );
+        if (
+          !isDuplicate ||
+          (isDuplicate && paquete.ubicacion !== paquete.aeropuertoOrigen)
+        ) {
+          acc.push(paquete);
+        }
+        return acc;
+      },
+      []
+    );
+
+    console.log("paquetes", packages.current);
+
+    if (matchingPackages.length > 0) {
+      // Assuming you have a way to handle the found packages
+      // For example, setting them in a state, or processing them further
+      console.log("Found packages:", filteredPackages);
+      setEnvioFound(matchingPackages);
+      setShowEnvioDetails(true);
+      // setFoundPackages(matchingPackages); // Example: Update state or handle found packages
+    } else {
+      setErrorMessage("ID de envío no encontrado");
+    }
     return;
   };
 
   const handleVueloSearch = async (id: number) => {
     console.log("Buscando vuelo con ID:", id);
-    setErrorMessage("Búsqueda de vuelos no implementada");
+    // console.log("vuelos búsqueda", flights.current);
+
+    if (flights.current.length === 0) {
+      setErrorMessage("No hay vuelos disponibles");
+      return;
+    }
+
+    const foundVuelo = flights.current.find((vuelo: { indexPlan : number }) =>
+      vuelo.indexPlan === id
+    );
+
+    if (foundVuelo) {
+      console.log("Vuelo encontrado:", foundVuelo);
+      const { aeropuertoOrigen } = foundVuelo;
+      const city = citiesByCode[aeropuertoOrigen];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(foundVuelo.idVuelo);
+        setSelectedPlaneId(foundVuelo.idVuelo); // Selecciona el avión encontrado
+        setForceOpenPopup(true);
+        setSelectedPackageId(null); // Deselecciona cualquier paquete
+        setSelectedAirport(null); // Deselecciona cualquier aeropuerto
+        setErrorMessage("");
+        return;
+      }
+    }
+    else{
+      setErrorMessage("Vuelo no encontrado");
+    }
+    
     return;
   };
 
   const handleAlmacenSearch = async (id: string) => {
-    console.log("Buscando almacen con ID:", id);
-    setErrorMessage("Búsqueda de almacenes no implementada");
-    return;
+    console.log("Buscando almacén con ID:", id);
+    const foundAirport = airports.current.find((airport: { ciudad: string }) =>
+      airport.ciudad === id
+    );
+
+    if (foundAirport) {
+      console.log("Almacén encontrado:", foundAirport);
+      const city = citiesByCode[foundAirport.codigoIATA];
+      if (city) {
+        setMapCenter([city.coords.lat, city.coords.lng]);
+        setHighlightedPlaneId(null);
+        setSelectedPlaneId(null);
+        setForceOpenPopup(true);
+        setSelectedPackageId(null);
+        setSelectedAirport(foundAirport);
+        setHighlightedAirportCode(foundAirport.codigoIATA);
+        setErrorMessage("");
+        return;
+      }
+    } else {
+      setErrorMessage("Almacén no encontrado");
+    }
   };
 
   useEffect(() => {
-    // setVuelos(hardcodedVuelos); // Establece los vuelos hardcodeados al montar el componente
-    //flights.current = hardcodedVuelos;
-    // console.log("flights inicio", flights);
-    startInterval(); // Inicia el intervalo de actualización
-    setStartSimulation(true); // Inicia la simulación al montar el componente
-  }, []);
+    if (start) {
+      updateFlights();
+    }
+  }, [start]);
 
   const Map = useMemo(
     () =>
@@ -129,12 +345,12 @@ const DayToDay: React.FC = () => {
         <Sidebar />
         <Map
           planes={flights} // Pasa los vuelos hardcodeados directamente
-          airports={{ current: [] }}
-          startTime={{ current: Date.now() }} // Asigna un tiempo de inicio ficticio
+          airports={airports}
+          startTime={startTime} // Asigna un tiempo de inicio ficticio
           startDate={""} // Asigna la fecha actual
           startHour={""} // Asigna la hora actual
           speedFactor={speedFactor} // Supone 1 como un marcador de posición, ajustar según sea necesario
-          startSimulation={startSimulation} // Siempre inicia la simulación
+          startSimulation={start} // Siempre inicia la simulación
           dayToDay={dayToDay} // Indica que se trata de una simulación de día a día
           mapCenter={mapCenter} // Pasa el centro del mapa actualizado
           highlightedPlaneId={highlightedPlaneId} // Pasa el ID del avión resaltado
@@ -149,21 +365,26 @@ const DayToDay: React.FC = () => {
           paquetes={packages}
           highlightedAirportCode={highlightedAirportCode}
           setHighlightedAirportCode={setHighlightedAirportCode}
-          setStartSimulation={setStartSimulation}
+          setStartSimulation={setStart}
           setSimulationEnd={setSimulationEnd}
         />
-        <CurrentTimeDisplay />{" "}
+        {!start && (
+          <button className="start-button" onClick={() => setStart(true)}>
+            Iniciar Operaciones
+          </button>
+        )}
+        {referenceTime && <CurrentTimeDisplay startTime={startTime.current} />}
         <div style={{ display: "flow" }}>
           {showMoreInfo && (
             <MoreInfo
               onClose={() => setShowMoreInfo(false)}
               planes={flights}
-              airports={{ current: [] }}
+              airports={airports}
               startTime={{ current: Date.now() }}
               startDate={""}
               startHour={""}
               speedFactor={speedFactor}
-              startSimulation={startSimulation}
+              startSimulation={start}
               dayToDay={dayToDay}
               vuelosInAir={flightsOnAir}
             />
@@ -176,41 +397,11 @@ const DayToDay: React.FC = () => {
           onClose={() => setErrorMessage("")}
         />
       )}
-      {showFlightPlanPopup && (
-        <div className="flight-plan-popup">
-          <div className="flight-plan-popup-header">
-            <h2>Plan de Vuelo</h2>
-            <button
-              onClick={() => setShowFlightPlanPopup(false)}
-              className="close-button"
-            >
-              &times;
-            </button>
-          </div>
-          <div className="flight-plan-popup-content">
-            {flightPlan.length > 0 ? (
-              <ul>
-                {flightPlan.map((plan, index) => (
-                  <li key={index} className="flight-plan-item">
-                    <p>
-                      <strong>Plan ID:</strong> {plan.indexPlan}
-                    </p>
-                    <p>
-                      Origen: {plan.aeropuertoSalida} con hora de Salida:{" "}
-                      {plan.fechaSalida.join("-")}
-                    </p>
-                    <p>
-                      El destino es: {plan.aeropuertoDestino} con hora de llega:{" "}
-                      {plan.fechaLLegada.join("-")}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>No hay datos de plan de vuelo disponibles.</p>
-            )}
-          </div>
-        </div>
+      {showEnvioDetails && (
+        <EnvioDetails
+          paquetes={envioFound || []}
+          onClose={handleCloseEnvioDetails}
+        />
       )}
     </div>
   );

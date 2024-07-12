@@ -4,6 +4,7 @@ import React, {
   useRef,
   useMemo,
   useCallback,
+  useContext,
 } from "react";
 import { Marker, Popup } from "react-leaflet";
 import L, { LatLngExpression, LatLng } from "leaflet";
@@ -14,6 +15,7 @@ import { routesAngles } from "@/app/data/routesAngles";
 import GeodesicLine from "./GeodesicLine";
 import FlightDetails from "./FlightDetails";
 import "../../styles/popupPlane.css";
+import { OperationContext } from "@/app/context/operation-provider";
 
 const createRotatedIcon = (angle: number, color: string) => {
   return L.divIcon({
@@ -41,7 +43,7 @@ const Plane: React.FC<
     setShowPackages: (value: boolean) => void;
     selectedPlaneId: string | null;
     setSelectedPlaneId: (value: string | null) => void;
-    showLine: boolean; 
+    showLine: boolean;
   }
 > = ({
   vuelo,
@@ -64,7 +66,7 @@ const Plane: React.FC<
   selectedPlaneId,
   setSelectedPlaneId,
   paquetes,
-  showLine, 
+  showLine,
 }) => {
   const [position, setPosition] = useState<LatLngExpression>([0, 0]);
   const [isVisible, setIsVisible] = useState(false);
@@ -72,11 +74,27 @@ const Plane: React.FC<
   const simulatedDate = useRef<Date>();
   const prevIsVisibleRef = useRef<boolean>(false);
   const flightDetailsRef = useRef<HTMLDivElement>(null);
+  const { referenceTime } = useContext(OperationContext); 
 
   if (dayToDay) {
     const updateTimeDia = () => {
-      if (!dayToDay) return;
-      const currentTime = new Date();
+      if (!dayToDay || !startSimulation || !startTime.current) return;
+      let customDate = referenceTime ? new Date(referenceTime) : null;
+      if (customDate === null) {
+        return; // Don't do anything if the reference time is not set
+      }
+      const current = new Date();
+      const start = new Date(startTime.current || 0);
+
+      // add to customDate the difference between the current time and the start time
+      customDate.setMinutes(
+        customDate.getMinutes() + current.getMinutes() - start.getMinutes()
+      );
+
+      customDate.setSeconds(
+        customDate.getSeconds() + current.getSeconds() - start.getSeconds()
+      );
+
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
 
@@ -92,21 +110,18 @@ const Plane: React.FC<
       // console.log("systemTimezoneOffset", systemTimezoneOffset);
       // console.log("horaSalida hour", horaSalida.getUTCHours()+ originGMTOffset - systemTimezoneOffset);
 
-      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset);
+      horaSalida.setUTCHours(horaSalida.getUTCHours() - originGMTOffset - 5);
       //console.log("offset", originGMTOffset);
       // console.log("horaSalida after", horaSalida);
 
       const horaLlegada = arrayToTime(vuelo.horaLlegada);
       //console.log("horaLlegada inicial", horaLlegada);
-      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset);
+      horaLlegada.setUTCHours(horaLlegada.getUTCHours() - destinyGMTOffset - 5);
 
-      if (
-        currentTime &&
-        (currentTime > horaLlegada || currentTime < horaSalida)
-      ) {
+      if (customDate && (customDate > horaLlegada || customDate < horaSalida)) {
         setIsVisible(false);
 
-        if (currentTime > horaLlegada) {
+        if (customDate > horaLlegada) {
           // console.log("Plane has arrived día");
           // console.log("horaLlegada aquí", horaLlegada);
           vuelo.status = 2;
@@ -122,11 +137,7 @@ const Plane: React.FC<
         return;
       }
 
-      if (
-        currentTime &&
-        currentTime >= horaSalida &&
-        currentTime <= horaLlegada
-      ) {
+      if (customDate && customDate >= horaSalida && customDate <= horaLlegada) {
         // console.log("Plane is visible");
         // console.log("simulatedDate.current", simulatedDate.current);
         // console.log("horaSalida", horaSalida);
@@ -134,7 +145,7 @@ const Plane: React.FC<
       }
 
       const progress =
-        ((currentTime?.getTime() ?? 0) - horaSalida.getTime()) /
+        ((customDate?.getTime() ?? 0) - horaSalida.getTime()) /
         (horaLlegada.getTime() - horaSalida.getTime());
 
       // console.log("progress", progress);
@@ -155,12 +166,6 @@ const Plane: React.FC<
   }
 
   useEffect(() => {
-    // console.log("Plane vuelo", vuelo);
-    // console.log("startSimulation", startSimulation);
-    // console.log("startTime", startTime);
-    // console.log("startDate", startDate);
-    // console.log("startHour", startHour);
-    // console.log("speedFactor", speedFactor);
     if (!startSimulation || dayToDay) return;
 
     // console.log("plane started");
@@ -187,8 +192,6 @@ const Plane: React.FC<
       );
 
       // console.log("simulatedDate.current", simulatedDate.current);
-
-      const systemTimezoneOffset = new Date().getTimezoneOffset();
 
       const origin = citiesByCode[vuelo.aeropuertoOrigen];
       const destiny = citiesByCode[vuelo.aeropuertoDestino];
@@ -221,24 +224,6 @@ const Plane: React.FC<
         setIsVisible(false);
 
         if (simulatedDate.current > horaLlegada) {
-          // if (vuelo.aeropuertoDestino === "WIII" || vuelo.aeropuertoOrigen === "WIII") {
-          //check if the plane is in the destination airport position
-
-          // if (index === 367) {
-          // console.log("Plane has arrived correct");
-          // console.log("horaLlegada vuelo", vuelo.horaLlegada);
-          // console.log(
-          //   "ciudad destino",
-          //   citiesByCode[vuelo.aeropuertoDestino].name
-          // );
-          // console.log(
-          //   "gmt destino",
-          //   citiesByCode[vuelo.aeropuertoDestino].GMT
-          // );
-          // console.log("horaLlegada aquí", horaLlegada);
-          // console.log("simulatedDate.current", simulatedDate.current);
-          // }
-
           clearInterval(intervalId);
 
           const foundAirport = airports.find(
@@ -248,8 +233,10 @@ const Plane: React.FC<
             // console.log("Aeropuerto destino", foundAirport.almacen);
             // foundAirport.almacen.cantPaquetes =
             //   foundAirport.almacen.cantPaquetes + vuelo.cantPaquetes;
-            
-            const temp = foundAirport.almacen.paquetes.length - foundAirport.almacen.cantPaquetes;
+
+            const temp =
+              foundAirport.almacen.paquetes.length -
+              foundAirport.almacen.cantPaquetes;
             vuelo.paquetes.forEach((paquete) => {
               if (paquete.aeropuertoDestino === foundAirport.codigoIATA) {
                 paquete.status = 2;
@@ -262,8 +249,8 @@ const Plane: React.FC<
               }
             });
 
-
-            foundAirport.almacen.cantPaquetes = foundAirport.almacen.paquetes.length - temp;
+            foundAirport.almacen.cantPaquetes =
+              foundAirport.almacen.paquetes.length - temp;
             // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
           } else {
             console.log("No se encontró el aeropuerto");
@@ -273,7 +260,7 @@ const Plane: React.FC<
           vuelosInAir.current--;
           if (vuelosInAir.current < 0) {
             console.log("Error en la cantidad de vuelos en el aire");
-            vuelosInAir.current = 0;  
+            vuelosInAir.current = 0;
           }
           vuelo.enAire = false;
           // listVuelos.splice(index, 1);
@@ -348,14 +335,6 @@ const Plane: React.FC<
   const loadPercentage = vuelo.cantPaquetes / vuelo.capacidad;
   const color = getColorByLoadPercentage(loadPercentage);
 
-  // useEffect(() => {
-  //   const angle = getAngle();
-  //   const icon = createRotatedIcon(angle, color);
-  //   if (isVisible && position) {
-  //     markerRef.current?.setIcon(icon);
-  //   }
-  // }, [isVisible, position, getAngle, color]);
-
   const handlePopupClose = () => {
     setSelectedPlaneId(null);
   };
@@ -377,26 +356,15 @@ const Plane: React.FC<
       );
 
       if (foundAirport) {
-        // console.log("Aeropuerto origen", foundAirport.codigoIATA);
-        // console.log("Paquetes en el aeropuerto", foundAirport.almacen);
-        // console.log("Vuelo", vuelo);
-        // console.log("Paquetes en el vuelo", vuelo.paquetes);
-        const temp = foundAirport.almacen.paquetes.length - foundAirport.almacen.cantPaquetes;
+        const temp =
+          foundAirport.almacen.paquetes.length -
+          foundAirport.almacen.cantPaquetes;
         foundAirport.almacen.paquetes = foundAirport.almacen.paquetes.filter(
           (paquete) => !vuelo.paquetes.some((p) => p.id === paquete.id)
         );
         // const temp = foundAirport.almacen.cantPaquetes;
-        foundAirport.almacen.cantPaquetes = foundAirport.almacen.paquetes.length - temp;
-
-
-        // if (temp - vuelo.cantPaquetes != foundAirport.almacen.cantPaquetes) {
-        //   console.log("Error en la cantidad de paquetes", vuelo);
-        //   console.log("Paquetes en el aeropuerto after", foundAirport.almacen);
-        //   console.log("FIN");
-        // }
-
-        // foundAirport.almacen.cantPaquetes =
-        //   foundAirport.almacen.cantPaquetes - vuelo.cantPaquetes;
+        foundAirport.almacen.cantPaquetes =
+          foundAirport.almacen.paquetes.length - temp;
       } else {
         console.log("No se encontró el aeropuerto");
       }

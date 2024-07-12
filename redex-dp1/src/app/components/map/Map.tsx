@@ -71,7 +71,6 @@ const Map: React.FC<MapProps> = ({
   paquetes,
   highlightedAirportCode,
   setHighlightedAirportCode,
-  setStartSimulation,
   setSimulationEnd,
 }) => {
   const simulatedDate = useRef<Date>();
@@ -425,7 +424,7 @@ const Map: React.FC<MapProps> = ({
               : cityData && cityData.almacen.cantPaquetes > 0
               ? cityData.almacen.cantPaquetes < city.capacidad * 0.25 // More than or equal to full capacity (less than one-third full)
                 ? "green"
-                : cityData.almacen.cantPaquetes > city.capacidad * 0.60 // Between one-third and two-thirds full
+                : cityData.almacen.cantPaquetes > city.capacidad * 0.8 // Between one-third and two-thirds full
                 ? "red"
                 : "yellow" // More than two-thirds full
               : "green";

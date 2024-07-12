@@ -6,6 +6,7 @@ import { OperationContext } from "@/app/context/operation-provider";
 import { Envio } from "@/app/types/envios";
 import toast, { Toaster } from "react-hot-toast";
 import Modal from "react-modal";
+import { convertDateTimeToArray } from "@/app/utils/timeHelper";
 
 interface FormData {
   firstName: string;
@@ -20,9 +21,16 @@ interface FormData {
   originGMT: number;
   packageCount: string;
   contentDescription: string;
+  startDate: string;
+  startTime: string;
 }
 
-const RegisterPage: React.FC = () => {
+interface RegisterPageProps {
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+}
+
+const RegisterPage: React.FC<RegisterPageProps> = ({ loading, setLoading }) => {
   const { saveShipmentData, shipments, saveShipmentBatch } =
     useContext(OperationContext);
 
@@ -39,6 +47,8 @@ const RegisterPage: React.FC = () => {
     originGMT: 0,
     packageCount: "",
     contentDescription: "",
+    startDate: "2024-07-22",
+    startTime: "05:45",
   });
 
   const [filteredOriginCities, setFilteredOriginCities] =
@@ -70,70 +80,105 @@ const RegisterPage: React.FC = () => {
       return;
     }
 
-    const reader = new FileReader();
-
-    reader.onload = (e: ProgressEvent<FileReader>) => {
-      try {
-        const text = e.target?.result as string;
-        const lines = text.split(/\r?\n/);
-
-        const newShipments = lines
-          .map((line) => {
-            try {
-              const parts = line.split("-");
-              if (parts.length === 5) {
-                const [
-                  codigoIATAOrigen,
-                  idEnvio,
-                  fechaStr,
-                  horaStr,
-                  codigoIATADestinoPackage,
-                ] = parts as [string, string, string, string, string];
-
-                const year = fechaStr.substring(0, 4);
-                const month = fechaStr.substring(4, 6);
-                const day = fechaStr.substring(6, 8);
-                const codigoIATADestino =
-                  codigoIATADestinoPackage.split(":")[0];
-                const packageCount = codigoIATADestinoPackage.split(":")[1];
-                const fechaHoraOrigen = formatDateForBackend(
-                  new Date(
-                    `${year}-${month}-${day}T${horaStr}:00`
-                  ).toISOString()
-                );
-
-                return {
-                  idEnvio,
-                  fechaHoraOrigen,
-                  zonaHorariaGMT: formData.originGMT,
-                  codigoIATAOrigen,
-                  codigoIATADestino,
-                  cantPaquetes: parseInt(packageCount, 10),
-                  paquetes: [],
-                } as Envio;
-              } else {
-                throw new Error("Formato incorrecto");
-              }
-            } catch (error) {
-              toast.error("Error en el formato del archivo");
-              return null;
-            }
-          })
-          .filter((envio): envio is Envio => envio !== null);
-
-        saveShipmentBatch([...shipments, ...newShipments]);
-        toast.success("Registro por Archivo Exitoso!");
-      } catch (error) {
-        toast.error("Error al procesar el archivo");
-      }
+    const readFileAsText = (file: File): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          resolve(e.target?.result as string);
+        };
+        reader.onerror = (error) => {
+          reject(error);
+        };
+        reader.readAsText(file);
+      });
     };
-
+    setLoading(true);
     try {
-      reader.readAsText(selectedFile);
-      setSelectedFile(null);
+      const text = await readFileAsText(selectedFile);
+      const lines = text.split(/\r?\n/);
+
+      let shipmentCounter = 0;
+      const newShipments = lines
+        .map((line) => {
+          try {
+            const parts = line.split("-");
+            if (parts.length === 5) {
+              const [
+                codigoIATAOrigen,
+                correlativo,
+                fechaStr,
+                horaStr,
+                codigoIATADestinoPackage,
+              ] = parts as [string, string, string, string, string];
+
+              const year = fechaStr.substring(0, 4);
+              const month = fechaStr.substring(4, 6);
+              const day = fechaStr.substring(6, 8);
+              const codigoIATADestino = codigoIATADestinoPackage.split(":")[0];
+              const packageCount = codigoIATADestinoPackage.split(":")[1];
+              const fechaHoraOrigen = `${year}-${month}-${day}T${horaStr}:00`;
+              const idEnvio = `${codigoIATAOrigen}${correlativo}`;
+
+              const paquetes = [];
+              const hora = convertDateTimeToArray(fechaHoraOrigen);
+
+              for (let i = 0; i < parseInt(packageCount, 10); i++) {
+                paquetes.push({
+                  id: `${idEnvio}-${i + 1}`,
+                  status: 0,
+                  horaInicio: hora,
+                  aeropuertoOrigen: codigoIATAOrigen,
+                  aeropuertoDestino: codigoIATADestino,
+                  ruta: "No asignada",
+                  ubicacion: codigoIATAOrigen,
+                });
+              }
+
+              return {
+                idEnvio,
+                fechaHoraOrigen,
+                zonaHorariaGMT: formData.originGMT,
+                codigoIATAOrigen,
+                codigoIATADestino,
+                cantPaquetes: parseInt(packageCount, 10),
+                paquetes: paquetes,
+              } as Envio;
+            } else {
+              throw new Error("Formato incorrecto");
+            }
+          } catch (error) {
+            toast.error("Error en el formato del archivo");
+            return null;
+          }
+        })
+        .filter((envio): envio is Envio => envio !== null);
+
+      // try {
+      await saveShipmentBatch(newShipments);
+      // } catch (error) {
+      //   console.error("Error al enviar los pedidos:", error);
+      //   toast.error("Error al procesar el archivo");
+      // }
+      // console.log("Envíos:", newShipments);
+      toast.success("Registro por Archivo Exitoso!");
     } catch (error) {
-      toast.error("Error al leer el archivo");
+      console.error("Error al procesar el archivo:", error);
+      toast.error("Error al procesar el archivo");
+    } finally {
+      setLoading(false);
+
+      setSelectedFile(null);
     }
+  };
+
+  const generateUniqueIdMasiv = (
+    codigoIATAOrigen: string,
+    codigoIATADestino: string,
+    fechaHoraOrigen: string,
+    counter: number
+  ): string => {
+    return `${codigoIATAOrigen}-${counter}`;
+    // return `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}-${counter}`;
   };
 
   const handleChange = (
@@ -210,6 +255,12 @@ const RegisterPage: React.FC = () => {
       );
     if (!formData.packageCount.trim())
       newErrors.push("La cantidad de paquetes es obligatoria.");
+    if (!formData.startDate.trim())
+      newErrors.push("La fecha de envío es obligatoria.");
+    if (!formData.startTime.trim())
+      newErrors.push("La hora de envío es obligatoria.");
+    if (!formData.dniPassport.trim())
+      newErrors.push("El N° correlativo es obligatorio.");
     return newErrors;
   };
 
@@ -218,19 +269,47 @@ const RegisterPage: React.FC = () => {
     return date.toISOString().replace("Z", "").split(".")[0];
   };
 
-  const handleFinalSubmit = () => {
-    const envio: Envio = {
-      idEnvio: "",
-      fechaHoraOrigen: formatDateForBackend(new Date().toISOString()),
-      zonaHorariaGMT: formData.originGMT,
-      codigoIATAOrigen: formData.originCity,
-      codigoIATADestino: formData.destinationCity,
-      cantPaquetes: parseInt(formData.packageCount),
-      paquetes: [],
-    };
+  const handleFinalSubmit = async () => {
+    setLoading(true);
+    setShowConfirmationPopup(false);
+    try {
+      const envio: Envio = {
+        idEnvio: "",
+        fechaHoraOrigen: `${formData.startDate}T${formData.startTime}:00`,
+        zonaHorariaGMT: formData.originGMT,
+        codigoIATAOrigen: formData.originCity,
+        codigoIATADestino: formData.destinationCity,
+        cantPaquetes: parseInt(formData.packageCount),
+        paquetes: [],
+      };
 
-    envio.idEnvio = generateUniqueId(envio);
-    saveShipmentData(envio);
+      envio.idEnvio = `${envio.codigoIATAOrigen}${formData.dniPassport}`;
+
+      console.log("Envío", envio);
+
+      const hora = convertDateTimeToArray(envio.fechaHoraOrigen);
+      // create paquetes array
+      for (let i = 0; i < envio.cantPaquetes; i++) {
+        envio.paquetes.push({
+          id: `${envio.idEnvio}-${i + 1}`,
+          status: 0,
+          horaInicio: hora,
+          aeropuertoOrigen: envio.codigoIATAOrigen,
+          aeropuertoDestino: envio.codigoIATADestino,
+          ruta: "No asignada",
+          ubicacion: envio.codigoIATAOrigen,
+        });
+      }
+
+      await saveShipmentData(envio);
+      toast.success(
+        "Envío registrado con éxito. El identificador es: " + envio.idEnvio
+      );
+    } catch (error) {
+      console.error("Error al registrar el envío:", error);
+      toast.error("Error al registrar el envío");
+    }
+    setLoading(false);
 
     setFormData({
       firstName: "",
@@ -245,9 +324,9 @@ const RegisterPage: React.FC = () => {
       originGMT: 0,
       packageCount: "",
       contentDescription: "",
+      startDate: "2024-07-22",
+      startTime: "05:45",
     });
-    toast.success("Envío registrado con éxito. El identificador es: " + envio.idEnvio);
-    setShowConfirmationPopup(false);
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -289,7 +368,7 @@ const RegisterPage: React.FC = () => {
 
   const generateUniqueId = (envio: Envio): string => {
     const { codigoIATAOrigen, codigoIATADestino, fechaHoraOrigen } = envio;
-    const hashString = `${codigoIATAOrigen}-${codigoIATADestino}-${fechaHoraOrigen}`;
+    const hashString = `${codigoIATAOrigen}-${fechaHoraOrigen}`;
     let hash = 0;
 
     for (let i = 0; i < hashString.length; i++) {
@@ -298,7 +377,7 @@ const RegisterPage: React.FC = () => {
       hash |= 0;
     }
 
-    return `ID${Math.abs(hash)}`;
+    return hashString;
   };
 
   return (
@@ -310,7 +389,7 @@ const RegisterPage: React.FC = () => {
           display: "flex",
           width: "100%",
           gap: "10px",
-          paddingBottom: "12px",
+          paddingBottom: "10px",
         }}
       >
         <input
@@ -337,12 +416,12 @@ const RegisterPage: React.FC = () => {
         >
           Registro por Archivo
         </button>
-        <button
+        {/* <button
           onClick={handleEnviarPedidos}
           className="register-shipment-button"
         >
           Enviar Envíos
-        </button>
+        </button> */}
       </div>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
@@ -378,7 +457,7 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           />
         </div>
-        <div className="form-group">
+        {/*<div className="form-group">
           <label htmlFor="phoneNumber">Número Telefónico</label>
           <input
             type="text"
@@ -388,16 +467,16 @@ const RegisterPage: React.FC = () => {
             value={formData.phoneNumber}
             onChange={handleChange}
           />
-        </div>
+        </div>*/}
         <div className="form-group">
           <label htmlFor="dniPassport">
-            DNI/Pasaporte <span className="required">*</span>
+            N° Correlativo <span className="required">*</span>
           </label>
           <input
-            type="text"
+            type="number"
             id="dniPassport"
             name="dniPassport"
-            placeholder="DNI/Pasaporte"
+            placeholder="N° correlativo del envío"
             value={formData.dniPassport}
             onChange={handleChange}
           />
@@ -472,7 +551,30 @@ const RegisterPage: React.FC = () => {
             onChange={handleChange}
           />
         </div>
-        <div></div>
+        <div className="form-group">
+          <label htmlFor="startDate">
+            Fecha de Envio <span className="required">*</span>
+          </label>
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            value={formData.startDate}
+            onChange={handleChange}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="startTime">
+            Hora de Envio <span className="required">*</span>
+          </label>
+          <input
+            type="time"
+            id="startTime"
+            name="startTime"
+            value={formData.startTime}
+            onChange={handleChange}
+          />
+        </div>
         <div className="form-group">
           <button className="register-shipment-button" type="submit">
             Registrar Envío
