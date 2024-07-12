@@ -195,11 +195,15 @@ public class ApiController {
             OffsetTime horaSalida = primerPlan.getHoraSalida();
             OffsetTime horaSalidaGMT = horaSalida.withOffsetSameInstant(ZoneOffset.UTC);
             LocalDateTime horaSalidaLocal = horaSimulada.toLocalDate().atTime(horaSalidaGMT.toLocalTime());
+            if(horaSalidaLocal.isBefore(tareaProgramadaService.getHorainicio())){
+                horaSalidaLocal.plusDays(1);
+            }
             return horaSimulada.isAfter(horaSalidaLocal);
         }
     }
     return false;
     }
+
     private PlanDeVuelo obtenerPlanDeVueloPorIndice(int indice) {
         for (PlanDeVuelo plan : planesDeVuelo) {
             if (plan.getIndexPlan() == indice) {
