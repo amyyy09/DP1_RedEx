@@ -20,6 +20,7 @@ import src.utility.DatosAeropuertos;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.OffsetTime;
+import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -47,8 +48,9 @@ public class ApiController {
     private TareaProgramadaService tareaProgramadaService;
     private List<Envio> enviosDiario=new ArrayList<>();
     private String jsonDiario=null;
+    private String jsonCompleto=null;
     private int contador=0;
-    private PaquetePSOD resultadoDiario;
+    private PaquetePSOD resultadoDiario = new PaquetePSOD();
     String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
     private List<Aeropuerto> aeropuertosGuardados = new ArrayList<>(DatosAeropuertos.getAeropuertosInicializados());
     private List<PlanDeVuelo> planesDeVuelo=null;
@@ -136,26 +138,28 @@ public class ApiController {
     }
 
     public void actualizarJsonDiario() {
-        finalD = apiServicesDiario.ejecutarPsoDiario(enviosDiario, tareaProgramadaService.getHoraSimulada(), aeropuertosGuardados);
+        System.out.println("Ejecutando PSO Diario...");
+        finalD = apiServicesDiario.ejecutarPsoDiario(enviosDiario, tareaProgramadaService.getHoraSimulada().plusHours(5), aeropuertosGuardados);
         enviosDiario.clear();
-        System.out.println("jsonDiario actualizado: " + jsonDiario);
+        System.out.println("jsonDiario actualizado: " + finalD);
         contador++;
     }
 
     @GetMapping("/psoDiario")
     public String psoDiario() {
         try {
-            if (jsonDiario != null) {
+            if (finalD != null) {
                 aeropuertosGuardados = finalD.getAeropuertos();
-                LocalDateTime horaSimulada = tareaProgramadaService.getHoraSimulada();
+                LocalDateTime horaSimulada = tareaProgramadaService.getHoraSimulada().plusHours(5);
                 actualizarPaquetes(horaSimulada);
-                finalD.setAeropuertos(aeropuertosGuardados);
+                finalD.setAeropuertos(aeropuertosGuardados);                
+                // jsonDiario = mapper.writeValueAsString(finalD);
+                resultadoDiario.setJson(finalD);
+                resultadoDiario.setNroEnvio(contador);
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.registerModule(new JavaTimeModule());
-                jsonDiario = mapper.writeValueAsString(finalD);
-                resultadoDiario.setJson(jsonDiario);
-                resultadoDiario.setNroEnvio(contador);
-                return jsonDiario;
+                jsonCompleto = mapper.writeValueAsString(resultadoDiario);
+                return jsonCompleto;
             } else {
                 return "Aún no hay ejecución";
             }
@@ -189,7 +193,8 @@ public class ApiController {
         PlanDeVuelo primerPlan = obtenerPlanDeVueloPorIndice(primerIndice);
         if (primerPlan != null) {
             OffsetTime horaSalida = primerPlan.getHoraSalida();
-            LocalDateTime horaSalidaLocal = horaSimulada.toLocalDate().atTime(horaSalida.toLocalTime());
+            OffsetTime horaSalidaGMT = horaSalida.withOffsetSameInstant(ZoneOffset.UTC);
+            LocalDateTime horaSalidaLocal = horaSimulada.toLocalDate().atTime(horaSalidaGMT.toLocalTime());
             return horaSimulada.isAfter(horaSalidaLocal);
         }
     }

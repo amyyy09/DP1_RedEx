@@ -40,8 +40,8 @@ public class ApiServicesDiario {
     public ResultadoFinal ejecutarPsoDiario(List<Envio> envios,LocalDateTime fechaHora , List<Aeropuerto> aeropuertosGuardados) {  
         try {
             if(envios.isEmpty()){
-            LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
-            LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
+            LocalDateTime fechaHoraLimite = fechaHora.plusHours(2);
+            LocalDateTime fechaHoraReal = fechaHora.plusMinutes(10);
             int zonaHorariaGMT;
             LocalDateTime horaSalidaGMT0;
             List<Vuelo> json=vuelosGuardados;
@@ -79,7 +79,6 @@ public class ApiServicesDiario {
                 .collect(Collectors.toList());
         Map<Paquete, RutaTiempoReal> resultado = null;
         List<Vuelo> json = null;
-        Resumen reportResumenAux = null;
         try {
             String archivoRutaPlanes = GlobalVariables.PATH + "planes_vuelo.v4.txt";
             List<PlanDeVuelo> planesDeVuelo = vueloService.getPlanesDeVuelo(aeropuertosGuardados, archivoRutaPlanes);
@@ -93,10 +92,6 @@ public class ApiServicesDiario {
                         vuelosActuales, fechaHora); 
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
-                reportResumenAux =planificacionService.generarResumen(jsonprevio,planesDeVuelo);
-                if(reportResumenAux!=null){
-                    reportResumen=reportResumenAux;
-                }
                 LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
                 LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
                 int zonaHorariaGMT;

@@ -23,6 +23,7 @@ const CurrentTimeDisplay: React.FC<CurrentTimeDisplayProps> = ({
 
     const updateCurrentTime = () => {
       let customDate = referenceTime ? new Date(referenceTime) : null;
+      // console.log("referenceTime in display:", referenceTime);
 
       if (customDate === null) {
         return; // Don't do anything if the reference time is not set

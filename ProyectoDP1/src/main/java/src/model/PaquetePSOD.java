@@ -10,6 +10,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PaquetePSOD {
-    String json;
+    ResultadoFinal json;
     int nroEnvio;
 }

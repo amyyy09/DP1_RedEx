@@ -52,13 +52,13 @@ public class TareaProgramadaService {
     }
 
     private long calcularDelayInicial(LocalDateTime horaInicio) {
-        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime now = simulatedStartTime;
         LocalDateTime nextExecutionTime = horaInicio.truncatedTo(ChronoUnit.HOURS)
             .plusMinutes(((horaInicio.getMinute() / 10) + 1) * 10);
         
-        if (nextExecutionTime.isBefore(now)) {
-            nextExecutionTime = nextExecutionTime.plusHours(1);
-        }
+        // if (nextExecutionTime.isBefore(now)) {
+        //     nextExecutionTime = nextExecutionTime.plusHours(1);
+        // }
         
         return ChronoUnit.SECONDS.between(now, nextExecutionTime);
     }
