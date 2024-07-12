@@ -132,6 +132,8 @@ public class ApiController {
 
     @GetMapping("/detener")
     public String detenerCronometro() {
+        aeropuertosGuardados = DatosAeropuertos.getAeropuertosInicializados();
+        apiServicesDiario.reiniciarTodo();
         tareaProgramadaService.detenerTareaProgramada();
         return "Cronometro detenido.";
     }
