@@ -187,7 +187,7 @@ public class ApiController {
 
     private boolean paqueteDebeSalir(Paquete paquete, LocalDateTime horaSimulada) {
     String ruta = paquete.getRuta();
-    if (ruta != null && !ruta.isEmpty()) {
+    if (ruta != null && !ruta.isEmpty() && ruta != "No asignada") {
         String[] indices = ruta.split(";");
         int primerIndice = Integer.parseInt(indices[0]);
         PlanDeVuelo primerPlan = obtenerPlanDeVueloPorIndice(primerIndice);

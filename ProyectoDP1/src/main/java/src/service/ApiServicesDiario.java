@@ -101,7 +101,7 @@ public class ApiServicesDiario {
                 
                 for (Vuelo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
-                    horaSalidaGMT0=vn.getHoraSalida().minusHours(zonaHorariaGMT);
+                    horaSalidaGMT0=vn.getHoraLlegada().minusHours(zonaHorariaGMT);
                     if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
                     } 

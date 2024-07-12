@@ -1,6 +1,9 @@
 import { flightPlans } from "../data/flightPlans";
 
 export function transformCode(ruta: string): string {
+  if (ruta === "No asignada") 
+    return "No asignada";
+
   const code = ruta.split(";").map((code, index, array) => {
     const origin = flightPlans[Number(code)-1].origin.name;
     const destination = flightPlans[Number(code)-1].destiny.name;
