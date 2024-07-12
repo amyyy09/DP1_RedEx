@@ -47,10 +47,11 @@ public class ApiServicesDiario {
                 for (Vuelo vn : json) {
                     zonaHorariaGMT = aeropuertoService.getZonaHorariaGMT(vn.getAeropuertoOrigen());
                     horaSalidaGMT0 = vn.getHoraSalida().minusHours(zonaHorariaGMT);
-                    if (horaSalidaGMT0.isAfter(fechaHora) && horaSalidaGMT0.isBefore(fechaHoraLimite)) {
+                    horaLlegadaGMT0 = vn.getHoraLlegada().minusHours(zonaHorariaGMT);
+                    if (horaSalidaGMT0.isBefore(fechaHoraLimite)) {
                         jsonVuelosActuales.add(vn);
                     }
-                    if (horaSalidaGMT0.isAfter(fechaHoraReal)) {
+                    if (horaLlegadaGMT0.isAfter(fechaHoraReal)) {
                         jsonVuelosProximos.add(vn);
                     }
                 }
