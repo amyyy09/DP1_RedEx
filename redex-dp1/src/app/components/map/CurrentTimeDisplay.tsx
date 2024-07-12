@@ -14,7 +14,7 @@ const CurrentTimeDisplay: React.FC<CurrentTimeDisplayProps> = ({
 }) => {
   const [currentTime, setCurrentTime] = useState<string | null>(null);
 
-  const { referenceTime } = useContext(OperationContext);
+  const { referenceTime, referenceRef } = useContext(OperationContext);
 
   useEffect(() => {
     if (startTime === null) {
@@ -22,8 +22,9 @@ const CurrentTimeDisplay: React.FC<CurrentTimeDisplayProps> = ({
     }
 
     const updateCurrentTime = () => {
-      let customDate = referenceTime ? new Date(referenceTime) : null;
-      // console.log("referenceTime in display:", referenceTime);
+      let customDate = referenceTime ? new Date(referenceTime) : referenceRef.current ? new Date(referenceRef.current): null ;
+      console.log("referenceTime in display:", referenceTime);
+      console.log("referenceRef in display:", referenceRef.current);
 
       if (customDate === null) {
         return; // Don't do anything if the reference time is not set

@@ -25,6 +25,7 @@ export const OperationContext = createContext({
   start: false,
   setStart: (start: boolean) => {},
   referenceTime: null as any,
+  referenceRef: null as any,
 });
 
 export default function OperationProvider({
@@ -396,6 +397,7 @@ export default function OperationProvider({
         start,
         setStart,
         referenceTime: referenceTime,
+        referenceRef: referenceRef,
       }}
     >
       {children}
