@@ -92,8 +92,8 @@ public class ApiServicesDiario {
                         vuelosActuales, fechaHora); 
                 jsonprevio = planificacionService.transformResult(resultado);
                 json = planificacionService.transformarResultadosDiario(jsonprevio, planesDeVuelo);
-                LocalDateTime fechaHoraLimite = fechaHora.plusHours(6);
-                LocalDateTime fechaHoraReal = fechaHora.plusHours(2);
+                LocalDateTime fechaHoraLimite = fechaHora.plusHours(2);
+                LocalDateTime fechaHoraReal = fechaHora.plusHours(10);
                 int zonaHorariaGMT;
                 LocalDateTime horaSalidaGMT0;
                 List<Vuelo> jsonVuelosActuales = new ArrayList<>();
