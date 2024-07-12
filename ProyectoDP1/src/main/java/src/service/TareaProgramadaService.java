@@ -43,6 +43,13 @@ public class TareaProgramadaService {
         return isRunning;
     }
 
+    public LocalDateTime getHorainicio(){
+        if(startTime!=null){
+            return simulatedStartTime;
+        }
+        return null;
+    }
+
     public LocalDateTime getHoraSimulada() {
         if (startTime == null) {
             return simulatedStartTime;
