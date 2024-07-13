@@ -240,9 +240,9 @@ const Map: React.FC<MapProps> = ({
             if (
               airports.current[index].almacen.cantPaquetes /
                 airports.current[index].almacen.capacidad >
-              0.55
+              0.6
             ) {
-              airports.current[index].almacen.cantPaquetes = Math.floor(745 + 50*(Math.random() * (2 - 0.5) + 0.5));
+              airports.current[index].almacen.cantPaquetes = Math.floor(520 + 50*(Math.random() * (2 - 0.5) + 0.5));
             }
           } else {
             console.log("Aeropuerto no encontrado:", data.codigoIATA);
