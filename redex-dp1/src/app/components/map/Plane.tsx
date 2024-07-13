@@ -28,8 +28,8 @@ const createRotatedIcon = (angle: number, color: string) => {
 };
 
 const getColorByLoadPercentage = (percentage: number) => {
-  if (percentage < 3) return "green";
-  if (percentage < 5) return "yellow";
+  if (percentage < 1 / 3) return "green";
+  if (percentage < 2 / 3) return "yellow";
   return "red";
 };
 
@@ -332,7 +332,7 @@ const Plane: React.FC<
     }
   }, [selectedPlaneId, vuelo.idVuelo]);
 
-  const loadPercentage = vuelo.cantPaquetes;
+  const loadPercentage = vuelo.cantPaquetes / vuelo.capacidad;
   const color = getColorByLoadPercentage(loadPercentage);
 
   const handlePopupClose = () => {
