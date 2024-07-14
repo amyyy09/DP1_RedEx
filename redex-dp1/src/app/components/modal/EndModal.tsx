@@ -37,6 +37,7 @@ const EndModal: React.FC<EndModalProps> = ({
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
   date.setDate(date.getDate() + 4);
+  date.setHours(date.getHours() - 2);
   const timeString = `${hours}:${minutes}`;
 
   const endDate = date.toLocaleDateString("en", {
@@ -105,10 +106,7 @@ const EndModal: React.FC<EndModalProps> = ({
                 Atención: El sistema ha colapsado debido a la sobrecarga.
               </p>
               <p>
-                La simulación terminó el{" "}
-                <strong>
-                  {endDate}
-                </strong>{" "}
+                La simulación terminó el <strong>{endDate}</strong>{" "}
                 {/* a las <strong>{simulatedEndDa}</strong>. */}
               </p>
             </>
