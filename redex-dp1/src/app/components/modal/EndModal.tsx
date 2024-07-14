@@ -36,6 +36,7 @@ const EndModal: React.FC<EndModalProps> = ({
   const date = new Date(simulatedEndDate);
   const hours = date.getHours().toString().padStart(2, "0");
   const minutes = date.getMinutes().toString().padStart(2, "0");
+  date.setDate(date.getDate() + 4);
   const timeString = `${hours}:${minutes}`;
 
   const endDate = date.toLocaleDateString("en", {
@@ -47,7 +48,7 @@ const EndModal: React.FC<EndModalProps> = ({
   });
 
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 2;
+  const itemsPerPage = 1;
 
   const handleNextPage = () => {
     setCurrentPage((prevPage) => prevPage + 1);
