@@ -237,13 +237,13 @@ const Map: React.FC<MapProps> = ({
               (vuelo) => vuelo.status !== 2
             );
 
-            if (
-              airports.current[index].almacen.cantPaquetes /
-                airports.current[index].almacen.capacidad >
-              0.7
-            ) {
-              airports.current[index].almacen.cantPaquetes = Math.floor(590 + 50*(Math.random() * (2 - 0.5) + 0.5));
-            }
+            // if (
+            //   airports.current[index].almacen.cantPaquetes /
+            //     airports.current[index].almacen.capacidad >
+            //   0.7
+            // ) {
+            //   airports.current[index].almacen.cantPaquetes = Math.floor(590 + 50*(Math.random() * (2 - 0.5) + 0.5));
+            // }
           } else {
             console.log("Aeropuerto no encontrado:", data.codigoIATA);
           }
